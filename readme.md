@@ -1,104 +1,104 @@
-# 🎮 Prácticas de OpenGL en C++
+# 🎮 Prácticas de OpenGL en C++ (FreeGLUT)
 
-Este repositorio contiene ejercicios y configuraciones base para el desarrollo de aplicaciones gráficas utilizando **OpenGL** y **C++**. El proyecto está configurado para ser multiplataforma (macOS y Windows) utilizando `Makefile`.
+Este repositorio contiene una **Wikipedia interactiva de GLUT** construida en C++ con OpenGL y FreeGLUT. Incluye ejemplos visuales de primitivas 3D, iluminación, texto, eventos de teclado/mouse y más.
 
 ---
 
-## 📦 Gestión de Dependencias (GLFW y FreeGLUT)
+## 📋 Requisitos Previos
 
-Este repositorio está preparado de forma inteligente para manejar las librerías gráficas (`GLFW` y `FreeGLUT`) dependiendo de tu sistema operativo:
+### 🖥️ Windows
+1. **Visual Studio 2022 Community** (o superior) con la carga de trabajo **"Desarrollo de escritorio con C++"** instalada.
+2. **Visual Studio Code** (opcional, pero recomendado para editar cómodamente).
 
-### 🎮 Windows (¡Cero instalaciones extra!)
-Si usas Windows, **NO necesitas instalar ninguna librería externa**. El repositorio ya incluye las carpetas `glfw-win64` y `freeglut-MSVC` junto con sus respectivos archivos `.dll` precompilados. Simplemente clona el repositorio y compila. Todo se enlazará automáticamente y el programa funcionará de inmediato.
+> [!NOTE]
+> **NO necesitas instalar FreeGLUT, GLFW ni ninguna librería extra.** El repositorio ya incluye todos los archivos `.dll` y `.lib` necesarios para Windows dentro de las carpetas `freeglut-MSVC/` y `glfw-win64/`.
 
-### 🍎 macOS / Linux (Requiere descargar librerías)
-Dado que Mac y Linux utilizan arquitecturas diferentes (y no leen archivos de Windows), los binarios incluidos no funcionarán ahí. Por lo tanto, los usuarios de estos sistemas **sí deben instalar las dependencias** a través de su gestor de paquetes.
-
-#### Instalación en macOS :
-1. Instala o verifica las **Xcode Command Line Tools**:
+### 🍎 macOS / Linux
+1. **Xcode Command Line Tools** (macOS):
    ```bash
    xcode-select --install
    ```
-2. Instala las bibliotecas necesarias usando *Homebrew*:
+2. Instalar las dependencias con tu gestor de paquetes:
    ```bash
-   brew install glfw glm freeglut
+   # macOS (Homebrew)
+   brew install freeglut glm
+
+   # Linux (Debian/Ubuntu)
+   sudo apt install freeglut3-dev libglm-dev
    ```
-*(Nota para Linux: Usa tu gestor de paquetes equivalente, por ejemplo, `sudo apt install libglfw3-dev freeglut3-dev glm`).*
 
 ---
 
-## 🚀 Compilación y Ejecución
+## 🚀 ¿Cómo compilar y correr?
 
-Dependiendo de tu sistema operativo y editor de código, existen diferentes formas de compilar y ejecutar el proyecto:
+### Forma 1: Doble clic (La más fácil - Solo Windows)
+1. Clona o descarga el repositorio.
+2. Haz **doble clic** en el archivo **`compilar_y_correr.bat`**.
+3. Se abrirá una terminal negra que compilará todo automáticamente y al terminar abrirá la ventana de OpenGL.
 
-### Opción 1: Visual Studio Code en Windows (Recomendado)
-El proyecto incluye una configuración automática para **VS Code** usando **CMake** y **Visual Studio 2022** en segundo plano.
-
-1. Asegúrate de tener instalado **Visual Studio 2022 (Community)** con las herramientas de escritorio de C++ y **Visual Studio Code**.
-2. Abre la carpeta del proyecto en VS Code.
-3. **La primera vez que lo abras**, necesitas generar la carpeta de compilación. Abre una terminal en VS Code y ejecuta lo siguiente para crear el entorno de compilación leyendo el `CMakeLists.txt`:
-   ```bash
+### Forma 2: VS Code con Ctrl+Shift+B (Recomendado para desarrollar)
+1. Abre la carpeta del proyecto en **VS Code**.
+2. Abre una terminal dentro de VS Code (`Ctrl + ñ` o `Terminal > New Terminal`).
+3. **Solo la primera vez**, ejecuta este comando para preparar el entorno de compilación:
+   ```powershell
    & "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -B build_win -S .
    ```
-4. Para compilar y ejecutar el proyecto rápidamente en cualquier momento, presiona:
+   > [!TIP]
+   > Si tu versión de Visual Studio es diferente (por ejemplo 2022 en lugar de 2025), la ruta del `cmake.exe` será distinta. Busca tu `cmake.exe` dentro de la carpeta de tu Visual Studio, o si tienes CMake instalado globalmente, simplemente usa:
+   > ```powershell
+   > cmake -B build_win -S .
+   > ```
+
+4. A partir de ahora, cada vez que quieras compilar y ejecutar, solo presiona:
    **`Ctrl + Shift + B`**
+   Esto compilará tu código y abrirá la ventana automáticamente.
 
-### Opción 2: Visual Studio 2022 en Windows
-1. Selecciona **"Abrir una carpeta local"** en la pantalla de inicio de Visual Studio 2022 y elige la carpeta raíz de este proyecto.
-2. El editor detectará el archivo `CMakeLists.txt` automáticamente.
-3. Selecciona `app.exe` como objetivo (arriba en la barra de herramientas) y presiona el botón verde de "Reproducir" para compilar y ejecutar.
+### Forma 3: Visual Studio 2022 directamente
+1. Abre Visual Studio 2022.
+2. Selecciona **"Abrir una carpeta local"** y elige la carpeta de este proyecto.
+3. El editor detectará el `CMakeLists.txt` automáticamente.
+4. Selecciona `app.exe` como objetivo y presiona el botón verde ▶️.
 
-### Opción 3: macOS  / Linux usando Consola
-Si estás en macOS o Linux, el `Makefile` incluido está listo para usarse.
-
-1. Instala las dependencias (En macOS: `brew install glfw glm`).
-2. Abre la terminal en la carpeta raíz del proyecto.
-3. Compila el proyecto con:
+### Forma 4: macOS / Linux (Terminal)
+1. Instala las dependencias indicadas arriba.
+2. Abre la terminal en la carpeta del proyecto.
+3. Compila y ejecuta:
    ```bash
    make
-   ```
-4. Ejecuta la aplicación con:
-   ```bash
    ./app
    ```
-*(Nota: Para limpiar los archivos binarios generados u obligar una recompilación limpia, usa el comando `make clean`)*.
+   *(Usa `make clean` para limpiar los binarios y forzar una recompilación limpia).*
 
 ---
 
-### ⚠️ Importante sobre Git y GitHub
+## 📂 Estructura del Proyecto
+
+| Archivo / Carpeta | Descripción |
+|-|-|
+| `src/main.cpp` | Código principal con la Wikipedia interactiva de GLUT |
+| `Plantilla_OpenGL.cpp` | Plantilla base limpia para nuevos proyectos con FreeGLUT |
+| `Plantilla_Moderno.cpp` | Plantilla base para proyectos con GLFW + GLAD (OpenGL 3.3+) |
+| `PlantillaguiadeGlut.cpp` | Copia completa de la guía interactiva para usar como referencia |
+| `compilar_y_correr.bat` | Script de Windows que compila y ejecuta con un doble clic |
+| `CMakeLists.txt` | Configuración de CMake para compilar en Windows |
+| `Makefile` | Configuración para compilar en macOS/Linux |
+| `freeglut-MSVC/` | Librería FreeGLUT precompilada para Windows |
+| `glfw-win64/` | Librería GLFW precompilada para Windows |
+| `include/` | Cabeceras de librerías extras (GLM, stb_image, GLAD) |
+| `.vscode/` | Configuración de VS Code (atajos de compilación) |
+
+---
+
+## ⚠️ Importante sobre Git y GitHub
 **NO subas las carpetas de compilación (`build/`, `build_win/`) ni ejecutables (`.exe`, `.o`) a tu repositorio.**
-El proyecto ya incluye un archivo `.gitignore` que excluye estos archivos automáticamente por ti. Subir estos archivos es una mala práctica porque son muy pesados y contienen rutas locales específicas a tu computadora que no funcionarán para nadie más.
+El `.gitignore` incluido ya se encarga de esto automáticamente.
 
 ---
 
----
-
-## Estructura del Proyecto
-
-*   `src/`: Archivos de código fuente (`.c`) o (`.cpp`).
-*   `include/`: Cabeceras de bibliotecas externas y propias.
-*   `Makefile`: Configuración de compilación automatizada.
-*   `app`: Ejecutable generado.
-
----
-
-## 📝 Observaciones y Posibles Omisiones
-
-A continuación se detallan puntos importantes detectados en la configuración actual:
+## 📝 Notas Adicionales
 
 > [!IMPORTANT]
->El Make actual corre con el archivo main.cpp, por lo que se debe de renombrar el archivo main.cpp de vuelta a main.c en caso de que se desee compilar el archivo en lenguaje C.
-
-#### 1.Renombrar el archivo: Cambiar el nombre de main.cpp de vuelta a main.c
-
-#### 2.Ajustar el Makefile: Cambiar la regla de compilación para que use $(CC) en lugar de $(CXX) y busque el archivo .c
-
-#### 3.Quitar código de C++: Borrar cualquier cosa que no sea compatible con C (como std::cout, clases o vectores, esto en caso de querer cambiar todo el codigo a C puro).
-
-> [!NOTE]
-> **Gestión de GLAD**:
-> El proyecto ya incluye `src/glad.c` e `include/glad/`. La instrucción `brew install glad` suele instalar archivos que podrían entrar en conflicto o ser redundantes con los que ya tienes en el repositorio. Se recomienda usar los archivos locales incluidos para asegurar la compatibilidad con el código, es por eso que no recomendaria instalar glad con brew. `(LEE ESTO AMOR ES SUPER IMPORTANTE)`
+> El Makefile compila `main.cpp` (C++). Si deseas compilar código en C puro, renombra tu archivo a `main.c` y cambia `$(CXX)` por `$(CC)` en el Makefile.
 
 > [!TIP]
-> **Makefile en Windows**:
-> Para que el comando `make` funcione en Windows, asegúrate de tener instalado **MinGW-w64** o **Make for Windows** y que esté configurado correctamente en tu PATH.
+> **Makefile en Windows:** Para usar el comando `make` en Windows necesitas **MinGW-w64** o **Make for Windows** configurado en tu PATH. Sin embargo, el método recomendado en Windows es usar CMake (Ctrl+Shift+B o el archivo `.bat`).
