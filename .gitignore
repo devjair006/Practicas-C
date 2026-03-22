@@ -2,7 +2,7 @@
 build/
 build_win/
 .cache/
-.vscode/
+# .vscode/ -- NO ignorar, contiene configuración de compilación para el equipo
 
 # Ejecutables y binarios
 *.exe

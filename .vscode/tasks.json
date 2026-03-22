@@ -1,0 +1,22 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar y Correr OpenGL",
+            "type": "shell",
+            "command": "$cmakePath = if (Test-Path 'C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe') { 'C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe' } elseif (Get-Command cmake -ErrorAction SilentlyContinue) { 'cmake' } else { Write-Error 'No se encontro cmake. Instala Visual Studio con C++ o CMake global.'; exit 1 }; & $cmakePath -B build_win -S .; & $cmakePath --build build_win --config Release; if ($?) { .\\build_win\\Release\\app.exe }",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "clear": true
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}
