@@ -6,7 +6,6 @@
 #include <vector>        // Para almacenar listas dinámicas (nuestras páginas)
 #include <iostream>      // Para imprimir mensajes en la consola
 #include <math.h>        // Para operaciones matemáticas (si las necesitas)
-#include <fmt/core.h> //hola camaron con cola
 
 // =========================================================
 // CONFIGURACIÓN GLOBAL DE LA APLICACIÓN
