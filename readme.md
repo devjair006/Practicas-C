@@ -1,19 +1,19 @@
-# 🎮 Prácticas de OpenGL en C++ (FreeGLUT)
+# hola soy devjair006 esto es un repositorio de practicas de OpenGL en C++ (FreeGLUT)
 
 Este repositorio contiene una **Wikipedia interactiva de GLUT** construida en C++ con OpenGL y FreeGLUT. Incluye ejemplos visuales de primitivas 3D, iluminación, texto, eventos de teclado/mouse y más.
 
 ---
 
-## 📋 Requisitos Previos
+##  Requisitos Previos
 
-### 🖥️ Windows
+### Windows
 1. **Visual Studio 2022 Community** (o superior) con la carga de trabajo **"Desarrollo de escritorio con C++"** instalada.
 2. **Visual Studio Code** (opcional, pero recomendado para editar cómodamente).
 
 > [!NOTE]
 > **NO necesitas instalar FreeGLUT, GLFW ni ninguna librería extra.** El repositorio ya incluye todos los archivos `.dll` y `.lib` necesarios para Windows dentro de las carpetas `freeglut-MSVC/` y `glfw-win64/`.
 
-### 🍎 macOS / Linux
+###  macOS / Linux
 1. **Xcode Command Line Tools** (macOS):
    ```bash
    xcode-select --install
@@ -29,7 +29,7 @@ Este repositorio contiene una **Wikipedia interactiva de GLUT** construida en C+
 
 ---
 
-## 🚀 ¿Cómo compilar y correr?
+##  ¿Cómo compilar y correr?
 
 ### Forma 1: Doble clic (La más fácil - Solo Windows)
 1. Clona o descarga el repositorio.
@@ -57,7 +57,7 @@ Este repositorio contiene una **Wikipedia interactiva de GLUT** construida en C+
 1. Abre Visual Studio 2022.
 2. Selecciona **"Abrir una carpeta local"** y elige la carpeta de este proyecto.
 3. El editor detectará el `CMakeLists.txt` automáticamente.
-4. Selecciona `app.exe` como objetivo y presiona el botón verde ▶️.
+4. Selecciona `app.exe` como objetivo y presiona el botón verde .
 
 ### Forma 4: macOS / Linux (Terminal)
 1. Instala las dependencias indicadas arriba.
@@ -71,7 +71,7 @@ Este repositorio contiene una **Wikipedia interactiva de GLUT** construida en C+
 
 ---
 
-## 📂 Estructura del Proyecto
+##  Estructura del Proyecto
 
 | Archivo / Carpeta | Descripción |
 |-|-|
@@ -95,7 +95,7 @@ El `.gitignore` incluido ya se encarga de esto automáticamente.
 
 ---
 
-## 📝 Notas Adicionales
+##  Notas Adicionales
 
 > [!IMPORTANT]
 > El Makefile compila `main.cpp` (C++). Si deseas compilar código en C puro, renombra tu archivo a `main.c` y cambia `$(CXX)` por `$(CC)` en el Makefile.
