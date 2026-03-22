@@ -36,8 +36,8 @@ exit /b 1
 echo CMake encontrado: %CMAKE_EXE%
 echo.
 
-echo [1/2] Preparando entorno de compilacion...
-"%CMAKE_EXE%" -B build_win -S .
+echo [1/2] Preparando entorno de compilacion (X64)...
+"%CMAKE_EXE%" -A x64 -B build_win -S .
 if %errorlevel% neq 0 (
     echo.
     echo [ERROR] Fallo al configurar el proyecto.
