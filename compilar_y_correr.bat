@@ -36,7 +36,10 @@ exit /b 1
 echo CMake encontrado: %CMAKE_EXE%
 echo.
 
-echo [1/2] Preparando entorno de compilacion (X64)...
+echo [1/3] Limpiando compilacion anterior...
+if exist build_win rmdir /s /q build_win
+
+echo [2/3] Preparando entorno de compilacion (X64)...
 "%CMAKE_EXE%" -A x64 -B build_win -S .
 if %errorlevel% neq 0 (
     echo.
@@ -46,7 +49,7 @@ if %errorlevel% neq 0 (
 )
 
 echo.
-echo [2/2] Compilando codigo...
+echo [3/3] Compilando codigo...
 "%CMAKE_EXE%" --build build_win --config Release
 if %errorlevel% neq 0 (
     echo.
