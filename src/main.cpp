@@ -8,143 +8,294 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
 
 // Implementación de stb_image para cargar texturas
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+// Implementación de miniaudio para sonido
+#define MINIAUDIO_IMPLEMENTATION
+#include <miniaudio.h>
+
 // Configuración de la ventana
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1024;
+const unsigned int SCR_HEIGHT = 768;
 
 // ==========================================
-// SHADERS (El programa de la tarjeta gráfica)
+// SHADERS
 // ==========================================
 const char* vertexShaderSource = R"(
     #version 330 core
     layout (location = 0) in vec3 aPos;
-    layout (location = 1) in vec2 aTexCoord;
+    layout (location = 1) in vec3 aNormal;
+    layout (location = 2) in vec2 aTexCoord;
 
+    out vec3 FragPos;
+    out vec3 Normal;
     out vec2 TexCoord;
 
     uniform mat4 model;
     uniform mat4 view;
     uniform mat4 projection;
+    
+    uniform int dimensionAlterna;
+    uniform float time;
 
     void main() {
-        // Multiplicación de matrices para convertir 3D a pantalla 2D
-        gl_Position = projection * view * model * vec4(aPos, 1.0);
+        vec3 finalPos = aPos;
+        // Glitches visuales severos (Escena 8) si la dimensión cambió
+        if (dimensionAlterna == 1) {
+            finalPos.x += sin(time * 50.0 + aPos.y) * 0.05;
+            finalPos.y += cos(time * 30.0 + aPos.z) * 0.02;
+        }
+
+        FragPos = vec3(model * vec4(finalPos, 1.0));
+        Normal = mat3(transpose(inverse(model))) * aNormal;  
         TexCoord = aTexCoord;
+        
+        gl_Position = projection * view * vec4(FragPos, 1.0);
     }
 )";
 
 const char* fragmentShaderSource = R"(
     #version 330 core
     out vec4 FragColor;
+
+    in vec3 FragPos;
+    in vec3 Normal;
     in vec2 TexCoord;
 
     uniform sampler2D texture1;
     uniform vec3 objectColor;
 
+    // --- VARIABLES DE LA LINTERNA ---
+    uniform vec3 lightPos;      
+    uniform vec3 lightDir;      
+    uniform float cutOff;       
+    uniform float outerCutOff;  
+    uniform int flashlightOn;   
+
+    uniform int dimensionAlterna;
+    uniform int currentZone; // 1: Pasillo, 2: Control, 3: Lab
+    uniform float time;
+    uniform vec2 resolution;
+
     void main() {
-        // Mezclamos la textura con un color base
-        FragColor = texture(texture1, TexCoord) * vec4(objectColor, 1.0);
+        float ambientStrength = 0.05;
+        vec3 ambientColor = vec3(1.0);
+        vec3 flashColor = vec3(1.0);
+
+        // Colorimetría base según la habitación (Escenas 1, 2, 3)
+        if (currentZone == 1) {
+            ambientColor = vec3(0.6, 0.7, 0.8); // Blanco frío
+            flashColor = vec3(0.9, 0.9, 1.0);
+            ambientStrength = 0.1 + (sin(time * 10.0) * 0.02); // Leve parpadeo amarillo tenue
+        } else if (currentZone == 2) {
+            ambientColor = vec3(0.4, 0.9, 0.5); // Verde fosforescente
+            flashColor = vec3(0.8, 1.0, 0.8);
+            ambientStrength = 0.15;
+        } else if (currentZone == 3) {
+            ambientColor = vec3(0.3, 0.5, 1.0); // Azul eléctrico
+            flashColor = vec3(1.0, 1.0, 1.0); // Blanco intenso
+            ambientStrength = 0.2;
+        }
+
+        // Si entramos a la dimensión distorsionada (Escena 5 y 8)
+        if (dimensionAlterna == 1) {
+            ambientColor = vec3(0.6, 0.0, 0.2); // Rojo oscuro / Morado
+            ambientStrength = 0.1 + (sin(time * 20.0) * 0.05) + (cos(time * 50.0) * 0.03);
+            if(ambientStrength < 0.02) ambientStrength = 0.02;
+            flashColor = vec3(1.0, 0.3, 0.3) * (0.7 + 0.3 * sin(time * 40.0));
+        }
+
+        vec3 ambient = ambientStrength * ambientColor;
+        vec3 diffuse = vec3(0.0);
+        
+        if (flashlightOn == 1) {
+            vec3 norm = normalize(Normal);
+            vec3 lightDirVec = normalize(lightPos - FragPos);
+            float diff = max(dot(norm, lightDirVec), 0.0);
+            diffuse = diff * flashColor;
+
+            float theta = dot(lightDirVec, normalize(-lightDir));
+            float epsilon = cutOff - outerCutOff;
+            float intensity = clamp((theta - outerCutOff) / epsilon, 0.0, 1.0);
+
+            float distance = length(lightPos - FragPos);
+            float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance));
+
+            diffuse *= intensity * attenuation;
+        }
+
+        vec4 texColor = texture(texture1, TexCoord);
+        if (texColor.a < 0.1) {
+            discard; 
+        }
+        
+        vec3 result = (ambient + diffuse) * objectColor;
+        
+        if (dimensionAlterna == 1) {
+            // Viñeta de sombras profundas para la fase final
+            vec2 uv = gl_FragCoord.xy / resolution;
+            float distToCenter = distance(uv, vec2(0.5));
+            result *= smoothstep(0.9, 0.2, distToCenter);
+        }
+        
+        FragColor = texColor * vec4(result, 1.0);
     }
 )";
 
 // ==========================================
-// VARIABLES DE LA CÁMARA (ESTILO FPS)
+// VARIABLES DE LA CÁMARA
 // ==========================================
-glm::vec3 cameraPos   = glm::vec3(4.0f, 0.0f, 4.0f); // Posición inicial
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); // Hacia dónde mira
-glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f); // Cuál es "arriba"
+glm::vec3 cameraPos   = glm::vec3(12.0f, 0.0f, 22.0f); // Inicio en el pasillo Sur
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);  // Mirando hacia el Norte
+glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
 bool firstMouse = true;
-float yaw   = -90.0f;	// Mirar izq/der
-float pitch =  0.0f;	// Mirar arriba/abajo
+float yaw   = -90.0f;	// Mirar al norte (Z negativo)
+float pitch =  0.0f;	
 float lastX = SCR_WIDTH / 2.0;
 float lastY = SCR_HEIGHT / 2.0;
 
-// Control de tiempo (para movimiento suave independientemente de los FPS)
 float deltaTime = 0.0f;	
 float lastFrame = 0.0f;
+    
+enum GameState { MENU, PLAYING, GAMEOVER };
+GameState gameState = MENU; 
 
-// ==========================================
-// ESTADOS DEL JUEGO
-// ==========================================
-enum GameState {
-    MENU,    // Pantalla de inicio
-    PLAYING  // Jugando
-};
-GameState gameState = MENU; // Iniciamos en el menú
-
-// Control de estado del ratón
-bool isCursorLocked = false; // Iniciamos con el cursor libre en el menú
+bool isCursorLocked = false; 
 bool tabKeyWasPressed = false;
+bool eKeyWasPressed = false;
+bool isFlashlightOn = true;
+bool fKeyWasPressed = false;
+
+ma_engine audioEngine;
 
 // ==========================================
-// MAPA DEL NIVEL (1 = Pared, 0 = Pasillo)---
+// ENTIDADES
 // ==========================================
-int worldMap[8][8] = {
-    {1,1,1,1,1,1,1,1}, 
-    {1,0,0,0,0,0,0,1}, 
-    {1,0,1,0,0,1,0,1}, 
-    {1,0,1,0,0,1,0,1},
-    {1,0,0,0,0,0,0,1}, 
-    {1,0,1,1,0,1,0,1}, 
-    {1,0,0,0,0,0,0,1}, 
-    {1,1,1,1,1,1,1,1}
+struct Entity {
+    glm::vec3 pos;  
+    int type;       // 0 = Log, 1 = Batería, 2 = Entidad, 3 = Cable
+    bool active;    
+    std::string text;
+};
+
+std::vector<Entity> gameEntities = {
+    // Zona 1: Pasillo (Escena 1)
+    {glm::vec3(12.0f, -0.2f, 18.0f), 3, true, "[CABLE SUELTO]: Un cable de alta tension cortado de tajo."},
+    {glm::vec3(12.0f, -0.2f, 16.0f), 1, true, ""}, // Batería 1
+    
+    // Zona 2: Control (Escena 2)
+    {glm::vec3(9.0f, -0.2f, 11.0f), 0, true, "REGISTRO 1: 'La senal responde... pero no es un eco. Esta replicando estructuras... con errores.'"},
+    {glm::vec3(15.0f, -0.2f, 10.0f), 1, true, ""}, // Batería 2
+    
+    // Zona 3: Laboratorio (Escena 3)
+    {glm::vec3(8.0f, -0.2f, 5.0f), 0, true, "REGISTRO 2: 'La copia ya no sigue instrucciones. Intenta replicar comportamiento humano.'"},
+    {glm::vec3(16.0f, -0.2f, 3.0f), 1, true, ""}, // Batería 3
+    
+    // La Entidad (Escena 6) - Spawnea cerca del portal, inactiva al inicio
+    {glm::vec3(12.0f, 0.0f, 2.0f), 2, true, ""}
+};
+
+int bateriasRecolectadas = 0;
+bool dimensionAlterna = false;
+bool portalActivado = false;
+int currentZone = 1;
+
+// ==========================================
+// MAPA LINEAL (24x24) - Laboratorio Estructurado
+// 0=Vacío, 1=Pasillo, 2=Control, 3=Lab, 4=Puerta Falsa, 5=Portal
+// ==========================================
+const int MAP_WIDTH = 24;
+const int MAP_HEIGHT = 24;
+
+int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
+    // NORTE: ESCENA 3 - LABORATORIO PRINCIPAL (Z=0 a 7)
+    {3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3},
+    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+    {3,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,3}, // Portal Central
+    {3,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,3},
+    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+    {3,3,3,3,3,3,3,3,3,3,3,0,0,3,3,3,3,3,3,3,3,3,3,3}, // Puertas (4) convertidas a (0)
+    
+    // MEDIO: ESCENA 2 - SALA DE CONTROL (Z=8 a 14)
+    {2,2,2,2,2,2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,2,2,2},
+    {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
+    {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
+    {2,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,2}, // Mesas Computadoras
+    {2,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,2},
+    {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
+    {2,2,2,2,2,2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,2,2,2}, // Puertas (4) convertidas a (0)
+
+    // SUR: ESCENA 1 - PASILLO DE ACCESO (Z=15 a 23)
+    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
 // ==========================================
 // FUNCIONES DE CONTROL
 // ==========================================
 bool checkCollision(float x, float z) {
-    // Radio del hitbox del jugador (qué tan cerca de la pared puede llegar)
     float playerRadius = 0.25f; 
-    
-    // Calculamos qué bloques ocupa la hitbox del jugador (x, z convertidos a índices del mapa)
     int minX = (int)round(x - playerRadius);
     int maxX = (int)round(x + playerRadius);
     int minZ = (int)round(z - playerRadius);
     int maxZ = (int)round(z + playerRadius);
     
-    // Evitar que el jugador salga del mapa (fuera del arreglo)
-    if (minX < 0 || maxX > 7 || minZ < 0 || maxZ > 7) return true;
+    if (minX < 0 || maxX >= MAP_WIDTH || minZ < 0 || maxZ >= MAP_HEIGHT) return true;
     
-    // Si alguna parte de la hitbox toca una pared (valor 1), bloqueamos el paso
-    if (worldMap[minZ][minX] == 1) return true;
-    if (worldMap[minZ][maxX] == 1) return true;
-    if (worldMap[maxZ][minX] == 1) return true;
-    if (worldMap[maxZ][maxX] == 1) return true;
+    // Si toca una pared (1,2,3), una puerta (4) o el portal (5), no avanza
+    if (worldMap[minZ][minX] > 0) return true;
+    if (worldMap[minZ][maxX] > 0) return true;
+    if (worldMap[maxZ][minX] > 0) return true;
+    if (worldMap[maxZ][maxX] > 0) return true;
     
-    return false; // Camino libre
+    return false; 
+}
+
+void updateZone() {
+    if (cameraPos.z >= 15.0f) currentZone = 1;
+    else if (cameraPos.z >= 8.0f) currentZone = 2;
+    else currentZone = 3;
 }
 
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    // --- LÓGICA DE MENÚ ---
+    if (gameState == GAMEOVER) return;
+
     if (gameState == MENU) {
-        // Presionar ESPACIO o ENTER para iniciar el juego
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS|| glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
             gameState = PLAYING;
-            isCursorLocked = true; // Bloqueamos ratón al entrar al juego
+            isCursorLocked = true; 
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            firstMouse = true;     // Prevenir saltos de cámara
+            firstMouse = true;     
+            ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
+            std::cout << "\n--- ESCENA 1: PASILLO DE ACCESO ---" << std::endl;
+            std::cout << "El entorno es silencioso y vacio. Avanza." << std::endl;
         }
-        return; // Bloqueamos controles de movimiento mientras estamos en el menú
+        return; 
     }
 
-    // --- LÓGICA DE JUEGO ---
-    // Activar / Desactivar el ratón con la tecla TAB (Tabulador)
     if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
         if (!tabKeyWasPressed) {
             isCursorLocked = !isCursorLocked;
             if (isCursorLocked) {
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                firstMouse = true; // Evitar que la cámara salte de golpe al regresar
+                firstMouse = true;
             } else {
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
@@ -154,34 +305,109 @@ void processInput(GLFWwindow *window) {
         tabKeyWasPressed = false;
     }
 
-    // Si el ratón está desbloqueado, no movemos al jugador
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+        if (!fKeyWasPressed) {
+            isFlashlightOn = !isFlashlightOn; 
+            fKeyWasPressed = true;
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+        }
+    } else {
+        fKeyWasPressed = false;
+    }
+
     if (!isCursorLocked) return;
 
-    float cameraSpeed = 2.5f * deltaTime; // Velocidad al caminar
-    glm::vec3 moveDir(0.0f); // Dirección a la que nos queremos mover
+    float cameraSpeed = 3.5f * deltaTime; 
+    glm::vec3 moveDir(0.0f); 
     
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) moveDir += cameraFront;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) moveDir -= cameraFront;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) moveDir -= glm::normalize(glm::cross(cameraFront, cameraUp));
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) moveDir += glm::normalize(glm::cross(cameraFront, cameraUp));
     
-    // Ignoramos el eje Y para no volar
     moveDir.y = 0.0f;
     
     if (glm::length(moveDir) > 0.0f) {
-        moveDir = glm::normalize(moveDir) * cameraSpeed; // Normalizar para no correr super rápido en diagonal
-        
-        // TRUCO DE FPS: Revisamos colisiones en los ejes X y Z por separado
-        // Esto permite que el jugador "resbale" por las paredes en lugar de quedarse atascado.
-        
-        // Comprobar eje X
-        if (!checkCollision(cameraPos.x + moveDir.x, cameraPos.z)) {
-            cameraPos.x += moveDir.x;
+        moveDir = glm::normalize(moveDir) * cameraSpeed; 
+        if (!checkCollision(cameraPos.x + moveDir.x, cameraPos.z)) cameraPos.x += moveDir.x;
+        if (!checkCollision(cameraPos.x, cameraPos.z + moveDir.z)) cameraPos.z += moveDir.z;
+    }
+    
+    // Detectar en qué cuarto estamos
+    int prevZone = currentZone;
+    updateZone();
+    if (prevZone != currentZone) {
+        if (currentZone == 2 && !dimensionAlterna) std::cout << "\n--- ESCENA 2: SALA DE CONTROL ---\nLuz verde tenue. Computadoras desordenadas." << std::endl;
+        if (currentZone == 3 && !dimensionAlterna) std::cout << "\n--- ESCENA 3: LABORATORIO PRINCIPAL ---\nEncuentras la esfera central del experimento." << std::endl;
+    }
+
+    // INTERACCIÓN CON CONSOLA (Escena 4)
+    if (!portalActivado && glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        if (!eKeyWasPressed) {
+            // Consola frente a la esfera
+            float distA_Consola = glm::length(cameraPos - glm::vec3(12.0f, 0.0f, 6.0f));
+            if (distA_Consola < 2.5f) {
+                if (bateriasRecolectadas >= 3) {
+                    portalActivado = true;
+                    dimensionAlterna = true; // Escena 5 y 8
+                    std::cout << "\n--- ESCENA 4 & 5: ACTIVACION Y DISTORSION ---" << std::endl;
+                    std::cout << "[SISTEMA REACTIVADO]... ADVERTENCIA. ANOMALIA DETECTADA." << std::endl;
+                    std::cout << "El entorno pierde estabilidad. Estructuras anómalas. No es una copia... esta aprendiendo." << std::endl;
+                    ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
+                } else {
+                    std::cout << "\n[CONSOLA]: Energia insuficiente. Se requieren " << 3 - bateriasRecolectadas << " baterias.\n" << std::endl;
+                }
+            }
+            eKeyWasPressed = true;
         }
-        
-        // Comprobar eje Z
-        if (!checkCollision(cameraPos.x, cameraPos.z + moveDir.z)) {
-            cameraPos.z += moveDir.z;
+    } else {
+        eKeyWasPressed = false;
+    }
+
+    // LÓGICA DE ENTIDADES
+    for (auto& entity : gameEntities) {
+        if (entity.active) {
+            float distancia = glm::length(entity.pos - cameraPos);
+            
+            // Coleccionables (0=Log, 1=Bateria, 3=Objeto Insignificante)
+            if (entity.type != 2) { 
+                if (distancia < 1.0f) {
+                    entity.active = false;
+                    ma_engine_play_sound(&audioEngine, "assets/collect.wav", NULL);
+                    
+                    if (entity.type == 0 || entity.type == 3) { 
+                        std::cout << "\n" << entity.text << "\n" << std::endl;
+                    } else if (entity.type == 1) { 
+                        bateriasRecolectadas++;
+                        std::cout << "\n[BATERIA RECOLECTADA]: Tienes " << bateriasRecolectadas << " / 3\n" << std::endl;
+                    }
+                }
+            } 
+            // La Entidad (Fase 6 Weeping Angel)
+            else if (entity.type == 2 && portalActivado) {
+                glm::vec3 dirToPlayer = glm::normalize(cameraPos - entity.pos);
+                float lookAngle = glm::dot(cameraFront, -dirToPlayer);
+                
+                // Si NO la estamos mirando
+                if (lookAngle < 0.5f) {
+                    float speed = 3.5f * deltaTime; // Se mueve más rápido mientras más avanza el juego
+                    
+                    // Solo se mueve si no choca con las paredes
+                    if (!checkCollision(entity.pos.x + dirToPlayer.x * speed, entity.pos.z)) entity.pos.x += dirToPlayer.x * speed;
+                    if (!checkCollision(entity.pos.x, entity.pos.z + dirToPlayer.z * speed)) entity.pos.z += dirToPlayer.z * speed;
+                    entity.pos.y = 0.0f; 
+                }
+                
+                // Escena 9: FINAL
+                if (distancia < 0.9f) {
+                    gameState = GAMEOVER;
+                    std::cout << "\n===================================" << std::endl;
+                    std::cout << "--- ESCENA 9: FINAL ---" << std::endl;
+                    std::cout << "La entidad ha imitado perfectamente tu postura." << std::endl;
+                    std::cout << "COPIA COMPLETA. HAS SIDO REEMPLAZADO." << std::endl;
+                    std::cout << "===================================\n" << std::endl;
+                }
+            }
         }
     }
 }
@@ -197,17 +423,16 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
     }
 
     float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // Invertido porque las coordenadas Y van de abajo hacia arriba
+    float yoffset = lastY - ypos; 
     lastX = xpos; lastY = ypos;
 
-    float sensitivity = 0.1f;
+    float sensitivity = 0.15f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
     yaw   += xoffset;
     pitch += yoffset;
 
-    // Limitar para que el cuello no dé un giro de 360 grados
     if (pitch > 89.0f) pitch = 89.0f;
     if (pitch < -89.0f) pitch = -89.0f;
 
@@ -222,72 +447,54 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-// Cargar una textura desde un archivo usando stb_image
 unsigned int loadTexture(char const * path) {
     unsigned int textureID;
     glGenTextures(1, &textureID);
-
     int width, height, nrComponents;
-    // OpenGL espera que el píxel (0,0) esté abajo, pero las imágenes lo tienen arriba
     stbi_set_flip_vertically_on_load(true); 
-    
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 4);
     if (data) {
-        GLenum format;
-        if (nrComponents == 1) format = GL_RED;
-        else if (nrComponents == 3) format = GL_RGB;
-        else if (nrComponents == 4) format = GL_RGBA;
-
+        GLenum format = GL_RGBA;
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
-
-        // Parámetros para que se vea retro / pixelado (GL_NEAREST)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
         stbi_image_free(data);
     } else {
-        std::cout << "Textura falló al cargar en la ruta: " << path << std::endl;
-        stbi_image_free(data);
+        std::cout << "Textura falló: " << path << std::endl;
     }
     return textureID;
 }
 
-// ==========================================
-// FUNCIÓN PRINCIPAL
-// ==========================================
 int main() {
-    // 1. Inicializar GLFW y crear la ventana
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Mi Juego 3D (Fase 1)", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Proyecto Confidencial", NULL, NULL);
     if (window == NULL) {
-        std::cout << "Fallo al crear la ventana GLFW" << std::endl;
         glfwTerminate(); return -1;
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    
-    // Capturar el ratón (Inicia libre en el menú, se bloquea al jugar)
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-    // 2. Inicializar GLAD (Carga punteros de OpenGL)
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Fallo al inicializar GLAD" << std::endl;
-        return -1;
-    }
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return -1;
+    if (ma_engine_init(NULL, &audioEngine) != MA_SUCCESS) return -1;
 
-    // IMPORTANTISIMO para 3D: Activar el Z-Buffer (Prueba de Profundidad)
+    ma_sound bgm;
+    ma_sound_init_from_file(&audioEngine, "assets/music.mp3", MA_SOUND_FLAG_STREAM, NULL, NULL, &bgm);
+    ma_sound_set_looping(&bgm, MA_TRUE);
+    ma_sound_start(&bgm);
+
     glEnable(GL_DEPTH_TEST);
 
-    // 3. Compilar Shaders
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
@@ -304,91 +511,86 @@ int main() {
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    // 4. Definir Vértices del Cubo (Posición + Textura UV)
     float vertices[] = {
-        // Cara Trasera
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        // Posición           // Normal            // TexUV
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
 
-        // Cara Frontal
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
 
-        // Cara Izquierda
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
 
-        // Cara Derecha
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
 
-        // Cara Inferior (Suelo)
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
 
-        // Cara Superior (Techo)
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f
     };
 
-    // Crear VAO y VBO
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Atributo de Posición
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    
-    // Atributo de Textura UV
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
-    // Cargar texturas reales
-    unsigned int wallTexture = loadTexture("assets/paredes.png");
-    unsigned int floorTexture = loadTexture("assets/floor.jpg");
-    unsigned int logoTexture = loadTexture("assets/startt.png"); // El Logo del inicio
+    unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
+    unsigned int wallTex2 = loadTexture("assets/paredes.png");  
+    unsigned int wallTex3 = loadTexture("assets/wall.png");     
+    // Texturas nuevas sugeridas por el mundo (puerta y portal)
+    // Usaremos texturas existentes y las tintaremos en el shader si no existen
+    unsigned int doorTex = loadTexture("assets/paredes.png"); 
+    unsigned int portalTex = loadTexture("assets/clue.png");
 
-    // ==========================================
-    // CONFIGURAR VAO PARA LA UI 2D (LOGO)
-    // ==========================================
+    unsigned int floorTexture = loadTexture("assets/pisoH.jpg");
+    unsigned int logoTexture = loadTexture("assets/logo.png"); 
+    unsigned int clueTexture = loadTexture("assets/clue.png"); 
+    unsigned int enemyTexture = loadTexture("assets/enemy.png");
+
     float quadVertices[] = {
-        // Posiciones x,y,z    Texturas u,v
-        -0.5f,  0.5f, 0.0f,    0.0f, 1.0f,
-        -0.5f, -0.5f, 0.0f,    0.0f, 0.0f,
-         0.5f, -0.5f, 0.0f,    1.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f,    0.0f, 0.0f, 1.0f,    0.0f, 1.0f,
+        -0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f,
+         0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f,    1.0f, 0.0f,
 
-        -0.5f,  0.5f, 0.0f,    0.0f, 1.0f,
-         0.5f, -0.5f, 0.0f,    1.0f, 0.0f,
-         0.5f,  0.5f, 0.0f,    1.0f, 1.0f
+        -0.5f,  0.5f, 0.0f,    0.0f, 0.0f, 1.0f,    0.0f, 1.0f,
+         0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f,    1.0f, 0.0f,
+         0.5f,  0.5f, 0.0f,    0.0f, 0.0f, 1.0f,    1.0f, 1.0f
     };
     unsigned int quadVAO, quadVBO;
     glGenVertexArrays(1, &quadVAO);
@@ -396,39 +598,60 @@ int main() {
     glBindVertexArray(quadVAO);
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
-    // Referencias a los uniforms del Shader
     int modelLoc = glGetUniformLocation(shaderProgram, "model");
     int viewLoc = glGetUniformLocation(shaderProgram, "view");
     int projLoc = glGetUniformLocation(shaderProgram, "projection");
     int colorLoc = glGetUniformLocation(shaderProgram, "objectColor");
+    
+    int lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
+    int lightDirLoc = glGetUniformLocation(shaderProgram, "lightDir");
+    int cutOffLoc = glGetUniformLocation(shaderProgram, "cutOff");
+    int outerCutOffLoc = glGetUniformLocation(shaderProgram, "outerCutOff");
+    int flashlightOnLoc = glGetUniformLocation(shaderProgram, "flashlightOn");
+    
+    int dimAlternaLoc = glGetUniformLocation(shaderProgram, "dimensionAlterna");
+    int zoneLoc = glGetUniformLocation(shaderProgram, "currentZone");
+    int timeLoc = glGetUniformLocation(shaderProgram, "time");
+    int resLoc = glGetUniformLocation(shaderProgram, "resolution");
 
-    // ==========================================
-    // BUCLE DE JUEGO (Game Loop)
-    // ==========================================
     while (!glfwWindowShouldClose(window)) {
-        // Lógica de tiempo
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // Entradas (Teclado)
         processInput(window);
 
-        // Limpiar la pantalla y el buffer de profundidad (cielo)
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        // Fondo negro total como un abismo (más inmersivo)
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Activar el Shader
         glUseProgram(shaderProgram);
 
-        // --- EFECTO DEL MENÚ (Cámara Rotando Sola) ---
+        int currentWidth, currentHeight;
+        glfwGetFramebufferSize(window, &currentWidth, &currentHeight);
+        if (currentHeight == 0) currentHeight = 1;
+
         if (gameState == MENU) {
-            yaw += 15.0f * deltaTime; // Girar la cabeza 15 grados por segundo
+            yaw += 15.0f * deltaTime; 
+            glm::vec3 front;
+            front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+            front.y = sin(glm::radians(pitch));
+            front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+            cameraFront = glm::normalize(front);
+        } else if (gameState == GAMEOVER) {
+            // Caer al piso (Replica perfecta te mató)
+            pitch -= 15.0f * deltaTime;
+            cameraPos.y -= 1.5f * deltaTime;
+            if (pitch < -89.0f) pitch = -89.0f;
+            if (cameraPos.y < -0.5f) cameraPos.y = -0.5f;
             glm::vec3 front;
             front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
             front.y = sin(glm::radians(pitch));
@@ -438,51 +661,101 @@ int main() {
 
         glBindVertexArray(VAO);
 
-        // Actualizar el tamaño de la pantalla dinámicamente si el usuario maximiza
-        int currentWidth, currentHeight;
-        glfwGetFramebufferSize(window, &currentWidth, &currentHeight);
-        if (currentHeight == 0) currentHeight = 1; // Evitar división por cero
-
-        // 1. Matriz de Proyección (Campo de visión de 45 grados)
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)currentWidth / (float)currentHeight, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(55.0f), (float)currentWidth / (float)currentHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        // 2. Matriz de Vista (La Cámara)
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-        // 3. Dibujar el mapa recorriendo el arreglo worldMap
-        for (int z = 0; z < 8; z++) {
-            for (int x = 0; x < 8; x++) {
-                if (worldMap[z][x] == 1) { // Si hay una pared
-                    glBindTexture(GL_TEXTURE_2D, wallTexture);
+        glUniform3fv(lightPosLoc, 1, glm::value_ptr(cameraPos));
+        glUniform3fv(lightDirLoc, 1, glm::value_ptr(cameraFront));
+        glUniform1f(cutOffLoc, glm::cos(glm::radians(15.5f))); // Linterna más amplia
+        glUniform1f(outerCutOffLoc, glm::cos(glm::radians(22.5f)));
+        glUniform1i(flashlightOnLoc, isFlashlightOn ? 1 : 0);
+        
+        glUniform1i(dimAlternaLoc, dimensionAlterna ? 1 : 0);
+        glUniform1i(zoneLoc, currentZone);
+        glUniform1f(timeLoc, currentFrame);
+        glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
+
+        // Dibujar el mapa
+        for (int z = 0; z < MAP_HEIGHT; z++) {
+            for (int x = 0; x < MAP_WIDTH; x++) {
+                int blockType = worldMap[z][x];
+                
+                if (blockType > 0) { 
+                    if (blockType == 1) glBindTexture(GL_TEXTURE_2D, wallTex1);
+                    else if (blockType == 2) glBindTexture(GL_TEXTURE_2D, wallTex2);
+                    else if (blockType == 3) glBindTexture(GL_TEXTURE_2D, wallTex3);
+                    else if (blockType == 4) glBindTexture(GL_TEXTURE_2D, doorTex); // Puerta
+                    else if (blockType == 5) glBindTexture(GL_TEXTURE_2D, portalTex); // Portal
+
                     glm::mat4 model = glm::mat4(1.0f);
-                    // Trasladar el cubo a su posición x, z (La altura 'y' es 0)
                     model = glm::translate(model, glm::vec3((float)x, 0.0f, (float)z));
                     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
                     
-                    // Darle un ligero tinte a las paredes (o dejarlo en blanco para que tome el color real)
-                    glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+                    if (blockType == 4) glUniform3f(colorLoc, 0.3f, 0.3f, 0.3f); // Oscurecer puerta
+                    else if (blockType == 5) glUniform3f(colorLoc, 0.2f, 0.6f, 1.0f); // Tintar azul
+                    else glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+
                     glDrawArrays(GL_TRIANGLES, 0, 36);
                 }
                 
-                // Dibujar el suelo en TODAS las posiciones (Y = -1.0)
+                // Solo dibujar piso donde hay espacios vacios o debajo de paredes para evitar huecos
                 glBindTexture(GL_TEXTURE_2D, floorTexture);
                 glm::mat4 floorModel = glm::mat4(1.0f);
                 floorModel = glm::translate(floorModel, glm::vec3((float)x, -1.0f, (float)z));
                 glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(floorModel));
-                // Suelo de color (un poco oscuro para dar atmósfera)
-                glUniform3f(colorLoc, 0.7f, 0.7f, 0.7f);
+                
+                if (dimensionAlterna) glUniform3f(colorLoc, 0.4f, 0.1f, 0.1f);
+                else glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
+                
                 glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-        } // FIN DEL DIBUJADO 3D
 
-        // ==========================================
-        // DIBUJAR INTERFAZ DE USUARIO (2D)
-        // ==========================================
+                // Techo para mayor claustrofobia (Y=1.0)
+                if (blockType == 0) {
+                    glm::mat4 roofModel = glm::mat4(1.0f);
+                    roofModel = glm::translate(roofModel, glm::vec3((float)x, 1.0f, (float)z));
+                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(roofModel));
+                    glUniform3f(colorLoc, 0.3f, 0.3f, 0.3f); // Techo oscuro
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                }
+            }
+        } 
+
+        glBindVertexArray(quadVAO);
+        glDisable(GL_CULL_FACE);
+
+        for (auto& entity : gameEntities) {
+            if (!entity.active) continue; 
+            if (entity.type == 2 && !portalActivado) continue; // No mostrar a la entidad hasta que se active
+
+            if (entity.type == 0 || entity.type == 1 || entity.type == 3) glBindTexture(GL_TEXTURE_2D, clueTexture);
+            else glBindTexture(GL_TEXTURE_2D, enemyTexture);
+
+            glm::mat4 entityModel = glm::mat4(1.0f);
+            entityModel = glm::translate(entityModel, entity.pos);
+            
+            float anguloHaciaCamara = atan2(cameraPos.x - entity.pos.x, cameraPos.z - entity.pos.z);
+            entityModel = glm::rotate(entityModel, anguloHaciaCamara, glm::vec3(0.0f, 1.0f, 0.0f));
+
+            float escala = (entity.type != 2) ? 0.3f : 0.9f; 
+            entityModel = glm::scale(entityModel, glm::vec3(escala, escala, escala));
+
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+            
+            if (entity.type == 2 && dimensionAlterna) {
+                // Entidad pulsante oscura
+                float pulse = 0.5f + 0.5f * sin(currentFrame * 10.0f);
+                glUniform3f(colorLoc, pulse, 0.1f, 0.1f);
+            } else {
+                glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+            }
+            
+            glDrawArrays(GL_TRIANGLES, 0, 6); 
+        }
+
         if (gameState == MENU) {
-            // Desactivamos la profundidad (para pintar encima de todo)
-            // y activamos el canal Alpha para la transparencia de la imagen
             glDisable(GL_DEPTH_TEST);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -490,36 +763,32 @@ int main() {
             glBindTexture(GL_TEXTURE_2D, logoTexture);
             glBindVertexArray(quadVAO);
 
-            // 1. Proyección Ortográfica 2D (ignora la profundidad Z)
             float aspect = (float)currentWidth / (float)currentHeight;
             glm::mat4 orthoProj = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
             glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(orthoProj));
 
-            // 2. Vista plana estática (sin movimiento)
             glm::mat4 orthoView = glm::mat4(1.0f);
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(orthoView));
 
-            // 3. Modelo: Posición y Escala (Efecto Latido para que llame la atención)
             glm::mat4 orthoModel = glm::mat4(1.0f);
-            float scale = 0.8f + sin(glfwGetTime() * 3.0f) * 0.05f; // Pulso de latido
+            float scale = 0.8f + sin(glfwGetTime() * 3.0f) * 0.05f; 
             orthoModel = glm::scale(orthoModel, glm::vec3(scale, scale, 1.0f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(orthoModel));
 
-            // Mostrar el logo flotante sin tintes de color
             glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
             glDrawArrays(GL_TRIANGLES, 0, 6);
 
-            // Restaurar estado para el siguiente Frame
             glDisable(GL_BLEND);
             glEnable(GL_DEPTH_TEST);
         }
 
-        // Intercambiar buffers y procesar eventos
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // Liberar recursos
+    ma_sound_uninit(&bgm);
+    ma_engine_uninit(&audioEngine);
+    
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glfwTerminate();
