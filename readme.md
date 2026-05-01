@@ -31,6 +31,17 @@ Este repositorio contiene una **Wikipedia interactiva de GLUT** construida en C+
 
 ##  ¿Cómo compilar y correr?
 
+##  Mini juego incluido (`src/main.cpp`)
+
+Ahora el archivo principal contiene un mini juego llamado **"Esquiva Bloques"** usando solo GLFW/OpenGL.
+
+- Mover jugador: `A` / `D` o flechas `←` / `→`
+- Reiniciar tras perder: `R`
+- Salir: `ESC`
+
+Objetivo: sobrevivir el mayor tiempo posible esquivando bloques rojos que caen.  
+El puntaje (tiempo) se muestra en el título de la ventana.
+
 ### Forma 1: Doble clic (La más fácil - Solo Windows)
 1. Clona o descarga el repositorio.
 2. Haz **doble clic** en el archivo **`compilar_y_correr.bat`**.
