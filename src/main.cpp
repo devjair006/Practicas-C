@@ -69,12 +69,21 @@ float lastY = SCR_HEIGHT / 2.0;
 float deltaTime = 0.0f;	
 float lastFrame = 0.0f;
 
+// ==========================================
+// ESTADOS DEL JUEGO
+// ==========================================
+enum GameState {
+    MENU,    // Pantalla de inicio
+    PLAYING  // Jugando
+};
+GameState gameState = MENU; // Iniciamos en el menú
+
 // Control de estado del ratón
-bool isCursorLocked = true;
+bool isCursorLocked = false; // Iniciamos con el cursor libre en el menú
 bool tabKeyWasPressed = false;
 
 // ==========================================
-// MAPA DEL NIVEL (1 = Pared, 0 = Pasillo)
+// MAPA DEL NIVEL (1 = Pared, 0 = Pasillo)---
 // ==========================================
 int worldMap[8][8] = {
     {1,1,1,1,1,1,1,1}, 
@@ -87,13 +96,48 @@ int worldMap[8][8] = {
     {1,1,1,1,1,1,1,1}
 };
 
-
+// ==========================================
 // FUNCIONES DE CONTROL
+// ==========================================
+bool checkCollision(float x, float z) {
+    // Radio del hitbox del jugador (qué tan cerca de la pared puede llegar)
+    float playerRadius = 0.25f; 
+    
+    // Calculamos qué bloques ocupa la hitbox del jugador (x, z convertidos a índices del mapa)
+    int minX = (int)round(x - playerRadius);
+    int maxX = (int)round(x + playerRadius);
+    int minZ = (int)round(z - playerRadius);
+    int maxZ = (int)round(z + playerRadius);
+    
+    // Evitar que el jugador salga del mapa (fuera del arreglo)
+    if (minX < 0 || maxX > 7 || minZ < 0 || maxZ > 7) return true;
+    
+    // Si alguna parte de la hitbox toca una pared (valor 1), bloqueamos el paso
+    if (worldMap[minZ][minX] == 1) return true;
+    if (worldMap[minZ][maxX] == 1) return true;
+    if (worldMap[maxZ][minX] == 1) return true;
+    if (worldMap[maxZ][maxX] == 1) return true;
+    
+    return false; // Camino libre
+}
 
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    // --- LÓGICA DE MENÚ ---
+    if (gameState == MENU) {
+        // Presionar ESPACIO o ENTER para iniciar el juego
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS|| glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+            gameState = PLAYING;
+            isCursorLocked = true; // Bloqueamos ratón al entrar al juego
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            firstMouse = true;     // Prevenir saltos de cámara
+        }
+        return; // Bloqueamos controles de movimiento mientras estamos en el menú
+    }
+
+    // --- LÓGICA DE JUEGO ---
     // Activar / Desactivar el ratón con la tecla TAB (Tabulador)
     if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
         if (!tabKeyWasPressed) {
@@ -114,22 +158,36 @@ void processInput(GLFWwindow *window) {
     if (!isCursorLocked) return;
 
     float cameraSpeed = 2.5f * deltaTime; // Velocidad al caminar
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    glm::vec3 moveDir(0.0f); // Dirección a la que nos queremos mover
+    
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) moveDir += cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) moveDir -= cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) moveDir -= glm::normalize(glm::cross(cameraFront, cameraUp));
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) moveDir += glm::normalize(glm::cross(cameraFront, cameraUp));
+    
+    // Ignoramos el eje Y para no volar
+    moveDir.y = 0.0f;
+    
+    if (glm::length(moveDir) > 0.0f) {
+        moveDir = glm::normalize(moveDir) * cameraSpeed; // Normalizar para no correr super rápido en diagonal
         
-    // (Fase 4: Aquí añadiremos las colisiones para no atravesar las paredes)
-    // Forzamos a que el jugador no vuele (altura fija estilo Doom)
-    cameraPos.y = 0.0f; 
+        // TRUCO DE FPS: Revisamos colisiones en los ejes X y Z por separado
+        // Esto permite que el jugador "resbale" por las paredes en lugar de quedarse atascado.
+        
+        // Comprobar eje X
+        if (!checkCollision(cameraPos.x + moveDir.x, cameraPos.z)) {
+            cameraPos.x += moveDir.x;
+        }
+        
+        // Comprobar eje Z
+        if (!checkCollision(cameraPos.x, cameraPos.z + moveDir.z)) {
+            cameraPos.z += moveDir.z;
+        }
+    }
 }
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
-    if (!isCursorLocked) return;
+    if (gameState != PLAYING || !isCursorLocked) return;
 
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
@@ -216,9 +274,9 @@ int main() {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
-    // Capturar el ratón para mover la cámara (FPS)
+    // Capturar el ratón (Inicia libre en el menú, se bloquea al jugar)
     glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     // 2. Inicializar GLAD (Carga punteros de OpenGL)
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -317,6 +375,31 @@ int main() {
     // Cargar texturas reales
     unsigned int wallTexture = loadTexture("assets/paredes.png");
     unsigned int floorTexture = loadTexture("assets/floor.jpg");
+    unsigned int logoTexture = loadTexture("assets/startt.png"); // El Logo del inicio
+
+    // ==========================================
+    // CONFIGURAR VAO PARA LA UI 2D (LOGO)
+    // ==========================================
+    float quadVertices[] = {
+        // Posiciones x,y,z    Texturas u,v
+        -0.5f,  0.5f, 0.0f,    0.0f, 1.0f,
+        -0.5f, -0.5f, 0.0f,    0.0f, 0.0f,
+         0.5f, -0.5f, 0.0f,    1.0f, 0.0f,
+
+        -0.5f,  0.5f, 0.0f,    0.0f, 1.0f,
+         0.5f, -0.5f, 0.0f,    1.0f, 0.0f,
+         0.5f,  0.5f, 0.0f,    1.0f, 1.0f
+    };
+    unsigned int quadVAO, quadVBO;
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // Referencias a los uniforms del Shader
     int modelLoc = glGetUniformLocation(shaderProgram, "model");
@@ -342,6 +425,17 @@ int main() {
 
         // Activar el Shader
         glUseProgram(shaderProgram);
+
+        // --- EFECTO DEL MENÚ (Cámara Rotando Sola) ---
+        if (gameState == MENU) {
+            yaw += 15.0f * deltaTime; // Girar la cabeza 15 grados por segundo
+            glm::vec3 front;
+            front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+            front.y = sin(glm::radians(pitch));
+            front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+            cameraFront = glm::normalize(front);
+        }
+
         glBindVertexArray(VAO);
 
         // Actualizar el tamaño de la pantalla dinámicamente si el usuario maximiza
@@ -381,6 +475,43 @@ int main() {
                 glUniform3f(colorLoc, 0.7f, 0.7f, 0.7f);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
             }
+        } // FIN DEL DIBUJADO 3D
+
+        // ==========================================
+        // DIBUJAR INTERFAZ DE USUARIO (2D)
+        // ==========================================
+        if (gameState == MENU) {
+            // Desactivamos la profundidad (para pintar encima de todo)
+            // y activamos el canal Alpha para la transparencia de la imagen
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            glBindTexture(GL_TEXTURE_2D, logoTexture);
+            glBindVertexArray(quadVAO);
+
+            // 1. Proyección Ortográfica 2D (ignora la profundidad Z)
+            float aspect = (float)currentWidth / (float)currentHeight;
+            glm::mat4 orthoProj = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(orthoProj));
+
+            // 2. Vista plana estática (sin movimiento)
+            glm::mat4 orthoView = glm::mat4(1.0f);
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(orthoView));
+
+            // 3. Modelo: Posición y Escala (Efecto Latido para que llame la atención)
+            glm::mat4 orthoModel = glm::mat4(1.0f);
+            float scale = 0.8f + sin(glfwGetTime() * 3.0f) * 0.05f; // Pulso de latido
+            orthoModel = glm::scale(orthoModel, glm::vec3(scale, scale, 1.0f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(orthoModel));
+
+            // Mostrar el logo flotante sin tintes de color
+            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            // Restaurar estado para el siguiente Frame
+            glDisable(GL_BLEND);
+            glEnable(GL_DEPTH_TEST);
         }
 
         // Intercambiar buffers y procesar eventos
