@@ -1,7 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-// Librerías de matemáticas 3D (GLM)
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -10,17 +9,22 @@
 #include <vector>
 #include <string>
 
-// Implementación de stb_image para cargar texturas
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-// Implementación de miniaudio para sonido
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
 
-// Configuración de la ventana
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
+
+// Variables de HUD (ImGui)
+std::string currentHUDMessage = "";
+float hudMessageTimer = 0.0f;
 
 // ==========================================
 // SHADERS
@@ -44,7 +48,6 @@ const char* vertexShaderSource = R"(
 
     void main() {
         vec3 finalPos = aPos;
-        // Glitches visuales severos (Escena 8) si la dimensión cambió
         if (dimensionAlterna == 1) {
             finalPos.x += sin(time * 50.0 + aPos.y) * 0.05;
             finalPos.y += cos(time * 30.0 + aPos.z) * 0.02;
@@ -69,7 +72,6 @@ const char* fragmentShaderSource = R"(
     uniform sampler2D texture1;
     uniform vec3 objectColor;
 
-    // --- VARIABLES DE LA LINTERNA ---
     uniform vec3 lightPos;      
     uniform vec3 lightDir;      
     uniform float cutOff;       
@@ -77,7 +79,7 @@ const char* fragmentShaderSource = R"(
     uniform int flashlightOn;   
 
     uniform int dimensionAlterna;
-    uniform int currentZone; // 1: Pasillo, 2: Control, 3: Lab
+    uniform int currentZone; 
     uniform float time;
     uniform vec2 resolution;
 
@@ -86,24 +88,22 @@ const char* fragmentShaderSource = R"(
         vec3 ambientColor = vec3(1.0);
         vec3 flashColor = vec3(1.0);
 
-        // Colorimetría base según la habitación (Escenas 1, 2, 3)
         if (currentZone == 1) {
-            ambientColor = vec3(0.6, 0.7, 0.8); // Blanco frío
+            ambientColor = vec3(0.6, 0.7, 0.8); 
             flashColor = vec3(0.9, 0.9, 1.0);
-            ambientStrength = 0.1 + (sin(time * 10.0) * 0.02); // Leve parpadeo amarillo tenue
+            ambientStrength = 0.1 + (sin(time * 10.0) * 0.02); 
         } else if (currentZone == 2) {
-            ambientColor = vec3(0.4, 0.9, 0.5); // Verde fosforescente
+            ambientColor = vec3(0.4, 0.9, 0.5); 
             flashColor = vec3(0.8, 1.0, 0.8);
             ambientStrength = 0.15;
         } else if (currentZone == 3) {
-            ambientColor = vec3(0.3, 0.5, 1.0); // Azul eléctrico
-            flashColor = vec3(1.0, 1.0, 1.0); // Blanco intenso
+            ambientColor = vec3(0.3, 0.5, 1.0); 
+            flashColor = vec3(1.0, 1.0, 1.0); 
             ambientStrength = 0.2;
         }
 
-        // Si entramos a la dimensión distorsionada (Escena 5 y 8)
         if (dimensionAlterna == 1) {
-            ambientColor = vec3(0.6, 0.0, 0.2); // Rojo oscuro / Morado
+            ambientColor = vec3(0.6, 0.0, 0.2); 
             ambientStrength = 0.1 + (sin(time * 20.0) * 0.05) + (cos(time * 50.0) * 0.03);
             if(ambientStrength < 0.02) ambientStrength = 0.02;
             flashColor = vec3(1.0, 0.3, 0.3) * (0.7 + 0.3 * sin(time * 40.0));
@@ -136,7 +136,6 @@ const char* fragmentShaderSource = R"(
         vec3 result = (ambient + diffuse) * objectColor;
         
         if (dimensionAlterna == 1) {
-            // Viñeta de sombras profundas para la fase final
             vec2 uv = gl_FragCoord.xy / resolution;
             float distToCenter = distance(uv, vec2(0.5));
             result *= smoothstep(0.9, 0.2, distToCenter);
@@ -147,21 +146,31 @@ const char* fragmentShaderSource = R"(
 )";
 
 // ==========================================
-// VARIABLES DE LA CÁMARA
+// VARIABLES DE JUEGO (Mecánicas Avanzadas)
 // ==========================================
-glm::vec3 cameraPos   = glm::vec3(12.0f, 0.0f, 22.0f); // Inicio en el pasillo Sur
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);  // Mirando hacia el Norte
+glm::vec3 cameraPos   = glm::vec3(12.0f, 0.0f, 22.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
 bool firstMouse = true;
-float yaw   = -90.0f;	// Mirar al norte (Z negativo)
+float yaw   = -90.0f;	
 float pitch =  0.0f;	
 float lastX = SCR_WIDTH / 2.0;
 float lastY = SCR_HEIGHT / 2.0;
 
 float deltaTime = 0.0f;	
 float lastFrame = 0.0f;
-    
+
+// Headbobbing (Movimiento de cámara al caminar)
+float headBobTimer = 0.0f;
+float baseCameraY = 0.0f;
+bool isMoving = false;
+
+// Stamina y Sprint
+float stamina = 100.0f;
+bool isSprinting = false;
+bool isExhausted = false;
+
 enum GameState { MENU, PLAYING, GAMEOVER };
 GameState gameState = MENU; 
 
@@ -173,41 +182,68 @@ bool fKeyWasPressed = false;
 
 ma_engine audioEngine;
 
-// ==========================================
-// ENTIDADES
-// ==========================================
-struct Entity {
-    glm::vec3 pos;  
-    int type;       // 0 = Log, 1 = Batería, 2 = Entidad, 3 = Cable
-    bool active;    
-    std::string text;
-};
-
-std::vector<Entity> gameEntities = {
-    // Zona 1: Pasillo (Escena 1)
-    {glm::vec3(12.0f, -0.2f, 18.0f), 3, true, "[CABLE SUELTO]: Un cable de alta tension cortado de tajo."},
-    {glm::vec3(12.0f, -0.2f, 16.0f), 1, true, ""}, // Batería 1
-    
-    // Zona 2: Control (Escena 2)
-    {glm::vec3(9.0f, -0.2f, 11.0f), 0, true, "REGISTRO 1: 'La senal responde... pero no es un eco. Esta replicando estructuras... con errores.'"},
-    {glm::vec3(15.0f, -0.2f, 10.0f), 1, true, ""}, // Batería 2
-    
-    // Zona 3: Laboratorio (Escena 3)
-    {glm::vec3(8.0f, -0.2f, 5.0f), 0, true, "REGISTRO 2: 'La copia ya no sigue instrucciones. Intenta replicar comportamiento humano.'"},
-    {glm::vec3(16.0f, -0.2f, 3.0f), 1, true, ""}, // Batería 3
-    
-    // La Entidad (Escena 6) - Spawnea cerca del portal, inactiva al inicio
-    {glm::vec3(12.0f, 0.0f, 2.0f), 2, true, ""}
-};
-
+// Inventario
 int bateriasRecolectadas = 0;
+bool hasKeycardLvl1 = false; // Llave amarilla (Control)
+bool hasKeycardLvl2 = false; // Llave roja (Lab)
 bool dimensionAlterna = false;
 bool portalActivado = false;
 int currentZone = 1;
 
 // ==========================================
+// ENTIDADES
+// ==========================================
+struct Entity {
+    glm::vec3 pos;  
+    int type; // 0=Log, 1=Batería, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa, 5=Monitor, 6=Máquina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
+    bool active;    
+    std::string text;
+    float seed;
+};
+
+std::vector<Entity> gameEntities = {
+    // --- ESCENA 1: PASILLO ---
+    {glm::vec3(12.0f, -0.4f, 21.0f), 3, true, "[CABLE SUELTO]: Hay un cable pelado aqui. Quien lo corto lo hizo con prisa.", 0.0f},
+    {glm::vec3(12.0f, -0.4f, 18.0f), 0, true, "LOG 1 (Arrugado): 'El proyecto se suponia que predeciria catastrofes. Solo veo una frente a mi.'", 0.0f},
+    {glm::vec3(11.0f, -0.4f, 16.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla) (Mover de X=10 a X=11)
+    {glm::vec3(12.0f, -0.2f, 16.0f), 1, true, "", 0.0f}, // Batería 1 (Mover de X=14 a X=12)
+    
+    // --- ESCENA 2: CONTROL ---
+    {glm::vec3(10.0f, -0.5f, 12.0f), 4, true, "", 1.0f},
+    {glm::vec3(10.0f, 0.0f, 12.0f), 5, true, "[PANTALLA VERDE]: 'La senal responde... pero no es un eco.'", 1.5f},
+    
+    {glm::vec3(14.0f, -0.5f, 12.0f), 4, true, "", 2.0f},
+    {glm::vec3(14.0f, 0.0f, 12.0f), 5, true, "[PANTALLA ERROR]: 'Esta replicando estructuras... con errores en la masa. Falta algo.'", 2.5f},
+    {glm::vec3(14.0f, -0.4f, 11.5f), 9, true, "", 0.0f}, // TARJETA NV 2 (Roja)
+    
+    {glm::vec3(10.0f, -0.5f, 10.0f), 4, true, "", 3.0f},
+    {glm::vec3(10.0f, 0.0f, 10.0f), 5, true, "[PANTALLA APAGADA]: Solo hay estatica...", 3.5f},
+    
+    {glm::vec3(14.0f, -0.5f, 10.0f), 4, true, "", 4.0f},
+    {glm::vec3(14.0f, 0.0f, 10.0f), 5, true, "[REGISTRO MAESTRO]: 'EVACUACION INMEDIATA. NO MIREN ATRAS.'", 4.5f},
+    
+    {glm::vec3(12.0f, -0.2f, 11.0f), 0, true, "LOG 2 (Sangriento): 'Se suponia que copiara la habitacion, pero... empezo a copiar mis movimientos.'", 0.0f},
+    {glm::vec3(16.0f, -0.2f, 9.0f), 1, true, "", 0.0f}, // Batería 2
+    {glm::vec3(8.0f, -0.4f, 9.0f), 3, true, "[MANCHA]: Un charco oscuro de procedencia dudosa.", 0.0f},
+    
+    // --- ESCENA 3: LABORATORIO ---
+    {glm::vec3(8.0f, 0.0f, 6.0f), 6, true, "[MAQUINA]: Nivel de radiacion al 900%. Inestable.", 5.0f},
+    {glm::vec3(16.0f, 0.0f, 6.0f), 6, true, "[MAQUINA]: Cables arrancados. Alguien intento apagarlo a la fuerza.", 6.0f},
+    {glm::vec3(8.0f, 0.0f, 2.0f), 6, true, "[MAQUINA]: 'ERROR CRITICO DE SIMETRIA DIMENSIONAL'.", 7.0f},
+    {glm::vec3(16.0f, 0.0f, 2.0f), 6, true, "[MAQUINA]: ...", 8.0f},
+    
+    {glm::vec3(12.0f, 1.0f, 4.0f), 7, true, "[EL PORTAL]: Una esfera masiva flotando, emitiendo energia cruda.", 0.0f},
+    
+    {glm::vec3(9.0f, -0.2f, 5.0f), 0, true, "LOG 3 (Rasgado): 'La copia ya no sigue instrucciones. Intenta replicar comportamiento humano.'", 0.0f},
+    {glm::vec3(16.0f, -0.2f, 3.0f), 1, true, "", 0.0f}, // Batería 3
+    
+    // La Entidad
+    {glm::vec3(12.0f, 0.0f, 2.0f), 2, true, "", 0.0f}
+};
+
+// ==========================================
 // MAPA LINEAL (24x24) - Laboratorio Estructurado
-// 0=Vacío, 1=Pasillo, 2=Control, 3=Lab, 4=Puerta Falsa, 5=Portal
+// 0=Vacío, 1=Pasillo, 2=Control, 3=Lab, 4=Bloque sólido invisible, 8=Puerta Nivel 1, 9=Puerta Nivel 2
 // ==========================================
 const int MAP_WIDTH = 24;
 const int MAP_HEIGHT = 24;
@@ -217,20 +253,20 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3},
     {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
     {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
-    {3,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,3}, // Portal Central
-    {3,0,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,3},
     {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
     {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
-    {3,3,3,3,3,3,3,3,3,3,3,0,0,3,3,3,3,3,3,3,3,3,3,3}, // Puertas (4) convertidas a (0)
+    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
+    {3,3,3,3,3,3,3,3,3,3,3,9,9,3,3,3,3,3,3,3,3,3,3,3}, // Puerta Nivel 2 (Roja)
     
     // MEDIO: ESCENA 2 - SALA DE CONTROL (Z=8 a 14)
     {2,2,2,2,2,2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,2,2,2},
     {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
     {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-    {2,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,2}, // Mesas Computadoras
-    {2,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,2},
     {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-    {2,2,2,2,2,2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,2,2,2}, // Puertas (4) convertidas a (0)
+    {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
+    {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
+    {2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,2,2,2,2,2,2}, // Puerta Nivel 1 (Amarilla)
 
     // SUR: ESCENA 1 - PASILLO DE ACCESO (Z=15 a 23)
     {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
@@ -256,11 +292,18 @@ bool checkCollision(float x, float z) {
     
     if (minX < 0 || maxX >= MAP_WIDTH || minZ < 0 || maxZ >= MAP_HEIGHT) return true;
     
-    // Si toca una pared (1,2,3), una puerta (4) o el portal (5), no avanza
     if (worldMap[minZ][minX] > 0) return true;
     if (worldMap[minZ][maxX] > 0) return true;
     if (worldMap[maxZ][minX] > 0) return true;
     if (worldMap[maxZ][maxX] > 0) return true;
+    
+    for (auto& entity : gameEntities) {
+        if (!entity.active) continue;
+        if (entity.type == 4 || entity.type == 6) { 
+            float dist = glm::length(glm::vec2(x - entity.pos.x, z - entity.pos.z));
+            if (dist < 0.8f) return true; 
+        }
+    }
     
     return false; 
 }
@@ -269,6 +312,45 @@ void updateZone() {
     if (cameraPos.z >= 15.0f) currentZone = 1;
     else if (cameraPos.z >= 8.0f) currentZone = 2;
     else currentZone = 3;
+}
+
+void printTypewriter(std::string text) {
+    currentHUDMessage = text;
+    hudMessageTimer = 5.0f; // Mostrar por 5 segundos
+    std::cout << "\n> " << text << "\n" << std::endl; // Mantenemos el log por si acaso
+}
+
+void tryOpenDoor(GLFWwindow *window) {
+    // Escaneo de los bloques frente a la cámara (rango 1.5)
+    glm::vec3 checkPos = cameraPos + cameraFront * 1.5f;
+    int gridX = (int)round(checkPos.x);
+    int gridZ = (int)round(checkPos.z);
+    
+    if (gridX >= 0 && gridX < MAP_WIDTH && gridZ >= 0 && gridZ < MAP_HEIGHT) {
+        int targetBlock = worldMap[gridZ][gridX];
+        
+        if (targetBlock == 8) { // Puerta Amarilla
+            if (hasKeycardLvl1) {
+                worldMap[gridZ][gridX] = 0; // Abre
+                worldMap[gridZ][gridX-1] = 0; // Abre panel adyacente
+                worldMap[gridZ][gridX+1] = 0; // Abre panel adyacente
+                printTypewriter("[PUERTA]: Tarjeta Nivel 1 Aceptada. Accediendo a Sala de Control.");
+                ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            } else {
+                printTypewriter("[PUERTA BLOQUEADA]: Se requiere Tarjeta Amarilla (Nivel 1).");
+            }
+        } else if (targetBlock == 9) { // Puerta Roja
+            if (hasKeycardLvl2) {
+                worldMap[gridZ][gridX] = 0;
+                worldMap[gridZ][gridX-1] = 0;
+                worldMap[gridZ][gridX+1] = 0;
+                printTypewriter("[PUERTA]: Tarjeta Nivel 2 Aceptada. Peligro: Zona de Alta Radiacion.");
+                ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            } else {
+                printTypewriter("[PUERTA BLOQUEADA]: Se requiere Tarjeta Roja (Nivel 2).");
+            }
+        }
+    }
 }
 
 void processInput(GLFWwindow *window) {
@@ -284,8 +366,14 @@ void processInput(GLFWwindow *window) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             firstMouse = true;     
             ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
-            std::cout << "\n--- ESCENA 1: PASILLO DE ACCESO ---" << std::endl;
-            std::cout << "El entorno es silencioso y vacio. Avanza." << std::endl;
+            std::cout << "=========================================================" << std::endl;
+            std::cout << "               PROYECTO CONFIDENCIAL - REINICIO          " << std::endl;
+            std::cout << "=========================================================\n" << std::endl;
+            printTypewriter("ESCENA 1: PASILLO DE ACCESO");
+            std::cout << "El entorno es silencioso y vacio." << std::endl;
+            std::cout << "Moverte: W A S D  | Mirar: MOUSE | Sprint: SHIFT" << std::endl;
+            std::cout << "Interactuar/Abrir Puertas: E | Linterna: F" << std::endl;
+            std::cout << "Busca TARJETAS DE ACCESO para avanzar a las siguientes salas." << std::endl;
         }
         return; 
     }
@@ -317,95 +405,156 @@ void processInput(GLFWwindow *window) {
 
     if (!isCursorLocked) return;
 
-    float cameraSpeed = 3.5f * deltaTime; 
-    glm::vec3 moveDir(0.0f); 
+    // --- SPRINT Y ESTAMINA ---
+    float cameraSpeed = 3.5f; 
+    isSprinting = false;
     
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && stamina > 0.0f && !isExhausted) {
+        cameraSpeed = 6.0f; // Corre rápido
+        stamina -= 30.0f * deltaTime;
+        isSprinting = true;
+        if (stamina <= 0.0f) {
+            isExhausted = true;
+            std::cout << "\n[AGITADO]: Te has quedado sin aliento.\n" << std::endl;
+        }
+    } else {
+        stamina += 15.0f * deltaTime;
+        if (stamina > 100.0f) {
+            stamina = 100.0f;
+            isExhausted = false;
+        }
+    }
+    
+    cameraSpeed *= deltaTime;
+
+    glm::vec3 moveDir(0.0f); 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) moveDir += cameraFront;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) moveDir -= cameraFront;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) moveDir -= glm::normalize(glm::cross(cameraFront, cameraUp));
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) moveDir += glm::normalize(glm::cross(cameraFront, cameraUp));
     
     moveDir.y = 0.0f;
+    isMoving = false;
     
     if (glm::length(moveDir) > 0.0f) {
         moveDir = glm::normalize(moveDir) * cameraSpeed; 
-        if (!checkCollision(cameraPos.x + moveDir.x, cameraPos.z)) cameraPos.x += moveDir.x;
-        if (!checkCollision(cameraPos.x, cameraPos.z + moveDir.z)) cameraPos.z += moveDir.z;
+        if (!checkCollision(cameraPos.x + moveDir.x, cameraPos.z)) { cameraPos.x += moveDir.x; isMoving = true; }
+        if (!checkCollision(cameraPos.x, cameraPos.z + moveDir.z)) { cameraPos.z += moveDir.z; isMoving = true; }
     }
     
-    // Detectar en qué cuarto estamos
+    // --- HEADBOBBING ---
+    if (isMoving) {
+        float bobSpeed = isSprinting ? 15.0f : 10.0f;
+        headBobTimer += deltaTime * bobSpeed;
+        cameraPos.y = baseCameraY + sin(headBobTimer) * 0.1f;
+    } else {
+        // Suavizado hacia el centro
+        cameraPos.y = glm::mix(cameraPos.y, baseCameraY, deltaTime * 5.0f);
+        headBobTimer = 0.0f;
+    }
+
     int prevZone = currentZone;
     updateZone();
     if (prevZone != currentZone) {
-        if (currentZone == 2 && !dimensionAlterna) std::cout << "\n--- ESCENA 2: SALA DE CONTROL ---\nLuz verde tenue. Computadoras desordenadas." << std::endl;
-        if (currentZone == 3 && !dimensionAlterna) std::cout << "\n--- ESCENA 3: LABORATORIO PRINCIPAL ---\nEncuentras la esfera central del experimento." << std::endl;
+        if (currentZone == 2 && !dimensionAlterna) printTypewriter("ESCENA 2: SALA DE CONTROL\nLuz verde tenue. Computadoras encendidas solas.");
+        if (currentZone == 3 && !dimensionAlterna) printTypewriter("ESCENA 3: LABORATORIO PRINCIPAL\nEncuentras la esfera central del experimento. Necesitas baterias.");
     }
 
-    // INTERACCIÓN CON CONSOLA (Escena 4)
-    if (!portalActivado && glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+    // --- INTERACCIÓN GENERAL (TECLA E) ---
+    bool justPressedE = false;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
         if (!eKeyWasPressed) {
-            // Consola frente a la esfera
-            float distA_Consola = glm::length(cameraPos - glm::vec3(12.0f, 0.0f, 6.0f));
-            if (distA_Consola < 2.5f) {
-                if (bateriasRecolectadas >= 3) {
-                    portalActivado = true;
-                    dimensionAlterna = true; // Escena 5 y 8
-                    std::cout << "\n--- ESCENA 4 & 5: ACTIVACION Y DISTORSION ---" << std::endl;
-                    std::cout << "[SISTEMA REACTIVADO]... ADVERTENCIA. ANOMALIA DETECTADA." << std::endl;
-                    std::cout << "El entorno pierde estabilidad. Estructuras anómalas. No es una copia... esta aprendiendo." << std::endl;
-                    ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
-                } else {
-                    std::cout << "\n[CONSOLA]: Energia insuficiente. Se requieren " << 3 - bateriasRecolectadas << " baterias.\n" << std::endl;
+            justPressedE = true;
+            eKeyWasPressed = true;
+            tryOpenDoor(window); // Intenta abrir puertas
+            
+            // Consola frente a la esfera (Solo se puede interactuar si estas en el laboratorio)
+            if (!portalActivado && currentZone == 3) {
+                float distA_Consola = glm::length(cameraPos - glm::vec3(12.0f, 0.0f, 6.0f)); 
+                if (distA_Consola < 2.0f) {
+                    if (bateriasRecolectadas >= 3) {
+                        portalActivado = true;
+                        dimensionAlterna = true; 
+                        std::cout << "\n=========================================================" << std::endl;
+                        printTypewriter("ESCENA 4 & 5: ACTIVACION Y DISTORSION DE LA REALIDAD");
+                        std::cout << "[SISTEMA REACTIVADO]... INICIANDO SECUENCIA DE COPIA." << std::endl;
+                        std::cout << "[ADVERTENCIA]... ANOMALIA DETECTADA EN LA REPLICACION." << std::endl;
+                        std::cout << "El entorno pierde estabilidad. Los objetos empiezan a flotar." << std::endl;
+                        printTypewriter("NO ES UNA COPIA... ESTA APRENDIENDO. CORRE.");
+                        std::cout << "=========================================================\n" << std::endl;
+                        ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
+                    } else {
+                        std::cout << "\n[CONSOLA]: Energia principal fuera de linea. Faltan " << 3 - bateriasRecolectadas << " Baterias.\n" << std::endl;
+                    }
                 }
             }
-            eKeyWasPressed = true;
         }
     } else {
         eKeyWasPressed = false;
     }
 
-    // LÓGICA DE ENTIDADES
+    // LÓGICA DE ENTIDADES E INSPECCIÓN
     for (auto& entity : gameEntities) {
         if (entity.active) {
             float distancia = glm::length(entity.pos - cameraPos);
+            glm::vec3 dirToEntity = glm::normalize(glm::vec3(entity.pos.x, cameraPos.y, entity.pos.z) - cameraPos); 
+            // Para objetos altos o bajos, la dirección varía. Usamos la posición real para el ángulo
+            glm::vec3 realDirToEntity = glm::normalize(entity.pos - cameraPos);
+            float lookAngle = glm::dot(cameraFront, realDirToEntity);
             
-            // Coleccionables (0=Log, 1=Bateria, 3=Objeto Insignificante)
-            if (entity.type != 2) { 
-                if (distancia < 1.0f) {
+            // Recolectables (Por cercanía y mirando hacia ellos)
+            if (entity.type == 0 || entity.type == 1 || entity.type == 8 || entity.type == 9) { 
+                // Eliminamos la necesidad de apuntar exacto para no frustrar la recoleccion
+                if (distancia < 1.5f && justPressedE) {
                     entity.active = false;
                     ma_engine_play_sound(&audioEngine, "assets/collect.wav", NULL);
                     
-                    if (entity.type == 0 || entity.type == 3) { 
-                        std::cout << "\n" << entity.text << "\n" << std::endl;
+                    if (entity.type == 0) { 
+                        printTypewriter(entity.text);
                     } else if (entity.type == 1) { 
                         bateriasRecolectadas++;
                         std::cout << "\n[BATERIA RECOLECTADA]: Tienes " << bateriasRecolectadas << " / 3\n" << std::endl;
+                    } else if (entity.type == 8) {
+                        hasKeycardLvl1 = true;
+                        std::cout << "\n[OBJETO CLAVE]: Has obtenido la TARJETA AMARILLA (Nivel 1).\n" << std::endl;
+                    } else if (entity.type == 9) {
+                        hasKeycardLvl2 = true;
+                        std::cout << "\n[OBJETO CLAVE]: Has obtenido la TARJETA ROJA (Nivel 2).\n" << std::endl;
                     }
                 }
             } 
-            // La Entidad (Fase 6 Weeping Angel)
+            // Objetos Inspectables Estáticos (Mesa, Monitor, Máquina, Cable)
+            else if (entity.type == 3 || entity.type == 4 || entity.type == 5 || entity.type == 6 || entity.type == 7) {
+                // Precision Raycast Approximation (lookAngle > 0.95 significa mirar casi exactamente al objeto)
+                if (distancia < 3.0f && lookAngle > 0.92f && justPressedE) {
+                    if (entity.text != "") { // Solo si tiene texto
+                        printTypewriter(entity.text);
+                    } else if (entity.type == 4) { // Es una mesa sin texto, interactuar abre un cajón (simulado)
+                        printTypewriter("[CAJON]: Esta vacio o atascado.");
+                    }
+                }
+            }
+            
+            // La Entidad
             else if (entity.type == 2 && portalActivado) {
-                glm::vec3 dirToPlayer = glm::normalize(cameraPos - entity.pos);
-                float lookAngle = glm::dot(cameraFront, -dirToPlayer);
+                float entityLookAngle = glm::dot(cameraFront, -realDirToEntity);
                 
-                // Si NO la estamos mirando
-                if (lookAngle < 0.5f) {
-                    float speed = 3.5f * deltaTime; // Se mueve más rápido mientras más avanza el juego
-                    
-                    // Solo se mueve si no choca con las paredes
-                    if (!checkCollision(entity.pos.x + dirToPlayer.x * speed, entity.pos.z)) entity.pos.x += dirToPlayer.x * speed;
-                    if (!checkCollision(entity.pos.x, entity.pos.z + dirToPlayer.z * speed)) entity.pos.z += dirToPlayer.z * speed;
+                if (entityLookAngle < 0.5f) { // Se mueve si no la miras
+                    float speed = 4.5f * deltaTime; 
+                    if (!checkCollision(entity.pos.x + realDirToEntity.x * speed, entity.pos.z)) entity.pos.x += realDirToEntity.x * speed;
+                    if (!checkCollision(entity.pos.x, entity.pos.z + realDirToEntity.z * speed)) entity.pos.z += realDirToEntity.z * speed;
                     entity.pos.y = 0.0f; 
                 }
                 
-                // Escena 9: FINAL
                 if (distancia < 0.9f) {
                     gameState = GAMEOVER;
-                    std::cout << "\n===================================" << std::endl;
-                    std::cout << "--- ESCENA 9: FINAL ---" << std::endl;
+                    std::cout << "\n=========================================================" << std::endl;
+                    printTypewriter("ESCENA 9: FALLO TOTAL");
+                    std::cout << "La silueta humanoide se retuerce frente a ti." << std::endl;
+                    std::cout << "Sus facciones se asientan. Son... las tuyas." << std::endl;
                     std::cout << "La entidad ha imitado perfectamente tu postura." << std::endl;
-                    std::cout << "COPIA COMPLETA. HAS SIDO REEMPLAZADO." << std::endl;
-                    std::cout << "===================================\n" << std::endl;
+                    printTypewriter("COPIA COMPLETA. HAS SIDO REEMPLAZADO.");
+                    std::cout << "=========================================================\n" << std::endl;
                 }
             }
         }
@@ -448,12 +597,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 }
 
 unsigned int loadTexture(char const * path) {
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
     int width, height, nrComponents;
     stbi_set_flip_vertically_on_load(true); 
     unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 4);
     if (data) {
+        unsigned int textureID;
+        glGenTextures(1, &textureID);
         GLenum format = GL_RGBA;
         glBindTexture(GL_TEXTURE_2D, textureID);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -464,10 +613,16 @@ unsigned int loadTexture(char const * path) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         stbi_image_free(data);
+        return textureID;
     } else {
         std::cout << "Textura falló: " << path << std::endl;
+        return 0;
     }
-    return textureID;
+}
+
+unsigned int loadTextureWithFallback(char const * path, unsigned int fallback) {
+    unsigned int tex = loadTexture(path);
+    return tex == 0 ? fallback : tex;
 }
 
 int main() {
@@ -493,6 +648,14 @@ int main() {
     ma_sound_set_looping(&bgm, MA_TRUE);
     ma_sound_start(&bgm);
 
+    // --- SETUP IMGUI ---
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+
     glEnable(GL_DEPTH_TEST);
 
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -512,7 +675,6 @@ int main() {
     glDeleteShader(fragmentShader);
 
     float vertices[] = {
-        // Posición           // Normal            // TexUV
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
@@ -573,8 +735,6 @@ int main() {
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
     unsigned int wallTex3 = loadTexture("assets/wall.png");     
-    // Texturas nuevas sugeridas por el mundo (puerta y portal)
-    // Usaremos texturas existentes y las tintaremos en el shader si no existen
     unsigned int doorTex = loadTexture("assets/paredes.png"); 
     unsigned int portalTex = loadTexture("assets/clue.png");
 
@@ -582,6 +742,11 @@ int main() {
     unsigned int logoTexture = loadTexture("assets/logo.png"); 
     unsigned int clueTexture = loadTexture("assets/clue.png"); 
     unsigned int enemyTexture = loadTexture("assets/enemy.png");
+
+    // Texturas específicas con fallback
+    unsigned int batteryTex = loadTextureWithFallback("assets/battery.png", clueTexture);
+    unsigned int keycardTex = loadTextureWithFallback("assets/keycard.png", clueTexture);
+    unsigned int pcTex = loadTextureWithFallback("assets/pc.png", wallTex2);
 
     float quadVertices[] = {
         -0.5f,  0.5f, 0.0f,    0.0f, 0.0f, 1.0f,    0.0f, 1.0f,
@@ -627,9 +792,16 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        if (hudMessageTimer > 0.0f) {
+            hudMessageTimer -= deltaTime;
+        }
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         processInput(window);
 
-        // Fondo negro total como un abismo (más inmersivo)
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f); 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -647,7 +819,6 @@ int main() {
             front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
             cameraFront = glm::normalize(front);
         } else if (gameState == GAMEOVER) {
-            // Caer al piso (Replica perfecta te mató)
             pitch -= 15.0f * deltaTime;
             cameraPos.y -= 1.5f * deltaTime;
             if (pitch < -89.0f) pitch = -89.0f;
@@ -669,7 +840,7 @@ int main() {
 
         glUniform3fv(lightPosLoc, 1, glm::value_ptr(cameraPos));
         glUniform3fv(lightDirLoc, 1, glm::value_ptr(cameraFront));
-        glUniform1f(cutOffLoc, glm::cos(glm::radians(15.5f))); // Linterna más amplia
+        glUniform1f(cutOffLoc, glm::cos(glm::radians(15.5f)));
         glUniform1f(outerCutOffLoc, glm::cos(glm::radians(22.5f)));
         glUniform1i(flashlightOnLoc, isFlashlightOn ? 1 : 0);
         
@@ -678,7 +849,7 @@ int main() {
         glUniform1f(timeLoc, currentFrame);
         glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
 
-        // Dibujar el mapa
+        // --- MAPA ---
         for (int z = 0; z < MAP_HEIGHT; z++) {
             for (int x = 0; x < MAP_WIDTH; x++) {
                 int blockType = worldMap[z][x];
@@ -687,21 +858,19 @@ int main() {
                     if (blockType == 1) glBindTexture(GL_TEXTURE_2D, wallTex1);
                     else if (blockType == 2) glBindTexture(GL_TEXTURE_2D, wallTex2);
                     else if (blockType == 3) glBindTexture(GL_TEXTURE_2D, wallTex3);
-                    else if (blockType == 4) glBindTexture(GL_TEXTURE_2D, doorTex); // Puerta
-                    else if (blockType == 5) glBindTexture(GL_TEXTURE_2D, portalTex); // Portal
+                    else if (blockType == 8 || blockType == 9) glBindTexture(GL_TEXTURE_2D, doorTex); 
 
                     glm::mat4 model = glm::mat4(1.0f);
                     model = glm::translate(model, glm::vec3((float)x, 0.0f, (float)z));
                     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
                     
-                    if (blockType == 4) glUniform3f(colorLoc, 0.3f, 0.3f, 0.3f); // Oscurecer puerta
-                    else if (blockType == 5) glUniform3f(colorLoc, 0.2f, 0.6f, 1.0f); // Tintar azul
+                    if (blockType == 8) glUniform3f(colorLoc, 0.8f, 0.8f, 0.2f); // Puerta Nv 1 (Amarilla)
+                    else if (blockType == 9) glUniform3f(colorLoc, 0.8f, 0.2f, 0.2f); // Puerta Nv 2 (Roja)
                     else glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
 
                     glDrawArrays(GL_TRIANGLES, 0, 36);
                 }
                 
-                // Solo dibujar piso donde hay espacios vacios o debajo de paredes para evitar huecos
                 glBindTexture(GL_TEXTURE_2D, floorTexture);
                 glm::mat4 floorModel = glm::mat4(1.0f);
                 floorModel = glm::translate(floorModel, glm::vec3((float)x, -1.0f, (float)z));
@@ -712,29 +881,88 @@ int main() {
                 
                 glDrawArrays(GL_TRIANGLES, 0, 36);
 
-                // Techo para mayor claustrofobia (Y=1.0)
                 if (blockType == 0) {
                     glm::mat4 roofModel = glm::mat4(1.0f);
                     roofModel = glm::translate(roofModel, glm::vec3((float)x, 1.0f, (float)z));
                     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(roofModel));
-                    glUniform3f(colorLoc, 0.3f, 0.3f, 0.3f); // Techo oscuro
+                    glUniform3f(colorLoc, 0.3f, 0.3f, 0.3f); 
                     glDrawArrays(GL_TRIANGLES, 0, 36);
                 }
             }
         } 
 
+        // --- DIBUJAR ENTIDADES 3D ---
+        glBindVertexArray(VAO);
+        glEnable(GL_DEPTH_TEST);
+
+        for (auto& entity : gameEntities) {
+            if (!entity.active || entity.type < 4 || entity.type == 8 || entity.type == 9) continue; 
+
+            glm::mat4 entityModel = glm::mat4(1.0f);
+            float floatY = 0.0f;
+            
+            if (dimensionAlterna && entity.type != 7) { 
+                floatY = (sin(currentFrame * 2.0f + entity.seed) * 0.8f) + 0.2f;
+            }
+            
+            entityModel = glm::translate(entityModel, glm::vec3(entity.pos.x, entity.pos.y + floatY, entity.pos.z));
+            
+            if (entity.type == 4) { // Mesa
+                glBindTexture(GL_TEXTURE_2D, wallTex1);
+                entityModel = glm::scale(entityModel, glm::vec3(1.2f, 0.8f, 0.8f));
+                glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
+            } else if (entity.type == 5) { // Monitor
+                glBindTexture(GL_TEXTURE_2D, pcTex);
+                entityModel = glm::translate(entityModel, glm::vec3(0.0f, 0.1f, 0.0f)); 
+                entityModel = glm::scale(entityModel, glm::vec3(0.6f, 0.4f, 0.3f));
+                if (dimensionAlterna) glUniform3f(colorLoc, 1.0f, 0.4f, 0.4f);
+                else glUniform3f(colorLoc, 0.8f, 1.0f, 0.8f); 
+            } else if (entity.type == 6) { // Máquina Lab
+                glBindTexture(GL_TEXTURE_2D, wallTex3);
+                entityModel = glm::scale(entityModel, glm::vec3(0.8f, 2.0f, 0.8f));
+                glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f);
+            } else if (entity.type == 7) { // Portal
+                glBindTexture(GL_TEXTURE_2D, portalTex);
+                entityModel = glm::scale(entityModel, glm::vec3(1.5f, 1.5f, 1.5f));
+                if (portalActivado) {
+                    entityModel = glm::rotate(entityModel, currentFrame * 2.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+                    float pulse = 0.8f + 0.2f * sin(currentFrame * 15.0f);
+                    glUniform3f(colorLoc, pulse, 0.0f, 0.0f); 
+                } else {
+                    entityModel = glm::rotate(entityModel, currentFrame * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+                    glUniform3f(colorLoc, 0.2f, 0.5f, 1.0f); 
+                }
+            }
+
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        // --- DIBUJAR ENTIDADES 2D ---
         glBindVertexArray(quadVAO);
         glDisable(GL_CULL_FACE);
 
         for (auto& entity : gameEntities) {
-            if (!entity.active) continue; 
-            if (entity.type == 2 && !portalActivado) continue; // No mostrar a la entidad hasta que se active
+            if (!entity.active || (entity.type >= 4 && entity.type != 8 && entity.type != 9)) continue; 
+            if (entity.type == 2 && !portalActivado) continue; 
 
-            if (entity.type == 0 || entity.type == 1 || entity.type == 3) glBindTexture(GL_TEXTURE_2D, clueTexture);
-            else glBindTexture(GL_TEXTURE_2D, enemyTexture);
+            if (entity.type == 1) {
+                glBindTexture(GL_TEXTURE_2D, batteryTex);
+            } else if (entity.type == 8 || entity.type == 9) {
+                glBindTexture(GL_TEXTURE_2D, keycardTex);
+            } else if (entity.type == 0 || entity.type == 3) {
+                glBindTexture(GL_TEXTURE_2D, clueTexture);
+            } else {
+                glBindTexture(GL_TEXTURE_2D, enemyTexture);
+            }
 
             glm::mat4 entityModel = glm::mat4(1.0f);
-            entityModel = glm::translate(entityModel, entity.pos);
+            
+            // Flotación sutil de objetos clave para visibilidad---
+            float bounce = 0.0f;
+            if(entity.type == 8 || entity.type == 9) bounce = sin(currentFrame * 3.0f) * 0.1f;
+            
+            entityModel = glm::translate(entityModel, glm::vec3(entity.pos.x, entity.pos.y + bounce, entity.pos.z));
             
             float anguloHaciaCamara = atan2(cameraPos.x - entity.pos.x, cameraPos.z - entity.pos.z);
             entityModel = glm::rotate(entityModel, anguloHaciaCamara, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -745,9 +973,12 @@ int main() {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
             
             if (entity.type == 2 && dimensionAlterna) {
-                // Entidad pulsante oscura
                 float pulse = 0.5f + 0.5f * sin(currentFrame * 10.0f);
                 glUniform3f(colorLoc, pulse, 0.1f, 0.1f);
+            } else if (entity.type == 8) {
+                glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f); // Tarjeta amarilla
+            } else if (entity.type == 9) {
+                glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f); // Tarjeta roja
             } else {
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
             }
@@ -780,11 +1011,56 @@ int main() {
 
             glDisable(GL_BLEND);
             glEnable(GL_DEPTH_TEST);
+        } else if (gameState == PLAYING) {
+            // --- DIBUJAR CROSSHAIR (HUD) ---
+            glDisable(GL_DEPTH_TEST);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ZERO); // Color invertido para que se vea siempre
+
+            glBindVertexArray(quadVAO);
+            float aspect = (float)currentWidth / (float)currentHeight;
+            glm::mat4 orthoProj = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(orthoProj));
+            
+            glm::mat4 orthoView = glm::mat4(1.0f);
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(orthoView));
+
+            glm::mat4 orthoModel = glm::mat4(1.0f);
+            orthoModel = glm::scale(orthoModel, glm::vec3(0.015f, 0.015f * aspect, 1.0f)); // Puntito en el centro
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(orthoModel));
+
+            glBindTexture(GL_TEXTURE_2D, clueTexture); // Textura blanca genérica
+            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            glEnable(GL_DEPTH_TEST);
+            glDisable(GL_BLEND);
         }
+
+        // --- RENDER IMGUI HUD ---
+        if (hudMessageTimer > 0.0f) {
+            ImGui::SetNextWindowPos(ImVec2(currentWidth * 0.1f, currentHeight * 0.8f));
+            ImGui::SetNextWindowSize(ImVec2(currentWidth * 0.8f, currentHeight * 0.2f));
+            ImGui::SetNextWindowBgAlpha(0.0f); // Transparente
+            ImGui::Begin("HUD", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoInputs);
+            ImGui::SetWindowFontScale(1.2f);
+            
+            // Centrar el texto
+            float textWidth = ImGui::CalcTextSize(currentHUDMessage.c_str()).x;
+            ImGui::SetCursorPosX((currentWidth * 0.8f - textWidth) * 0.5f);
+            ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "%s", currentHUDMessage.c_str());
+            ImGui::End();
+        }
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     ma_sound_uninit(&bgm);
     ma_engine_uninit(&audioEngine);

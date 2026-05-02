@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Directorios de inclusión
-include_directories(include)
+include_directories(include include/imgui include/imgui/backends)
 
 # Buscar GLFW3
 if(WIN32)
@@ -34,6 +34,12 @@ endif()
 set(SOURCES
     src/main.cpp
     src/glad.c
+    include/imgui/imgui.cpp
+    include/imgui/imgui_draw.cpp
+    include/imgui/imgui_tables.cpp
+    include/imgui/imgui_widgets.cpp
+    include/imgui/backends/imgui_impl_glfw.cpp
+    include/imgui/backends/imgui_impl_opengl3.cpp
 )
 
 # Ejecutable
