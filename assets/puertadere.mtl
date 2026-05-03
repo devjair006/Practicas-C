@@ -1,7 +1,7 @@
 # Blender 5.1.1 MTL File: 'None'
 # www.blender.org
 
-newmtl 2_12
+newmtl Metal_Door
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
@@ -12,6 +12,7 @@ Pc 0.000000
 Pcr 0.030000
 aniso 0.000000
 anisor 0.000000
-map_Kd C:/2_12_BaseColor.jpg
-map_Pm C:/2_12_Metallic.jpg
-map_Pr C:/2_12_Roughness.jpg
+map_Kd C:/2_BaseColor.jpg
+map_Pm C:/2_Metallic.jpg
+map_Pr C:/2_Roughness.jpg
+map_Bump -bm 1.000000 C:/2_Normal.jpg

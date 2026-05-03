@@ -253,6 +253,12 @@ std::vector<Entity> gameEntities = {
 const int MAP_WIDTH = 24;
 const int MAP_HEIGHT = 24;
 
+// --- Animacion de Puertas ---
+float door1Anim = 0.0f; // 0.0 a 90.0 grados
+bool door1Opening = false;
+float door2Anim = 0.0f;
+bool door2Opening = false;
+
 int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     // NORTE: ESCENA 3 - LABORATORIO PRINCIPAL (Z=0 a 7)
     {3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3},
@@ -336,9 +342,12 @@ void tryOpenDoor(GLFWwindow *window) {
         
         if (targetBlock == 8) { // Puerta Amarilla
             if (hasKeycardLvl1) {
-                worldMap[gridZ][gridX] = 0; // Abre
-                worldMap[gridZ][gridX-1] = 0; // Abre panel adyacente
-                worldMap[gridZ][gridX+1] = 0; // Abre panel adyacente
+                // La puerta amarilla abarca x=11 y x=12. Los cambiamos ambos a -8.
+                if (gridX == 11 || gridX == 12) {
+                    worldMap[gridZ][11] = -8; 
+                    worldMap[gridZ][12] = -8; 
+                }
+                door1Opening = true; // Iniciar animacion
                 printTypewriter("[PUERTA]: Tarjeta Nivel 1 Aceptada. Accediendo a Sala de Control.");
                 ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
             } else {
@@ -346,13 +355,16 @@ void tryOpenDoor(GLFWwindow *window) {
             }
         } else if (targetBlock == 9) { // Puerta Roja
             if (hasKeycardLvl2) {
-                worldMap[gridZ][gridX] = 0;
-                worldMap[gridZ][gridX-1] = 0;
-                worldMap[gridZ][gridX+1] = 0;
+                // La puerta roja también abarca x=11 y x=12. Los cambiamos ambos a -9.
+                if (gridX == 11 || gridX == 12) {
+                    worldMap[gridZ][11] = -9;
+                    worldMap[gridZ][12] = -9;
+                }
+                door2Opening = true; // Iniciar animacion
                 printTypewriter("[PUERTA]: Tarjeta Nivel 2 Aceptada. Peligro: Zona de Alta Radiacion.");
                 ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
             } else {
-                printTypewriter("[PUERTA BLOQUEADA]: Se requiere Tarjeta Roja (Nivel 2  ).");
+                printTypewriter("[PUERTA BLOQUEADA]: Se requiere Tarjeta Roja (Nivel 2).");
             }
         }
     }
@@ -540,7 +552,17 @@ void processInput(GLFWwindow *window) {
                 }
             }
             
-            // La Entidad
+            // Procesar animaciones de puertas
+        if (door1Opening && door1Anim < 90.0f) {
+            door1Anim += 120.0f * deltaTime; // Abre a 120 grados por segundo
+            if (door1Anim > 90.0f) door1Anim = 90.0f;
+        }
+        if (door2Opening && door2Anim < 90.0f) {
+            door2Anim += 120.0f * deltaTime;
+            if (door2Anim > 90.0f) door2Anim = 90.0f;
+        }
+
+        // DRAW CALLS
             else if (entity.type == 2 && portalActivado) {
                 float entityLookAngle = glm::dot(cameraFront, -realDirToEntity);
                 
@@ -838,7 +860,10 @@ int main() {
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
     unsigned int wallTex3 = loadTexture("assets/wall.png");     
-    unsigned int doorTex = loadTexture("assets/paredes.png"); 
+    
+    // Textura de metal generada para las puertas
+    unsigned int doorTex = loadTextureWithFallback("assets/puerta_metal.png", 0); 
+    
     unsigned int portalTex = loadTexture("assets/clue.png");
 
     unsigned int floorTexture = loadTexture("assets/pisoH.jpg");
@@ -959,10 +984,11 @@ int main() {
             for (int x = 0; x < MAP_WIDTH; x++) {
                 int blockType = worldMap[z][x];
                 
-                if (blockType > 0) { 
-                    bool is3DDoor = (blockType == 8 || blockType == 9);
+                // Consideramos la puerta visible tanto si esta cerrada (>0) como abierta (<0)
+                int renderBlock = worldMap[z][x];
+                if (renderBlock != 0 && (blockType > 0 || renderBlock == -8 || renderBlock == -9)) { 
+                    bool is3DDoor = (renderBlock == 8 || renderBlock == 9 || renderBlock == -8 || renderBlock == -9);
                     
-                    // Para puertas 3D: solo dibujar cuando x==11 (evitar doble dibujo)
                     if (is3DDoor && x == 12) {
                         // Skip
                     } else if (is3DDoor && x == 11) {
@@ -972,35 +998,77 @@ int main() {
                         baseModel = glm::translate(baseModel, glm::vec3(11.5f, -0.5f, (float)z));
                         
                         // 3. Escalar para encajar en el juego.
-                        // Ancho Blender=1.62 -> Hueco=2.0 (Escala 1.23)
-                        // Alto Blender=1.45 -> Pared=1.0 (Escala 0.69)
-                        baseModel = glm::scale(baseModel, glm::vec3(1.23f, 0.69f, 1.23f));
+                        // Ancho de ensamble: 1.81 -> Juego: 2.0 (Escala 1.1)
+                        // Alto Blender: 1.535 -> Juego: 1.0 (Escala 0.651)
+                        baseModel = glm::scale(baseModel, glm::vec3(1.1f, 0.651f, 1.1f));
                         
-                        // 2. Rotar 180 grados para que el frente vea hacia el pasillo
-                        baseModel = glm::rotate(baseModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                        // 2. Rotar (dejaremos 0 grados asumiendo que los nuevos estan de frente)
+                        // Si se ven las texturas por detras, cambiaremos este valor a 180 despues.
+                        // baseModel = glm::rotate(baseModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                         
-                        // 1. Compensar el offset original de Blender para centrar el modelo en (0,0,0)
-                        // Centro X = -1.93, Centro Z = 1.33
-                        baseModel = glm::translate(baseModel, glm::vec3(1.93f, 0.0f, -1.33f));
+                        // 1. Compensar el offset original de Blender para centrar el ensamble en (0,0,0)
+                        // Centro X = 0.455, Centro Z = 0.059
+                        baseModel = glm::translate(baseModel, glm::vec3(-0.455f, 0.0f, -0.059f));
 
-                        glUniform1i(solidColorLoc, 1);
-                        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+                        if (doorTex > 0) {
+                            glUniform1i(solidColorLoc, 0); // No ignorar textura
+                            glActiveTexture(GL_TEXTURE0);
+                            glBindTexture(GL_TEXTURE_2D, doorTex);
+                            
+                            // Aplicar tinte sobre el metal
+                            if (renderBlock == 8 || renderBlock == -8) {
+                                glUniform3f(colorLoc, 1.0f, 0.8f, 0.2f); // Metal Amarillo
+                            } else if (renderBlock == 9 || renderBlock == -9) {
+                                glUniform3f(colorLoc, 0.9f, 0.1f, 0.1f); // Metal Rojo
+                            } else {
+                                glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+                            }
+                        } else {
+                            glUniform1i(solidColorLoc, 1);
+                            if (renderBlock == 8 || renderBlock == -8) {
+                                glUniform3f(colorLoc, 1.0f, 0.8f, 0.2f); // Amarillo Sólido
+                            } else if (renderBlock == 9 || renderBlock == -9) {
+                                glUniform3f(colorLoc, 0.9f, 0.1f, 0.1f); // Rojo Sólido
+                            } else {
+                                glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+                            }
+                        }
 
-                        // Dibujar ambas hojas con la MISMA matriz base (mantiene su unión perfecta)
+                        // Obtener ángulo actual de la animación
+                        float currentAnim = (renderBlock == 8 || renderBlock == -8) ? door1Anim : door2Anim;
+                        
+                        // Rotacion: La izquierda gira hacia adelante (negativo), la derecha gira hacia el otro lado (positivo)
+                        float angleL = glm::radians(-currentAnim);
+                        float angleR = glm::radians(currentAnim);
+
                         if (pIzquiCount > 0) {
                             glBindVertexArray(pIzquiVAO);
-                            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(baseModel));
+                            glm::mat4 modelL = baseModel;
+                            // Bisagra de la puerta izquierda en Blender (Min X = -0.45)
+                            glm::vec3 hingeL(-0.45f, 0.0f, 0.057f);
+                            modelL = glm::translate(modelL, hingeL);
+                            modelL = glm::rotate(modelL, angleL, glm::vec3(0.0f, 1.0f, 0.0f));
+                            modelL = glm::translate(modelL, -hingeL);
+                            
+                            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelL));
                             glDrawArrays(GL_TRIANGLES, 0, pIzquiCount);
                         }
                         if (pDereCount > 0) {
                             glBindVertexArray(pDereVAO);
-                            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(baseModel));
+                            glm::mat4 modelR = baseModel;
+                            // Bisagra de la puerta derecha en Blender (Max X = 1.359)
+                            glm::vec3 hingeR(1.359f, 0.0f, 0.061f);
+                            modelR = glm::translate(modelR, hingeR);
+                            modelR = glm::rotate(modelR, angleR, glm::vec3(0.0f, 1.0f, 0.0f));
+                            modelR = glm::translate(modelR, -hingeR);
+                            
+                            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelR));
                             glDrawArrays(GL_TRIANGLES, 0, pDereCount);
                         }
                         
                         glUniform1i(solidColorLoc, 0);
                         glBindVertexArray(VAO);
-                    } else {
+                    } else if (blockType > 0) {
                         // Bloques normales (paredes)
                         if (blockType == 1) glBindTexture(GL_TEXTURE_2D, wallTex1);
                         else if (blockType == 2) glBindTexture(GL_TEXTURE_2D, wallTex2);
