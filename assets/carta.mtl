@@ -1,0 +1,18 @@
+# Blender 5.1.1 MTL File: 'None'
+# www.blender.org
+
+newmtl Early_1900s_Office_Mail_Opened
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd C:/Early 1900s Office Mail Opened_Color.jpg
+map_Pm C:/Early 1900s Office Mail Opened_Metallic.jpg
+map_Pr C:/Early 1900s Office Mail Opened_Roughness.jpg
+map_Bump -bm 1.000000 C:/Early 1900s Office Mail Opened_Normal.jpg

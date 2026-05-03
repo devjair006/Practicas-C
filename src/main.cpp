@@ -19,10 +19,12 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
 
+#include "obj_loader.h"
+
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
-// Variables de HUD (ImGui)
+// Variables de HUD (ImGui)----
 std::string currentHUDMessage = "";
 float hudMessageTimer = 0.0f;
 
@@ -34,10 +36,12 @@ const char* vertexShaderSource = R"(
     layout (location = 0) in vec3 aPos;
     layout (location = 1) in vec3 aNormal;
     layout (location = 2) in vec2 aTexCoord;
+    layout (location = 3) in vec3 aObjColor;
 
     out vec3 FragPos;
     out vec3 Normal;
     out vec2 TexCoord;
+    out vec3 ObjColor;
 
     uniform mat4 model;
     uniform mat4 view;
@@ -56,7 +60,7 @@ const char* vertexShaderSource = R"(
         FragPos = vec3(model * vec4(finalPos, 1.0));
         Normal = mat3(transpose(inverse(model))) * aNormal;  
         TexCoord = aTexCoord;
-        
+        ObjColor = aObjColor;
         gl_Position = projection * view * vec4(FragPos, 1.0);
     }
 )";
@@ -68,6 +72,7 @@ const char* fragmentShaderSource = R"(
     in vec3 FragPos;
     in vec3 Normal;
     in vec2 TexCoord;
+    in vec3 ObjColor;
 
     uniform sampler2D texture1;
     uniform vec3 objectColor;
@@ -82,6 +87,7 @@ const char* fragmentShaderSource = R"(
     uniform int currentZone; 
     uniform float time;
     uniform vec2 resolution;
+    uniform int useSolidColor;
 
     void main() {
         float ambientStrength = 0.05;
@@ -129,7 +135,9 @@ const char* fragmentShaderSource = R"(
         }
 
         vec4 texColor = texture(texture1, TexCoord);
-        if (texColor.a < 0.1) {
+        if (useSolidColor == 1) {
+            texColor = vec4(ObjColor, 1.0); // Usar el color empaquetado del OBJ
+        } else if (texColor.a < 0.1) {
             discard; 
         }
         
@@ -145,9 +153,6 @@ const char* fragmentShaderSource = R"(
     }
 )";
 
-// ==========================================
-// VARIABLES DE JUEGO (Mecánicas Avanzadas)
-// ==========================================
 glm::vec3 cameraPos   = glm::vec3(12.0f, 0.0f, 22.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
@@ -203,7 +208,7 @@ struct Entity {
 
 std::vector<Entity> gameEntities = {
     // --- ESCENA 1: PASILLO ---
-    {glm::vec3(12.0f, -0.4f, 21.0f), 3, true, "[CABLE SUELTO]: Hay un cable pelado aqui. Quien lo corto lo hizo con prisa.", 0.0f},
+    {glm::vec3(12.0f, -0.4f, 21.0f), 3, true, "[CABLE SUELTO]:  Hay un cable pelado aqui. Quien lo corto lo hizo con prisa.", 0.0f},
     {glm::vec3(12.0f, -0.4f, 18.0f), 0, true, "LOG 1 (Arrugado): 'El proyecto se suponia que predeciria catastrofes. Solo veo una frente a mi.'", 0.0f},
     {glm::vec3(11.0f, -0.4f, 16.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla) (Mover de X=10 a X=11)
     {glm::vec3(12.0f, -0.2f, 16.0f), 1, true, "", 0.0f}, // Batería 1 (Mover de X=14 a X=12)
@@ -269,14 +274,14 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,2,2,2,2,2,2}, // Puerta Nivel 1 (Amarilla)
 
     // SUR: ESCENA 1 - PASILLO DE ACCESO (Z=15 a 23)
-    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
@@ -347,7 +352,7 @@ void tryOpenDoor(GLFWwindow *window) {
                 printTypewriter("[PUERTA]: Tarjeta Nivel 2 Aceptada. Peligro: Zona de Alta Radiacion.");
                 ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
             } else {
-                printTypewriter("[PUERTA BLOQUEADA]: Se requiere Tarjeta Roja (Nivel 2).");
+                printTypewriter("[PUERTA BLOQUEADA]: Se requiere Tarjeta Roja (Nivel 2  ).");
             }
         }
     }
@@ -631,7 +636,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Proyecto Confidencial", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Proyecto Confidencial..", NULL, NULL);
     if (window == NULL) {
         glfwTerminate(); return -1;
     }
@@ -732,6 +737,104 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    std::vector<float> objVertices;
+    unsigned int objVAO = 0, objVBO = 0;
+    int objVertexCount = 0;
+    if (loadOBJ("assets/laptop.obj", objVertices)) {
+        objVertexCount = objVertices.size() / 11;
+        glGenVertexArrays(1, &objVAO);
+        glGenBuffers(1, &objVBO);
+        glBindVertexArray(objVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, objVBO);
+        glBufferData(GL_ARRAY_BUFFER, objVertices.size() * sizeof(float), &objVertices[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+    }
+
+    std::vector<float> cablesVertices;
+    unsigned int cablesVAO = 0, cablesVBO = 0;
+    int cablesVertexCount = 0;
+    if (loadOBJ("assets/cables.obj", cablesVertices)) {
+        cablesVertexCount = cablesVertices.size() / 11;
+        glGenVertexArrays(1, &cablesVAO);
+        glGenBuffers(1, &cablesVBO);
+        glBindVertexArray(cablesVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, cablesVBO);
+        glBufferData(GL_ARRAY_BUFFER, cablesVertices.size() * sizeof(float), &cablesVertices[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+    }
+
+    std::vector<float> cartaVertices;
+    unsigned int cartaVAO = 0, cartaVBO = 0;
+    int cartaVertexCount = 0;
+    if (loadOBJ("assets/carta.obj", cartaVertices)) {
+        cartaVertexCount = cartaVertices.size() / 11;
+        glGenVertexArrays(1, &cartaVAO);
+        glGenBuffers(1, &cartaVBO);
+        glBindVertexArray(cartaVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, cartaVBO);
+        glBufferData(GL_ARRAY_BUFFER, cartaVertices.size() * sizeof(float), &cartaVertices[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+    }
+
+    std::vector<float> pIzquiVertices, pDereVertices;
+    unsigned int pIzquiVAO = 0, pIzquiVBO = 0, pDereVAO = 0, pDereVBO = 0;
+    int pIzquiCount = 0, pDereCount = 0;
+
+    if (loadOBJ("assets/puertaizqui.obj", pIzquiVertices)) {
+        pIzquiCount = pIzquiVertices.size() / 11;
+        glGenVertexArrays(1, &pIzquiVAO);
+        glGenBuffers(1, &pIzquiVBO);
+        glBindVertexArray(pIzquiVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, pIzquiVBO);
+        glBufferData(GL_ARRAY_BUFFER, pIzquiVertices.size() * sizeof(float), &pIzquiVertices[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+    }
+
+    if (loadOBJ("assets/puertadere.obj", pDereVertices)) {
+        pDereCount = pDereVertices.size() / 11;
+        glGenVertexArrays(1, &pDereVAO);
+        glGenBuffers(1, &pDereVBO);
+        glBindVertexArray(pDereVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, pDereVBO);
+        glBufferData(GL_ARRAY_BUFFER, pDereVertices.size() * sizeof(float), &pDereVertices[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+    }
+
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
     unsigned int wallTex3 = loadTexture("assets/wall.png");     
@@ -786,6 +889,7 @@ int main() {
     int zoneLoc = glGetUniformLocation(shaderProgram, "currentZone");
     int timeLoc = glGetUniformLocation(shaderProgram, "time");
     int resLoc = glGetUniformLocation(shaderProgram, "resolution");
+    int solidColorLoc = glGetUniformLocation(shaderProgram, "useSolidColor");
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
@@ -806,6 +910,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shaderProgram);
+        glVertexAttrib3f(3, 1.0f, 1.0f, 1.0f); // Default obj color para otros VAOs
 
         int currentWidth, currentHeight;
         glfwGetFramebufferSize(window, &currentWidth, &currentHeight);
@@ -855,20 +960,59 @@ int main() {
                 int blockType = worldMap[z][x];
                 
                 if (blockType > 0) { 
-                    if (blockType == 1) glBindTexture(GL_TEXTURE_2D, wallTex1);
-                    else if (blockType == 2) glBindTexture(GL_TEXTURE_2D, wallTex2);
-                    else if (blockType == 3) glBindTexture(GL_TEXTURE_2D, wallTex3);
-                    else if (blockType == 8 || blockType == 9) glBindTexture(GL_TEXTURE_2D, doorTex); 
-
-                    glm::mat4 model = glm::mat4(1.0f);
-                    model = glm::translate(model, glm::vec3((float)x, 0.0f, (float)z));
-                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+                    bool is3DDoor = (blockType == 8 || blockType == 9);
                     
-                    if (blockType == 8) glUniform3f(colorLoc, 0.8f, 0.8f, 0.2f); // Puerta Nv 1 (Amarilla)
-                    else if (blockType == 9) glUniform3f(colorLoc, 0.8f, 0.2f, 0.2f); // Puerta Nv 2 (Roja)
-                    else glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+                    // Para puertas 3D: solo dibujar cuando x==11 (evitar doble dibujo)
+                    if (is3DDoor && x == 12) {
+                        // Skip
+                    } else if (is3DDoor && x == 11) {
+                        glm::mat4 baseModel = glm::mat4(1.0f);
+                        
+                        // 4. Mover al centro del hueco (11.5) y anclar al piso de la pared (-0.5)
+                        baseModel = glm::translate(baseModel, glm::vec3(11.5f, -0.5f, (float)z));
+                        
+                        // 3. Escalar para encajar en el juego.
+                        // Ancho Blender=1.62 -> Hueco=2.0 (Escala 1.23)
+                        // Alto Blender=1.45 -> Pared=1.0 (Escala 0.69)
+                        baseModel = glm::scale(baseModel, glm::vec3(1.23f, 0.69f, 1.23f));
+                        
+                        // 2. Rotar 180 grados para que el frente vea hacia el pasillo
+                        baseModel = glm::rotate(baseModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                        
+                        // 1. Compensar el offset original de Blender para centrar el modelo en (0,0,0)
+                        // Centro X = -1.93, Centro Z = 1.33
+                        baseModel = glm::translate(baseModel, glm::vec3(1.93f, 0.0f, -1.33f));
 
-                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                        glUniform1i(solidColorLoc, 1);
+                        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+
+                        // Dibujar ambas hojas con la MISMA matriz base (mantiene su unión perfecta)
+                        if (pIzquiCount > 0) {
+                            glBindVertexArray(pIzquiVAO);
+                            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(baseModel));
+                            glDrawArrays(GL_TRIANGLES, 0, pIzquiCount);
+                        }
+                        if (pDereCount > 0) {
+                            glBindVertexArray(pDereVAO);
+                            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(baseModel));
+                            glDrawArrays(GL_TRIANGLES, 0, pDereCount);
+                        }
+                        
+                        glUniform1i(solidColorLoc, 0);
+                        glBindVertexArray(VAO);
+                    } else {
+                        // Bloques normales (paredes)
+                        if (blockType == 1) glBindTexture(GL_TEXTURE_2D, wallTex1);
+                        else if (blockType == 2) glBindTexture(GL_TEXTURE_2D, wallTex2);
+                        else if (blockType == 3) glBindTexture(GL_TEXTURE_2D, wallTex3);
+                        glBindVertexArray(VAO);
+
+                        glm::mat4 model = glm::mat4(1.0f);
+                        model = glm::translate(model, glm::vec3((float)x, 0.0f, (float)z));
+                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+                        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+                        glDrawArrays(GL_TRIANGLES, 0, 36);
+                    }
                 }
                 
                 glBindTexture(GL_TEXTURE_2D, floorTexture);
@@ -896,7 +1040,8 @@ int main() {
         glEnable(GL_DEPTH_TEST);
 
         for (auto& entity : gameEntities) {
-            if (!entity.active || entity.type < 4 || entity.type == 8 || entity.type == 9) continue; 
+            if (!entity.active || (entity.type != 0 && entity.type != 3 && entity.type < 4) || entity.type == 8 || entity.type == 9) continue; 
+            if (entity.type > 0 && entity.type < 3) continue; // Solo procesar tipos 0, 3, 4, 5, 6, 7 aquí
 
             glm::mat4 entityModel = glm::mat4(1.0f);
             float floatY = 0.0f;
@@ -907,21 +1052,63 @@ int main() {
             
             entityModel = glm::translate(entityModel, glm::vec3(entity.pos.x, entity.pos.y + floatY, entity.pos.z));
             
-            if (entity.type == 4) { // Mesa
+            if (entity.type == 0 && cartaVertexCount > 0) { // Carta/Papel 3D
+                glBindVertexArray(cartaVAO);
+                glBindTexture(GL_TEXTURE_2D, clueTexture); 
+                glUniform1i(solidColorLoc, 1); 
+                entityModel = glm::translate(entityModel, glm::vec3(0.0f, -0.06f, 0.0f)); // Subirla para verla
+                entityModel = glm::rotate(entityModel, entity.seed, glm::vec3(0.0f, 1.0f, 0.0f)); 
+                entityModel = glm::scale(entityModel, glm::vec3(1.0f, 1.0f, 1.0f)); // Agrandarla
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+                glDrawArrays(GL_TRIANGLES, 0, cartaVertexCount);
+                glUniform1i(solidColorLoc, 0);
+                glBindVertexArray(VAO);
+            } else if (entity.type == 3 && cablesVertexCount > 0) { // Cables 3D
+                glBindVertexArray(cablesVAO);
+                glBindTexture(GL_TEXTURE_2D, pcTex); 
+                glUniform1i(solidColorLoc, 1); 
+                
+                // Ajuste de posición para que toque el suelo
+                entityModel = glm::translate(entityModel, glm::vec3(-0.99f, -0.12f, 0.0f)); 
+                entityModel = glm::scale(entityModel, glm::vec3(0.5f, 0.5f, 0.5f));
+                
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+                glDrawArrays(GL_TRIANGLES, 0, cablesVertexCount);
+                glUniform1i(solidColorLoc, 0);
+                glBindVertexArray(VAO);
+            } else if (entity.type == 4) { // Mesa
+                glBindVertexArray(VAO);
                 glBindTexture(GL_TEXTURE_2D, wallTex1);
                 entityModel = glm::scale(entityModel, glm::vec3(1.2f, 0.8f, 0.8f));
                 glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
-            } else if (entity.type == 5) { // Monitor
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            } else if (entity.type == 5 && objVertexCount > 0) { // PC 3D
+                glBindVertexArray(objVAO);
                 glBindTexture(GL_TEXTURE_2D, pcTex);
-                entityModel = glm::translate(entityModel, glm::vec3(0.0f, 0.1f, 0.0f)); 
-                entityModel = glm::scale(entityModel, glm::vec3(0.6f, 0.4f, 0.3f));
+                
+                glUniform1i(solidColorLoc, 1); // Ignorar la textura cargada
+                
+                entityModel = glm::translate(entityModel, glm::vec3(0.0f, -0.1f, 0.0f)); // Bajar a la mesa
+                entityModel = glm::rotate(entityModel, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Estático
+                entityModel = glm::scale(entityModel, glm::vec3(0.6f, 0.6f, 0.6f));
                 if (dimensionAlterna) glUniform3f(colorLoc, 1.0f, 0.4f, 0.4f);
-                else glUniform3f(colorLoc, 0.8f, 1.0f, 0.8f); 
+                else glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Usar colores 100% reales de Blender
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+                glDrawArrays(GL_TRIANGLES, 0, objVertexCount);
+                
+                glUniform1i(solidColorLoc, 0); // Restaurar texturas normales
+                
+                glBindVertexArray(VAO); // Restaurar VAO
             } else if (entity.type == 6) { // Máquina Lab
+                glBindVertexArray(VAO);
                 glBindTexture(GL_TEXTURE_2D, wallTex3);
                 entityModel = glm::scale(entityModel, glm::vec3(0.8f, 2.0f, 0.8f));
                 glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f);
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+                glDrawArrays(GL_TRIANGLES, 0, 36);
             } else if (entity.type == 7) { // Portal
+                glBindVertexArray(VAO);
                 glBindTexture(GL_TEXTURE_2D, portalTex);
                 entityModel = glm::scale(entityModel, glm::vec3(1.5f, 1.5f, 1.5f));
                 if (portalActivado) {
@@ -932,10 +1119,9 @@ int main() {
                     entityModel = glm::rotate(entityModel, currentFrame * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
                     glUniform3f(colorLoc, 0.2f, 0.5f, 1.0f); 
                 }
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+                glDrawArrays(GL_TRIANGLES, 0, 36);
             }
-
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
-            glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
         // --- DIBUJAR ENTIDADES 2D ---
@@ -943,7 +1129,8 @@ int main() {
         glDisable(GL_CULL_FACE);
 
         for (auto& entity : gameEntities) {
-            if (!entity.active || (entity.type >= 4 && entity.type != 8 && entity.type != 9)) continue; 
+            if (!entity.active || (entity.type >= 3 && entity.type != 8 && entity.type != 9)) continue; 
+            if (entity.type == 0 || entity.type == 3) continue; // Ya se dibujaron en 3D
             if (entity.type == 2 && !portalActivado) continue; 
 
             if (entity.type == 1) {
@@ -962,12 +1149,15 @@ int main() {
             float bounce = 0.0f;
             if(entity.type == 8 || entity.type == 9) bounce = sin(currentFrame * 3.0f) * 0.1f;
             
-            entityModel = glm::translate(entityModel, glm::vec3(entity.pos.x, entity.pos.y + bounce, entity.pos.z));
+            float targetY = entity.pos.y + bounce;
+
+            entityModel = glm::translate(entityModel, glm::vec3(entity.pos.x, targetY, entity.pos.z));
             
             float anguloHaciaCamara = atan2(cameraPos.x - entity.pos.x, cameraPos.z - entity.pos.z);
             entityModel = glm::rotate(entityModel, anguloHaciaCamara, glm::vec3(0.0f, 1.0f, 0.0f));
 
             float escala = (entity.type != 2) ? 0.3f : 0.9f; 
+
             entityModel = glm::scale(entityModel, glm::vec3(escala, escala, escala));
 
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
