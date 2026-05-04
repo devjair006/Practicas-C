@@ -27,6 +27,9 @@ const unsigned int SCR_HEIGHT = 768;
 // Variables de HUD (ImGui)----
 std::string currentHUDMessage = "";
 float hudMessageTimer = 0.0f;
+bool isReadingDocument = false;
+std::string currentDocumentTitle = "";
+std::string currentDocumentBody = "";
 
 // ==========================================
 // SHADERS
@@ -153,7 +156,7 @@ const char* fragmentShaderSource = R"(
     }
 )";
 
-glm::vec3 cameraPos   = glm::vec3(12.0f, 0.0f, 22.0f);
+glm::vec3 cameraPos   = glm::vec3(25.0f, 0.0f, 48.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
@@ -210,7 +213,7 @@ std::vector<Entity> gameEntities = {
     // --- ESCENA 1: PASILLO ---
     {glm::vec3(12.0f, -0.4f, 21.0f), 3, true, "[CABLE SUELTO]:  Hay un cable pelado aqui. Quien lo corto lo hizo con prisa.", 0.0f},
     {glm::vec3(12.0f, -0.4f, 18.0f), 0, true, "LOG 1 (Arrugado): 'El proyecto se suponia que predeciria catastrofes. Solo veo una frente a mi.'", 0.0f},
-    {glm::vec3(11.0f, -0.4f, 16.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla) (Mover de X=10 a X=11)
+    {glm::vec3(12.0f, -0.2f, 24.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla)
     {glm::vec3(12.0f, -0.2f, 16.0f), 1, true, "", 0.0f}, // Batería 1 (Mover de X=14 a X=12)
     
     // --- ESCENA 2: CONTROL ---
@@ -241,17 +244,23 @@ std::vector<Entity> gameEntities = {
     
     {glm::vec3(9.0f, -0.2f, 5.0f), 0, true, "LOG 3 (Rasgado): 'La copia ya no sigue instrucciones. Intenta replicar comportamiento humano.'", 0.0f},
     {glm::vec3(16.0f, -0.2f, 3.0f), 1, true, "", 0.0f}, // Batería 3
+    {glm::vec3(4.0f, -0.3f, 28.0f), 0, true, "LOG 0 (Recepcion): 'Sellamos las alas laterales, pero los pasos siguen sonando detras de las paredes.'", 0.0f},
+    {glm::vec3(5.0f, -0.4f, 25.0f), 3, true, "[CINTA DE AISLAMIENTO]: La cinta de seguridad fue arrancada desde adentro.", 0.0f},
+    {glm::vec3(19.0f, -0.5f, 27.0f), 4, true, "", 9.0f},
+    {glm::vec3(19.0f, 0.0f, 27.0f), 5, true, "[MONITOR AUXILIAR]: 'Camaraaaaaaaaaaaaaa 04 sin sena l. Se detecta duplicacion de firma termica.'", 9.5f},
+    {glm::vec3(4.0f, -0.2f, 16.0f), 0, true, "LOGx 1-B (Archivado): 'La sala de control ya no responde al operador correcto. La voz del sistema suena como la mia.'", 0.0f},
+    {glm::vec3(20.0f, -0.2f, 4.0f), 1, true, "", 0.0f}, // Batería extra opcional
     
     // La Entidad
     {glm::vec3(12.0f, 0.0f, 2.0f), 2, true, "", 0.0f}
 };
 
 // ==========================================
-// MAPA LINEAL (24x24) - Laboratorio Estructurado
+// MAPA EXPANDIDO (24x32) - Laboratorio Estructurado
 // 0=Vacío, 1=Pasillo, 2=Control, 3=Lab, 4=Bloque sólido invisible, 8=Puerta Nivel 1, 9=Puerta Nivel 2
 // ==========================================
-const int MAP_WIDTH = 24;
-const int MAP_HEIGHT = 24;
+const int MAP_WIDTH = 50;
+const int MAP_HEIGHT = 50;
 
 // --- Animacion de Puertas ---
 float door1Anim = 0.0f; // 0.0 a 90.0 grados
@@ -260,35 +269,61 @@ float door2Anim = 0.0f;
 bool door2Opening = false;
 
 int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
-    // NORTE: ESCENA 3 - LABORATORIO PRINCIPAL (Z=0 a 7)
-    {3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3},
-    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
-    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
-    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
-    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
-    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
-    {3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3},
-    {3,3,3,3,3,3,3,3,3,3,3,9,9,3,3,3,3,3,3,3,3,3,3,3}, // Puerta Nivel 2 (Roja)
+    // NORTE: ESCENA 3 - LABORATORIO PRINCIPAL (Z=0 a 14)
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,1,1,9,9,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // Puerta Nivel 2 (Roja)
     
-    // MEDIO: ESCENA 2 - SALA DE CONTROL (Z=8 a 14)
-    {2,2,2,2,2,2,2,2,2,2,2,0,0,2,2,2,2,2,2,2,2,2,2,2},
-    {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-    {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-    {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-    {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-    {2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2},
-    {2,2,2,2,2,2,2,2,2,2,2,8,8,2,2,2,2,2,2,2,2,2,2,2}, // Puerta Nivel 1 (Amarilla)
+    // MEDIO: ESCENA 2 - SALA DE CONTROL (Z=15 a 34)
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,1,8,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // Puerta Nivel 1 (Amarilla)
 
-    // SUR: ESCENA 1 - PASILLO DE ACCESO (Z=15 a 23)
-    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+    // SUR: ESCENA 1 - PASILLO DE ACCESO (Z=35 a 49)
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
 // ==========================================
@@ -320,8 +355,8 @@ bool checkCollision(float x, float z) {
 }
 
 void updateZone() {
-    if (cameraPos.z >= 15.0f) currentZone = 1;
-    else if (cameraPos.z >= 8.0f) currentZone = 2;
+    if (cameraPos.z >= 20.0f) currentZone = 1;
+    else if (cameraPos.z >= 9.0f) currentZone = 2;
     else currentZone = 3;
 }
 
@@ -329,6 +364,18 @@ void printTypewriter(std::string text) {
     currentHUDMessage = text;
     hudMessageTimer = 5.0f; // Mostrar por 5 segundos
     std::cout << "\n> " << text << "\n" << std::endl; // Mantenemos el log por si acaso
+}
+
+void openDocument(const std::string& title, const std::string& body) {
+    currentDocumentTitle = title;
+    currentDocumentBody = body;
+    isReadingDocument = true;
+}
+
+void closeDocument() {
+    isReadingDocument = false;
+    currentDocumentTitle.clear();
+    currentDocumentBody.clear();
 }
 
 void tryOpenDoor(GLFWwindow *window) {
@@ -372,9 +419,22 @@ void tryOpenDoor(GLFWwindow *window) {
 
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+        if (isReadingDocument) closeDocument();
+        else glfwSetWindowShouldClose(window, true);
 
     if (gameState == GAMEOVER) return;
+
+    if (isReadingDocument) {
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+            if (!eKeyWasPressed) {
+                closeDocument();
+                eKeyWasPressed = true;
+            }
+        } else {
+            eKeyWasPressed = false;
+        }
+        return;
+    }
 
     if (gameState == MENU) {
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
@@ -473,7 +533,7 @@ void processInput(GLFWwindow *window) {
     int prevZone = currentZone;
     updateZone();
     if (prevZone != currentZone) {
-        if (currentZone == 2 && !dimensionAlterna) printTypewriter("ESCENA 2: SALA DE CONTROL\nLuz verde tenue. Computadoras encendidas solas.");
+        if (currentZone == 2 && !dimensionAlterna) printTypewriter("ESCENA 2: SALA DE CONTROL \nLuz verde tenue. Computadoras encendidas solas.");
         if (currentZone == 3 && !dimensionAlterna) printTypewriter("ESCENA 3: LABORATORIO PRINCIPAL\nEncuentras la esfera central del experimento. Necesitas baterias.");
     }
 
@@ -534,9 +594,23 @@ void processInput(GLFWwindow *window) {
                     } else if (entity.type == 8) {
                         hasKeycardLvl1 = true;
                         std::cout << "\n[OBJETO CLAVE]: Has obtenido la TARJETA AMARILLA (Nivel 1).\n" << std::endl;
+                        openDocument(
+                            "TARJETA AMARILLA - NIVEL 1",
+                            "Autorizacion: Sala de Control.\n\n"
+                            "Personal permitido: mantenimiento y soporte.\n"
+                            "Observacion manuscrita:\n"
+                            "\"Si la puerta se abre sola, no entres.\""
+                        );
                     } else if (entity.type == 9) {
                         hasKeycardLvl2 = true;
                         std::cout << "\n[OBJETO CLAVE]: Has obtenido la TARJETA ROJA (Nivel 2).\n" << std::endl;
+                        openDocument(
+                            "TARJETA ROJA - NIVEL 2",
+                            "Autorizacion: Laboratorio principal.\n\n"
+                            "Acceso restringido a personal senior.\n"
+                            "Nota de emergencia:\n"
+                            "\"No activen el nucleo sin las baterias. La copia ya no obedece.\""
+                        );
                     }
                 }
             } 
@@ -1307,6 +1381,22 @@ int main() {
             float textWidth = ImGui::CalcTextSize(currentHUDMessage.c_str()).x;
             ImGui::SetCursorPosX((currentWidth * 0.8f - textWidth) * 0.5f);
             ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "%s", currentHUDMessage.c_str());
+            ImGui::End();
+        }
+
+        if (isReadingDocument) {
+            ImGui::SetNextWindowPos(ImVec2(currentWidth * 0.18f, currentHeight * 0.16f));
+            ImGui::SetNextWindowSize(ImVec2(currentWidth * 0.64f, currentHeight * 0.5f));
+            ImGui::SetNextWindowBgAlpha(0.94f);
+            ImGui::Begin("Documento", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+            ImGui::SetWindowFontScale(1.15f);
+            ImGui::TextWrapped("%s", currentDocumentTitle.c_str());
+            ImGui::Separator();
+            ImGui::Spacing();
+            ImGui::TextWrapped("%s", currentDocumentBody.c_str());
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "E o ESC para cerrar");
             ImGui::End();
         }
         ImGui::Render();
