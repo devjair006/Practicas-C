@@ -210,49 +210,49 @@ struct Entity {
 };
 
 std::vector<Entity> gameEntities = {
-    // --- ESCENA 1: PASILLO ---
-    {glm::vec3(12.0f, -0.4f, 21.0f), 3, true, "[CABLE SUELTO]:  Hay un cable pelado aqui. Quien lo corto lo hizo con prisa.", 0.0f},
-    {glm::vec3(12.0f, -0.4f, 18.0f), 0, true, "LOG 1 (Arrugado): 'El proyecto se suponia que predeciria catastrofes. Solo veo una frente a mi.'", 0.0f},
-    {glm::vec3(12.0f, -0.2f, 24.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla)
-    {glm::vec3(12.0f, -0.2f, 16.0f), 1, true, "", 0.0f}, // Batería 1 (Mover de X=14 a X=12)
+    // --- ESCENA 1: PASILLO (Z=35 a 49) ---
+    {glm::vec3(25.0f, -0.4f, 40.0f), 3, true, "[CABLE SUELTO]:  Hay un cable pelado aqui. Quien lo corto lo hizo con prisa.", 0.0f},
+    {glm::vec3(25.0f, -0.4f, 38.0f), 0, true, "LOG 1 (Arrugado): 'El proyecto se suponia que predeciria catastrofes. Solo veo una frente a mi.'", 0.0f},
+    {glm::vec3(25.0f, -0.2f, 45.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla)
+    {glm::vec3(25.0f, -0.2f, 36.0f), 1, true, "", 0.0f}, // Bateria 1
+    {glm::vec3(4.0f, -0.3f, 47.0f), 0, true, "LOG 0 (Recepcion): 'Sellamos las alas laterales, pero los pasos siguen sonando detras de las paredes.'", 0.0f},
+    {glm::vec3(5.0f, -0.4f, 44.0f), 3, true, "[CINTA DE AISLAMIENTO]: La cinta de seguridad fue arrancada desde adentro.", 0.0f},
+    {glm::vec3(40.0f, -0.5f, 46.0f), 4, true, "", 9.0f},
+    {glm::vec3(40.0f, 0.0f, 46.0f), 5, true, "[MONITOR AUXILIAR]: 'Camara 04 sin senal. Se detecta duplicacion de firma termica.'", 9.5f},
     
-    // --- ESCENA 2: CONTROL ---
-    {glm::vec3(10.0f, -0.5f, 12.0f), 4, true, "", 1.0f},
-    {glm::vec3(10.0f, 0.0f, 12.0f), 5, true, "[PANTALLA VERDE]: 'La senal responde... pero no es un eco.'", 1.5f},
+    // --- ESCENA 2: CONTROL (Z=15 a 34) ---
+    {glm::vec3(20.0f, -0.5f, 25.0f), 4, true, "", 1.0f},
+    {glm::vec3(20.0f, 0.0f, 25.0f), 5, true, "[PANTALLA VERDE]: 'La senal responde... pero no es un eco.'", 1.5f},
     
-    {glm::vec3(14.0f, -0.5f, 12.0f), 4, true, "", 2.0f},
-    {glm::vec3(14.0f, 0.0f, 12.0f), 5, true, "[PANTALLA ERROR]: 'Esta replicando estructuras... con errores en la masa. Falta algo.'", 2.5f},
-    {glm::vec3(14.0f, -0.4f, 11.5f), 9, true, "", 0.0f}, // TARJETA NV 2 (Roja)
+    {glm::vec3(30.0f, -0.5f, 25.0f), 4, true, "", 2.0f},
+    {glm::vec3(30.0f, 0.0f, 25.0f), 5, true, "[PANTALLA ERROR]: 'Esta replicando estructuras... con errores en la masa. Falta algo.'", 2.5f},
+    {glm::vec3(30.0f, -0.4f, 24.0f), 9, true, "", 0.0f}, // TARJETA NV 2 (Roja)
     
-    {glm::vec3(10.0f, -0.5f, 10.0f), 4, true, "", 3.0f},
-    {glm::vec3(10.0f, 0.0f, 10.0f), 5, true, "[PANTALLA APAGADA]: Solo hay estatica...", 3.5f},
+    {glm::vec3(20.0f, -0.5f, 20.0f), 4, true, "", 3.0f},
+    {glm::vec3(20.0f, 0.0f, 20.0f), 5, true, "[PANTALLA APAGADA]: Solo hay estatica...", 3.5f},
     
-    {glm::vec3(14.0f, -0.5f, 10.0f), 4, true, "", 4.0f},
-    {glm::vec3(14.0f, 0.0f, 10.0f), 5, true, "[REGISTRO MAESTRO]: 'EVACUACION INMEDIATA. NO MIREN ATRAS.'", 4.5f},
+    {glm::vec3(30.0f, -0.5f, 20.0f), 4, true, "", 4.0f},
+    {glm::vec3(30.0f, 0.0f, 20.0f), 5, true, "[REGISTRO MAESTRO]: 'EVACUACION INMEDIATA. NO MIREN ATRAS.'", 4.5f},
     
-    {glm::vec3(12.0f, -0.2f, 11.0f), 0, true, "LOG 2 (Sangriento): 'Se suponia que copiara la habitacion, pero... empezo a copiar mis movimientos.'", 0.0f},
-    {glm::vec3(16.0f, -0.2f, 9.0f), 1, true, "", 0.0f}, // Batería 2
-    {glm::vec3(8.0f, -0.4f, 9.0f), 3, true, "[MANCHA]: Un charco oscuro de procedencia dudosa.", 0.0f},
+    {glm::vec3(25.0f, -0.2f, 22.0f), 0, true, "LOG 2 (Sangriento): 'Se suponia que copiara la habitacion, pero... empezo a copiar mis movimientos.'", 0.0f},
+    {glm::vec3(35.0f, -0.2f, 16.0f), 1, true, "", 0.0f}, // Bateria 2
+    {glm::vec3(10.0f, -0.4f, 16.0f), 3, true, "[MANCHA]: Un charco oscuro de procedencia dudosa.", 0.0f},
+    {glm::vec3(4.0f, -0.2f, 30.0f), 0, true, "LOGx 1-B (Archivado): 'La sala de control ya no responde al operador correcto. La voz del sistema suena como la mia.'", 0.0f},
     
-    // --- ESCENA 3: LABORATORIO ---
-    {glm::vec3(8.0f, 0.0f, 6.0f), 6, true, "[MAQUINA]: Nivel de radiacion al 900%. Inestable.", 5.0f},
-    {glm::vec3(16.0f, 0.0f, 6.0f), 6, true, "[MAQUINA]: Cables arrancados. Alguien intento apagarlo a la fuerza.", 6.0f},
-    {glm::vec3(8.0f, 0.0f, 2.0f), 6, true, "[MAQUINA]: 'ERROR CRITICO DE SIMETRIA DIMENSIONAL'.", 7.0f},
-    {glm::vec3(16.0f, 0.0f, 2.0f), 6, true, "[MAQUINA]: ...", 8.0f},
+    // --- ESCENA 3: LABORATORIO (Z=0 a 14) ---
+    {glm::vec3(10.0f, 0.0f, 8.0f), 6, true, "[MAQUINA]: Nivel de radiacion al 900%. Inestable.", 5.0f},
+    {glm::vec3(40.0f, 0.0f, 8.0f), 6, true, "[MAQUINA]: Cables arrancados. Alguien intento apagarlo a la fuerza.", 6.0f},
+    {glm::vec3(10.0f, 0.0f, 3.0f), 6, true, "[MAQUINA]: 'ERROR CRITICO DE SIMETRIA DIMENSIONAL'.", 7.0f},
+    {glm::vec3(40.0f, 0.0f, 3.0f), 6, true, "[MAQUINA]: ...", 8.0f},
     
-    {glm::vec3(12.0f, 1.0f, 4.0f), 7, true, "[EL PORTAL]: Una esfera masiva flotando, emitiendo energia cruda.", 0.0f},
+    {glm::vec3(25.0f, 1.0f, 5.0f), 7, true, "[EL PORTAL]: Una esfera masiva flotando, emitiendo energia cruda.", 0.0f},
     
-    {glm::vec3(9.0f, -0.2f, 5.0f), 0, true, "LOG 3 (Rasgado): 'La copia ya no sigue instrucciones. Intenta replicar comportamiento humano.'", 0.0f},
-    {glm::vec3(16.0f, -0.2f, 3.0f), 1, true, "", 0.0f}, // Batería 3
-    {glm::vec3(4.0f, -0.3f, 28.0f), 0, true, "LOG 0 (Recepcion): 'Sellamos las alas laterales, pero los pasos siguen sonando detras de las paredes.'", 0.0f},
-    {glm::vec3(5.0f, -0.4f, 25.0f), 3, true, "[CINTA DE AISLAMIENTO]: La cinta de seguridad fue arrancada desde adentro.", 0.0f},
-    {glm::vec3(19.0f, -0.5f, 27.0f), 4, true, "", 9.0f},
-    {glm::vec3(19.0f, 0.0f, 27.0f), 5, true, "[MONITOR AUXILIAR]: 'Camaraaaaaaaaaaaaaa 04 sin sena l. Se detecta duplicacion de firma termica.'", 9.5f},
-    {glm::vec3(4.0f, -0.2f, 16.0f), 0, true, "LOGx 1-B (Archivado): 'La sala de control ya no responde al operador correcto. La voz del sistema suena como la mia.'", 0.0f},
-    {glm::vec3(20.0f, -0.2f, 4.0f), 1, true, "", 0.0f}, // Batería extra opcional
+    {glm::vec3(15.0f, -0.2f, 6.0f), 0, true, "LOG 3 (Rasgado): 'La copia ya no sigue instrucciones. Intenta replicar comportamiento humano.'", 0.0f},
+    {glm::vec3(35.0f, -0.2f, 4.0f), 1, true, "", 0.0f}, // Bateria 3
+    {glm::vec3(42.0f, -0.2f, 5.0f), 1, true, "", 0.0f}, // Bateria extra
     
     // La Entidad
-    {glm::vec3(12.0f, 0.0f, 2.0f), 2, true, "", 0.0f}
+    {glm::vec3(25.0f, 0.0f, 3.0f), 2, true, "", 0.0f}
 };
 
 // ==========================================
@@ -299,29 +299,29 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,1,1,1,1,1,1,1,1,1,8,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // Puerta Nivel 1 (Amarilla)
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,1,8,8,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // Puerta Nivel 1 (Amarilla)
 
     // SUR: ESCENA 1 - PASILLO DE ACCESO (Z=35 a 49)
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
@@ -355,8 +355,8 @@ bool checkCollision(float x, float z) {
 }
 
 void updateZone() {
-    if (cameraPos.z >= 20.0f) currentZone = 1;
-    else if (cameraPos.z >= 9.0f) currentZone = 2;
+    if (cameraPos.z >= 35.0f) currentZone = 1;
+    else if (cameraPos.z >= 15.0f) currentZone = 2;
     else currentZone = 3;
 }
 
@@ -389,10 +389,9 @@ void tryOpenDoor(GLFWwindow *window) {
         
         if (targetBlock == 8) { // Puerta Amarilla
             if (hasKeycardLvl1) {
-                // La puerta amarilla abarca x=11 y x=12. Los cambiamos ambos a -8.
-                if (gridX == 11 || gridX == 12) {
-                    worldMap[gridZ][11] = -8; 
-                    worldMap[gridZ][12] = -8; 
+                // Abrir ambas celdas de la puerta en esta fila
+                for (int cx = 0; cx < MAP_WIDTH; cx++) {
+                    if (worldMap[gridZ][cx] == 8) worldMap[gridZ][cx] = -8;
                 }
                 door1Opening = true; // Iniciar animacion
                 printTypewriter("[PUERTA]: Tarjeta Nivel 1 Aceptada. Accediendo a Sala de Control.");
@@ -402,10 +401,9 @@ void tryOpenDoor(GLFWwindow *window) {
             }
         } else if (targetBlock == 9) { // Puerta Roja
             if (hasKeycardLvl2) {
-                // La puerta roja también abarca x=11 y x=12. Los cambiamos ambos a -9.
-                if (gridX == 11 || gridX == 12) {
-                    worldMap[gridZ][11] = -9;
-                    worldMap[gridZ][12] = -9;
+                // Abrir ambas celdas de la puerta en esta fila
+                for (int cx = 0; cx < MAP_WIDTH; cx++) {
+                    if (worldMap[gridZ][cx] == 9) worldMap[gridZ][cx] = -9;
                 }
                 door2Opening = true; // Iniciar animacion
                 printTypewriter("[PUERTA]: Tarjeta Nivel 2 Aceptada. Peligro: Zona de Alta Radiacion.");
@@ -547,7 +545,7 @@ void processInput(GLFWwindow *window) {
             
             // Consola frente a la esfera (Solo se puede interactuar si estas en el laboratorio)
             if (!portalActivado && currentZone == 3) {
-                float distA_Consola = glm::length(cameraPos - glm::vec3(12.0f, 0.0f, 6.0f)); 
+                float distA_Consola = glm::length(cameraPos - glm::vec3(25.0f, 0.0f, 7.0f)); 
                 if (distA_Consola < 2.0f) {
                     if (bateriasRecolectadas >= 3) {
                         portalActivado = true;
@@ -1063,13 +1061,20 @@ int main() {
                 if (renderBlock != 0 && (blockType > 0 || renderBlock == -8 || renderBlock == -9)) { 
                     bool is3DDoor = (renderBlock == 8 || renderBlock == 9 || renderBlock == -8 || renderBlock == -9);
                     
-                    if (is3DDoor && x == 12) {
-                        // Skip
-                    } else if (is3DDoor && x == 11) {
+                    // Detectar si esta celda es la primera o segunda de un par de puertas
+                    bool isSecondDoorCell = false;
+                    if (is3DDoor && x > 0) {
+                        int prevBlock = worldMap[z][x - 1];
+                        if (prevBlock == renderBlock) isSecondDoorCell = true;
+                    }
+                    
+                    if (is3DDoor && isSecondDoorCell) {
+                        // Skip: la segunda celda de la puerta, ya se dibuja desde la primera
+                    } else if (is3DDoor && !isSecondDoorCell) {
                         glm::mat4 baseModel = glm::mat4(1.0f);
                         
-                        // 4. Mover al centro del hueco (11.5) y anclar al piso de la pared (-0.5)
-                        baseModel = glm::translate(baseModel, glm::vec3(11.5f, -0.5f, (float)z));
+                        // 4. Mover al centro del hueco y anclar al piso de la pared (-0.5)
+                        baseModel = glm::translate(baseModel, glm::vec3((float)x + 0.5f, -0.5f, (float)z));
                         
                         // 3. Escalar para encajar en el juego.
                         // Ancho de ensamble: 1.81 -> Juego: 2.0 (Escala 1.1)
