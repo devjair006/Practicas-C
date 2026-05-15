@@ -31,9 +31,9 @@ bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
-// ==========================================
-// SHADERS
-// ==========================================
+
+// SHADERS 
+
 const char* vertexShaderSource = R"(
     #version 330 core
     layout (location = 0) in vec3 aPos;

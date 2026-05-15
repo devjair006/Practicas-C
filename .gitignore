@@ -7,7 +7,7 @@ build_win/
 # Ejecutables y binarios
 *.exe
 *.o
-*.obj
+
 app
 app.dSYM/
 
