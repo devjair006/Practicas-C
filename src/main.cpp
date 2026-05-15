@@ -156,7 +156,7 @@ const char* fragmentShaderSource = R"(
     }
 )";
 
-glm::vec3 cameraPos   = glm::vec3(25.0f, 0.0f, 48.0f);
+glm::vec3 cameraPos   = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
@@ -210,47 +210,32 @@ struct Entity {
 };
 
 std::vector<Entity> gameEntities = {
-    // --- ESCENA 1: PASILLO (Z=35 a 49) ---
-    {glm::vec3(25.0f, -0.4f, 40.0f), 3, true, "[CABLE SUELTO]:Hay   un cable pelado aqui. Quien lo corto lo hizo con prisa.", 0.0f},
-    {glm::vec3(25.0f, -0.4f, 38.0f), 0, true, "LOG 1 (Arrugado): 'El proyecto se suponia que predeciria catastrofes. Solo veo una frente a mi.'", 0.0f},
-    {glm::vec3(40.0f, -0.2f, 48.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla)
-    {glm::vec3(25.0f, -0.2f, 36.0f), 1, true, "", 0.0f}, // Bateria 1
-    {glm::vec3(4.0f, -0.3f, 47.0f), 0, true, "LOG 0 (Recepcion): 'Sellamos las alas laterales, pero los pasos siguen sonando detras de las paredes.'", 0.0f},
-    {glm::vec3(5.0f, -0.4f, 44.0f), 3, true, "[CINTA DE AISLAMIENTO]: La cinta de seguridad fue arrancada desde adentro.", 0.0f},
-    {glm::vec3(40.0f, -0.5f, 46.0f), 4, true, "", 9.0f},
-    {glm::vec3(40.0f, 0.0f, 46.0f), 5, true, "[MONITOR AUXILIAR]: 'Camara 04 sin senal. Se detecta duplicacion de firma termica.'", 9.5f},
+    // --- ZONA NORTE (z=2 a 11) : INICIO, OFICINAS, BAÑOS ---
+    {glm::vec3(8.0f, -0.4f, 4.0f), 3, true, "[CABLE SUELTO]:Hay un cable pelado aqui.", 0.0f},
+    {glm::vec3(20.0f, -0.4f, 5.0f), 0, true, "LOG 1 (Arrugado): 'Apagon general. Las compuertas se bloquearon.'", 0.0f},
+    {glm::vec3(42.0f, -0.2f, 5.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla) en Baños
+    {glm::vec3(12.0f, -0.2f, 6.0f), 1, true, "", 0.0f}, // Bateria 1 en Sala Descanso
+    {glm::vec3(24.0f, -0.5f, 6.0f), 4, true, "", 1.0f}, // Mesa en Oficinas
+    {glm::vec3(24.0f, 0.0f, 6.0f), 5, true, "[MONITOR AUXILIAR]: 'Sistema inestable.'", 1.5f},
     
-    // --- ESCENA 2: CONTROL (Z=15 a 34) ---
-    {glm::vec3(20.0f, -0.5f, 25.0f), 4, true, "", 1.0f},
-    {glm::vec3(20.0f, 0.0f, 25.0f), 5, true, "[PANTALLA VERDE]: 'La senal responde... pero no es un eco.'", 1.5f},
+    // --- ZONA MEDIA (z=13 a 20) : LABS, FRIGORIFICO, CONTENCION ---
+    {glm::vec3(10.0f, -0.5f, 15.0f), 4, true, "", 2.0f}, // Mesa en Labs
+    {glm::vec3(10.0f, 0.0f, 15.0f), 5, true, "[PANTALLA ERROR]: 'Falla de contencion.'", 2.5f},
+    {glm::vec3(28.0f, 0.0f, 16.0f), 6, true, "[MAQUINA]: Unidad Frigorifica.", 5.0f}, // Maquina en Frigorifico
+    {glm::vec3(42.0f, -0.4f, 17.0f), 9, true, "", 0.0f}, // TARJETA NV 2 (Roja) en Contencion
+    {glm::vec3(42.0f, -0.2f, 15.0f), 0, true, "LOG 2 (Sangriento): 'La muestra escapo.'", 0.0f},
+    {glm::vec3(15.0f, -0.2f, 18.0f), 1, true, "", 0.0f}, // Bateria 2 en Labs
     
-    {glm::vec3(30.0f, -0.5f, 25.0f), 4, true, "", 2.0f},
-    {glm::vec3(30.0f, 0.0f, 25.0f), 5, true, "[PANTALLA ERROR]: 'Esta replicando estructuras... con errores en la masa. Falta algo.'", 2.5f},
-    {glm::vec3(30.0f, -0.4f, 24.0f), 9, true, "", 0.0f}, // TARJETA NV 2 (Roja)
+    // --- ZONA SUR (z=25 a 43) : VENTILACION, PRUEBAS, GENERADORES ---
+    {glm::vec3(10.0f, -0.4f, 28.0f), 3, true, "[MANCHA]: Rastro oscuro hacia ventilacion.", 0.0f},
+    {glm::vec3(10.0f, -0.5f, 38.0f), 4, true, "", 3.0f}, // Mesa en Sala Pruebas
+    {glm::vec3(10.0f, 0.0f, 38.0f), 5, true, "[REGISTRO MAESTRO]: 'EVACUACION INMEDIATA.'", 3.5f},
+    {glm::vec3(28.0f, 0.0f, 38.0f), 6, true, "[GENERADOR]: Requiere reinicio.", 6.0f},
+    {glm::vec3(22.0f, -0.2f, 40.0f), 1, true, "", 0.0f}, // Bateria 3 en Generadores
     
-    {glm::vec3(20.0f, -0.5f, 20.0f), 4, true, "", 3.0f},
-    {glm::vec3(20.0f, 0.0f, 20.0f), 5, true, "[PANTALLA APAGADA]: Solo hay estatica...", 3.5f},
-    
-    {glm::vec3(30.0f, -0.5f, 20.0f), 4, true, "", 4.0f},
-    {glm::vec3(30.0f, 0.0f, 20.0f), 5, true, "[REGISTRO MAESTRO]: 'EVACUACION INMEDIATA. NO MIREN ATRAS.'", 4.5f},
-    
-    {glm::vec3(25.0f, -0.2f, 22.0f), 0, true, "LOG 2 (Sangriento): 'Se suponia que copiara la habitacion, pero... empezo a copiar mis movimientos.'", 0.0f},
-    {glm::vec3(35.0f, -0.2f, 16.0f), 1, true, "", 0.0f}, // Bateria 2
-    {glm::vec3(10.0f, -0.4f, 16.0f), 3, true, "[MANCHA]: Un charco oscuro de procedencia dudosa.", 0.0f},
-    {glm::vec3(4.0f, -0.2f, 30.0f), 0, true, "LOGx 1-B (Archivado): 'La sala de control ya no responde al operador correcto. La voz del sistema suena como la mia.'", 0.0f},
-    
-    // --- ESCENA 3: LABORATORIO (Z=0 a 14) ---
-    {glm::vec3(10.0f, 0.0f, 8.0f), 6, true, "[MAQUINA]: Nivel de radiacion al 900%. Inestable.", 5.0f},
-    {glm::vec3(40.0f, 0.0f, 8.0f), 6, true, "[MAQUINA]: Cables arrancados. Alguien intento apagarlo a la fuerza.", 6.0f},
-    {glm::vec3(10.0f, 0.0f, 3.0f), 6, true, "[MAQUINA]: 'ERROR CRITICO DE SIMETRIA DIMENSIONAL'.", 7.0f},
-    {glm::vec3(40.0f, 0.0f, 3.0f), 6, true, "[MAQUINA]: ...", 8.0f},
-    
-    {glm::vec3(25.0f, 1.0f, 5.0f), 7, true, "[EL PORTAL]: Una esfera masiva flotando, emitiendo energia cruda.", 0.0f},
-    
-    {glm::vec3(15.0f, -0.2f, 6.0f), 0, true, "LOG 3 (Rasgado): 'La copia ya no sigue instrucciones. Intenta replicar comportamiento humano.'", 0.0f},
-    {glm::vec3(35.0f, -0.2f, 4.0f), 1, true, "", 0.0f}, // Bateria 3
-    {glm::vec3(42.0f, -0.2f, 5.0f), 1, true, "", 0.0f}, // Bateria extra
-    
+    // --- CORREDOR FINAL (z=45 a 47) ---
+    {glm::vec3(24.0f, 1.0f, 46.0f), 7, true, "[PALANCA MAESTRA]: Energia restaurada.", 0.0f},
+
     // La Entidad
     {glm::vec3(25.0f, 0.0f, 3.0f), 2, true, "", 0.0f}
 };
@@ -262,6 +247,10 @@ std::vector<Entity> gameEntities = {
 const int MAP_WIDTH = 50;
 const int MAP_HEIGHT = 50;
 
+// --- Configuración de dimensiones de paredes ---
+float wallWidth = 0.3f;  // Grosor visual de las paredes (se estira automáticamente si hay vecinos)
+float wallHeight = 1.0f; // 1.0 es la altura estándar
+
 // --- Animacion de Puertas ---
 float door1Anim = 0.0f; // 0.0 a 90.0 grados
 bool door1Opening = false;
@@ -269,59 +258,73 @@ float door2Anim = 0.0f;
 bool door2Opening = false;
 
 int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
-    // NORTE: ESCENA 3 - LABORATORIO PRINCIPAL (Z=0 a 14)
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    // ============ PROYECTO ÁTOMO - NIVEL -4 ============
+    // 0=Vacío, 1=Pared, 8=Puerta Nivel 1, 9=Puerta Nivel 2
+    // NORTE (z=0): Borde superior
+    //0000 esos q estan ahi van a equivales a los asensores 
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    // z=1: Acceso desde Nivel -3 (entrada superior) + inicio de salas
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    // z=2-8: SALA DE DESCANSO(1) | ZONA DE OFICINAS(2) | BAÑOS(3)
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    // z=9: Pared entre salas norte y corredor principal (con entradas a cada sala)
+    {1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+    // z=10-11: CORREDOR PRINCIPAL ESTE-OESTE
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // Puerta Nivel 2 (Roja)
-    
-    // MEDIO: ESCENA 2 - SALA DE CONTROL (Z=15 a 34)
+    // z=12: Pared sur del corredor (puerta 8=Nivel1 hacia Labs Clínicos)
+    {1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,8,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1},
+    // z=13-20: SALA VIGILANCIA | LABS CLÍNICOS(4) | C.FRIGORÍFICA(5) | CONTENCIÓN(6)
+    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    // z=21: Pared divisoria medio-sur (entradas a Ventilación y corredor)
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1},
+    // z=22-23: CORREDOR CENTRAL
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    // z=24: Pared con entradas a zona sur
+    {1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1},
+    // z=25-33: CONDUCTOS VENTILACIÓN(7) izq | SALA DE PRUEBAS(8) centro-izq
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, // Puerta Nivel 1 (Amarilla)
-
-    // SUR: ESCENA 1 - PASILLO DE ACCESO (Z=35 a 49)
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,8,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    // z=34: Pared divisoria con puerta 9 (Nivel 2) hacia Generadores
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,9,9,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    // z=35-43: SALA DE PRUEBAS(8) izq | SALA DE GENERADORES(9) der | SALIDA(10)
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
+    // z=44: Pared sur con entrada al corredor de interruptores
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    // z=45-47: CORREDOR DE INTERRUPTORES + PALANCA MAESTRA
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    // z=48-49: Pared inferior + borde
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
@@ -331,18 +334,47 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
 // ==========================================
 bool checkCollision(float x, float z) {
     float playerRadius = 0.25f; 
-    int minX = (int)round(x - playerRadius);
-    int maxX = (int)round(x + playerRadius);
-    int minZ = (int)round(z - playerRadius);
-    int maxZ = (int)round(z + playerRadius);
     
-    if (minX < 0 || maxX >= MAP_WIDTH || minZ < 0 || maxZ >= MAP_HEIGHT) return true;
+    // Verificar celdas vecinas
+    int startX = (int)floor(x - 1.0f);
+    int endX   = (int)ceil(x + 1.0f);
+    int startZ = (int)floor(z - 1.0f);
+    int endZ   = (int)ceil(z + 1.0f);
+
+    for (int cz = startZ; cz <= endZ; cz++) {
+        for (int cx = startX; cx <= endX; cx++) {
+            if (cx < 0 || cx >= MAP_WIDTH || cz < 0 || cz >= MAP_HEIGHT) {
+                return true; // Límites sólidos del mapa
+            }
+            
+            if (worldMap[cz][cx] > 0) {
+                // AABB de la pared: delgada por defecto, se estira si tiene vecinos
+                float halfX = wallWidth / 2.0f;
+                float halfZ = wallWidth / 2.0f;
+                bool leftW  = (cx > 0 && worldMap[cz][cx-1] > 0);
+                bool rightW = (cx < MAP_WIDTH-1 && worldMap[cz][cx+1] > 0);
+                bool upW    = (cz > 0 && worldMap[cz-1][cx] > 0);
+                bool downW  = (cz < MAP_HEIGHT-1 && worldMap[cz+1][cx] > 0);
+                if (leftW || rightW) halfX = 0.5f;
+                if (upW || downW) halfZ = 0.5f;
+
+                float wallMinX = (float)cx - halfX;
+                float wallMaxX = (float)cx + halfX;
+                float wallMinZ = (float)cz - halfZ;
+                float wallMaxZ = (float)cz + halfZ;
+
+                // Encontrar el punto más cercano en la caja al jugador
+                float closestX = glm::clamp(x, wallMinX, wallMaxX);
+                float closestZ = glm::clamp(z, wallMinZ, wallMaxZ);
+
+                float dx = x - closestX;
+                float dz = z - closestZ;
+                if ((dx * dx + dz * dz) <= (playerRadius * playerRadius)) return true;
+            }
+        }
+    }
     
-    if (worldMap[minZ][minX] > 0) return true;
-    if (worldMap[minZ][maxX] > 0) return true;
-    if (worldMap[maxZ][minX] > 0) return true;
-    if (worldMap[maxZ][maxX] > 0) return true;
-    
+    // Colisión con entidades (objetos grandes como mesas)
     for (auto& entity : gameEntities) {
         if (!entity.active) continue;
         if (entity.type == 4 || entity.type == 6) { 
@@ -1157,8 +1189,19 @@ int main() {
                         else if (blockType == 3) glBindTexture(GL_TEXTURE_2D, wallTex3);
                         glBindVertexArray(VAO);
 
+                        // Escalar paredes inteligentemente según vecinos
+                        float scaleX = wallWidth;
+                        float scaleZ = wallWidth;
+                        bool hasLeft  = (x > 0 && worldMap[z][x-1] > 0);
+                        bool hasRight = (x < MAP_WIDTH-1 && worldMap[z][x+1] > 0);
+                        bool hasUp    = (z > 0 && worldMap[z-1][x] > 0);
+                        bool hasDown  = (z < MAP_HEIGHT-1 && worldMap[z+1][x] > 0);
+                        if (hasLeft || hasRight) scaleX = 1.0f;
+                        if (hasUp || hasDown) scaleZ = 1.0f;
+
                         glm::mat4 model = glm::mat4(1.0f);
-                        model = glm::translate(model, glm::vec3((float)x, 0.0f, (float)z));
+                        model = glm::translate(model, glm::vec3((float)x, (wallHeight - 1.0f) * 0.5f, (float)z));
+                        model = glm::scale(model, glm::vec3(scaleX, wallHeight, scaleZ));
                         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
                         glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
                         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -1175,9 +1218,9 @@ int main() {
                 
                 glDrawArrays(GL_TRIANGLES, 0, 36);
 
-                if (blockType == 0 || blockType == 8 || blockType == -8 || blockType == 9 || blockType == -9) {
+                { // Techo en TODAS las celdas (incluidas las de pared, para cubrir huecos de paredes delgadas)
                     glm::mat4 roofModel = glm::mat4(1.0f);
-                    roofModel = glm::translate(roofModel, glm::vec3((float)x, 1.0f, (float)z));
+                    roofModel = glm::translate(roofModel, glm::vec3((float)x, wallHeight, (float)z));
                     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(roofModel));
                     glUniform3f(colorLoc, 0.3f, 0.3f, 0.3f); 
                     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -1378,6 +1421,15 @@ int main() {
         }
 
         // --- RENDER IMGUI HUD ---
+        // Display coordinates top-left
+        ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
+        ImGui::SetNextWindowSize(ImVec2(180.0f, 50.0f));
+        ImGui::SetNextWindowBgAlpha(0.6f);
+        ImGui::Begin("Coords", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "POSICION ACTUAL:");
+        ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
+        ImGui::End();
+
         if (hudMessageTimer > 0.0f) {
             ImGui::SetNextWindowPos(ImVec2(currentWidth * 0.1f, currentHeight * 0.8f));
             ImGui::SetNextWindowSize(ImVec2(currentWidth * 0.8f, currentHeight * 0.2f));
