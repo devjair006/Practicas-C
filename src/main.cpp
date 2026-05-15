@@ -8,6 +8,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <sstream>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -32,129 +34,34 @@ std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
 
-// SHADERS 
+// SHADERS
 
-const char* vertexShaderSource = R"(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    layout (location = 1) in vec3 aNormal;
-    layout (location = 2) in vec2 aTexCoord;
-    layout (location = 3) in vec3 aObjColor;
-
-    out vec3 FragPos;
-    out vec3 Normal;
-    out vec2 TexCoord;
-    out vec3 ObjColor;
-
-    uniform mat4 model;
-    uniform mat4 view;
-    uniform mat4 projection;
-    
-    uniform int dimensionAlterna;
-    uniform float time;
-
-    void main() {
-        vec3 finalPos = aPos;
-        if (dimensionAlterna == 1) {
-            finalPos.x += sin(time * 50.0 + aPos.y) * 0.05;
-            finalPos.y += cos(time * 30.0 + aPos.z) * 0.02;
-        }
-
-        FragPos = vec3(model * vec4(finalPos, 1.0));
-        Normal = mat3(transpose(inverse(model))) * aNormal;  
-        TexCoord = aTexCoord;
-        ObjColor = aObjColor;
-        gl_Position = projection * view * vec4(FragPos, 1.0);
+std::string loadShaderSource(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        std::cerr << "ERROR: No se pudo abrir el archivo de shader: " << path << std::endl;
+        return "";
     }
-)";
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
 
-const char* fragmentShaderSource = R"(
-    #version 330 core
-    out vec4 FragColor;
+unsigned int compileShader(GLenum type, const std::string& source, const std::string& name) {
+    unsigned int shader = glCreateShader(type);
+    const char* src = source.c_str();
+    glShaderSource(shader, 1, &src, NULL);
+    glCompileShader(shader);
 
-    in vec3 FragPos;
-    in vec3 Normal;
-    in vec2 TexCoord;
-    in vec3 ObjColor;
-
-    uniform sampler2D texture1;
-    uniform vec3 objectColor;
-
-    uniform vec3 lightPos;      
-    uniform vec3 lightDir;      
-    uniform float cutOff;       
-    uniform float outerCutOff;  
-    uniform int flashlightOn;   
-
-    uniform int dimensionAlterna;
-    uniform int currentZone; 
-    uniform float time;
-    uniform vec2 resolution;
-    uniform int useSolidColor;
-
-    void main() {
-        float ambientStrength = 0.05;
-        vec3 ambientColor = vec3(1.0);
-        vec3 flashColor = vec3(1.0);
-
-        if (currentZone == 1) {
-            ambientColor = vec3(0.6, 0.7, 0.8); 
-            flashColor = vec3(0.9, 0.9, 1.0);
-            ambientStrength = 0.1 + (sin(time * 10.0) * 0.02); 
-        } else if (currentZone == 2) {
-            ambientColor = vec3(0.4, 0.9, 0.5); 
-            flashColor = vec3(0.8, 1.0, 0.8);
-            ambientStrength = 0.15;
-        } else if (currentZone == 3) {
-            ambientColor = vec3(0.3, 0.5, 1.0); 
-            flashColor = vec3(1.0, 1.0, 1.0); 
-            ambientStrength = 0.2;
-        }
-
-        if (dimensionAlterna == 1) {
-            ambientColor = vec3(0.6, 0.0, 0.2); 
-            ambientStrength = 0.1 + (sin(time * 20.0) * 0.05) + (cos(time * 50.0) * 0.03);
-            if(ambientStrength < 0.02) ambientStrength = 0.02;
-            flashColor = vec3(1.0, 0.3, 0.3) * (0.7 + 0.3 * sin(time * 40.0));
-        }
-
-        vec3 ambient = ambientStrength * ambientColor;
-        vec3 diffuse = vec3(0.0);
-        
-        if (flashlightOn == 1) {
-            vec3 norm = normalize(Normal);
-            vec3 lightDirVec = normalize(lightPos - FragPos);
-            float diff = max(dot(norm, lightDirVec), 0.0);
-            diffuse = diff * flashColor;
-
-            float theta = dot(lightDirVec, normalize(-lightDir));
-            float epsilon = cutOff - outerCutOff;
-            float intensity = clamp((theta - outerCutOff) / epsilon, 0.0, 1.0);
-
-            float distance = length(lightPos - FragPos);
-            float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance));
-
-            diffuse *= intensity * attenuation;
-        }
-
-        vec4 texColor = texture(texture1, TexCoord);
-        if (useSolidColor == 1) {
-            texColor = vec4(ObjColor, 1.0); // Usar el color empaquetado del OBJ
-        } else if (texColor.a < 0.1) {
-            discard; 
-        }
-        
-        vec3 result = (ambient + diffuse) * objectColor;
-        
-        if (dimensionAlterna == 1) {
-            vec2 uv = gl_FragCoord.xy / resolution;
-            float distToCenter = distance(uv, vec2(0.5));
-            result *= smoothstep(0.9, 0.2, distToCenter);
-        }
-        
-        FragColor = texColor * vec4(result, 1.0);
+    int success;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        char infoLog[1024];
+        glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+        std::cerr << "ERROR: Falla al compilar shader (" << name << "):\n" << infoLog << std::endl;
     }
-)";
+    return shader;
+}
 
 glm::vec3 cameraPos   = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
@@ -789,19 +696,25 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    
+    std::string vertexShaderSource = loadShaderSource("src/shaders/vertex.vert");
+    std::string fragmentShaderSource = loadShaderSource("src/shaders/fragment.frag");
+
+    unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource, "vertex.vert");
+    unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource, "fragment.frag");
+
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
-    
+
+    int linkSuccess;
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &linkSuccess);
+    if (!linkSuccess) {
+        char infoLog[1024];
+        glGetProgramInfoLog(shaderProgram, 1024, NULL, infoLog);
+        std::cerr << "ERROR: Falla al enlazar shader program:\n" << infoLog << std::endl;
+    }
+
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
