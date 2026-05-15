@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Directorios de inclusión
-include_directories(include include/imgui include/imgui/backends)
+include_directories(include include/imgui include/imgui/backends vcpkg/installed/x64-windows/include)
 
 # Buscar GLFW3
 if(WIN32)
@@ -20,6 +20,12 @@ if(WIN32)
     include_directories("${GLUT_DIR}/include")
     link_directories("${GLUT_DIR}/lib/x64")
     set(GLUT_LIBRARIES freeglut)
+
+    # Buscar ASSIMP (VCPKG pre-installed locally)
+    set(ASSIMP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-windows")
+    include_directories("${ASSIMP_DIR}/include")
+    link_directories("${ASSIMP_DIR}/lib")
+    set(ASSIMP_LIBRARIES assimp-vc143-mt)
 else()
     find_package(glfw3 CONFIG REQUIRED)
     set(GLFW_LIBRARIES glfw)
@@ -47,7 +53,7 @@ add_executable(app ${SOURCES})
 
 # Vincular librerías
 if(WIN32)
-    target_link_libraries(app ${GLFW_LIBRARIES} ${GLUT_LIBRARIES} opengl32 user32 gdi32 shell32)
+    target_link_libraries(app ${GLFW_LIBRARIES} ${GLUT_LIBRARIES} ${ASSIMP_LIBRARIES} opengl32 user32 gdi32 shell32)
     
     # --- COPIAR DLLS AUTOMÁTICAMENTE ---
     # Esto evita que tengas que mover los archivos a mano y soluciona errores de ejecución
@@ -59,6 +65,11 @@ if(WIN32)
     add_custom_command(TARGET app POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CMAKE_CURRENT_SOURCE_DIR}/glfw3.dll"
+        $<TARGET_FILE_DIR:app>
+    )
+    add_custom_command(TARGET app POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-windows/bin/assimp-vc143-mt.dll"
         $<TARGET_FILE_DIR:app>
     )
 else()

@@ -19,6 +19,10 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include "obj_loader.h"
 
 const unsigned int SCR_WIDTH = 1024;
@@ -268,7 +272,7 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     // z=2-8: SALA DE DESCANSO(1) | ZONA DE OFICINAS(2) | BAÑOS(3)
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -756,7 +760,24 @@ unsigned int loadTextureWithFallback(char const * path, unsigned int fallback) {
     return tex == 0 ? fallback : tex;
 }
 
+#include "gltf_model.h"
+
 int main() {
+    std::cout << "--- PRUEBA DE ASSIMP ---" << std::endl;
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile("assets/Gnome - R.E.P.O.glb", 
+        aiProcess_Triangulate | 
+        aiProcess_FlipUVs | 
+        aiProcess_PopulateArmatureData |
+        aiProcess_LimitBoneWeights);
+
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
+    } else {
+        std::cout << "EXITO: El Gnomo se cargo correctamente!" << std::endl;
+    }
+    std::cout << "------------------------" << std::endl;
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -962,6 +983,11 @@ int main() {
         glEnableVertexAttribArray(3);
     }
 
+    GLTFModel* gnomeGLTF = nullptr;
+    if (scene) {
+        gnomeGLTF = new GLTFModel("assets/Gnome - R.E.P.O.glb");
+    }
+    
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
     unsigned int wallTex3 = loadTexture("assets/wall.png");     
@@ -1227,6 +1253,30 @@ int main() {
                 }
             }
         } 
+
+        // --- DIBUJAR EL GNOMO (GLTF) --------
+        if (gnomeGLTF) {
+            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Default
+            
+            glm::mat4 gnomeModel = glm::mat4(1.0f);
+            gnomeModel = glm::translate(gnomeModel, glm::vec3(4.1f, -0.5f, 2.0f)); 
+            gnomeModel = glm::scale(gnomeModel, glm::vec3(2.0f, 2.0f, 2.0f)); // Enorme para que se vea
+            gnomeModel = glm::rotate(gnomeModel, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
+            
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
+            
+            // Forzar color rojo brillante que ignore la oscuridad-----
+            glUniform1i(solidColorLoc, 1);
+            glUniform3f(glGetUniformLocation(shaderProgram, "objectColor"), 1.0f, 0.0f, 0.0f);
+            
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
+            
+            // Dibuja el modelo con sus texturas reales
+            gnomeGLTF->Draw(shaderProgram, solidColorLoc);
+            
+            glUniform1i(solidColorLoc, 0);
+            glBindVertexArray(VAO);
+        }
 
         // --- DIBUJAR ENTIDADES 3D ---
         glBindVertexArray(VAO);
