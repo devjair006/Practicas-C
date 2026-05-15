@@ -17,11 +17,16 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#undef STB_IMAGE_IMPLEMENTATION
 
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
+#undef MINIAUDIO_IMPLEMENTATION
 
-#include "obj_loader.h"
+#include "headers/obj_loader.h"
+#include "headers/obj_mesh.h"
+#include "headers/shader.h"
+#include "headers/texture.h"
 
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
@@ -33,35 +38,6 @@ bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
-
-// SHADERS
-
-std::string loadShaderSource(const std::string& path) {
-    std::ifstream file(path);
-    if (!file.is_open()) {
-        std::cerr << "ERROR: No se pudo abrir el archivo de shader: " << path << std::endl;
-        return "";
-    }
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
-unsigned int compileShader(GLenum type, const std::string& source, const std::string& name) {
-    unsigned int shader = glCreateShader(type);
-    const char* src = source.c_str();
-    glShaderSource(shader, 1, &src, NULL);
-    glCompileShader(shader);
-
-    int success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char infoLog[1024];
-        glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-        std::cerr << "ERROR: Falla al compilar shader (" << name << "):\n" << infoLog << std::endl;
-    }
-    return shader;
-}
 
 glm::vec3 cameraPos   = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
@@ -634,35 +610,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-unsigned int loadTexture(char const * path) {
-    int width, height, nrComponents;
-    stbi_set_flip_vertically_on_load(true); 
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 4);
-    if (data) {
-        unsigned int textureID;
-        glGenTextures(1, &textureID);
-        GLenum format = GL_RGBA;
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        stbi_image_free(data);
-        return textureID;
-    } else {
-        std::cout << "Textura falló: " << path << std::endl;
-        return 0;
-    }
-}
-
-unsigned int loadTextureWithFallback(char const * path, unsigned int fallback) {
-    unsigned int tex = loadTexture(path);
-    return tex == 0 ? fallback : tex;
-}
-
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -696,27 +643,8 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    std::string vertexShaderSource = loadShaderSource("src/shaders/vertex.vert");
-    std::string fragmentShaderSource = loadShaderSource("src/shaders/fragment.frag");
-
-    unsigned int vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource, "vertex.vert");
-    unsigned int fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource, "fragment.frag");
-
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    int linkSuccess;
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &linkSuccess);
-    if (!linkSuccess) {
-        char infoLog[1024];
-        glGetProgramInfoLog(shaderProgram, 1024, NULL, infoLog);
-        std::cerr << "ERROR: Falla al enlazar shader program:\n" << infoLog << std::endl;
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    Shader shader("src/shaders/vertex.vert", "src/shaders/fragment.frag");
+    unsigned int shaderProgram = shader.id();
 
     float vertices[] = {
         // Back face (-Z)
@@ -777,103 +705,22 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    std::vector<float> objVertices;
     unsigned int objVAO = 0, objVBO = 0;
     int objVertexCount = 0;
-    if (loadOBJ("assets/laptop.obj", objVertices)) {
-        objVertexCount = objVertices.size() / 11;
-        glGenVertexArrays(1, &objVAO);
-        glGenBuffers(1, &objVBO);
-        glBindVertexArray(objVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, objVBO);
-        glBufferData(GL_ARRAY_BUFFER, objVertices.size() * sizeof(float), &objVertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
+    loadOBJMesh("assets/laptop.obj", objVAO, objVBO, objVertexCount);
 
-    std::vector<float> cablesVertices;
     unsigned int cablesVAO = 0, cablesVBO = 0;
     int cablesVertexCount = 0;
-    if (loadOBJ("assets/cables.obj", cablesVertices)) {
-        cablesVertexCount = cablesVertices.size() / 11;
-        glGenVertexArrays(1, &cablesVAO);
-        glGenBuffers(1, &cablesVBO);
-        glBindVertexArray(cablesVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, cablesVBO);
-        glBufferData(GL_ARRAY_BUFFER, cablesVertices.size() * sizeof(float), &cablesVertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
+    loadOBJMesh("assets/cables.obj", cablesVAO, cablesVBO, cablesVertexCount);
 
-    std::vector<float> cartaVertices;
     unsigned int cartaVAO = 0, cartaVBO = 0;
     int cartaVertexCount = 0;
-    if (loadOBJ("assets/carta.obj", cartaVertices)) {
-        cartaVertexCount = cartaVertices.size() / 11;
-        glGenVertexArrays(1, &cartaVAO);
-        glGenBuffers(1, &cartaVBO);
-        glBindVertexArray(cartaVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, cartaVBO);
-        glBufferData(GL_ARRAY_BUFFER, cartaVertices.size() * sizeof(float), &cartaVertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
+    loadOBJMesh("assets/carta.obj", cartaVAO, cartaVBO, cartaVertexCount);
 
-    std::vector<float> pIzquiVertices, pDereVertices;
     unsigned int pIzquiVAO = 0, pIzquiVBO = 0, pDereVAO = 0, pDereVBO = 0;
     int pIzquiCount = 0, pDereCount = 0;
-
-    if (loadOBJ("assets/puertaizqui.obj", pIzquiVertices)) {
-        pIzquiCount = pIzquiVertices.size() / 11;
-        glGenVertexArrays(1, &pIzquiVAO);
-        glGenBuffers(1, &pIzquiVBO);
-        glBindVertexArray(pIzquiVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, pIzquiVBO);
-        glBufferData(GL_ARRAY_BUFFER, pIzquiVertices.size() * sizeof(float), &pIzquiVertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
-
-    if (loadOBJ("assets/puertadere.obj", pDereVertices)) {
-        pDereCount = pDereVertices.size() / 11;
-        glGenVertexArrays(1, &pDereVAO);
-        glGenBuffers(1, &pDereVBO);
-        glBindVertexArray(pDereVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, pDereVBO);
-        glBufferData(GL_ARRAY_BUFFER, pDereVertices.size() * sizeof(float), &pDereVertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
+    loadOBJMesh("assets/puertaizqui.obj", pIzquiVAO, pIzquiVBO, pIzquiCount);
+    loadOBJMesh("assets/puertadere.obj", pDereVAO, pDereVBO, pDereCount);
 
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
