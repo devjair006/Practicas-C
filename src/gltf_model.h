@@ -4,14 +4,18 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <string>
 #include <vector>
+#include <map>
 #include <iostream>
 
-// #include "stb_image.h" // Removed because main.cpp already defines it and caused macro redefinitions
+#define MAX_BONES 100
+#define MAX_BONE_INFLUENCE 4
 
 struct GLTFTexture {
     unsigned int id;
@@ -23,7 +27,24 @@ struct GLTFVertex {
     glm::vec3 Normal;
     glm::vec2 TexCoords;
     glm::vec3 Color;
+    int m_BoneIDs[MAX_BONE_INFLUENCE];
+    float m_Weights[MAX_BONE_INFLUENCE];
+
+    GLTFVertex() {
+        for (int i = 0; i < MAX_BONE_INFLUENCE; i++) {
+            m_BoneIDs[i] = -1;
+            m_Weights[i] = 0.0f;
+        }
+    }
 };
+
+struct BoneInfo {
+    int id;
+    glm::mat4 offset;
+};
+
+// Declaración global para que main.cpp pueda usarla
+unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
 
 class GLTFMesh {
 public:
@@ -41,11 +62,11 @@ public:
 
     void Draw(unsigned int shaderProgram, int solidColorLoc) {
         if (textures.size() > 0) {
-            glUniform1i(solidColorLoc, 0); // Usar texturas
+            glUniform1i(solidColorLoc, 0);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textures[0].id);
         } else {
-            glUniform1i(solidColorLoc, 1); // Usar color plano si no hay textura
+            glUniform1i(solidColorLoc, 1);
         }
         
         glBindVertexArray(VAO);
@@ -75,6 +96,11 @@ private:
         glEnableVertexAttribArray(3);
         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(GLTFVertex), (void*)offsetof(GLTFVertex, Color));
         
+        glEnableVertexAttribArray(4);
+        glVertexAttribIPointer(4, 4, GL_INT, sizeof(GLTFVertex), (void*)offsetof(GLTFVertex, m_BoneIDs));
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(GLTFVertex), (void*)offsetof(GLTFVertex, m_Weights));
+
         glBindVertexArray(0);
     }
 };
@@ -82,7 +108,12 @@ private:
 class GLTFModel {
 public:
     std::vector<GLTFMesh> meshes;
-    
+    std::map<std::string, BoneInfo> m_BoneInfoMap;
+    int m_BoneCounter = 0;
+    const aiScene* m_Scene;
+    glm::mat4 m_GlobalInverseTransform;
+    Assimp::Importer m_Importer; // Ahora es persistente
+
     GLTFModel(std::string path) {
         loadModel(path);
     }
@@ -92,15 +123,42 @@ public:
             meshes[i].Draw(shaderProgram, solidColorLoc);
     }
 
-private:
-    void loadModel(std::string path) {
-        Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_PopulateArmatureData);
-        if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-            std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+    void UpdateAnimation(float timeInSeconds, std::vector<glm::mat4>& transforms) {
+        transforms.resize(MAX_BONES, glm::mat4(1.0f)); // Inicializar con identidad
+
+        if (!m_Scene || !m_Scene->HasAnimations()) {
+            // Si no hay animación, enviamos matrices identidad para que se vea en pose estática
             return;
         }
+
+        float TicksPerSecond = (float)(m_Scene->mAnimations[0]->mTicksPerSecond != 0 ? m_Scene->mAnimations[0]->mTicksPerSecond : 25.0f);
+        float TimeInTicks = timeInSeconds * TicksPerSecond;
+        float AnimationTime = fmod(TimeInTicks, (float)m_Scene->mAnimations[0]->mDuration);
+
+        ReadNodeHierarchy(AnimationTime, m_Scene->mRootNode, glm::mat4(1.0f));
+
+        for (auto const& [name, info] : m_BoneInfoMap) {
+            transforms[info.id] = m_FinalTransforms[info.id];
+        }
+    }
+
+private:
+    glm::mat4 m_FinalTransforms[MAX_BONES];
+
+    void loadModel(std::string path) {
+        const aiScene* scene = m_Importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_LimitBoneWeights);
+        if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+            std::cout << "ERROR::ASSIMP::" << m_Importer.GetErrorString() << std::endl;
+            return;
+        }
+        m_Scene = scene;
+        m_GlobalInverseTransform = ConvertMatrixToGLMFormat(scene->mRootNode->mTransformation);
+        m_GlobalInverseTransform = glm::inverse(m_GlobalInverseTransform);
+
         processNode(scene->mRootNode, scene);
+        
+        // Inicializar matrices finales con identidad por si acaso
+        for(int i=0; i<MAX_BONES; i++) m_FinalTransforms[i] = glm::mat4(1.0f);
     }
 
     void processNode(aiNode *node, const aiScene *scene) {
@@ -124,13 +182,41 @@ private:
             if (mesh->HasNormals()) vertex.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
             else vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f);
             
-            if(mesh->mTextureCoords[0]) {
-                vertex.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-            } else {
-                vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-            }
+            if(mesh->mTextureCoords[0]) vertex.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+            else vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+            
             vertex.Color = glm::vec3(1.0f, 1.0f, 1.0f);
             vertices.push_back(vertex);
+        }
+
+        // Load Bones
+        for (unsigned int i = 0; i < mesh->mNumBones; i++) {
+            int boneID = -1;
+            std::string boneName = mesh->mBones[i]->mName.C_Str();
+            if (m_BoneInfoMap.find(boneName) == m_BoneInfoMap.end()) {
+                BoneInfo newBoneInfo;
+                newBoneInfo.id = m_BoneCounter;
+                newBoneInfo.offset = ConvertMatrixToGLMFormat(mesh->mBones[i]->mOffsetMatrix);
+                m_BoneInfoMap[boneName] = newBoneInfo;
+                boneID = m_BoneCounter;
+                m_BoneCounter++;
+            } else {
+                boneID = m_BoneInfoMap[boneName].id;
+            }
+
+            auto weights = mesh->mBones[i]->mWeights;
+            int numWeights = mesh->mBones[i]->mNumWeights;
+            for (int weightIndex = 0; weightIndex < numWeights; weightIndex++) {
+                int vertexId = weights[weightIndex].mVertexId;
+                float weight = weights[weightIndex].mWeight;
+                for (int j = 0; j < MAX_BONE_INFLUENCE; j++) {
+                    if (vertices[vertexId].m_BoneIDs[j] < 0) {
+                        vertices[vertexId].m_Weights[j] = weight;
+                        vertices[vertexId].m_BoneIDs[j] = boneID;
+                        break;
+                    }
+                }
+            }
         }
 
         for(unsigned int i = 0; i < mesh->mNumFaces; i++) {
@@ -139,12 +225,11 @@ private:
                 indices.push_back(face.mIndices[j]);
         }
 
+        // Material loading remains the same...
         if(mesh->mMaterialIndex >= 0) {
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
             std::vector<GLTFTexture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", scene);
             textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-            
-            // Si Blender exportó como BaseColor (PBR):
             if (textures.empty()) {
                 std::vector<GLTFTexture> baseColorMaps = loadMaterialTextures(material, aiTextureType_BASE_COLOR, "texture_diffuse", scene);
                 textures.insert(textures.end(), baseColorMaps.begin(), baseColorMaps.end());
@@ -153,20 +238,114 @@ private:
         return GLTFMesh(vertices, indices, textures);
     }
 
+    void ReadNodeHierarchy(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform) {
+        std::string NodeName(pNode->mName.data);
+        const aiAnimation* pAnimation = m_Scene->mAnimations[0];
+        glm::mat4 NodeTransformation = ConvertMatrixToGLMFormat(pNode->mTransformation);
+        const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnimation, NodeName);
+
+        if (pNodeAnim) {
+            // Interpolate scaling, rotation and translation
+            aiVector3D Scaling;
+            CalcInterpolatedScaling(Scaling, AnimationTime, pNodeAnim);
+            glm::mat4 ScalingM = glm::scale(glm::mat4(1.0f), glm::vec3(Scaling.x, Scaling.y, Scaling.z));
+
+            aiQuaternion RotationQ;
+            CalcInterpolatedRotation(RotationQ, AnimationTime, pNodeAnim);
+            glm::mat4 RotationM = glm::toMat4(glm::quat(RotationQ.w, RotationQ.x, RotationQ.y, RotationQ.z));
+
+            aiVector3D Translation;
+            CalcInterpolatedPosition(Translation, AnimationTime, pNodeAnim);
+            glm::mat4 TranslationM = glm::translate(glm::mat4(1.0f), glm::vec3(Translation.x, Translation.y, Translation.z));
+
+            NodeTransformation = TranslationM * RotationM * ScalingM;
+        }
+
+        glm::mat4 GlobalTransformation = ParentTransform * NodeTransformation;
+
+        if (m_BoneInfoMap.find(NodeName) != m_BoneInfoMap.end()) {
+            int BoneIndex = m_BoneInfoMap[NodeName].id;
+            m_FinalTransforms[BoneIndex] = GlobalTransformation * m_BoneInfoMap[NodeName].offset;
+        }
+
+        for (unsigned int i = 0; i < pNode->mNumChildren; i++) {
+            ReadNodeHierarchy(AnimationTime, pNode->mChildren[i], GlobalTransformation);
+        }
+    }
+
+    const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const std::string NodeName) {
+        for (unsigned int i = 0; i < pAnimation->mNumChannels; i++) {
+            const aiNodeAnim* pNodeAnim = pAnimation->mChannels[i];
+            if (std::string(pNodeAnim->mNodeName.data) == NodeName) return pNodeAnim;
+        }
+        return NULL;
+    }
+
+    // Helper interpolation functions...
+    void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim) {
+        if (pNodeAnim->mNumScalingKeys == 1) { Out = pNodeAnim->mScalingKeys[0].mValue; return; }
+        unsigned int ScalingIndex = 0;
+        for (unsigned int i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++) {
+            if (AnimationTime < (float)pNodeAnim->mScalingKeys[i + 1].mTime) { ScalingIndex = i; break; }
+        }
+        unsigned int NextScalingIndex = (ScalingIndex + 1);
+        float DeltaTime = (float)(pNodeAnim->mScalingKeys[NextScalingIndex].mTime - pNodeAnim->mScalingKeys[ScalingIndex].mTime);
+        float Factor = (AnimationTime - (float)pNodeAnim->mScalingKeys[ScalingIndex].mTime) / DeltaTime;
+        const aiVector3D& Start = pNodeAnim->mScalingKeys[ScalingIndex].mValue;
+        const aiVector3D& End = pNodeAnim->mScalingKeys[NextScalingIndex].mValue;
+        Out = Start + Factor * (End - Start);
+    }
+
+    void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim) {
+        if (pNodeAnim->mNumRotationKeys == 1) { Out = pNodeAnim->mRotationKeys[0].mValue; return; }
+        unsigned int RotationIndex = 0;
+        for (unsigned int i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++) {
+            if (AnimationTime < (float)pNodeAnim->mRotationKeys[i + 1].mTime) { RotationIndex = i; break; }
+        }
+        unsigned int NextRotationIndex = (RotationIndex + 1);
+        float DeltaTime = (float)(pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime);
+        float Factor = (AnimationTime - (float)pNodeAnim->mRotationKeys[RotationIndex].mTime) / DeltaTime;
+        const aiQuaternion& StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
+        const aiQuaternion& EndRotationQ = pNodeAnim->mRotationKeys[NextRotationIndex].mValue;
+        aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
+        Out = Out.Normalize();
+    }
+
+    void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim) {
+        if (pNodeAnim->mNumPositionKeys == 1) { Out = pNodeAnim->mPositionKeys[0].mValue; return; }
+        unsigned int PositionIndex = 0;
+        for (unsigned int i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++) {
+            if (AnimationTime < (float)pNodeAnim->mPositionKeys[i + 1].mTime) { PositionIndex = i; break; }
+        }
+        unsigned int NextPositionIndex = (PositionIndex + 1);
+        float DeltaTime = (float)(pNodeAnim->mPositionKeys[NextPositionIndex].mTime - pNodeAnim->mPositionKeys[PositionIndex].mTime);
+        float Factor = (AnimationTime - (float)pNodeAnim->mPositionKeys[PositionIndex].mTime) / DeltaTime;
+        const aiVector3D& Start = pNodeAnim->mPositionKeys[PositionIndex].mValue;
+        const aiVector3D& End = pNodeAnim->mPositionKeys[NextPositionIndex].mValue;
+        Out = Start + Factor * (End - Start);
+    }
+
+    static glm::mat4 ConvertMatrixToGLMFormat(const aiMatrix4x4& from) {
+        glm::mat4 to;
+        to[0][0] = from.a1; to[1][0] = from.a2; to[2][0] = from.a3; to[3][0] = from.a4;
+        to[0][1] = from.b1; to[1][1] = from.b2; to[2][1] = from.b3; to[3][1] = from.b4;
+        to[0][2] = from.c1; to[1][2] = from.c2; to[2][2] = from.c3; to[3][2] = from.c4;
+        to[0][3] = from.d1; to[1][3] = from.d2; to[2][3] = from.d3; to[3][3] = from.d4;
+        return to;
+    }
+
+    // Material texture loading... (Same as before)
     std::vector<GLTFTexture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, const aiScene *scene) {
         std::vector<GLTFTexture> textures;
         for(unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
             aiString str;
             mat->GetTexture(type, i, &str);
-            
             const aiTexture* embeddedTexture = scene->GetEmbeddedTexture(str.C_Str());
             if (embeddedTexture) {
                 GLTFTexture texture;
                 texture.id = loadEmbeddedTexture(embeddedTexture);
                 texture.type = typeName;
                 textures.push_back(texture);
-            } else {
-                std::cout << "Advertencia: El material apunta a textura externa (" << str.C_Str() << ") no soportado temporalmente.\n";
             }
         }
         return textures;
@@ -175,29 +354,17 @@ private:
     unsigned int loadEmbeddedTexture(const aiTexture* embeddedTexture) {
         unsigned int textureID;
         glGenTextures(1, &textureID);
-        
         int width, height, nrComponents;
         unsigned char *data = nullptr;
-        
-        if (embeddedTexture->mHeight == 0) {
-            // Textura comprimida (PNG/JPG embebido)
-            data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(embeddedTexture->pcData), embeddedTexture->mWidth, &width, &height, &nrComponents, 4);
-        } else {
-            // Raw data
-            data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(embeddedTexture->pcData), embeddedTexture->mWidth * embeddedTexture->mHeight * 4, &width, &height, &nrComponents, 4);
-        }
-        
+        extern unsigned char* stbi_load_from_memory(unsigned char const *buffer, int len, int *x, int *y, int *channels_in_file, int desired_channels);
+        extern void stbi_image_free(void *retval_from_load);
+        if (embeddedTexture->mHeight == 0) data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(embeddedTexture->pcData), embeddedTexture->mWidth, &width, &height, &nrComponents, 4);
+        else data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(embeddedTexture->pcData), embeddedTexture->mWidth * embeddedTexture->mHeight * 4, &width, &height, &nrComponents, 4);
         if (data) {
             glBindTexture(GL_TEXTURE_2D, textureID);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             stbi_image_free(data);
-        } else {
-            std::cout << "Fallo al cargar textura embebida del GLB." << std::endl;
         }
         return textureID;
     }

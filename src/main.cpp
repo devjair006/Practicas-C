@@ -1,3 +1,4 @@
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -44,6 +45,8 @@ const char* vertexShaderSource = R"(
     layout (location = 1) in vec3 aNormal;
     layout (location = 2) in vec2 aTexCoord;
     layout (location = 3) in vec3 aObjColor;
+    layout (location = 4) in ivec4 boneIds; 
+    layout (location = 5) in vec4 weights;
 
     out vec3 FragPos;
     out vec3 Normal;
@@ -54,18 +57,44 @@ const char* vertexShaderSource = R"(
     uniform mat4 view;
     uniform mat4 projection;
     
+    uniform mat4 finalBonesMatrices[100];
+    uniform int isAnimated;
+
     uniform int dimensionAlterna;
     uniform float time;
 
     void main() {
-        vec3 finalPos = aPos;
+        vec4 totalPosition = vec4(0.0f);
+        vec3 totalNormal = vec3(0.0f);
+        bool hasBoneInfluence = false;
+
+        if (isAnimated == 1) {
+            for(int i = 0 ; i < 4 ; i++) {
+                if(boneIds[i] == -1) continue;
+                if(boneIds[i] >= 100) break;
+
+                hasBoneInfluence = true;
+                vec4 localPosition = finalBonesMatrices[boneIds[i]] * vec4(aPos, 1.0f);
+                totalPosition += localPosition * weights[i];
+                vec3 localNormal = mat3(finalBonesMatrices[boneIds[i]]) * aNormal;
+                totalNormal += localNormal * weights[i];
+            }
+        }
+
+        // Si no hubo influencia de huesos, usar posición original
+        if (!hasBoneInfluence) {
+            totalPosition = vec4(aPos, 1.0f);
+            totalNormal = aNormal;
+        }
+
+        vec3 finalPos = totalPosition.xyz;
         if (dimensionAlterna == 1) {
-            finalPos.x += sin(time * 50.0 + aPos.y) * 0.05;
-            finalPos.y += cos(time * 30.0 + aPos.z) * 0.02;
+            finalPos.x += sin(time * 50.0 + totalPosition.y) * 0.05;
+            finalPos.y += cos(time * 30.0 + totalPosition.z) * 0.02;
         }
 
         FragPos = vec3(model * vec4(finalPos, 1.0));
-        Normal = mat3(transpose(inverse(model))) * aNormal;  
+        Normal = mat3(transpose(inverse(model))) * totalNormal;  
         TexCoord = aTexCoord;
         ObjColor = aObjColor;
         gl_Position = projection * view * vec4(FragPos, 1.0);
@@ -813,15 +842,41 @@ int main() {
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
+    {
+        int success; char infoLog[512];
+        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+            std::cout << "ERROR::VERTEX_SHADER::" << infoLog << std::endl;
+        }
+    }
     
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
+    {
+        int success; char infoLog[512];
+        glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+            std::cout << "ERROR::FRAGMENT_SHADER::" << infoLog << std::endl;
+        }
+    }
     
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
+    {
+        int success; char infoLog[512];
+        glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+        if (!success) {
+            glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER_LINK::" << infoLog << std::endl;
+        } else {
+            std::cout << "SHADER: Compilado y enlazado correctamente." << std::endl;
+        }
+    }
     
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -1254,28 +1309,85 @@ int main() {
             }
         } 
 
-        // --- DIBUJAR EL GNOMO (GLTF) --------
+        // --- LÓGICA Y DIBUJO DEL GNOMO ACOSADOR (AI) ---
         if (gnomeGLTF) {
-            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Default
-            
-            glm::mat4 gnomeModel = glm::mat4(1.0f);
-            gnomeModel = glm::translate(gnomeModel, glm::vec3(4.1f, -0.5f, 2.0f)); 
-            gnomeModel = glm::scale(gnomeModel, glm::vec3(2.0f, 2.0f, 2.0f)); // Enorme para que se vea
-            gnomeModel = glm::rotate(gnomeModel, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
-            
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
-            
-            // Forzar color rojo brillante que ignore la oscuridad-----
-            glUniform1i(solidColorLoc, 1);
-            glUniform3f(glGetUniformLocation(shaderProgram, "objectColor"), 1.0f, 0.0f, 0.0f);
-            
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
-            
-            // Dibuja el modelo con sus texturas reales
-            gnomeGLTF->Draw(shaderProgram, solidColorLoc);
-            
-            glUniform1i(solidColorLoc, 0);
-            glBindVertexArray(VAO);
+            static glm::vec3 gnomePos = glm::vec3(4.1f, -0.5f, 4.0f);
+            static float stunTimer = 0.0f;
+            static bool isGnomeActive = true;
+            static unsigned int gnomeTexture = 0;
+
+            // Cargar textura una sola vez si no existe (usamos paredes.png de prueba)
+            if (gnomeTexture == 0) {
+                gnomeTexture = loadTexture("assets/paredes.png"); 
+            }
+
+            if (isGnomeActive) {
+                float distToPlayer = glm::length(cameraPos - gnomePos);
+                glm::vec3 dirToGnome = glm::normalize(gnomePos - cameraPos);
+                
+                // 1. DETECTAR SI LA LINTERNA LO APUNTA DIRECTAMENTE
+                bool beingLookedAt = false;
+                if (isFlashlightOn) {
+                    float angle = glm::dot(cameraFront, dirToGnome);
+                    // 0.98 significa que lo miras casi al centro (un cono muy cerrado)
+                    if (angle > 0.98f && distToPlayer < 10.0f) { 
+                        beingLookedAt = true;
+                    }
+                }
+
+                // 2. LÓGICA DEL TEMPORIZADOR
+                if (beingLookedAt) {
+                    stunTimer += deltaTime;
+                    if (stunTimer >= 2.0f) {
+                        isGnomeActive = false; // El gnomo se asusta y desaparece (o se detiene)
+                        std::cout << "[SISTEMA]: Gnomo ahuyentado por la luz." << std::endl;
+                    }
+                } else {
+                    stunTimer = std::max(0.0f, stunTimer - deltaTime); // El timer baja si dejas de mirarlo
+                }
+
+                // 3. MOVIMIENTO (Solo si NO lo estás mirando o no ha sido aturdido)
+                float speed = 1.8f; 
+                if (!beingLookedAt && distToPlayer > 0.8f) {
+                    glm::vec3 moveDir = glm::normalize(cameraPos - gnomePos);
+                    moveDir.y = 0; // Mantenerlo en el suelo
+                    gnomePos += moveDir * speed * deltaTime;
+                }
+
+                // 4. RENDERIZADO
+                glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+                glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 1);
+                
+                float gnomeTime = (float)glfwGetTime();
+                std::vector<glm::mat4> transforms;
+                gnomeGLTF->UpdateAnimation(gnomeTime, transforms);
+                
+                for (unsigned int i = 0; i < transforms.size() && i < 100; i++) {
+                    std::string name = "finalBonesMatrices[" + std::to_string(i) + "]";
+                    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, glm::value_ptr(transforms[i]));
+                }
+
+                glm::mat4 gnomeModel = glm::mat4(1.0f);
+                gnomeModel = glm::translate(gnomeModel, gnomePos); 
+                // Hacer que el gnomo siempre mire al jugador
+                float angle = atan2(cameraPos.x - gnomePos.x, cameraPos.z - gnomePos.z);
+                gnomeModel = glm::rotate(gnomeModel, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+                gnomeModel = glm::scale(gnomeModel, glm::vec3(0.5f, 0.5f, 0.5f));
+                
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
+                
+                // Aplicar textura forzada
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, gnomeTexture);
+                glUniform1i(glGetUniformLocation(shaderProgram, "texture_diffuse1"), 0);
+
+                gnomeGLTF->Draw(shaderProgram, solidColorLoc);
+                
+                // Limpiar estado
+                glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 0);
+                glUniform1i(solidColorLoc, 0);
+                glBindVertexArray(VAO);
+            }
         }
 
         // --- DIBUJAR ENTIDADES 3D ---
