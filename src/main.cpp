@@ -8,6 +8,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <sstream>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -15,11 +17,16 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#undef STB_IMAGE_IMPLEMENTATION
 
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
+#undef MINIAUDIO_IMPLEMENTATION
 
-#include "obj_loader.h"
+#include "headers/obj_loader.h"
+#include "headers/obj_mesh.h"
+#include "headers/shader.h"
+#include "headers/texture.h"
 
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
@@ -31,130 +38,6 @@ bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
-
-// SHADERS 
-
-const char* vertexShaderSource = R"(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    layout (location = 1) in vec3 aNormal;
-    layout (location = 2) in vec2 aTexCoord;
-    layout (location = 3) in vec3 aObjColor;
-
-    out vec3 FragPos;
-    out vec3 Normal;
-    out vec2 TexCoord;
-    out vec3 ObjColor;
-
-    uniform mat4 model;
-    uniform mat4 view;
-    uniform mat4 projection;
-    
-    uniform int dimensionAlterna;
-    uniform float time;
-
-    void main() {
-        vec3 finalPos = aPos;
-        if (dimensionAlterna == 1) {
-            finalPos.x += sin(time * 50.0 + aPos.y) * 0.05;
-            finalPos.y += cos(time * 30.0 + aPos.z) * 0.02;
-        }
-
-        FragPos = vec3(model * vec4(finalPos, 1.0));
-        Normal = mat3(transpose(inverse(model))) * aNormal;  
-        TexCoord = aTexCoord;
-        ObjColor = aObjColor;
-        gl_Position = projection * view * vec4(FragPos, 1.0);
-    }
-)";
-
-const char* fragmentShaderSource = R"(
-    #version 330 core
-    out vec4 FragColor;
-
-    in vec3 FragPos;
-    in vec3 Normal;
-    in vec2 TexCoord;
-    in vec3 ObjColor;
-
-    uniform sampler2D texture1;
-    uniform vec3 objectColor;
-
-    uniform vec3 lightPos;      
-    uniform vec3 lightDir;      
-    uniform float cutOff;       
-    uniform float outerCutOff;  
-    uniform int flashlightOn;   
-
-    uniform int dimensionAlterna;
-    uniform int currentZone; 
-    uniform float time;
-    uniform vec2 resolution;
-    uniform int useSolidColor;
-
-    void main() {
-        float ambientStrength = 0.05;
-        vec3 ambientColor = vec3(1.0);
-        vec3 flashColor = vec3(1.0);
-
-        if (currentZone == 1) {
-            ambientColor = vec3(0.6, 0.7, 0.8); 
-            flashColor = vec3(0.9, 0.9, 1.0);
-            ambientStrength = 0.1 + (sin(time * 10.0) * 0.02); 
-        } else if (currentZone == 2) {
-            ambientColor = vec3(0.4, 0.9, 0.5); 
-            flashColor = vec3(0.8, 1.0, 0.8);
-            ambientStrength = 0.15;
-        } else if (currentZone == 3) {
-            ambientColor = vec3(0.3, 0.5, 1.0); 
-            flashColor = vec3(1.0, 1.0, 1.0); 
-            ambientStrength = 0.2;
-        }
-
-        if (dimensionAlterna == 1) {
-            ambientColor = vec3(0.6, 0.0, 0.2); 
-            ambientStrength = 0.1 + (sin(time * 20.0) * 0.05) + (cos(time * 50.0) * 0.03);
-            if(ambientStrength < 0.02) ambientStrength = 0.02;
-            flashColor = vec3(1.0, 0.3, 0.3) * (0.7 + 0.3 * sin(time * 40.0));
-        }
-
-        vec3 ambient = ambientStrength * ambientColor;
-        vec3 diffuse = vec3(0.0);
-        
-        if (flashlightOn == 1) {
-            vec3 norm = normalize(Normal);
-            vec3 lightDirVec = normalize(lightPos - FragPos);
-            float diff = max(dot(norm, lightDirVec), 0.0);
-            diffuse = diff * flashColor;
-
-            float theta = dot(lightDirVec, normalize(-lightDir));
-            float epsilon = cutOff - outerCutOff;
-            float intensity = clamp((theta - outerCutOff) / epsilon, 0.0, 1.0);
-
-            float distance = length(lightPos - FragPos);
-            float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance));
-
-            diffuse *= intensity * attenuation;
-        }
-
-        vec4 texColor = texture(texture1, TexCoord);
-        if (useSolidColor == 1) {
-            texColor = vec4(ObjColor, 1.0); // Usar el color empaquetado del OBJ
-        } else if (texColor.a < 0.1) {
-            discard; 
-        }
-        
-        vec3 result = (ambient + diffuse) * objectColor;
-        
-        if (dimensionAlterna == 1) {
-            vec2 uv = gl_FragCoord.xy / resolution;
-            float distToCenter = distance(uv, vec2(0.5));
-            result *= smoothstep(0.9, 0.2, distToCenter);
-        }
-        
-        FragColor = texColor * vec4(result, 1.0);
-    }
-)";
 
 glm::vec3 cameraPos   = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
@@ -727,35 +610,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-unsigned int loadTexture(char const * path) {
-    int width, height, nrComponents;
-    stbi_set_flip_vertically_on_load(true); 
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 4);
-    if (data) {
-        unsigned int textureID;
-        glGenTextures(1, &textureID);
-        GLenum format = GL_RGBA;
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        stbi_image_free(data);
-        return textureID;
-    } else {
-        std::cout << "Textura falló: " << path << std::endl;
-        return 0;
-    }
-}
-
-unsigned int loadTextureWithFallback(char const * path, unsigned int fallback) {
-    unsigned int tex = loadTexture(path);
-    return tex == 0 ? fallback : tex;
-}
-
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -789,21 +643,8 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    Shader shader("src/shaders/vertex.vert", "src/shaders/fragment.frag");
+    unsigned int shaderProgram = shader.id();
 
     float vertices[] = {
         // Back face (-Z)
@@ -864,103 +705,22 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    std::vector<float> objVertices;
     unsigned int objVAO = 0, objVBO = 0;
     int objVertexCount = 0;
-    if (loadOBJ("assets/laptop.obj", objVertices)) {
-        objVertexCount = objVertices.size() / 11;
-        glGenVertexArrays(1, &objVAO);
-        glGenBuffers(1, &objVBO);
-        glBindVertexArray(objVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, objVBO);
-        glBufferData(GL_ARRAY_BUFFER, objVertices.size() * sizeof(float), &objVertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
+    loadOBJMesh("assets/laptop.obj", objVAO, objVBO, objVertexCount);
 
-    std::vector<float> cablesVertices;
     unsigned int cablesVAO = 0, cablesVBO = 0;
     int cablesVertexCount = 0;
-    if (loadOBJ("assets/cables.obj", cablesVertices)) {
-        cablesVertexCount = cablesVertices.size() / 11;
-        glGenVertexArrays(1, &cablesVAO);
-        glGenBuffers(1, &cablesVBO);
-        glBindVertexArray(cablesVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, cablesVBO);
-        glBufferData(GL_ARRAY_BUFFER, cablesVertices.size() * sizeof(float), &cablesVertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
+    loadOBJMesh("assets/cables.obj", cablesVAO, cablesVBO, cablesVertexCount);
 
-    std::vector<float> cartaVertices;
     unsigned int cartaVAO = 0, cartaVBO = 0;
     int cartaVertexCount = 0;
-    if (loadOBJ("assets/carta.obj", cartaVertices)) {
-        cartaVertexCount = cartaVertices.size() / 11;
-        glGenVertexArrays(1, &cartaVAO);
-        glGenBuffers(1, &cartaVBO);
-        glBindVertexArray(cartaVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, cartaVBO);
-        glBufferData(GL_ARRAY_BUFFER, cartaVertices.size() * sizeof(float), &cartaVertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
+    loadOBJMesh("assets/carta.obj", cartaVAO, cartaVBO, cartaVertexCount);
 
-    std::vector<float> pIzquiVertices, pDereVertices;
     unsigned int pIzquiVAO = 0, pIzquiVBO = 0, pDereVAO = 0, pDereVBO = 0;
     int pIzquiCount = 0, pDereCount = 0;
-
-    if (loadOBJ("assets/puertaizqui.obj", pIzquiVertices)) {
-        pIzquiCount = pIzquiVertices.size() / 11;
-        glGenVertexArrays(1, &pIzquiVAO);
-        glGenBuffers(1, &pIzquiVBO);
-        glBindVertexArray(pIzquiVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, pIzquiVBO);
-        glBufferData(GL_ARRAY_BUFFER, pIzquiVertices.size() * sizeof(float), &pIzquiVertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
-
-    if (loadOBJ("assets/puertadere.obj", pDereVertices)) {
-        pDereCount = pDereVertices.size() / 11;
-        glGenVertexArrays(1, &pDereVAO);
-        glGenBuffers(1, &pDereVBO);
-        glBindVertexArray(pDereVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, pDereVBO);
-        glBufferData(GL_ARRAY_BUFFER, pDereVertices.size() * sizeof(float), &pDereVertices[0], GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
-        glEnableVertexAttribArray(3);
-    }
+    loadOBJMesh("assets/puertaizqui.obj", pIzquiVAO, pIzquiVBO, pIzquiCount);
+    loadOBJMesh("assets/puertadere.obj", pDereVAO, pDereVBO, pDereCount);
 
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
