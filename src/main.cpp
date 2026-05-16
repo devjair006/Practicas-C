@@ -28,7 +28,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "headers/obj_loader.h"
 #include "headers/obj_mesh.h"
 #include "headers/shader.h"
 #include "headers/texture.h"
