@@ -1,3 +1,4 @@
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -23,7 +24,10 @@
 #include <miniaudio.h>
 #undef MINIAUDIO_IMPLEMENTATION
 
-#include "headers/obj_loader.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include "headers/obj_mesh.h"
 #include "headers/shader.h"
 #include "headers/texture.h"
@@ -38,6 +42,158 @@ bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
+
+// SHADERS 
+
+const char* vertexShaderSource = R"(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+    layout (location = 1) in vec3 aNormal;
+    layout (location = 2) in vec2 aTexCoord;
+    layout (location = 3) in vec3 aObjColor;
+    layout (location = 4) in ivec4 boneIds; 
+    layout (location = 5) in vec4 weights;
+
+    out vec3 FragPos;
+    out vec3 Normal;
+    out vec2 TexCoord;
+    out vec3 ObjColor;
+
+    uniform mat4 model;
+    uniform mat4 view;
+    uniform mat4 projection;
+    
+    uniform mat4 finalBonesMatrices[100];
+    uniform int isAnimated;
+
+    uniform int dimensionAlterna;
+    uniform float time;
+
+    void main() {
+        vec4 totalPosition = vec4(0.0f);
+        vec3 totalNormal = vec3(0.0f);
+        bool hasBoneInfluence = false;
+
+        if (isAnimated == 1) {
+            for(int i = 0 ; i < 4 ; i++) {
+                if(boneIds[i] == -1) continue;
+                if(boneIds[i] >= 100) break;
+
+                hasBoneInfluence = true;
+                vec4 localPosition = finalBonesMatrices[boneIds[i]] * vec4(aPos, 1.0f);
+                totalPosition += localPosition * weights[i];
+                vec3 localNormal = mat3(finalBonesMatrices[boneIds[i]]) * aNormal;
+                totalNormal += localNormal * weights[i];
+            }
+        }
+
+        // Si no hubo influencia de huesos, usar posición original
+        if (!hasBoneInfluence) {
+            totalPosition = vec4(aPos, 1.0f);
+            totalNormal = aNormal;
+        }
+
+        vec3 finalPos = totalPosition.xyz;
+        if (dimensionAlterna == 1) {
+            finalPos.x += sin(time * 50.0 + totalPosition.y) * 0.05;
+            finalPos.y += cos(time * 30.0 + totalPosition.z) * 0.02;
+        }
+
+        FragPos = vec3(model * vec4(finalPos, 1.0));
+        Normal = mat3(transpose(inverse(model))) * totalNormal;  
+        TexCoord = aTexCoord;
+        ObjColor = aObjColor;
+        gl_Position = projection * view * vec4(FragPos, 1.0);
+    }
+)";
+
+const char* fragmentShaderSource = R"(
+    #version 330 core
+    out vec4 FragColor;
+
+    in vec3 FragPos;
+    in vec3 Normal;
+    in vec2 TexCoord;
+    in vec3 ObjColor;
+
+    uniform sampler2D texture1;
+    uniform vec3 objectColor;
+
+    uniform vec3 lightPos;      
+    uniform vec3 lightDir;      
+    uniform float cutOff;       
+    uniform float outerCutOff;  
+    uniform int flashlightOn;   
+
+    uniform int dimensionAlterna;
+    uniform int currentZone; 
+    uniform float time;
+    uniform vec2 resolution;
+    uniform int useSolidColor;
+
+    void main() {
+        float ambientStrength = 0.05;
+        vec3 ambientColor = vec3(1.0);
+        vec3 flashColor = vec3(1.0);
+
+        if (currentZone == 1) {
+            ambientColor = vec3(0.6, 0.7, 0.8); 
+            flashColor = vec3(0.9, 0.9, 1.0);
+            ambientStrength = 0.1 + (sin(time * 10.0) * 0.02); 
+        } else if (currentZone == 2) {
+            ambientColor = vec3(0.4, 0.9, 0.5); 
+            flashColor = vec3(0.8, 1.0, 0.8);
+            ambientStrength = 0.15;
+        } else if (currentZone == 3) {
+            ambientColor = vec3(0.3, 0.5, 1.0); 
+            flashColor = vec3(1.0, 1.0, 1.0); 
+            ambientStrength = 0.2;
+        }
+
+        if (dimensionAlterna == 1) {
+            ambientColor = vec3(0.6, 0.0, 0.2); 
+            ambientStrength = 0.1 + (sin(time * 20.0) * 0.05) + (cos(time * 50.0) * 0.03);
+            if(ambientStrength < 0.02) ambientStrength = 0.02;
+            flashColor = vec3(1.0, 0.3, 0.3) * (0.7 + 0.3 * sin(time * 40.0));
+        }
+
+        vec3 ambient = ambientStrength * ambientColor;
+        vec3 diffuse = vec3(0.0);
+        
+        if (flashlightOn == 1) {
+            vec3 norm = normalize(Normal);
+            vec3 lightDirVec = normalize(lightPos - FragPos);
+            float diff = max(dot(norm, lightDirVec), 0.0);
+            diffuse = diff * flashColor;
+
+            float theta = dot(lightDirVec, normalize(-lightDir));
+            float epsilon = cutOff - outerCutOff;
+            float intensity = clamp((theta - outerCutOff) / epsilon, 0.0, 1.0);
+
+            float distance = length(lightPos - FragPos);
+            float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance));
+
+            diffuse *= intensity * attenuation;
+        }
+
+        vec4 texColor = texture(texture1, TexCoord);
+        if (useSolidColor == 1) {
+            texColor = vec4(ObjColor, 1.0); // Usar el color empaquetado del OBJ
+        } else if (texColor.a < 0.1) {
+            discard; 
+        }
+        
+        vec3 result = (ambient + diffuse) * objectColor;
+        
+        if (dimensionAlterna == 1) {
+            vec2 uv = gl_FragCoord.xy / resolution;
+            float distToCenter = distance(uv, vec2(0.5));
+            result *= smoothstep(0.9, 0.2, distToCenter);
+        }
+        
+        FragColor = texColor * vec4(result, 1.0);
+    }
+)";
 
 glm::vec3 cameraPos   = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
@@ -151,7 +307,7 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     // z=2-8: SALA DE DESCANSO(1) | ZONA DE OFICINAS(2) | BAÑOS(3)
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -610,7 +766,52 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+unsigned int loadTexture(char const * path) {
+    int width, height, nrComponents;
+    stbi_set_flip_vertically_on_load(true); 
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 4);
+    if (data) {
+        unsigned int textureID;
+        glGenTextures(1, &textureID);
+        GLenum format = GL_RGBA;
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        stbi_image_free(data);
+        return textureID;
+    } else {
+        std::cout << "Textura falló: " << path << std::endl;
+        return 0;
+    }
+}
+
+unsigned int loadTextureWithFallback(char const * path, unsigned int fallback) {
+    unsigned int tex = loadTexture(path);
+    return tex == 0 ? fallback : tex;
+}
+
+#include "gltf_model.h"
 int main() {
+    std::cout << "--- PRUEBA DE ASSIMP ---" << std::endl;
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile("assets/Gnome - R.E.P.O.glb", 
+        aiProcess_Triangulate | 
+        aiProcess_FlipUVs | 
+        aiProcess_PopulateArmatureData |
+        aiProcess_LimitBoneWeights);
+
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
+    } else {
+        std::cout << "EXITO: El Gnomo se cargo correctamente!" << std::endl;
+    }
+    std::cout << "------------------------" << std::endl;
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -643,8 +844,47 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader shader("src/shaders/vertex.vert", "src/shaders/fragment.frag");
-    unsigned int shaderProgram = shader.id();
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+    {
+        int success; char infoLog[512];
+        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+            std::cout << "ERROR::VERTEX_SHADER::" << infoLog << std::endl;
+        }
+    }
+    
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+    {
+        int success; char infoLog[512];
+        glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+            std::cout << "ERROR::FRAGMENT_SHADER::" << infoLog << std::endl;
+        }
+    }
+    
+    unsigned int shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    {
+        int success; char infoLog[512];
+        glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+        if (!success) {
+            glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER_LINK::" << infoLog << std::endl;
+        } else {
+            std::cout << "SHADER: Compilado y enlazado correctamente." << std::endl;
+        }
+    }
+    
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
 
     float vertices[] = {
         // Back face (-Z)
@@ -722,6 +962,11 @@ int main() {
     loadOBJMesh("assets/puertaizqui.obj", pIzquiVAO, pIzquiVBO, pIzquiCount);
     loadOBJMesh("assets/puertadere.obj", pDereVAO, pDereVBO, pDereCount);
 
+    GLTFModel* gnomeGLTF = nullptr;
+    if (scene) {
+        gnomeGLTF = new GLTFModel("assets/Gnome - R.E.P.O.glb");
+    }
+    
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
     unsigned int wallTex3 = loadTexture("assets/wall.png");     
@@ -987,6 +1232,87 @@ int main() {
                 }
             }
         } 
+
+        // --- LÓGICA Y DIBUJO DEL GNOMO ACOSADOR (AI) ---
+        if (gnomeGLTF) {
+            static glm::vec3 gnomePos = glm::vec3(4.1f, -0.5f, 4.0f);
+            static float stunTimer = 0.0f;
+            static bool isGnomeActive = true;
+            static unsigned int gnomeTexture = 0;
+
+            // Cargar textura una sola vez si no existe (usamos paredes.png de prueba)
+            if (gnomeTexture == 0) {
+                gnomeTexture = loadTexture("assets/paredes.png"); 
+            }
+
+            if (isGnomeActive) {
+                float distToPlayer = glm::length(cameraPos - gnomePos);
+                glm::vec3 dirToGnome = glm::normalize(gnomePos - cameraPos);
+                
+                // 1. DETECTAR SI LA LINTERNA LO APUNTA DIRECTAMENTE
+                bool beingLookedAt = false;
+                if (isFlashlightOn) {
+                    float angle = glm::dot(cameraFront, dirToGnome);
+                    // 0.98 significa que lo miras casi al centro (un cono muy cerrado)
+                    if (angle > 0.98f && distToPlayer < 10.0f) { 
+                        beingLookedAt = true;
+                    }
+                }
+
+                // 2. LÓGICA DEL TEMPORIZADOR
+                if (beingLookedAt) {
+                    stunTimer += deltaTime;
+                    if (stunTimer >= 2.0f) {
+                        isGnomeActive = false; // El gnomo se asusta y desaparece (o se detiene)
+                        std::cout << "[SISTEMA]: Gnomo ahuyentado por la luz." << std::endl;
+                    }
+                } else {
+                    stunTimer = std::max(0.0f, stunTimer - deltaTime); // El timer baja si dejas de mirarlo
+                }
+
+                // 3. MOVIMIENTO (Solo si NO lo estás mirando o no ha sido aturdido)
+                float speed = 1.8f; 
+                if (!beingLookedAt && distToPlayer > 0.8f) {
+                    glm::vec3 moveDir = glm::normalize(cameraPos - gnomePos);
+                    moveDir.y = 0; // Mantenerlo en el suelo
+                    gnomePos += moveDir * speed * deltaTime;
+                }
+
+                // 4. RENDERIZADO
+                glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+                glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 1);
+                
+                float gnomeTime = (float)glfwGetTime();
+                std::vector<glm::mat4> transforms;
+                gnomeGLTF->UpdateAnimation(gnomeTime, transforms);
+                
+                for (unsigned int i = 0; i < transforms.size() && i < 100; i++) {
+                    std::string name = "finalBonesMatrices[" + std::to_string(i) + "]";
+                    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, glm::value_ptr(transforms[i]));
+                }
+
+                glm::mat4 gnomeModel = glm::mat4(1.0f);
+                gnomeModel = glm::translate(gnomeModel, gnomePos); 
+                // Hacer que el gnomo siempre mire al jugador
+                float angle = atan2(cameraPos.x - gnomePos.x, cameraPos.z - gnomePos.z);
+                gnomeModel = glm::rotate(gnomeModel, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+                gnomeModel = glm::scale(gnomeModel, glm::vec3(0.5f, 0.5f, 0.5f));
+                
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
+                
+                // Aplicar textura forzada
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, gnomeTexture);
+                glUniform1i(glGetUniformLocation(shaderProgram, "texture_diffuse1"), 0);
+
+                gnomeGLTF->Draw(shaderProgram, solidColorLoc);
+                
+                // Limpiar estado
+                glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 0);
+                glUniform1i(solidColorLoc, 0);
+                glBindVertexArray(VAO);
+            }
+        }
 
         // --- DIBUJAR ENTIDADES 3D ---
         glBindVertexArray(VAO);
