@@ -87,7 +87,7 @@ const char* vertexShaderSource = R"(
             }
         }
 
-        // Si no hubo influencia de huesos, usar posición original
+        // Si no hubo influencia de huesos, usar posiciÃ³n original
         if (!hasBoneInfluence) {
             totalPosition = vec4(aPos, 1.0f);
             totalNormal = aNormal;
@@ -208,7 +208,7 @@ float lastY = SCR_HEIGHT / 2.0;
 float deltaTime = 0.0f;	
 float lastFrame = 0.0f;
 
-// Headbobbing (Movimiento de cámara al caminar)
+// Headbobbing (Movimiento de cÃ¡mara al caminar)
 float headBobTimer = 0.0f;
 float baseCameraY = 0.0f;
 bool isMoving = false;
@@ -242,17 +242,17 @@ int currentZone = 1;
 // ==========================================
 struct Entity {
     glm::vec3 pos;  
-    int type; // 0=Log, 1=Batería, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa, 5=Monitor, 6=Máquina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
+    int type; // 0=Log, 1=BaterÃ­a, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa, 5=Monitor, 6=MÃ¡quina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
     bool active;    
     std::string text;
     float seed;
 };
 
 std::vector<Entity> gameEntities = {
-    // --- ZONA NORTE (z=2 a 11) : INICIO, OFICINAS, BAÑOS ---
+    // --- ZONA NORTE (z=2 a 11) : INICIO, OFICINAS, BAÃ‘OS ---
     {glm::vec3(8.0f, -0.4f, 4.0f), 3, true, "[CABLE SUELTO]:Hay un cable pelado aqui.", 0.0f},
     {glm::vec3(20.0f, -0.4f, 5.0f), 0, true, "LOG 1 (Arrugado): 'Apagon general. Las compuertas se bloquearon.'", 0.0f},
-    {glm::vec3(42.0f, -0.2f, 5.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla) en Baños
+    {glm::vec3(42.0f, -0.2f, 5.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla) en BaÃ±os
     {glm::vec3(12.0f, -0.2f, 6.0f), 1, true, "", 0.0f}, // Bateria 1 en Sala Descanso
     {glm::vec3(24.0f, -0.5f, 6.0f), 4, true, "", 1.0f}, // Mesa en Oficinas
     {glm::vec3(24.0f, 0.0f, 6.0f), 5, true, "[MONITOR AUXILIAR]: 'Sistema inestable.'", 1.5f},
@@ -281,14 +281,14 @@ std::vector<Entity> gameEntities = {
 
 // ==========================================
 // MAPA EXPANDIDO (24x32) - Laboratorio Estructurado
-// 0=Vacío, 1=Pasillo, 2=Control, 3=Lab, 4=Bloque sólido invisible, 8=Puerta Nivel 1, 9=Puerta Nivel 2
+// 0=VacÃ­o, 1=Pasillo, 2=Control, 3=Lab, 4=Bloque sÃ³lido invisible, 8=Puerta Nivel 1, 9=Puerta Nivel 2
 // ==========================================
 const int MAP_WIDTH = 50;
 const int MAP_HEIGHT = 50;
 
-// --- Configuración de dimensiones de paredes ---
-float wallWidth = 0.3f;  // Grosor visual de las paredes (se estira automáticamente si hay vecinos)
-float wallHeight = 1.0f; // 1.0 es la altura estándar
+// --- ConfiguraciÃ³n de dimensiones de paredes ---
+float wallWidth = 0.3f;  // Grosor visual de las paredes (se estira automÃ¡ticamente si hay vecinos)
+float wallHeight = 1.0f; // 1.0 es la altura estÃ¡ndar
 
 // --- Animacion de Puertas ---
 float door1Anim = 0.0f; // 0.0 a 90.0 grados
@@ -297,14 +297,14 @@ float door2Anim = 0.0f;
 bool door2Opening = false;
 
 int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
-    // ============ PROYECTO ÁTOMO - NIVEL -4 ============
-    // 0=Vacío, 1=Pared, 8=Puerta Nivel 1, 9=Puerta Nivel 2
+    // ============ PROYECTO ÃTOMO - NIVEL -4 ============
+    // 0=VacÃ­o, 1=Pared, 8=Puerta Nivel 1, 9=Puerta Nivel 2
     // NORTE (z=0): Borde superior
     //0000 esos q estan ahi van a equivales a los asensores 
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
     // z=1: Acceso desde Nivel -3 (entrada superior) + inicio de salas
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    // z=2-8: SALA DE DESCANSO(1) | ZONA DE OFICINAS(2) | BAÑOS(3)
+    // z=2-8: SALA DE DESCANSO(1) | ZONA DE OFICINAS(2) | BAÃ‘OS(3)
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
@@ -317,9 +317,9 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     // z=10-11: CORREDOR PRINCIPAL ESTE-OESTE
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    // z=12: Pared sur del corredor (puerta 8=Nivel1 hacia Labs Clínicos)
+    // z=12: Pared sur del corredor (puerta 8=Nivel1 hacia Labs ClÃ­nicos)
     {1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,8,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1},
-    // z=13-20: SALA VIGILANCIA | LABS CLÍNICOS(4) | C.FRIGORÍFICA(5) | CONTENCIÓN(6)
+    // z=13-20: SALA VIGILANCIA | LABS CLÃNICOS(4) | C.FRIGORÃFICA(5) | CONTENCIÃ“N(6)
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -328,14 +328,14 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    // z=21: Pared divisoria medio-sur (entradas a Ventilación y corredor)
+    // z=21: Pared divisoria medio-sur (entradas a VentilaciÃ³n y corredor)
     {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1},
     // z=22-23: CORREDOR CENTRAL
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     // z=24: Pared con entradas a zona sur
     {1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1},
-    // z=25-33: CONDUCTOS VENTILACIÓN(7) izq | SALA DE PRUEBAS(8) centro-izq
+    // z=25-33: CONDUCTOS VENTILACIÃ“N(7) izq | SALA DE PRUEBAS(8) centro-izq
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -383,7 +383,7 @@ bool checkCollision(float x, float z) {
     for (int cz = startZ; cz <= endZ; cz++) {
         for (int cx = startX; cx <= endX; cx++) {
             if (cx < 0 || cx >= MAP_WIDTH || cz < 0 || cz >= MAP_HEIGHT) {
-                return true; // Límites sólidos del mapa
+                return true; // LÃ­mites sÃ³lidos del mapa
             }
             
             if (worldMap[cz][cx] > 0) {
@@ -402,7 +402,7 @@ bool checkCollision(float x, float z) {
                 float wallMinZ = (float)cz - halfZ;
                 float wallMaxZ = (float)cz + halfZ;
 
-                // Encontrar el punto más cercano en la caja al jugador
+                // Encontrar el punto mÃ¡s cercano en la caja al jugador
                 float closestX = glm::clamp(x, wallMinX, wallMaxX);
                 float closestZ = glm::clamp(z, wallMinZ, wallMaxZ);
 
@@ -413,7 +413,7 @@ bool checkCollision(float x, float z) {
         }
     }
     
-    // Colisión con entidades (objetos grandes como mesas)
+    // ColisiÃ³n con entidades (objetos grandes como mesas)
     for (auto& entity : gameEntities) {
         if (!entity.active) continue;
         if (entity.type == 4 || entity.type == 6) { 
@@ -450,7 +450,7 @@ void closeDocument() {
 }
 
 void tryOpenDoor(GLFWwindow *window) {
-    // Escaneo de los bloques frente a la cámara (rango 1.5)
+    // Escaneo de los bloques frente a la cÃ¡mara (rango 1.5)
     glm::vec3 checkPos = cameraPos + cameraFront * 1.5f;
     int gridX = (int)round(checkPos.x);
     int gridZ = (int)round(checkPos.z);
@@ -556,7 +556,7 @@ void processInput(GLFWwindow *window) {
     isSprinting = false;
     
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && stamina > 0.0f && !isExhausted) {
-        cameraSpeed = 6.0f; // Corre rápido
+        cameraSpeed = 6.0f; // Corre rÃ¡pido
         stamina -= 30.0f * deltaTime;
         isSprinting = true;
         if (stamina <= 0.0f) {
@@ -606,7 +606,7 @@ void processInput(GLFWwindow *window) {
         if (currentZone == 3 && !dimensionAlterna) printTypewriter("ESCENA 3: LABORATORIO PRINCIPAL\nEncuentras la esfera central del experimento. Necesitas baterias.");
     }
 
-    // --- INTERACCIÓN GENERAL (TECLA E) ---
+    // --- INTERACCIÃ“N GENERAL (TECLA E) ---
     bool justPressedE = false;
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
         if (!eKeyWasPressed) {
@@ -639,16 +639,16 @@ void processInput(GLFWwindow *window) {
         eKeyWasPressed = false;
     }
 
-    // LÓGICA DE ENTIDADES E INSPECCIÓN
+    // LÃ“GICA DE ENTIDADES E INSPECCIÃ“N
     for (auto& entity : gameEntities) {
         if (entity.active) {
             float distancia = glm::length(entity.pos - cameraPos);
             glm::vec3 dirToEntity = glm::normalize(glm::vec3(entity.pos.x, cameraPos.y, entity.pos.z) - cameraPos); 
-            // Para objetos altos o bajos, la dirección varía. Usamos la posición real para el ángulo
+            // Para objetos altos o bajos, la direcciÃ³n varÃ­a. Usamos la posiciÃ³n real para el Ã¡ngulo
             glm::vec3 realDirToEntity = glm::normalize(entity.pos - cameraPos);
             float lookAngle = glm::dot(cameraFront, realDirToEntity);
             
-            // Recolectables (Por cercanía y mirando hacia ellos)
+            // Recolectables (Por cercanÃ­a y mirando hacia ellos)
             if (entity.type == 0 || entity.type == 1 || entity.type == 8 || entity.type == 9) { 
                 // Eliminamos la necesidad de apuntar exacto para no frustrar la recoleccion
                 if (distancia < 1.5f && justPressedE) {
@@ -683,13 +683,13 @@ void processInput(GLFWwindow *window) {
                     }
                 }
             } 
-            // Objetos Inspectables Estáticos (Mesa, Monitor, Máquina, Cable)
+            // Objetos Inspectables EstÃ¡ticos (Mesa, Monitor, MÃ¡quina, Cable)
             else if (entity.type == 3 || entity.type == 4 || entity.type == 5 || entity.type == 6 || entity.type == 7) {
                 // Precision Raycast Approximation (lookAngle > 0.95 significa mirar casi exactamente al objeto)
                 if (distancia < 3.0f && lookAngle > 0.92f && justPressedE) {
                     if (entity.text != "") { // Solo si tiene texto
                         printTypewriter(entity.text);
-                    } else if (entity.type == 4) { // Es una mesa sin texto, interactuar abre un cajón (simulado)
+                    } else if (entity.type == 4) { // Es una mesa sin texto, interactuar abre un cajÃ³n (simulado)
                         printTypewriter("[CAJON]: Esta vacio o atascado.");
                     }
                 }
@@ -766,40 +766,26 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-unsigned int loadTexture(char const * path) {
-    int width, height, nrComponents;
-    stbi_set_flip_vertically_on_load(true); 
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 4);
-    if (data) {
-        unsigned int textureID;
-        glGenTextures(1, &textureID);
-        GLenum format = GL_RGBA;
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        stbi_image_free(data);
-        return textureID;
-    } else {
-        std::cout << "Textura falló: " << path << std::endl;
-        return 0;
+
+
+#include "gltf_model.h"
+void printNodeHierarchy(const aiNode* node, int depth) {
+    if (!node || depth > 12) return;
+    for (int i = 0; i < depth; i++) std::cout << "  ";
+    aiVector3D scaling, position;
+    aiQuaternion rotation;
+    node->mTransformation.Decompose(scaling, rotation, position);
+    std::cout << "- Node: " << node->mName.C_Str() << " | Pos: (" << position.x << ", " << position.y << ", " << position.z 
+              << ") | Scale: (" << scaling.x << ", " << scaling.y << ", " << scaling.z << ")" << std::endl;
+    for (unsigned int i = 0; i < node->mNumChildren; i++) {
+        printNodeHierarchy(node->mChildren[i], depth + 1);
     }
 }
 
-unsigned int loadTextureWithFallback(char const * path, unsigned int fallback) {
-    unsigned int tex = loadTexture(path);
-    return tex == 0 ? fallback : tex;
-}
-
-#include "gltf_model.h"
 int main() {
     std::cout << "--- PRUEBA DE ASSIMP ---" << std::endl;
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("assets/Gnome - R.E.P.O.glb", 
+    const aiScene* scene = importer.ReadFile("assets/Enemy - Gnome.fbx", 
         aiProcess_Triangulate | 
         aiProcess_FlipUVs | 
         aiProcess_PopulateArmatureData |
@@ -809,6 +795,18 @@ int main() {
         std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
     } else {
         std::cout << "EXITO: El Gnomo se cargo correctamente!" << std::endl;
+        std::cout << "--- INFO DEL FBX ---" << std::endl;
+        std::cout << "Animaciones: " << scene->mNumAnimations << std::endl;
+        for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+            std::cout << "  [" << i << "] Nombre: " << scene->mAnimations[i]->mName.C_Str() << " (Duracion: " << scene->mAnimations[i]->mDuration << ", TicksPerSecond: " << scene->mAnimations[i]->mTicksPerSecond << ")" << std::endl;
+        }
+        unsigned int totalBones = 0;
+        for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+            totalBones += scene->mMeshes[i]->mNumBones;
+        }
+        std::cout << "Mallas (Meshes): " << scene->mNumMeshes << " | Huesos totales en mallas: " << totalBones << std::endl;
+        // std::cout << "--- JERARQUIA DE NODOS ---" << std::endl;
+        // printNodeHierarchy(scene->mRootNode, 0);
     }
     std::cout << "------------------------" << std::endl;
 
@@ -964,7 +962,7 @@ int main() {
 
     GLTFModel* gnomeGLTF = nullptr;
     if (scene) {
-        gnomeGLTF = new GLTFModel("assets/Gnome - R.E.P.O.glb");
+        gnomeGLTF = new GLTFModel("assets/gnome.glb");
     }
     
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
@@ -981,7 +979,7 @@ int main() {
     unsigned int clueTexture = loadTexture("assets/clue.png"); 
     unsigned int enemyTexture = loadTexture("assets/enemy.png");
 
-    // Texturas específicas con fallback
+    // Texturas especÃ­ficas con fallback
     unsigned int batteryTex = loadTextureWithFallback("assets/battery.png", clueTexture);
     unsigned int keycardTex = loadTextureWithFallback("assets/keycard.png", clueTexture);
     unsigned int pcTex = loadTextureWithFallback("assets/pc.png", wallTex2);
@@ -1145,15 +1143,15 @@ int main() {
                         } else {
                             glUniform1i(solidColorLoc, 1);
                             if (renderBlock == 8 || renderBlock == -8) {
-                                glUniform3f(colorLoc, 1.0f, 0.8f, 0.2f); // Amarillo Sólido
+                                glUniform3f(colorLoc, 1.0f, 0.8f, 0.2f); // Amarillo SÃ³lido
                             } else if (renderBlock == 9 || renderBlock == -9) {
-                                glUniform3f(colorLoc, 0.9f, 0.1f, 0.1f); // Rojo Sólido
+                                glUniform3f(colorLoc, 0.9f, 0.1f, 0.1f); // Rojo SÃ³lido
                             } else {
                                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
                             }
                         }
 
-                        // Obtener ángulo actual de la animación
+                        // Obtener Ã¡ngulo actual de la animaciÃ³n
                         float currentAnim = (renderBlock == 8 || renderBlock == -8) ? door1Anim : door2Anim;
                         
                         // Rotacion: La izquierda gira hacia adelante (negativo), la derecha gira hacia el otro lado (positivo)
@@ -1194,7 +1192,7 @@ int main() {
                         else if (blockType == 3) glBindTexture(GL_TEXTURE_2D, wallTex3);
                         glBindVertexArray(VAO);
 
-                        // Escalar paredes inteligentemente según vecinos
+                        // Escalar paredes inteligentemente segÃºn vecinos
                         float scaleX = wallWidth;
                         float scaleZ = wallWidth;
                         bool hasLeft  = (x > 0 && worldMap[z][x-1] > 0);
@@ -1233,16 +1231,21 @@ int main() {
             }
         } 
 
-        // --- LÓGICA Y DIBUJO DEL GNOMO ACOSADOR (AI) ---
+        // --- LÃ“GICA Y DIBUJO DEL GNOMO ACOSADOR (AI) ---
         if (gnomeGLTF) {
-            static glm::vec3 gnomePos = glm::vec3(4.1f, -0.5f, 4.0f);
+            static glm::vec3 gnomePos = glm::vec3(4.1f, -0.4f, 4.0f);
             static float stunTimer = 0.0f;
             static bool isGnomeActive = true;
             static unsigned int gnomeTexture = 0;
 
-            // Cargar textura una sola vez si no existe (usamos paredes.png de prueba)
-            if (gnomeTexture == 0) {
-                gnomeTexture = loadTexture("assets/paredes.png"); 
+            static bool textureFailed = false;
+            // Cargar textura una sola vez si no existe
+            if (gnomeTexture == 0 && !textureFailed) {
+                gnomeTexture = loadTexture("assets/Gnome_Albedo.png"); 
+                if (gnomeTexture == 0) {
+                    textureFailed = true;
+                    std::cout << "[SISTEMA] No se encontró assets/Gnome_Albedo.png. El gnomo usará sus colores por defecto." << std::endl;
+                }
             }
 
             if (isGnomeActive) {
@@ -1259,7 +1262,7 @@ int main() {
                     }
                 }
 
-                // 2. LÓGICA DEL TEMPORIZADOR
+                // 2. LÃ“GICA DEL TEMPORIZADOR
                 if (beingLookedAt) {
                     stunTimer += deltaTime;
                     if (stunTimer >= 2.0f) {
@@ -1267,47 +1270,56 @@ int main() {
                         std::cout << "[SISTEMA]: Gnomo ahuyentado por la luz." << std::endl;
                     }
                 } else {
-                    stunTimer = std::max(0.0f, stunTimer - deltaTime); // El timer baja si dejas de mirarlo
+                    stunTimer = (std::max)(0.0f, stunTimer - deltaTime); // El timer baja si dejas de mirarlo
                 }
 
-                // 3. MOVIMIENTO (Solo si NO lo estás mirando o no ha sido aturdido)
+                // 3. MOVIMIENTO (Solo si NO lo está mirando o no ha sido aturdido)
                 float speed = 1.8f; 
+                bool isMoving = false;
                 if (!beingLookedAt && distToPlayer > 0.8f) {
                     glm::vec3 moveDir = glm::normalize(cameraPos - gnomePos);
                     moveDir.y = 0; // Mantenerlo en el suelo
                     gnomePos += moveDir * speed * deltaTime;
+                    isMoving = true;
                 }
 
                 // 4. RENDERIZADO
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-                glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 1);
+                glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 0); // Desactivar skinning en vertex shader
                 
                 float gnomeTime = (float)glfwGetTime();
-                std::vector<glm::mat4> transforms;
-                gnomeGLTF->UpdateAnimation(gnomeTime, transforms);
-                
-                for (unsigned int i = 0; i < transforms.size() && i < 100; i++) {
-                    std::string name = "finalBonesMatrices[" + std::to_string(i) + "]";
-                    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, glm::value_ptr(transforms[i]));
-                }
 
                 glm::mat4 gnomeModel = glm::mat4(1.0f);
                 gnomeModel = glm::translate(gnomeModel, gnomePos); 
-                // Hacer que el gnomo siempre mire al jugador
+                
+                // Rotar en el eje Y para mirar al jugador (se aplica DESPUÉS de levantarse en espacio global)
                 float angle = atan2(cameraPos.x - gnomePos.x, cameraPos.z - gnomePos.z);
                 gnomeModel = glm::rotate(gnomeModel, angle, glm::vec3(0.0f, 1.0f, 0.0f));
-                gnomeModel = glm::scale(gnomeModel, glm::vec3(0.5f, 0.5f, 0.5f));
                 
-                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
+                // Rotar 90 grados en X para levantarlo (ya que estaba boca abajo)
+                gnomeModel = glm::rotate(gnomeModel, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                
+                gnomeModel = glm::scale(gnomeModel, glm::vec3(0.006f, 0.006f, 0.006f));
                 
                 // Aplicar textura forzada
+                glUniform1i(solidColorLoc, 0); // FIX: Asegurar que NO se use color sólido
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, gnomeTexture);
-                glUniform1i(glGetUniformLocation(shaderProgram, "texture_diffuse1"), 0);
+                glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
 
-                gnomeGLTF->Draw(shaderProgram, solidColorLoc);
+                // Determinar animación a reproducir
+                int currentAnimIndex = 0; // Enemy Gnome Idle (por defecto)
+                if (beingLookedAt) {
+                    currentAnimIndex = 4; // Enemy Gnome Stun
+                } else if (isMoving) {
+                    currentAnimIndex = 2; // Enemy Gnome Move
+                }
+
+                // Dibujar usando jerarquía animada de nodos
+                gnomeGLTF->DrawAnimated(gnomeTime, currentAnimIndex, shaderProgram, modelLoc, -1, gnomeModel);
                 
                 // Limpiar estado
+                glActiveTexture(GL_TEXTURE0); // FIX: Resetear la unidad de textura activa
                 glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 0);
                 glUniform1i(solidColorLoc, 0);
                 glBindVertexArray(VAO);
@@ -1320,7 +1332,7 @@ int main() {
 
         for (auto& entity : gameEntities) {
             if (!entity.active || (entity.type != 0 && entity.type != 3 && entity.type < 4) || entity.type == 8 || entity.type == 9) continue; 
-            if (entity.type > 0 && entity.type < 3) continue; // Solo procesar tipos 0, 3, 4, 5, 6, 7 aquí
+            if (entity.type > 0 && entity.type < 3) continue; // Solo procesar tipos 0, 3, 4, 5, 6, 7 aquÃ­
 
             glm::mat4 entityModel = glm::mat4(1.0f);
             float floatY = 0.0f;
@@ -1347,7 +1359,7 @@ int main() {
                 glBindTexture(GL_TEXTURE_2D, pcTex); 
                 glUniform1i(solidColorLoc, 1); 
                 
-                // Ajuste de posición para que toque el suelo
+                // Ajuste de posiciÃ³n para que toque el suelo
                 entityModel = glm::translate(entityModel, glm::vec3(-0.99f, -0.12f, 0.0f)); 
                 entityModel = glm::scale(entityModel, glm::vec3(0.5f, 0.5f, 0.5f));
                 
@@ -1369,7 +1381,7 @@ int main() {
                 glUniform1i(solidColorLoc, 1); // Ignorar la textura cargada
                 
                 entityModel = glm::translate(entityModel, glm::vec3(0.0f, -0.1f, 0.0f)); // Bajar a la mesa
-                entityModel = glm::rotate(entityModel, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Estático
+                entityModel = glm::rotate(entityModel, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // EstÃ¡tico
                 entityModel = glm::scale(entityModel, glm::vec3(0.6f, 0.6f, 0.6f));
                 if (dimensionAlterna) glUniform3f(colorLoc, 1.0f, 0.4f, 0.4f);
                 else glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Usar colores 100% reales de Blender
@@ -1379,7 +1391,7 @@ int main() {
                 glUniform1i(solidColorLoc, 0); // Restaurar texturas normales
                 
                 glBindVertexArray(VAO); // Restaurar VAO
-            } else if (entity.type == 6) { // Máquina Lab
+            } else if (entity.type == 6) { // MÃ¡quina Lab
                 glBindVertexArray(VAO);
                 glBindTexture(GL_TEXTURE_2D, wallTex3);
                 entityModel = glm::scale(entityModel, glm::vec3(0.8f, 2.0f, 0.8f));
@@ -1424,7 +1436,7 @@ int main() {
 
             glm::mat4 entityModel = glm::mat4(1.0f);
             
-            // Flotación sutil de objetos clave para visibilidad---
+            // FlotaciÃ³n sutil de objetos clave para visibilidad---
             float bounce = 0.0f;
             if(entity.type == 8 || entity.type == 9) bounce = sin(currentFrame * 3.0f) * 0.1f;
             
@@ -1498,7 +1510,7 @@ int main() {
             orthoModel = glm::scale(orthoModel, glm::vec3(0.015f, 0.015f * aspect, 1.0f)); // Puntito en el centro
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(orthoModel));
 
-            glBindTexture(GL_TEXTURE_2D, clueTexture); // Textura blanca genérica
+            glBindTexture(GL_TEXTURE_2D, clueTexture); // Textura blanca genÃ©rica
             glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
             glDrawArrays(GL_TRIANGLES, 0, 6);
 
