@@ -42,8 +42,25 @@ bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
+glm::vec3 ligthbathroomPos(34.8f, 1.8f, 4.0f);
+glm::vec3 ligthbathroomRot(-90.0f, 0.0f, 0.0f);
+glm::vec3 ligthbathroomScale(0.4f, 0.4f, 0.4f);
+bool ligthbathroomDebugVisible = true;
 
-// SHADERS 
+glm::vec3 banoPos(35.6f, -0.5f, 1.740f);
+glm::vec3 banoRot(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale(0.5f, 0.4f, 0.4f);
+
+glm::vec3 lavamanosPos(34.7f, -0.590f, 3.400f);
+glm::vec3 lavamanosRot(-90.0f, 0.0f, -90.0f);
+glm::vec3 lavamanosScale(0.4f, 0.4f, 0.4f);
+
+glm::vec3 urinarioPos(33.2f, -0.5f, 5.2f);
+glm::vec3 urinarioRot(-90.0f, 0.0f, 90.0f);
+glm::vec3 urinarioScale(0.4f, 0.4f, 0.4f);
+
+
+// SHADERS edwedew
 
 const char* vertexShaderSource = R"(
     #version 330 core
@@ -305,15 +322,15 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     // z=1: Acceso desde Nivel -3 (entrada superior) + inicio de salas
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
     // z=2-8: SALA DE DESCANSO(1) | ZONA DE OFICINAS(2) | BAÃ‘OS(3)
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
     // z=9: Pared entre salas norte y corredor principal (con entradas a cada sala)
-    {1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1},
+    {1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,1,1,1},
     // z=10-11: CORREDOR PRINCIPAL ESTE-OESTE
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -978,6 +995,16 @@ int main() {
         gnomeGLTF = new GLTFModel(gnomeModelPath);
     }
     std::cout << "[SISTEMA] Modelo activo del gnomo: " << gnomeModelPath << std::endl;
+
+    GLTFModel* ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
+    GLTFModel* banoGLTF = new GLTFModel("assets/Bano.glb");
+    GLTFModel* lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
+    GLTFModel* urinarioGLTF = new GLTFModel("assets/urinario.glb");
+    std::cout << "[SISTEMA] Props baño cargados: "
+              << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
+              << "Bano(" << banoGLTF->meshes.size() << "), "
+              << "Lavamanos(" << lavamanosGLTF->meshes.size() << "), "
+              << "Urinario(" << urinarioGLTF->meshes.size() << ")" << std::endl;
     
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
@@ -1379,6 +1406,65 @@ int main() {
             }
         }
 
+        // --- DECORACIÓN BAÑO (GLB estáticos) ---
+        if (isAnimatedLoc >= 0) glUniform1i(isAnimatedLoc, 0);
+
+        if (banoGLTF && !banoGLTF->meshes.empty()) {
+            glm::mat4 banoModel = glm::mat4(1.0f);
+            banoModel = glm::translate(banoModel, banoPos);
+            banoModel = glm::rotate(banoModel, glm::radians(banoRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            banoModel = glm::rotate(banoModel, glm::radians(banoRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            banoModel = glm::rotate(banoModel, glm::radians(banoRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            banoModel = glm::scale(banoModel, banoScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(banoModel));
+            banoGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+        if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
+            glm::mat4 lavamanosModel = glm::mat4(1.0f);
+            lavamanosModel = glm::translate(lavamanosModel, lavamanosPos);
+            lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel = glm::scale(lavamanosModel, lavamanosScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (ligthbathroomGLTF && !ligthbathroomGLTF->meshes.empty()) {
+            glm::mat4 ligthbathroomModel = glm::mat4(1.0f);
+            ligthbathroomModel = glm::translate(ligthbathroomModel, ligthbathroomPos);
+            ligthbathroomModel = glm::rotate(ligthbathroomModel, glm::radians(ligthbathroomRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            ligthbathroomModel = glm::rotate(ligthbathroomModel, glm::radians(ligthbathroomRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            ligthbathroomModel = glm::rotate(ligthbathroomModel, glm::radians(ligthbathroomRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            ligthbathroomModel = glm::scale(ligthbathroomModel, ligthbathroomScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroomModel));
+            if (ligthbathroomDebugVisible) {
+                glDisable(GL_CULL_FACE);
+                glUniform1i(solidColorLoc, 1);
+                glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f);
+                ligthbathroomGLTF->Draw(shaderProgram, -1);
+            } else {
+                ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+            }
+            if (ligthbathroomDebugVisible) {
+                glEnable(GL_CULL_FACE);
+                glUniform1i(solidColorLoc, 0);
+                glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+            }
+        }
+
+        if (urinarioGLTF && !urinarioGLTF->meshes.empty()) {
+            glm::mat4 urinarioModel = glm::mat4(1.0f);
+            urinarioModel = glm::translate(urinarioModel, urinarioPos);
+            urinarioModel = glm::rotate(urinarioModel, glm::radians(urinarioRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            urinarioModel = glm::rotate(urinarioModel, glm::radians(urinarioRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            urinarioModel = glm::rotate(urinarioModel, glm::radians(urinarioRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            urinarioModel = glm::scale(urinarioModel, urinarioScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(urinarioModel));
+            urinarioGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+        glUniform1i(solidColorLoc, 0);
+
         // --- DIBUJAR ENTIDADES 3D ---
         glBindVertexArray(VAO);
         glEnable(GL_DEPTH_TEST);
@@ -1580,6 +1666,42 @@ int main() {
         ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "POSICION ACTUAL:");
         ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
         ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 350.0f, 10.0f));
+        ImGui::SetNextWindowSize(ImVec2(340.0f, 340.0f));
+        ImGui::SetNextWindowBgAlpha(0.75f);
+        ImGui::Begin("Editor Bano", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Text("Ajuste en tiempo real (sin recompilar)");
+        ImGui::Separator();
+        ImGui::Text("Bano");
+        ImGui::DragFloat3("Bano Pos", &banoPos.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano Rot", &banoRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano Scale", &banoScale.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Lavamanos");
+        ImGui::DragFloat3("Lava Pos", &lavamanosPos.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Lava Rot", &lavamanosRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lava Scale", &lavamanosScale.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Urinario");
+        ImGui::DragFloat3("Uri Pos", &urinarioPos.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Uri Rot", &urinarioRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Uri Scale", &urinarioScale.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Lampara bano");
+        ImGui::DragFloat3("Lampara bano Pos", &ligthbathroomPos.x, 0.05f);
+        ImGui::DragFloat3("Lampara bano Rot", &ligthbathroomRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lampara bano Scale", &ligthbathroomScale.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Checkbox("Lampara modo debug visible", &ligthbathroomDebugVisible);
+        if (ImGui::Button("Traer lampara frente a camara")) {
+            ligthbathroomPos = cameraPos + cameraFront * 0.8f;
+            ligthbathroomPos.y = cameraPos.y;
+            ligthbathroomRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            ligthbathroomScale = glm::vec3(1.8f, 1.8f, 1.8f);
+        }
+
+        ImGui::End();
+
 
         if (hudMessageTimer > 0.0f) {
             ImGui::SetNextWindowPos(ImVec2(currentWidth * 0.1f, currentHeight * 0.8f));
