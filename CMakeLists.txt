@@ -5,6 +5,8 @@ project(PracticasOpenGL VERSION 1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_compile_definitions(NOMINMAX)
+
 # Directorios de inclusión
 include_directories(include include/imgui include/imgui/backends vcpkg/installed/x64-windows/include)
 
