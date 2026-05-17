@@ -783,19 +783,29 @@ void printNodeHierarchy(const aiNode* node, int depth) {
 }
 
 int main() {
-    std::cout << "--- PRUEBA DE ASSIMP ---" << std::endl;
+    std::cout << "--- PRUEBA DE ASSIMP (GNOME) ---" << std::endl;
+    std::string diagnosticPath = "assets/gnome.glb";
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("assets/Enemy - Gnome.fbx", 
+    const aiScene* scene = importer.ReadFile(diagnosticPath, 
         aiProcess_Triangulate | 
         aiProcess_FlipUVs | 
         aiProcess_PopulateArmatureData |
         aiProcess_LimitBoneWeights);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        diagnosticPath = "assets/gnome.glb";
+        scene = importer.ReadFile(diagnosticPath,
+            aiProcess_Triangulate |
+            aiProcess_FlipUVs |
+            aiProcess_PopulateArmatureData |
+            aiProcess_LimitBoneWeights);
+    }
+
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
     } else {
-        std::cout << "EXITO: El Gnomo se cargo correctamente!" << std::endl;
-        std::cout << "--- INFO DEL FBX ---" << std::endl;
+        std::cout << "EXITO: El gnomo se cargo correctamente desde " << diagnosticPath << std::endl;
+        std::cout << "--- INFO DEL MODELO ---" << std::endl;
         std::cout << "Animaciones: " << scene->mNumAnimations << std::endl;
         for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
             std::cout << "  [" << i << "] Nombre: " << scene->mAnimations[i]->mName.C_Str() << " (Duracion: " << scene->mAnimations[i]->mDuration << ", TicksPerSecond: " << scene->mAnimations[i]->mTicksPerSecond << ")" << std::endl;
@@ -960,10 +970,14 @@ int main() {
     loadOBJMesh("assets/puertaizqui.obj", pIzquiVAO, pIzquiVBO, pIzquiCount);
     loadOBJMesh("assets/puertadere.obj", pDereVAO, pDereVBO, pDereCount);
 
-    GLTFModel* gnomeGLTF = nullptr;
-    if (scene) {
-        gnomeGLTF = new GLTFModel("assets/gnome.glb");
+    std::string gnomeModelPath = "assets/gnome.glb";
+    GLTFModel* gnomeGLTF = new GLTFModel(gnomeModelPath);
+    if (gnomeGLTF->meshes.empty()) {
+        delete gnomeGLTF;
+        gnomeModelPath = "assets/gnome.glb";
+        gnomeGLTF = new GLTFModel(gnomeModelPath);
     }
+    std::cout << "[SISTEMA] Modelo activo del gnomo: " << gnomeModelPath << std::endl;
     
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
@@ -1023,6 +1037,9 @@ int main() {
     int timeLoc = glGetUniformLocation(shaderProgram, "time");
     int resLoc = glGetUniformLocation(shaderProgram, "resolution");
     int solidColorLoc = glGetUniformLocation(shaderProgram, "useSolidColor");
+    int isAnimatedLoc = glGetUniformLocation(shaderProgram, "isAnimated");
+    int finalBonesLoc = glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
+    std::vector<glm::mat4> gnomeBoneTransforms;
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
@@ -1285,42 +1302,78 @@ int main() {
 
                 // 4. RENDERIZADO
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-                glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 0); // Desactivar skinning en vertex shader
                 
                 float gnomeTime = (float)glfwGetTime();
 
+                bool hasSkinningBones = gnomeGLTF->CountBonesInMeshes() > 0;
+
                 glm::mat4 gnomeModel = glm::mat4(1.0f);
-                gnomeModel = glm::translate(gnomeModel, gnomePos); 
+                gnomeModel = glm::translate(gnomeModel, gnomePos);
                 
                 // Rotar en el eje Y para mirar al jugador (se aplica DESPUÉS de levantarse en espacio global)
                 float angle = atan2(cameraPos.x - gnomePos.x, cameraPos.z - gnomePos.z);
                 gnomeModel = glm::rotate(gnomeModel, angle, glm::vec3(0.0f, 1.0f, 0.0f));
                 
-                // Rotar 90 grados en X para levantarlo (ya que estaba boca abajo)
-                gnomeModel = glm::rotate(gnomeModel, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-                
-                gnomeModel = glm::scale(gnomeModel, glm::vec3(0.006f, 0.006f, 0.006f));
+                if (!hasSkinningBones) {
+                    // Corrección legacy para modelos exportados sin skinning
+                    gnomeModel = glm::rotate(gnomeModel, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                    gnomeModel = glm::scale(gnomeModel, glm::vec3(0.006f, 0.006f, 0.006f));
+                } else {
+                    // GLB actual: escala de depuración más visible y sin giro extra
+                    gnomeModel = glm::scale(gnomeModel, glm::vec3(0.07f, 0.07f, 0.07f));
+                }
                 
                 // Aplicar textura forzada
-                glUniform1i(solidColorLoc, 0); // FIX: Asegurar que NO se use color sólido
+                glUniform1i(solidColorLoc, gnomeTexture == 0 ? 1 : 0);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, gnomeTexture);
                 glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
 
                 // Determinar animación a reproducir
-                int currentAnimIndex = 0; // Enemy Gnome Idle (por defecto)
+                int animCount = gnomeGLTF->GetAnimationCount();
+                int idleAnimIndex = gnomeGLTF->FindAnimationIndexContains("idle");
+                if (idleAnimIndex < 0) idleAnimIndex = 0;
+
+                int stunAnimIndex = gnomeGLTF->FindAnimationIndexContains("stun");
+                if (stunAnimIndex < 0) stunAnimIndex = idleAnimIndex;
+
+                int moveAnimIndex = gnomeGLTF->FindAnimationIndexContains("move");
+                if (moveAnimIndex < 0) moveAnimIndex = gnomeGLTF->FindAnimationIndexContains("walk");
+                if (moveAnimIndex < 0) moveAnimIndex = gnomeGLTF->FindAnimationIndexContains("run");
+                if (moveAnimIndex < 0) moveAnimIndex = idleAnimIndex;
+
+                int currentAnimIndex = idleAnimIndex;
                 if (beingLookedAt) {
-                    currentAnimIndex = 4; // Enemy Gnome Stun
+                    currentAnimIndex = stunAnimIndex;
                 } else if (isMoving) {
-                    currentAnimIndex = 2; // Enemy Gnome Move
+                    currentAnimIndex = moveAnimIndex;
                 }
 
-                // Dibujar usando jerarquía animada de nodos
-                gnomeGLTF->DrawAnimated(gnomeTime, currentAnimIndex, shaderProgram, modelLoc, -1, gnomeModel);
+                // Actualizar y enviar matrices de huesos para skinning (solo si el modelo realmente trae huesos)
+                if (hasSkinningBones) {
+                    gnomeGLTF->UpdateAnimation(gnomeTime, gnomeBoneTransforms, currentAnimIndex);
+                    if (finalBonesLoc >= 0 && !gnomeBoneTransforms.empty()) {
+                        glUniformMatrix4fv(finalBonesLoc, (GLsizei)gnomeBoneTransforms.size(), GL_FALSE, glm::value_ptr(gnomeBoneTransforms[0]));
+                    }
+                }
+                if (isAnimatedLoc >= 0) {
+                    glUniform1i(isAnimatedLoc, hasSkinningBones ? 1 : 0);
+                }
+
+                if (hasSkinningBones) {
+                    // En modelos con skinning, evitar doble transformación (nodos + huesos)
+                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
+                    gnomeGLTF->Draw(shaderProgram, solidColorLoc);
+                } else {
+                    // Fallback para modelos sin pesos de hueso exportados
+                    gnomeGLTF->DrawAnimated(gnomeTime, currentAnimIndex, shaderProgram, modelLoc, -1, gnomeModel);
+                }
                 
                 // Limpiar estado
                 glActiveTexture(GL_TEXTURE0); // FIX: Resetear la unidad de textura activa
-                glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 0);
+                if (isAnimatedLoc >= 0) {
+                    glUniform1i(isAnimatedLoc, 0);
+                }
                 glUniform1i(solidColorLoc, 0);
                 glBindVertexArray(VAO);
             }

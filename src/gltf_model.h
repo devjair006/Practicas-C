@@ -13,6 +13,8 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <algorithm>
+#include <cctype>
 
 #define MAX_BONES 100
 #define MAX_BONE_INFLUENCE 4
@@ -110,7 +112,7 @@ public:
     std::vector<GLTFMesh> meshes;
     std::map<std::string, BoneInfo> m_BoneInfoMap;
     int m_BoneCounter = 0;
-    const aiScene* m_Scene;
+    const aiScene* m_Scene = nullptr;
     glm::mat4 m_GlobalInverseTransform;
     Assimp::Importer m_Importer; // Ahora es persistente
 
@@ -121,6 +123,33 @@ public:
     void Draw(unsigned int shaderProgram, int solidColorLoc) {
         for(unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shaderProgram, solidColorLoc);
+    }
+
+    int GetAnimationCount() const {
+        if (!m_Scene || !m_Scene->HasAnimations()) return 0;
+        return (int)m_Scene->mNumAnimations;
+    }
+
+    int CountBonesInMeshes() const {
+        if (!m_Scene) return 0;
+        int totalBones = 0;
+        for (unsigned int i = 0; i < m_Scene->mNumMeshes; i++) {
+            totalBones += (int)m_Scene->mMeshes[i]->mNumBones;
+        }
+        return totalBones;
+    }
+
+    int FindAnimationIndexContains(const std::string& needle) const {
+        if (!m_Scene || !m_Scene->HasAnimations()) return -1;
+        std::string needleLower = ToLower(needle);
+        for (unsigned int i = 0; i < m_Scene->mNumAnimations; i++) {
+            std::string animName = m_Scene->mAnimations[i]->mName.C_Str();
+            std::string animNameLower = ToLower(animName);
+            if (animNameLower.find(needleLower) != std::string::npos) {
+                return (int)i;
+            }
+        }
+        return -1;
     }
 
     void UpdateAnimation(float timeInSeconds, std::vector<glm::mat4>& transforms, int animIndex = 0) {
@@ -155,6 +184,14 @@ public:
     }
 
 private:
+    static std::string ToLower(const std::string& text) {
+        std::string result = text;
+        std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
+            return (char)std::tolower(c);
+        });
+        return result;
+    }
+
     void DrawNodeAnimated(const aiNode* pNode, const glm::mat4& ParentTransform, const glm::mat4& DefaultParentTransform, float AnimationTime, int animIndex, unsigned int shaderProgram, int modelLoc, int solidColorLoc, const glm::mat4& baseModelMatrix) {
         std::string NodeName(pNode->mName.data);
         glm::mat4 NodeTransformation = ConvertMatrixToGLMFormat(pNode->mTransformation);
