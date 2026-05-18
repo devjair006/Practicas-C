@@ -42,19 +42,19 @@ bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
-glm::vec3 mirrorPos(33.250f, -0.600f, 3.00f);
-glm::vec3 mirrorRot(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorPos(33.250f, 0.100f, 3.00f);
+glm::vec3 mirrorRot(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale(0.540f, 0.520f, 0.630f);
 
-glm::vec3 mirrorPos2(33.250f, -0.600f, 3.00f + 1.0f);
+glm::vec3 mirrorPos2(33.250f, 0.100f, 3.00f + 1.0f);
 glm::vec3 mirrorRot2(0.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale2(0.540f, 0.520f, 0.630f);
 
-glm::vec3 mirrorPos3(33.250f, -0.600f, 3.00f + 2.0f);
-glm::vec3 mirrorRot3(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorPos3(33.250f, 0.100f, 3.00f + 2.0f);
+glm::vec3 mirrorRot3(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale3(0.540f, 0.520f, 0.630f);
 
-glm::vec3 mirrorPos4(33.250f, -0.600f, 3.00f + 3.0f);
+glm::vec3 mirrorPos4(33.250f, 0.1f, 3.00f + 3.0f);
 glm::vec3 mirrorRot4(0.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale4(0.540f, 0.520f, 0.630f);
 
@@ -1927,6 +1927,7 @@ int main() {
         ImGui::DragFloat3("Bano 4 Rot", &banoRot4.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Bano 4 Scale", &banoScale4.x, 0.01f, 0.05f, 2.0f);
         ImGui::Separator();
+
         ImGui::Text("Lampara bano");
         ImGui::DragFloat3("Lampara bano Pos", &ligthbathroomPos.x, 0.05f);
         ImGui::DragFloat3("Lampara bano Rot", &ligthbathroomRot.x, 0.5f, -180.0f, 180.0f);
