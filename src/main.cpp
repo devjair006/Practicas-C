@@ -42,6 +42,22 @@ bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
+glm::vec3 mirrorPos(33.250f, -0.600f, 3.00f);
+glm::vec3 mirrorRot(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorScale(0.540f, 0.520f, 0.630f);
+
+glm::vec3 mirrorPos2(33.250f, -0.600f, 3.00f + 1.0f);
+glm::vec3 mirrorRot2(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorScale2(0.540f, 0.520f, 0.630f);
+
+glm::vec3 mirrorPos3(33.250f, -0.600f, 3.00f + 2.0f);
+glm::vec3 mirrorRot3(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorScale3(0.540f, 0.520f, 0.630f);
+
+glm::vec3 mirrorPos4(33.250f, -0.600f, 3.00f + 3.0f);
+glm::vec3 mirrorRot4(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorScale4(0.540f, 0.520f, 0.630f);
+
 glm::vec3 ligthbathroom2Pos(35.160f, 0.480f, 3.403f);
 glm::vec3 ligthbathroom2Rot(0.0f, -180.0f, 0.0f);
 glm::vec3 ligthbathroom2Scale(0.520f, 0.490f, 1.0f);
@@ -56,10 +72,33 @@ glm::vec3 banoPos(35.6f, -0.5f, 1.740f);
 glm::vec3 banoRot(-90.0f, 0.0f, 0.0f);
 glm::vec3 banoScale(0.5f, 0.4f, 0.4f);
 
-glm::vec3 lavamanosPos(34.7f, -0.590f, 3.400f);
-glm::vec3 lavamanosRot(-90.0f, 0.0f, -90.0f);
-glm::vec3 lavamanosScale(0.4f, 0.4f, 0.4f);
+glm::vec3 banoPos2(36.150f, -0.5f, 1.740f);
+glm::vec3 banoRot2(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale2(0.5f, 0.4f, 0.4f);
 
+glm::vec3 banoPos3(35.050f, -0.5f, 1.740f);
+glm::vec3 banoRot3(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale3(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos4(34.500f, -0.5f, 1.740f);
+glm::vec3 banoRot4(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale4(0.5f, 0.4f, 0.4f);
+
+glm::vec3 lavamanosPos(33.250f, -0.300f, 3.00f);
+glm::vec3 lavamanosRot(0.0f, -90.0f, 0.0f);
+glm::vec3 lavamanosScale(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos2(33.250f, -0.300f, 3.00f + 1.0f);
+glm::vec3 lavamanosRot2(0.0f, -90.0f, 0.0f);
+glm::vec3 lavamanosScale2(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos3(33.250f, -0.300f, 3.00f + 2.0f);
+glm::vec3 lavamanosRot3(0.0f, -90.0f, 0.0f);
+glm::vec3 lavamanosScale3(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos4(33.250f, -0.300f, 3.00f + 3.0f);
+glm::vec3 lavamanosRot4(0.0f, -90.0f, 0.0f);
+glm::vec3 lavamanosScale4(0.540f, 0.520f, 0.630f);
 glm::vec3 urinarioPos(33.2f, -0.5f, 5.2f);
 glm::vec3 urinarioRot(-90.0f, 0.0f, 90.0f);
 glm::vec3 urinarioScale(0.4f, 0.4f, 0.4f);
@@ -152,6 +191,7 @@ const char* fragmentShaderSource = R"(
     uniform float time;
     uniform vec2 resolution;
     uniform int useSolidColor;
+    uniform float emissiveStrength;
 
     struct PointLight {
         vec3 position;
@@ -214,12 +254,14 @@ const char* fragmentShaderSource = R"(
             float diff = max(dot(norm, lightDirVec), 0.0);
             
             float distance = length(pointLights[i].position - FragPos);
-            float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance));
-            //como controlo el alcance? eso es en distance < 15.0
-            //como controlo el color? eso es en pointLights[i].color
-            if(distance < 15.0) {
-                pointLightsDiffuse += diff * pointLights[i].color * attenuation;
-            }
+            
+            // Fórmula de atenuación suave  (copiada de unreal engine)
+            // La luz muere exactamente en el "radius" sin cortes feos
+            float radius = 4.0; 
+            float falloff = clamp(1.0 - (distance * distance) / (radius * radius), 0.0, 1.0);
+            float attenuation = falloff * falloff; // Suavizado cuadrático
+            
+            pointLightsDiffuse += diff * pointLights[i].color * attenuation;
         }
         diffuse += pointLightsDiffuse;
 
@@ -231,6 +273,11 @@ const char* fragmentShaderSource = R"(
         }
         
         vec3 result = (ambient + diffuse) * objectColor;
+        
+        // Sumamos emisión pura para que las lámparas brillen en la oscuridad
+        if (emissiveStrength > 0.0) {
+            result += ObjColor * emissiveStrength;
+        }
         
         if (dimensionAlterna == 1) {
             vec2 uv = gl_FragCoord.xy / resolution;
@@ -1028,6 +1075,9 @@ int main() {
     GLTFModel* ligthbathroom2GLTF = new GLTFModel("assets/ligthbathroom.glb");
     GLTFModel* ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
     GLTFModel* banoGLTF = new GLTFModel("assets/Bano.glb");
+    GLTFModel* bano2GLTF = new GLTFModel("assets/Bano.glb");
+    GLTFModel* bano3GLTF = new GLTFModel("assets/Bano.glb");
+    GLTFModel* bano4GLTF = new GLTFModel("assets/Bano.glb");
     GLTFModel* lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
     GLTFModel* urinarioGLTF = new GLTFModel("assets/urinario.glb");
     std::cout << "[SISTEMA] Props baño cargados: "
@@ -1107,6 +1157,8 @@ int main() {
         pointLightColLoc[i] = glGetUniformLocation(shaderProgram, colStr.c_str());
     }
     
+    int emissiveStrengthLoc = glGetUniformLocation(shaderProgram, "emissiveStrength");
+    
     std::vector<glm::mat4> gnomeBoneTransforms;
 
     while (!glfwWindowShouldClose(window)) {
@@ -1129,6 +1181,7 @@ int main() {
 
         glUseProgram(shaderProgram);
         glVertexAttrib3f(3, 1.0f, 1.0f, 1.0f); // Default obj color para otros VAOs
+        glUniform1f(emissiveStrengthLoc, 0.0f); // Por defecto nada emite luz propia
 
         int currentWidth, currentHeight;
         glfwGetFramebufferSize(window, &currentWidth, &currentHeight);
@@ -1173,7 +1226,7 @@ int main() {
         glUniform1i(zoneLoc, currentZone);
         glUniform1f(timeLoc, currentFrame);
         glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
-        //espacio donde se le da las luces a las lamparas 
+        //espacio donde se le da las luces a las lamparas antes de poner su figura .gltf o .obj
 
         glUniform1i(numPointLightsLoc, 2);
         
@@ -1183,7 +1236,7 @@ int main() {
         
        // lampara 2 
         glUniform3fv(pointLightPosLoc[1], 1, glm::value_ptr(ligthbathroom2Pos));
-        glUniform3f(pointLightColLoc[1], 0.8f, 0.9f, 1.0f);
+        glUniform3f(pointLightColLoc[1], 0.8f, 0.6f, 0.2f);
 
         // --- MAPA ---
         for (int z = 0; z < MAP_HEIGHT; z++) {
@@ -1363,7 +1416,7 @@ int main() {
                     stunTimer += deltaTime;
                     if (stunTimer >= 2.0f) {
                         isGnomeActive = false; // El gnomo se asusta y desaparece (o se detiene)
-                        std::cout << "[SISTEMA]: Gnomo ahuyentado por la luz." << std::endl;
+                        std::cout << "[SISTEMA]: Gnomo ahuyentado por la luz   ." << std::endl;
                     }
                 } else {
                     stunTimer = (std::max)(0.0f, stunTimer - deltaTime); // El timer baja si dejas de mirarlo
@@ -1389,7 +1442,7 @@ int main() {
                 glm::mat4 gnomeModel = glm::mat4(1.0f);
                 gnomeModel = glm::translate(gnomeModel, gnomePos);
                 
-                // Rotar en el eje Y para mirar al jugador (se aplica DESPUÉS de levantarse en espacio global)
+                // Rotar en el eje Y para mirar al jugador (se aplica DESPUÉS de levantarse en espacio global)--
                 float angle = atan2(cameraPos.x - gnomePos.x, cameraPos.z - gnomePos.z);
                 gnomeModel = glm::rotate(gnomeModel, angle, glm::vec3(0.0f, 1.0f, 0.0f));
                 
@@ -1447,19 +1500,16 @@ int main() {
                     // Fallback para modelos sin pesos de hueso exportados
                     gnomeGLTF->DrawAnimated(gnomeTime, currentAnimIndex, shaderProgram, modelLoc, -1, gnomeModel);
                 }
-                
-                // Limpiar estado
-                glActiveTexture(GL_TEXTURE0); // FIX: Resetear la unidad de textura activa
-                if (isAnimatedLoc >= 0) {
-                    glUniform1i(isAnimatedLoc, 0);
-                }
-                glUniform1i(solidColorLoc, 0);
-                glBindVertexArray(VAO);
             }
         }
 
         // --- DECORACIÓN BAÑO (GLB estáticos) ---
+        // Limpiar estado incondicionalmente antes de dibujar los props para evitar heredar colores o estados
+        glActiveTexture(GL_TEXTURE0); 
         if (isAnimatedLoc >= 0) glUniform1i(isAnimatedLoc, 0);
+        glUniform1i(solidColorLoc, 0);
+        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // MUY IMPORTANTE: Resetear color que pudo dejar el techo oscuro del mapa
+        glBindVertexArray(VAO);
 
         if (banoGLTF && !banoGLTF->meshes.empty()) {
             glm::mat4 banoModel = glm::mat4(1.0f);
@@ -1472,6 +1522,7 @@ int main() {
             banoGLTF->Draw(shaderProgram, solidColorLoc);
         }
         if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
+            // Lavamanos 1
             glm::mat4 lavamanosModel = glm::mat4(1.0f);
             lavamanosModel = glm::translate(lavamanosModel, lavamanosPos);
             lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -1480,6 +1531,69 @@ int main() {
             lavamanosModel = glm::scale(lavamanosModel, lavamanosScale);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel));
             lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Lavamanos 2
+            glm::mat4 lavamanosModel2 = glm::mat4(1.0f);
+            lavamanosModel2 = glm::translate(lavamanosModel2, lavamanosPos2);
+            lavamanosModel2 = glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel2 = glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel2 = glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel2 = glm::scale(lavamanosModel2, lavamanosScale2);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel2));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Lavamanos 3
+            glm::mat4 lavamanosModel3 = glm::mat4(1.0f);
+            lavamanosModel3 = glm::translate(lavamanosModel3, lavamanosPos3);
+            lavamanosModel3 = glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel3 = glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel3 = glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel3 = glm::scale(lavamanosModel3, lavamanosScale3);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel3));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Lavamanos 4
+            glm::mat4 lavamanosModel4 = glm::mat4(1.0f);
+            lavamanosModel4 = glm::translate(lavamanosModel4, lavamanosPos4);
+            lavamanosModel4 = glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel4 = glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel4 = glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel4 = glm::scale(lavamanosModel4, lavamanosScale4);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel4));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (bano2GLTF && !bano2GLTF->meshes.empty()) {
+            glm::mat4 bano2Model = glm::mat4(1.0f);
+            bano2Model = glm::translate(bano2Model, banoPos2);
+            bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            bano2Model = glm::scale(bano2Model, banoScale2);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano2Model));
+            bano2GLTF->Draw(shaderProgram, solidColorLoc);
+        }
+        
+        if (bano3GLTF && !bano3GLTF->meshes.empty()) {
+            glm::mat4 bano3Model = glm::mat4(1.0f);
+            bano3Model = glm::translate(bano3Model, banoPos3);
+            bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            bano3Model = glm::scale(bano3Model, banoScale3);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano3Model));
+            bano3GLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (bano4GLTF && !bano4GLTF->meshes.empty()) {
+            glm::mat4 bano4Model = glm::mat4(1.0f);
+            bano4Model = glm::translate(bano4Model, banoPos4);
+            bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            bano4Model = glm::scale(bano4Model, banoScale4);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano4Model));
+            bano4GLTF->Draw(shaderProgram, solidColorLoc);
         }
 
         if (ligthbathroomGLTF && !ligthbathroomGLTF->meshes.empty()) {
@@ -1494,7 +1608,9 @@ int main() {
             ligthbathroomModel = glm::translate(ligthbathroomModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
             
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroomModel));
+            glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
             ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+            glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
         }
 
         if (ligthbathroom2GLTF && !ligthbathroom2GLTF->meshes.empty()) {
@@ -1508,7 +1624,9 @@ int main() {
             // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
             ligthbathroom2Model = glm::translate(ligthbathroom2Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroom2Model));
+            glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
             ligthbathroom2GLTF->Draw(shaderProgram, solidColorLoc);
+            glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
         }
 
         if (urinarioGLTF && !urinarioGLTF->meshes.empty()) {
@@ -1740,23 +1858,39 @@ int main() {
         ImGui::DragFloat3("Lava Pos", &lavamanosPos.x, 0.05f, 33.0f, 40.0f);
         ImGui::DragFloat3("Lava Rot", &lavamanosRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Lava Scale", &lavamanosScale.x, 0.01f, 0.05f, 2.0f);
+        if (ImGui::Button("Traer lavamanos frente a camara")) {
+            lavamanosPos = cameraPos + cameraFront * 0.8f;
+            lavamanosPos.y = cameraPos.y;
+            lavamanosRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            lavamanosScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
         ImGui::Separator();
         ImGui::Text("Urinario");
         ImGui::DragFloat3("Uri Pos", &urinarioPos.x, 0.05f, 33.0f, 40.0f);
         ImGui::DragFloat3("Uri Rot", &urinarioRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Uri Scale", &urinarioScale.x, 0.01f, 0.05f, 2.0f);
         ImGui::Separator();
+        ImGui::Text("Bano 2");
+        ImGui::DragFloat3("Bano 2 Pos", &banoPos2.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 2 Rot", &banoRot2.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 2 Scale", &banoScale2.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Bano 3");
+        ImGui::DragFloat3("Bano 3 Pos", &banoPos3.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 3 Rot", &banoRot3.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 3 Scale", &banoScale3.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Bano 4");
+        ImGui::DragFloat3("Bano 4 Pos", &banoPos4.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 4 Rot", &banoRot4.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 4 Scale", &banoScale4.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
         ImGui::Text("Lampara bano");
         ImGui::DragFloat3("Lampara bano Pos", &ligthbathroomPos.x, 0.05f);
         ImGui::DragFloat3("Lampara bano Rot", &ligthbathroomRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Lampara bano Scale", &ligthbathroomScale.x, 0.01f, 0.05f, 2.0f);
         ImGui::Checkbox("Lampara modo debug visible", &ligthbathroomDebugVisible);
-        // if (ImGui::Button("Traer lampara frente a camara")) {
-        //     ligthbathroomPos = cameraPos + cameraFront * 0.8f;
-        //     ligthbathroomPos.y = cameraPos.y;
-        //     ligthbathroomRot = glm::vec3(0.0f, 0.0f, 0.0f);
-        //     ligthbathroomScale = glm::vec3(1.8f, 1.8f, 1.8f);
-        // }
+       
 
         ImGui::End();
 

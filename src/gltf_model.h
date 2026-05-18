@@ -290,6 +290,23 @@ private:
             if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_EMISSIVE, emissive)) {
                 matColor += glm::vec3(emissive.r, emissive.g, emissive.b);
             }
+            
+            // Si Assimp falla al leer el color emisivo, solo forzamos blanco si el material parece ser la luz
+            aiString matName;
+            material->Get(AI_MATKEY_NAME, matName);
+            std::string nameStr = matName.C_Str();
+            // Transform to lowercase for easier matching
+            std::transform(nameStr.begin(), nameStr.end(), nameStr.begin(), ::tolower);
+            
+            if (glm::length(matColor) < 0.1f) {
+                if (nameStr.find("led") != std::string::npos || 
+                    nameStr.find("light") != std::string::npos || 
+                    nameStr.find("emis") != std::string::npos || 
+                    nameStr.find("auto") != std::string::npos) {
+                    matColor = glm::vec3(1.0f, 1.0f, 1.0f);
+                }
+            }
+            
             // clamp for sanity
             matColor = glm::clamp(matColor, 0.0f, 1.0f);
         }
