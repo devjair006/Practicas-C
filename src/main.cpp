@@ -1072,6 +1072,7 @@ int main() {
         gnomeGLTF = new GLTFModel(gnomeModelPath);
     }
     std::cout << "[SISTEMA] Modelo activo del gnomo: " << gnomeModelPath << std::endl;
+    GLTFModel* mirrorGLTF = new GLTFModel("assets/mirror.glb");
     GLTFModel* ligthbathroom2GLTF = new GLTFModel("assets/ligthbathroom.glb");
     GLTFModel* ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
     GLTFModel* banoGLTF = new GLTFModel("assets/Bano.glb");
@@ -1561,6 +1562,47 @@ int main() {
             lavamanosModel4 = glm::scale(lavamanosModel4, lavamanosScale4);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel4));
             lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (mirrorGLTF && !mirrorGLTF->meshes.empty()) {
+            glm::mat4 mirrorModel = glm::mat4(1.0f);
+            mirrorModel = glm::translate(mirrorModel, mirrorPos);
+            mirrorModel = glm::rotate(mirrorModel, glm::radians(mirrorRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            mirrorModel = glm::rotate(mirrorModel, glm::radians(mirrorRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            mirrorModel = glm::rotate(mirrorModel, glm::radians(mirrorRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            mirrorModel = glm::scale(mirrorModel, mirrorScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel));
+            mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Mirror 2
+            glm::mat4 mirrorModel2 = glm::mat4(1.0f);
+            mirrorModel2 = glm::translate(mirrorModel2, mirrorPos2);
+            mirrorModel2 = glm::rotate(mirrorModel2, glm::radians(mirrorRot2.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            mirrorModel2 = glm::rotate(mirrorModel2, glm::radians(mirrorRot2.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            mirrorModel2 = glm::rotate(mirrorModel2, glm::radians(mirrorRot2.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            mirrorModel2 = glm::scale(mirrorModel2, mirrorScale2);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel2));
+            mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Mirror 3
+            glm::mat4 mirrorModel3 = glm::mat4(1.0f);
+            mirrorModel3 = glm::translate(mirrorModel3, mirrorPos3);
+            mirrorModel3 = glm::rotate(mirrorModel3, glm::radians(mirrorRot3.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            mirrorModel3 = glm::rotate(mirrorModel3, glm::radians(mirrorRot3.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            mirrorModel3 = glm::rotate(mirrorModel3, glm::radians(mirrorRot3.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            mirrorModel3 = glm::scale(mirrorModel3, mirrorScale3);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel3));
+            mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Mirror 4
+            glm::mat4 mirrorModel4 = glm::mat4(1.0f);
+            mirrorModel4 = glm::translate(mirrorModel4, mirrorPos4);
+            mirrorModel4 = glm::rotate(mirrorModel4, glm::radians(mirrorRot4.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            mirrorModel4 = glm::rotate(mirrorModel4, glm::radians(mirrorRot4.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            mirrorModel4 = glm::rotate(mirrorModel4, glm::radians(mirrorRot4.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            mirrorModel4 = glm::scale(mirrorModel4, mirrorScale4);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel4));
+            mirrorGLTF->Draw(shaderProgram, solidColorLoc);
         }
 
         if (bano2GLTF && !bano2GLTF->meshes.empty()) {
