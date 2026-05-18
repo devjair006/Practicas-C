@@ -35,15 +35,76 @@
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
-// Variables de HUD (ImGui)----
+// Variables de HUD 
 std::string currentHUDMessage = "";
 float hudMessageTimer = 0.0f;
 bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
+glm::vec3 mirrorPos(33.250f, -0.600f, 3.00f);
+glm::vec3 mirrorRot(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorScale(0.540f, 0.520f, 0.630f);
 
-// SHADERS 
+glm::vec3 mirrorPos2(33.250f, -0.600f, 3.00f + 1.0f);
+glm::vec3 mirrorRot2(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorScale2(0.540f, 0.520f, 0.630f);
+
+glm::vec3 mirrorPos3(33.250f, -0.600f, 3.00f + 2.0f);
+glm::vec3 mirrorRot3(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorScale3(0.540f, 0.520f, 0.630f);
+
+glm::vec3 mirrorPos4(33.250f, -0.600f, 3.00f + 3.0f);
+glm::vec3 mirrorRot4(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorScale4(0.540f, 0.520f, 0.630f);
+
+glm::vec3 ligthbathroom2Pos(35.160f, 0.480f, 3.403f);
+glm::vec3 ligthbathroom2Rot(0.0f, -180.0f, 0.0f);
+glm::vec3 ligthbathroom2Scale(0.520f, 0.490f, 1.0f);
+bool ligthbathroomDebugVisible2 = true;
+
+glm::vec3 ligthbathroomPos(35.160f, 0.480f, 7.403f);
+glm::vec3 ligthbathroomRot(0.0f, -180.0f, 0.0f);
+glm::vec3 ligthbathroomScale(0.520f, 0.490f, 1.0f);
+bool ligthbathroomDebugVisible = true;
+
+glm::vec3 banoPos(35.6f, -0.5f, 1.740f);
+glm::vec3 banoRot(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos2(36.150f, -0.5f, 1.740f);
+glm::vec3 banoRot2(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale2(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos3(35.050f, -0.5f, 1.740f);
+glm::vec3 banoRot3(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale3(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos4(34.500f, -0.5f, 1.740f);
+glm::vec3 banoRot4(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale4(0.5f, 0.4f, 0.4f);
+
+glm::vec3 lavamanosPos(33.250f, -0.300f, 3.00f);
+glm::vec3 lavamanosRot(0.0f, -90.0f, 0.0f);
+glm::vec3 lavamanosScale(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos2(33.250f, -0.300f, 3.00f + 1.0f);
+glm::vec3 lavamanosRot2(0.0f, -90.0f, 0.0f);
+glm::vec3 lavamanosScale2(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos3(33.250f, -0.300f, 3.00f + 2.0f);
+glm::vec3 lavamanosRot3(0.0f, -90.0f, 0.0f);
+glm::vec3 lavamanosScale3(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos4(33.250f, -0.300f, 3.00f + 3.0f);
+glm::vec3 lavamanosRot4(0.0f, -90.0f, 0.0f);
+glm::vec3 lavamanosScale4(0.540f, 0.520f, 0.630f);
+glm::vec3 urinarioPos(33.2f, -0.5f, 5.2f);
+glm::vec3 urinarioRot(-90.0f, 0.0f, 90.0f);
+glm::vec3 urinarioScale(0.4f, 0.4f, 0.4f);
+
+
+// SHADERS edwedew
 
 const char* vertexShaderSource = R"(
     #version 330 core
@@ -87,7 +148,7 @@ const char* vertexShaderSource = R"(
             }
         }
 
-        // Si no hubo influencia de huesos, usar posición original
+        // Si no hubo influencia de huesos, usar posiciÃ³n original
         if (!hasBoneInfluence) {
             totalPosition = vec4(aPos, 1.0f);
             totalNormal = aNormal;
@@ -130,6 +191,15 @@ const char* fragmentShaderSource = R"(
     uniform float time;
     uniform vec2 resolution;
     uniform int useSolidColor;
+    uniform float emissiveStrength;
+
+    struct PointLight {
+        vec3 position;
+        vec3 color;
+    };
+    #define MAX_POINT_LIGHTS 4
+    uniform int numPointLights;
+    uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
     void main() {
         float ambientStrength = 0.05;
@@ -176,6 +246,25 @@ const char* fragmentShaderSource = R"(
             diffuse *= intensity * attenuation;
         }
 
+        // agregar las luces puntuales definidas en pointLights{}
+        vec3 pointLightsDiffuse = vec3(0.0);
+        vec3 norm = normalize(Normal);
+        for(int i = 0; i < numPointLights; i++) {
+            vec3 lightDirVec = normalize(pointLights[i].position - FragPos);
+            float diff = max(dot(norm, lightDirVec), 0.0);
+            
+            float distance = length(pointLights[i].position - FragPos);
+            
+            // Fórmula de atenuación suave  (copiada de unreal engine)
+            // La luz muere exactamente en el "radius" sin cortes feos
+            float radius = 4.0; 
+            float falloff = clamp(1.0 - (distance * distance) / (radius * radius), 0.0, 1.0);
+            float attenuation = falloff * falloff; // Suavizado cuadrático
+            
+            pointLightsDiffuse += diff * pointLights[i].color * attenuation;
+        }
+        diffuse += pointLightsDiffuse;
+
         vec4 texColor = texture(texture1, TexCoord);
         if (useSolidColor == 1) {
             texColor = vec4(ObjColor, 1.0); // Usar el color empaquetado del OBJ
@@ -184,6 +273,11 @@ const char* fragmentShaderSource = R"(
         }
         
         vec3 result = (ambient + diffuse) * objectColor;
+        
+        // Sumamos emisión pura para que las lámparas brillen en la oscuridad
+        if (emissiveStrength > 0.0) {
+            result += ObjColor * emissiveStrength;
+        }
         
         if (dimensionAlterna == 1) {
             vec2 uv = gl_FragCoord.xy / resolution;
@@ -208,7 +302,7 @@ float lastY = SCR_HEIGHT / 2.0;
 float deltaTime = 0.0f;	
 float lastFrame = 0.0f;
 
-// Headbobbing (Movimiento de cámara al caminar)
+// Headbobbing (Movimiento de cÃ¡mara al caminar)
 float headBobTimer = 0.0f;
 float baseCameraY = 0.0f;
 bool isMoving = false;
@@ -242,17 +336,17 @@ int currentZone = 1;
 // ==========================================
 struct Entity {
     glm::vec3 pos;  
-    int type; // 0=Log, 1=Batería, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa, 5=Monitor, 6=Máquina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
+    int type; // 0=Log, 1=BaterÃ­a, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa, 5=Monitor, 6=MÃ¡quina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
     bool active;    
     std::string text;
     float seed;
 };
 
 std::vector<Entity> gameEntities = {
-    // --- ZONA NORTE (z=2 a 11) : INICIO, OFICINAS, BAÑOS ---
+    // --- ZONA NORTE (z=2 a 11) : INICIO, OFICINAS, BAÃ‘OS ---
     {glm::vec3(8.0f, -0.4f, 4.0f), 3, true, "[CABLE SUELTO]:Hay un cable pelado aqui.", 0.0f},
     {glm::vec3(20.0f, -0.4f, 5.0f), 0, true, "LOG 1 (Arrugado): 'Apagon general. Las compuertas se bloquearon.'", 0.0f},
-    {glm::vec3(42.0f, -0.2f, 5.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla) en Baños
+    {glm::vec3(42.0f, -0.2f, 5.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla) en BaÃ±os
     {glm::vec3(12.0f, -0.2f, 6.0f), 1, true, "", 0.0f}, // Bateria 1 en Sala Descanso
     {glm::vec3(24.0f, -0.5f, 6.0f), 4, true, "", 1.0f}, // Mesa en Oficinas
     {glm::vec3(24.0f, 0.0f, 6.0f), 5, true, "[MONITOR AUXILIAR]: 'Sistema inestable.'", 1.5f},
@@ -281,14 +375,14 @@ std::vector<Entity> gameEntities = {
 
 // ==========================================
 // MAPA EXPANDIDO (24x32) - Laboratorio Estructurado
-// 0=Vacío, 1=Pasillo, 2=Control, 3=Lab, 4=Bloque sólido invisible, 8=Puerta Nivel 1, 9=Puerta Nivel 2
+// 0=VacÃ­o, 1=Pasillo, 2=Control, 3=Lab, 4=Bloque sÃ³lido invisible, 8=Puerta Nivel 1, 9=Puerta Nivel 2
 // ==========================================
 const int MAP_WIDTH = 50;
 const int MAP_HEIGHT = 50;
 
-// --- Configuración de dimensiones de paredes ---
-float wallWidth = 0.3f;  // Grosor visual de las paredes (se estira automáticamente si hay vecinos)
-float wallHeight = 1.0f; // 1.0 es la altura estándar
+// --- ConfiguraciÃ³n de dimensiones de paredes ---
+float wallWidth = 0.3f;  // Grosor visual de las paredes (se estira automÃ¡ticamente si hay vecinos)
+float wallHeight = 1.0f; // 1.0 es la altura estÃ¡ndar
 
 // --- Animacion de Puertas ---
 float door1Anim = 0.0f; // 0.0 a 90.0 grados
@@ -297,29 +391,29 @@ float door2Anim = 0.0f;
 bool door2Opening = false;
 
 int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
-    // ============ PROYECTO ÁTOMO - NIVEL -4 ============
-    // 0=Vacío, 1=Pared, 8=Puerta Nivel 1, 9=Puerta Nivel 2
+    // ============ PROYECTO ÃTOMO - NIVEL -4 ============
+    // 0=VacÃ­o, 1=Pared, 8=Puerta Nivel 1, 9=Puerta Nivel 2
     // NORTE (z=0): Borde superior
     //0000 esos q estan ahi van a equivales a los asensores 
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
     // z=1: Acceso desde Nivel -3 (entrada superior) + inicio de salas
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    // z=2-8: SALA DE DESCANSO(1) | ZONA DE OFICINAS(2) | BAÑOS(3)
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    // z=2-8: SALA DE DESCANSO(1) | ZONA DE OFICINAS(2) | BAÃ‘OS(3)
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
     // z=9: Pared entre salas norte y corredor principal (con entradas a cada sala)
-    {1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+    {1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,1,1,1},
     // z=10-11: CORREDOR PRINCIPAL ESTE-OESTE
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    // z=12: Pared sur del corredor (puerta 8=Nivel1 hacia Labs Clínicos)
+    // z=12: Pared sur del corredor (puerta 8=Nivel1 hacia Labs ClÃ­nicos)
     {1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,8,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1},
-    // z=13-20: SALA VIGILANCIA | LABS CLÍNICOS(4) | C.FRIGORÍFICA(5) | CONTENCIÓN(6)
+    // z=13-20: SALA VIGILANCIA | LABS CLÃNICOS(4) | C.FRIGORÃFICA(5) | CONTENCIÃ“N(6)
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -328,14 +422,14 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    // z=21: Pared divisoria medio-sur (entradas a Ventilación y corredor)
+    // z=21: Pared divisoria medio-sur (entradas a VentilaciÃ³n y corredor)
     {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1},
     // z=22-23: CORREDOR CENTRAL
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     // z=24: Pared con entradas a zona sur
     {1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1},
-    // z=25-33: CONDUCTOS VENTILACIÓN(7) izq | SALA DE PRUEBAS(8) centro-izq
+    // z=25-33: CONDUCTOS VENTILACIÃ“N(7) izq | SALA DE PRUEBAS(8) centro-izq
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
     {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -383,7 +477,7 @@ bool checkCollision(float x, float z) {
     for (int cz = startZ; cz <= endZ; cz++) {
         for (int cx = startX; cx <= endX; cx++) {
             if (cx < 0 || cx >= MAP_WIDTH || cz < 0 || cz >= MAP_HEIGHT) {
-                return true; // Límites sólidos del mapa
+                return true; // LÃ­mites sÃ³lidos del mapa
             }
             
             if (worldMap[cz][cx] > 0) {
@@ -402,7 +496,7 @@ bool checkCollision(float x, float z) {
                 float wallMinZ = (float)cz - halfZ;
                 float wallMaxZ = (float)cz + halfZ;
 
-                // Encontrar el punto más cercano en la caja al jugador
+                // Encontrar el punto mÃ¡s cercano en la caja al jugador
                 float closestX = glm::clamp(x, wallMinX, wallMaxX);
                 float closestZ = glm::clamp(z, wallMinZ, wallMaxZ);
 
@@ -413,7 +507,7 @@ bool checkCollision(float x, float z) {
         }
     }
     
-    // Colisión con entidades (objetos grandes como mesas)
+    // ColisiÃ³n con entidades (objetos grandes como mesas)
     for (auto& entity : gameEntities) {
         if (!entity.active) continue;
         if (entity.type == 4 || entity.type == 6) { 
@@ -450,7 +544,7 @@ void closeDocument() {
 }
 
 void tryOpenDoor(GLFWwindow *window) {
-    // Escaneo de los bloques frente a la cámara (rango 1.5)
+    // Escaneo de los bloques frente a la cÃ¡mara (rango 1.5)
     glm::vec3 checkPos = cameraPos + cameraFront * 1.5f;
     int gridX = (int)round(checkPos.x);
     int gridZ = (int)round(checkPos.z);
@@ -556,7 +650,7 @@ void processInput(GLFWwindow *window) {
     isSprinting = false;
     
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && stamina > 0.0f && !isExhausted) {
-        cameraSpeed = 6.0f; // Corre rápido
+        cameraSpeed = 6.0f; // Corre rÃ¡pido
         stamina -= 30.0f * deltaTime;
         isSprinting = true;
         if (stamina <= 0.0f) {
@@ -606,7 +700,7 @@ void processInput(GLFWwindow *window) {
         if (currentZone == 3 && !dimensionAlterna) printTypewriter("ESCENA 3: LABORATORIO PRINCIPAL\nEncuentras la esfera central del experimento. Necesitas baterias.");
     }
 
-    // --- INTERACCIÓN GENERAL (TECLA E) ---
+    // --- INTERACCIÃ“N GENERAL (TECLA E) ---
     bool justPressedE = false;
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
         if (!eKeyWasPressed) {
@@ -639,16 +733,16 @@ void processInput(GLFWwindow *window) {
         eKeyWasPressed = false;
     }
 
-    // LÓGICA DE ENTIDADES E INSPECCIÓN
+    // LÃ“GICA DE ENTIDADES E INSPECCIÃ“N
     for (auto& entity : gameEntities) {
         if (entity.active) {
             float distancia = glm::length(entity.pos - cameraPos);
             glm::vec3 dirToEntity = glm::normalize(glm::vec3(entity.pos.x, cameraPos.y, entity.pos.z) - cameraPos); 
-            // Para objetos altos o bajos, la dirección varía. Usamos la posición real para el ángulo
+            // Para objetos altos o bajos, la direcciÃ³n varÃ­a. Usamos la posiciÃ³n real para el Ã¡ngulo
             glm::vec3 realDirToEntity = glm::normalize(entity.pos - cameraPos);
             float lookAngle = glm::dot(cameraFront, realDirToEntity);
             
-            // Recolectables (Por cercanía y mirando hacia ellos)
+            // Recolectables (Por cercanÃ­a y mirando hacia ellos)
             if (entity.type == 0 || entity.type == 1 || entity.type == 8 || entity.type == 9) { 
                 // Eliminamos la necesidad de apuntar exacto para no frustrar la recoleccion
                 if (distancia < 1.5f && justPressedE) {
@@ -683,13 +777,13 @@ void processInput(GLFWwindow *window) {
                     }
                 }
             } 
-            // Objetos Inspectables Estáticos (Mesa, Monitor, Máquina, Cable)
+            // Objetos Inspectables EstÃ¡ticos (Mesa, Monitor, MÃ¡quina, Cable)
             else if (entity.type == 3 || entity.type == 4 || entity.type == 5 || entity.type == 6 || entity.type == 7) {
                 // Precision Raycast Approximation (lookAngle > 0.95 significa mirar casi exactamente al objeto)
                 if (distancia < 3.0f && lookAngle > 0.92f && justPressedE) {
                     if (entity.text != "") { // Solo si tiene texto
                         printTypewriter(entity.text);
-                    } else if (entity.type == 4) { // Es una mesa sin texto, interactuar abre un cajón (simulado)
+                    } else if (entity.type == 4) { // Es una mesa sin texto, interactuar abre un cajÃ³n (simulado)
                         printTypewriter("[CAJON]: Esta vacio o atascado.");
                     }
                 }
@@ -766,49 +860,57 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-unsigned int loadTexture(char const * path) {
-    int width, height, nrComponents;
-    stbi_set_flip_vertically_on_load(true); 
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 4);
-    if (data) {
-        unsigned int textureID;
-        glGenTextures(1, &textureID);
-        GLenum format = GL_RGBA;
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        stbi_image_free(data);
-        return textureID;
-    } else {
-        std::cout << "Textura falló: " << path << std::endl;
-        return 0;
+
+
+#include "gltf_model.h"
+void printNodeHierarchy(const aiNode* node, int depth) {
+    if (!node || depth > 12) return;
+    for (int i = 0; i < depth; i++) std::cout << "  ";
+    aiVector3D scaling, position;
+    aiQuaternion rotation;
+    node->mTransformation.Decompose(scaling, rotation, position);
+    std::cout << "- Node: " << node->mName.C_Str() << " | Pos: (" << position.x << ", " << position.y << ", " << position.z 
+              << ") | Scale: (" << scaling.x << ", " << scaling.y << ", " << scaling.z << ")" << std::endl;
+    for (unsigned int i = 0; i < node->mNumChildren; i++) {
+        printNodeHierarchy(node->mChildren[i], depth + 1);
     }
 }
 
-unsigned int loadTextureWithFallback(char const * path, unsigned int fallback) {
-    unsigned int tex = loadTexture(path);
-    return tex == 0 ? fallback : tex;
-}
-
-#include "gltf_model.h"
 int main() {
-    std::cout << "--- PRUEBA DE ASSIMP ---" << std::endl;
+    std::cout << "--- PRUEBA DE ASSIMP (GNOME) ---" << std::endl;
+    std::string diagnosticPath = "assets/gnome.glb";
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("assets/Gnome - R.E.P.O.glb", 
+    const aiScene* scene = importer.ReadFile(diagnosticPath, 
         aiProcess_Triangulate | 
         aiProcess_FlipUVs | 
         aiProcess_PopulateArmatureData |
         aiProcess_LimitBoneWeights);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        diagnosticPath = "assets/gnome.glb";
+        scene = importer.ReadFile(diagnosticPath,
+            aiProcess_Triangulate |
+            aiProcess_FlipUVs |
+            aiProcess_PopulateArmatureData |
+            aiProcess_LimitBoneWeights);
+    }
+
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
     } else {
-        std::cout << "EXITO: El Gnomo se cargo correctamente!" << std::endl;
+        std::cout << "EXITO: El gnomo se cargo correctamente desde " << diagnosticPath << std::endl;
+        std::cout << "--- INFO DEL MODELO ---" << std::endl;
+        std::cout << "Animaciones: " << scene->mNumAnimations << std::endl;
+        for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+            std::cout << "  [" << i << "] Nombre: " << scene->mAnimations[i]->mName.C_Str() << " (Duracion: " << scene->mAnimations[i]->mDuration << ", TicksPerSecond: " << scene->mAnimations[i]->mTicksPerSecond << ")" << std::endl;
+        }
+        unsigned int totalBones = 0;
+        for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+            totalBones += scene->mMeshes[i]->mNumBones;
+        }
+        std::cout << "Mallas (Meshes): " << scene->mNumMeshes << " | Huesos totales en mallas: " << totalBones << std::endl;
+        // std::cout << "--- JERARQUIA DE NODOS ---" << std::endl;
+        // printNodeHierarchy(scene->mRootNode, 0);
     }
     std::cout << "------------------------" << std::endl;
 
@@ -962,10 +1064,28 @@ int main() {
     loadOBJMesh("assets/puertaizqui.obj", pIzquiVAO, pIzquiVBO, pIzquiCount);
     loadOBJMesh("assets/puertadere.obj", pDereVAO, pDereVBO, pDereCount);
 
-    GLTFModel* gnomeGLTF = nullptr;
-    if (scene) {
-        gnomeGLTF = new GLTFModel("assets/Gnome - R.E.P.O.glb");
+    std::string gnomeModelPath = "assets/gnome.glb";
+    GLTFModel* gnomeGLTF = new GLTFModel(gnomeModelPath);
+    if (gnomeGLTF->meshes.empty()) {
+        delete gnomeGLTF;
+        gnomeModelPath = "assets/gnome.glb";
+        gnomeGLTF = new GLTFModel(gnomeModelPath);
     }
+    std::cout << "[SISTEMA] Modelo activo del gnomo: " << gnomeModelPath << std::endl;
+    GLTFModel* mirrorGLTF = new GLTFModel("assets/mirror.glb");
+    GLTFModel* ligthbathroom2GLTF = new GLTFModel("assets/ligthbathroom.glb");
+    GLTFModel* ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
+    GLTFModel* banoGLTF = new GLTFModel("assets/Bano.glb");
+    GLTFModel* bano2GLTF = new GLTFModel("assets/Bano.glb");
+    GLTFModel* bano3GLTF = new GLTFModel("assets/Bano.glb");
+    GLTFModel* bano4GLTF = new GLTFModel("assets/Bano.glb");
+    GLTFModel* lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
+    GLTFModel* urinarioGLTF = new GLTFModel("assets/urinario.glb");
+    std::cout << "[SISTEMA] Props baño cargados: "
+              << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
+              << "Bano(" << banoGLTF->meshes.size() << "), "
+              << "Lavamanos(" << lavamanosGLTF->meshes.size() << "), "
+              << "Urinario(" << urinarioGLTF->meshes.size() << ")" << std::endl;
     
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
@@ -981,7 +1101,7 @@ int main() {
     unsigned int clueTexture = loadTexture("assets/clue.png"); 
     unsigned int enemyTexture = loadTexture("assets/enemy.png");
 
-    // Texturas específicas con fallback
+    // Texturas especÃ­ficas con fallback
     unsigned int batteryTex = loadTextureWithFallback("assets/battery.png", clueTexture);
     unsigned int keycardTex = loadTextureWithFallback("assets/keycard.png", clueTexture);
     unsigned int pcTex = loadTextureWithFallback("assets/pc.png", wallTex2);
@@ -1025,6 +1145,22 @@ int main() {
     int timeLoc = glGetUniformLocation(shaderProgram, "time");
     int resLoc = glGetUniformLocation(shaderProgram, "resolution");
     int solidColorLoc = glGetUniformLocation(shaderProgram, "useSolidColor");
+    int isAnimatedLoc = glGetUniformLocation(shaderProgram, "isAnimated");
+    int finalBonesLoc = glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
+    
+    int numPointLightsLoc = glGetUniformLocation(shaderProgram, "numPointLights");
+    int pointLightPosLoc[4];
+    int pointLightColLoc[4];
+    for(int i = 0; i < 4; i++) {
+        std::string posStr = "pointLights[" + std::to_string(i) + "].position";
+        std::string colStr = "pointLights[" + std::to_string(i) + "].color";
+        pointLightPosLoc[i] = glGetUniformLocation(shaderProgram, posStr.c_str());
+        pointLightColLoc[i] = glGetUniformLocation(shaderProgram, colStr.c_str());
+    }
+    
+    int emissiveStrengthLoc = glGetUniformLocation(shaderProgram, "emissiveStrength");
+    
+    std::vector<glm::mat4> gnomeBoneTransforms;
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
@@ -1046,6 +1182,7 @@ int main() {
 
         glUseProgram(shaderProgram);
         glVertexAttrib3f(3, 1.0f, 1.0f, 1.0f); // Default obj color para otros VAOs
+        glUniform1f(emissiveStrengthLoc, 0.0f); // Por defecto nada emite luz propia
 
         int currentWidth, currentHeight;
         glfwGetFramebufferSize(window, &currentWidth, &currentHeight);
@@ -1090,6 +1227,17 @@ int main() {
         glUniform1i(zoneLoc, currentZone);
         glUniform1f(timeLoc, currentFrame);
         glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
+        //espacio donde se le da las luces a las lamparas antes de poner su figura .gltf o .obj
+
+        glUniform1i(numPointLightsLoc, 2);
+        
+        // color de la lampara y posicion para ponerla en un color amarillento poner colores mas altos en vez de 0.8 0.9 1.0 a unos 0.8 0.6 0.2 para que se vea mas amarillento
+        glUniform3fv(pointLightPosLoc[0], 1, glm::value_ptr(ligthbathroomPos));
+        glUniform3f(pointLightColLoc[0], 0.8f, 0.6f, 0.2f);
+        
+       // lampara 2 
+        glUniform3fv(pointLightPosLoc[1], 1, glm::value_ptr(ligthbathroom2Pos));
+        glUniform3f(pointLightColLoc[1], 0.8f, 0.6f, 0.2f);
 
         // --- MAPA ---
         for (int z = 0; z < MAP_HEIGHT; z++) {
@@ -1145,15 +1293,15 @@ int main() {
                         } else {
                             glUniform1i(solidColorLoc, 1);
                             if (renderBlock == 8 || renderBlock == -8) {
-                                glUniform3f(colorLoc, 1.0f, 0.8f, 0.2f); // Amarillo Sólido
+                                glUniform3f(colorLoc, 1.0f, 0.8f, 0.2f); // Amarillo SÃ³lido
                             } else if (renderBlock == 9 || renderBlock == -9) {
-                                glUniform3f(colorLoc, 0.9f, 0.1f, 0.1f); // Rojo Sólido
+                                glUniform3f(colorLoc, 0.9f, 0.1f, 0.1f); // Rojo SÃ³lido
                             } else {
                                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
                             }
                         }
 
-                        // Obtener ángulo actual de la animación
+                        // Obtener Ã¡ngulo actual de la animaciÃ³n
                         float currentAnim = (renderBlock == 8 || renderBlock == -8) ? door1Anim : door2Anim;
                         
                         // Rotacion: La izquierda gira hacia adelante (negativo), la derecha gira hacia el otro lado (positivo)
@@ -1194,7 +1342,7 @@ int main() {
                         else if (blockType == 3) glBindTexture(GL_TEXTURE_2D, wallTex3);
                         glBindVertexArray(VAO);
 
-                        // Escalar paredes inteligentemente según vecinos
+                        // Escalar paredes inteligentemente segÃºn vecinos
                         float scaleX = wallWidth;
                         float scaleZ = wallWidth;
                         bool hasLeft  = (x > 0 && worldMap[z][x-1] > 0);
@@ -1233,16 +1381,21 @@ int main() {
             }
         } 
 
-        // --- LÓGICA Y DIBUJO DEL GNOMO ACOSADOR (AI) ---
+        // --- LÃ“GICA Y DIBUJO DEL GNOMO ACOSADOR (AI) ---
         if (gnomeGLTF) {
-            static glm::vec3 gnomePos = glm::vec3(4.1f, -0.5f, 4.0f);
+            static glm::vec3 gnomePos = glm::vec3(4.1f, -0.4f, 4.0f);
             static float stunTimer = 0.0f;
             static bool isGnomeActive = true;
             static unsigned int gnomeTexture = 0;
 
-            // Cargar textura una sola vez si no existe (usamos paredes.png de prueba)
-            if (gnomeTexture == 0) {
-                gnomeTexture = loadTexture("assets/paredes.png"); 
+            static bool textureFailed = false;
+            // Cargar textura una sola vez si no existe
+            if (gnomeTexture == 0 && !textureFailed) {
+                gnomeTexture = loadTexture("assets/Gnome_Albedo.png"); 
+                if (gnomeTexture == 0) {
+                    textureFailed = true;
+                    std::cout << "[SISTEMA] No se encontró assets/Gnome_Albedo.png. El gnomo usará sus colores por defecto." << std::endl;
+                }
             }
 
             if (isGnomeActive) {
@@ -1259,60 +1412,276 @@ int main() {
                     }
                 }
 
-                // 2. LÓGICA DEL TEMPORIZADOR
+                // 2. LÃ“GICA DEL TEMPORIZADOR
                 if (beingLookedAt) {
                     stunTimer += deltaTime;
                     if (stunTimer >= 2.0f) {
                         isGnomeActive = false; // El gnomo se asusta y desaparece (o se detiene)
-                        std::cout << "[SISTEMA]: Gnomo ahuyentado por la luz." << std::endl;
+                        std::cout << "[SISTEMA]: Gnomo ahuyentado por la luz   ." << std::endl;
                     }
                 } else {
-                    stunTimer = std::max(0.0f, stunTimer - deltaTime); // El timer baja si dejas de mirarlo
+                    stunTimer = (std::max)(0.0f, stunTimer - deltaTime); // El timer baja si dejas de mirarlo
                 }
 
-                // 3. MOVIMIENTO (Solo si NO lo estás mirando o no ha sido aturdido)
+                // 3. MOVIMIENTO (Solo si NO lo está mirando o no ha sido aturdido)
                 float speed = 1.8f; 
+                bool isMoving = false;
                 if (!beingLookedAt && distToPlayer > 0.8f) {
                     glm::vec3 moveDir = glm::normalize(cameraPos - gnomePos);
                     moveDir.y = 0; // Mantenerlo en el suelo
                     gnomePos += moveDir * speed * deltaTime;
+                    isMoving = true;
                 }
 
                 // 4. RENDERIZADO
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-                glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 1);
                 
                 float gnomeTime = (float)glfwGetTime();
-                std::vector<glm::mat4> transforms;
-                gnomeGLTF->UpdateAnimation(gnomeTime, transforms);
-                
-                for (unsigned int i = 0; i < transforms.size() && i < 100; i++) {
-                    std::string name = "finalBonesMatrices[" + std::to_string(i) + "]";
-                    glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name.c_str()), 1, GL_FALSE, glm::value_ptr(transforms[i]));
-                }
+
+                bool hasSkinningBones = gnomeGLTF->CountBonesInMeshes() > 0;
 
                 glm::mat4 gnomeModel = glm::mat4(1.0f);
-                gnomeModel = glm::translate(gnomeModel, gnomePos); 
-                // Hacer que el gnomo siempre mire al jugador
+                gnomeModel = glm::translate(gnomeModel, gnomePos);
+                
+                // Rotar en el eje Y para mirar al jugador (se aplica DESPUÉS de levantarse en espacio global)--
                 float angle = atan2(cameraPos.x - gnomePos.x, cameraPos.z - gnomePos.z);
                 gnomeModel = glm::rotate(gnomeModel, angle, glm::vec3(0.0f, 1.0f, 0.0f));
-                gnomeModel = glm::scale(gnomeModel, glm::vec3(0.5f, 0.5f, 0.5f));
                 
-                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
+                if (!hasSkinningBones) {
+                    // Corrección legacy para modelos exportados sin skinning
+                    gnomeModel = glm::rotate(gnomeModel, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                    gnomeModel = glm::scale(gnomeModel, glm::vec3(0.006f, 0.006f, 0.006f));
+                } else {
+                    // GLB actual: escala de depuración más visible y sin giro extra
+                    gnomeModel = glm::scale(gnomeModel, glm::vec3(0.07f, 0.07f, 0.07f));
+                }
                 
                 // Aplicar textura forzada
+                glUniform1i(solidColorLoc, gnomeTexture == 0 ? 1 : 0);
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, gnomeTexture);
-                glUniform1i(glGetUniformLocation(shaderProgram, "texture_diffuse1"), 0);
+                glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
 
-                gnomeGLTF->Draw(shaderProgram, solidColorLoc);
-                
-                // Limpiar estado
-                glUniform1i(glGetUniformLocation(shaderProgram, "isAnimated"), 0);
-                glUniform1i(solidColorLoc, 0);
-                glBindVertexArray(VAO);
+                // Determinar animación a reproducir
+                int animCount = gnomeGLTF->GetAnimationCount();
+                int idleAnimIndex = gnomeGLTF->FindAnimationIndexContains("idle");
+                if (idleAnimIndex < 0) idleAnimIndex = 0;
+
+                int stunAnimIndex = gnomeGLTF->FindAnimationIndexContains("stun");
+                if (stunAnimIndex < 0) stunAnimIndex = idleAnimIndex;
+
+                int moveAnimIndex = gnomeGLTF->FindAnimationIndexContains("move");
+                if (moveAnimIndex < 0) moveAnimIndex = gnomeGLTF->FindAnimationIndexContains("walk");
+                if (moveAnimIndex < 0) moveAnimIndex = gnomeGLTF->FindAnimationIndexContains("run");
+                if (moveAnimIndex < 0) moveAnimIndex = idleAnimIndex;
+
+                int currentAnimIndex = idleAnimIndex;
+                if (beingLookedAt) {
+                    currentAnimIndex = stunAnimIndex;
+                } else if (isMoving) {
+                    currentAnimIndex = moveAnimIndex;
+                }
+
+                // Actualizar y enviar matrices de huesos para skinning (solo si el modelo realmente trae huesos)
+                if (hasSkinningBones) {
+                    gnomeGLTF->UpdateAnimation(gnomeTime, gnomeBoneTransforms, currentAnimIndex);
+                    if (finalBonesLoc >= 0 && !gnomeBoneTransforms.empty()) {
+                        glUniformMatrix4fv(finalBonesLoc, (GLsizei)gnomeBoneTransforms.size(), GL_FALSE, glm::value_ptr(gnomeBoneTransforms[0]));
+                    }
+                }
+                if (isAnimatedLoc >= 0) {
+                    glUniform1i(isAnimatedLoc, hasSkinningBones ? 1 : 0);
+                }
+
+                if (hasSkinningBones) {
+                    // En modelos con skinning, evitar doble transformación (nodos + huesos)
+                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
+                    gnomeGLTF->Draw(shaderProgram, solidColorLoc);
+                } else {
+                    // Fallback para modelos sin pesos de hueso exportados
+                    gnomeGLTF->DrawAnimated(gnomeTime, currentAnimIndex, shaderProgram, modelLoc, -1, gnomeModel);
+                }
             }
         }
+
+        // --- DECORACIÓN BAÑO (GLB estáticos) ---
+        // Limpiar estado incondicionalmente antes de dibujar los props para evitar heredar colores o estados
+        glActiveTexture(GL_TEXTURE0); 
+        if (isAnimatedLoc >= 0) glUniform1i(isAnimatedLoc, 0);
+        glUniform1i(solidColorLoc, 0);
+        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // MUY IMPORTANTE: Resetear color que pudo dejar el techo oscuro del mapa
+        glBindVertexArray(VAO);
+
+        if (banoGLTF && !banoGLTF->meshes.empty()) {
+            glm::mat4 banoModel = glm::mat4(1.0f);
+            banoModel = glm::translate(banoModel, banoPos);
+            banoModel = glm::rotate(banoModel, glm::radians(banoRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            banoModel = glm::rotate(banoModel, glm::radians(banoRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            banoModel = glm::rotate(banoModel, glm::radians(banoRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            banoModel = glm::scale(banoModel, banoScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(banoModel));
+            banoGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+        if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
+            // Lavamanos 1
+            glm::mat4 lavamanosModel = glm::mat4(1.0f);
+            lavamanosModel = glm::translate(lavamanosModel, lavamanosPos);
+            lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel = glm::scale(lavamanosModel, lavamanosScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Lavamanos 2
+            glm::mat4 lavamanosModel2 = glm::mat4(1.0f);
+            lavamanosModel2 = glm::translate(lavamanosModel2, lavamanosPos2);
+            lavamanosModel2 = glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel2 = glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel2 = glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel2 = glm::scale(lavamanosModel2, lavamanosScale2);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel2));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Lavamanos 3
+            glm::mat4 lavamanosModel3 = glm::mat4(1.0f);
+            lavamanosModel3 = glm::translate(lavamanosModel3, lavamanosPos3);
+            lavamanosModel3 = glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel3 = glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel3 = glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel3 = glm::scale(lavamanosModel3, lavamanosScale3);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel3));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Lavamanos 4
+            glm::mat4 lavamanosModel4 = glm::mat4(1.0f);
+            lavamanosModel4 = glm::translate(lavamanosModel4, lavamanosPos4);
+            lavamanosModel4 = glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel4 = glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel4 = glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel4 = glm::scale(lavamanosModel4, lavamanosScale4);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel4));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (mirrorGLTF && !mirrorGLTF->meshes.empty()) {
+            glm::mat4 mirrorModel = glm::mat4(1.0f);
+            mirrorModel = glm::translate(mirrorModel, mirrorPos);
+            mirrorModel = glm::rotate(mirrorModel, glm::radians(mirrorRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            mirrorModel = glm::rotate(mirrorModel, glm::radians(mirrorRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            mirrorModel = glm::rotate(mirrorModel, glm::radians(mirrorRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            mirrorModel = glm::scale(mirrorModel, mirrorScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel));
+            mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Mirror 2
+            glm::mat4 mirrorModel2 = glm::mat4(1.0f);
+            mirrorModel2 = glm::translate(mirrorModel2, mirrorPos2);
+            mirrorModel2 = glm::rotate(mirrorModel2, glm::radians(mirrorRot2.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            mirrorModel2 = glm::rotate(mirrorModel2, glm::radians(mirrorRot2.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            mirrorModel2 = glm::rotate(mirrorModel2, glm::radians(mirrorRot2.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            mirrorModel2 = glm::scale(mirrorModel2, mirrorScale2);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel2));
+            mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Mirror 3
+            glm::mat4 mirrorModel3 = glm::mat4(1.0f);
+            mirrorModel3 = glm::translate(mirrorModel3, mirrorPos3);
+            mirrorModel3 = glm::rotate(mirrorModel3, glm::radians(mirrorRot3.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            mirrorModel3 = glm::rotate(mirrorModel3, glm::radians(mirrorRot3.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            mirrorModel3 = glm::rotate(mirrorModel3, glm::radians(mirrorRot3.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            mirrorModel3 = glm::scale(mirrorModel3, mirrorScale3);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel3));
+            mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Mirror 4
+            glm::mat4 mirrorModel4 = glm::mat4(1.0f);
+            mirrorModel4 = glm::translate(mirrorModel4, mirrorPos4);
+            mirrorModel4 = glm::rotate(mirrorModel4, glm::radians(mirrorRot4.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            mirrorModel4 = glm::rotate(mirrorModel4, glm::radians(mirrorRot4.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            mirrorModel4 = glm::rotate(mirrorModel4, glm::radians(mirrorRot4.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            mirrorModel4 = glm::scale(mirrorModel4, mirrorScale4);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel4));
+            mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (bano2GLTF && !bano2GLTF->meshes.empty()) {
+            glm::mat4 bano2Model = glm::mat4(1.0f);
+            bano2Model = glm::translate(bano2Model, banoPos2);
+            bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            bano2Model = glm::scale(bano2Model, banoScale2);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano2Model));
+            bano2GLTF->Draw(shaderProgram, solidColorLoc);
+        }
+        
+        if (bano3GLTF && !bano3GLTF->meshes.empty()) {
+            glm::mat4 bano3Model = glm::mat4(1.0f);
+            bano3Model = glm::translate(bano3Model, banoPos3);
+            bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            bano3Model = glm::scale(bano3Model, banoScale3);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano3Model));
+            bano3GLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (bano4GLTF && !bano4GLTF->meshes.empty()) {
+            glm::mat4 bano4Model = glm::mat4(1.0f);
+            bano4Model = glm::translate(bano4Model, banoPos4);
+            bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            bano4Model = glm::scale(bano4Model, banoScale4);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano4Model));
+            bano4GLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (ligthbathroomGLTF && !ligthbathroomGLTF->meshes.empty()) {
+            glm::mat4 ligthbathroomModel = glm::mat4(1.0f);
+            ligthbathroomModel = glm::translate(ligthbathroomModel, ligthbathroomPos);
+            ligthbathroomModel = glm::rotate(ligthbathroomModel, glm::radians(ligthbathroomRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            ligthbathroomModel = glm::rotate(ligthbathroomModel, glm::radians(ligthbathroomRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            ligthbathroomModel = glm::rotate(ligthbathroomModel, glm::radians(ligthbathroomRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            ligthbathroomModel = glm::scale(ligthbathroomModel, ligthbathroomScale);
+            
+            // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
+            ligthbathroomModel = glm::translate(ligthbathroomModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
+            
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroomModel));
+            glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
+            ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+            glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+        }
+
+        if (ligthbathroom2GLTF && !ligthbathroom2GLTF->meshes.empty()) {
+            glm::mat4 ligthbathroom2Model = glm::mat4(1.0f);
+            ligthbathroom2Model = glm::translate(ligthbathroom2Model, ligthbathroom2Pos);
+            ligthbathroom2Model = glm::rotate(ligthbathroom2Model, glm::radians(ligthbathroom2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            ligthbathroom2Model = glm::rotate(ligthbathroom2Model, glm::radians(ligthbathroom2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            ligthbathroom2Model = glm::rotate(ligthbathroom2Model, glm::radians(ligthbathroom2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            ligthbathroom2Model = glm::scale(ligthbathroom2Model, ligthbathroom2Scale);
+            
+            // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
+            ligthbathroom2Model = glm::translate(ligthbathroom2Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroom2Model));
+            glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
+            ligthbathroom2GLTF->Draw(shaderProgram, solidColorLoc);
+            glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+        }
+
+        if (urinarioGLTF && !urinarioGLTF->meshes.empty()) {
+            glm::mat4 urinarioModel = glm::mat4(1.0f);
+            urinarioModel = glm::translate(urinarioModel, urinarioPos);
+            urinarioModel = glm::rotate(urinarioModel, glm::radians(urinarioRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            urinarioModel = glm::rotate(urinarioModel, glm::radians(urinarioRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            urinarioModel = glm::rotate(urinarioModel, glm::radians(urinarioRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            urinarioModel = glm::scale(urinarioModel, urinarioScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(urinarioModel));
+            urinarioGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+        glUniform1i(solidColorLoc, 0);
 
         // --- DIBUJAR ENTIDADES 3D ---
         glBindVertexArray(VAO);
@@ -1320,7 +1689,7 @@ int main() {
 
         for (auto& entity : gameEntities) {
             if (!entity.active || (entity.type != 0 && entity.type != 3 && entity.type < 4) || entity.type == 8 || entity.type == 9) continue; 
-            if (entity.type > 0 && entity.type < 3) continue; // Solo procesar tipos 0, 3, 4, 5, 6, 7 aquí
+            if (entity.type > 0 && entity.type < 3) continue; // Solo procesar tipos 0, 3, 4, 5, 6, 7 aquÃ­
 
             glm::mat4 entityModel = glm::mat4(1.0f);
             float floatY = 0.0f;
@@ -1347,7 +1716,7 @@ int main() {
                 glBindTexture(GL_TEXTURE_2D, pcTex); 
                 glUniform1i(solidColorLoc, 1); 
                 
-                // Ajuste de posición para que toque el suelo
+                // Ajuste de posiciÃ³n para que toque el suelo
                 entityModel = glm::translate(entityModel, glm::vec3(-0.99f, -0.12f, 0.0f)); 
                 entityModel = glm::scale(entityModel, glm::vec3(0.5f, 0.5f, 0.5f));
                 
@@ -1369,7 +1738,7 @@ int main() {
                 glUniform1i(solidColorLoc, 1); // Ignorar la textura cargada
                 
                 entityModel = glm::translate(entityModel, glm::vec3(0.0f, -0.1f, 0.0f)); // Bajar a la mesa
-                entityModel = glm::rotate(entityModel, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Estático
+                entityModel = glm::rotate(entityModel, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // EstÃ¡tico
                 entityModel = glm::scale(entityModel, glm::vec3(0.6f, 0.6f, 0.6f));
                 if (dimensionAlterna) glUniform3f(colorLoc, 1.0f, 0.4f, 0.4f);
                 else glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Usar colores 100% reales de Blender
@@ -1379,7 +1748,7 @@ int main() {
                 glUniform1i(solidColorLoc, 0); // Restaurar texturas normales
                 
                 glBindVertexArray(VAO); // Restaurar VAO
-            } else if (entity.type == 6) { // Máquina Lab
+            } else if (entity.type == 6) { // MÃ¡quina Lab
                 glBindVertexArray(VAO);
                 glBindTexture(GL_TEXTURE_2D, wallTex3);
                 entityModel = glm::scale(entityModel, glm::vec3(0.8f, 2.0f, 0.8f));
@@ -1424,7 +1793,7 @@ int main() {
 
             glm::mat4 entityModel = glm::mat4(1.0f);
             
-            // Flotación sutil de objetos clave para visibilidad---
+            // FlotaciÃ³n sutil de objetos clave para visibilidad---
             float bounce = 0.0f;
             if(entity.type == 8 || entity.type == 9) bounce = sin(currentFrame * 3.0f) * 0.1f;
             
@@ -1498,7 +1867,7 @@ int main() {
             orthoModel = glm::scale(orthoModel, glm::vec3(0.015f, 0.015f * aspect, 1.0f)); // Puntito en el centro
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(orthoModel));
 
-            glBindTexture(GL_TEXTURE_2D, clueTexture); // Textura blanca genérica
+            glBindTexture(GL_TEXTURE_2D, clueTexture); // Textura blanca genÃ©rica
             glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
             glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -1515,6 +1884,58 @@ int main() {
         ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "POSICION ACTUAL:");
         ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
         ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 350.0f, 10.0f));
+        ImGui::SetNextWindowSize(ImVec2(340.0f, 340.0f));
+        ImGui::SetNextWindowBgAlpha(0.75f);
+        ImGui::Begin("Editor Bano", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Text("Ajuste en tiempo real (sin recompilar)");
+        ImGui::Separator();
+        ImGui::Text("Bano");
+        ImGui::DragFloat3("Bano Pos", &banoPos.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano Rot", &banoRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano Scale", &banoScale.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Lavamanos");
+        ImGui::DragFloat3("Lava Pos", &lavamanosPos.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Lava Rot", &lavamanosRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lava Scale", &lavamanosScale.x, 0.01f, 0.05f, 2.0f);
+        if (ImGui::Button("Traer lavamanos frente a camara")) {
+            lavamanosPos = cameraPos + cameraFront * 0.8f;
+            lavamanosPos.y = cameraPos.y;
+            lavamanosRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            lavamanosScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+        ImGui::Text("Urinario");
+        ImGui::DragFloat3("Uri Pos", &urinarioPos.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Uri Rot", &urinarioRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Uri Scale", &urinarioScale.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Bano 2");
+        ImGui::DragFloat3("Bano 2 Pos", &banoPos2.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 2 Rot", &banoRot2.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 2 Scale", &banoScale2.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Bano 3");
+        ImGui::DragFloat3("Bano 3 Pos", &banoPos3.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 3 Rot", &banoRot3.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 3 Scale", &banoScale3.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Bano 4");
+        ImGui::DragFloat3("Bano 4 Pos", &banoPos4.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 4 Rot", &banoRot4.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 4 Scale", &banoScale4.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Lampara bano");
+        ImGui::DragFloat3("Lampara bano Pos", &ligthbathroomPos.x, 0.05f);
+        ImGui::DragFloat3("Lampara bano Rot", &ligthbathroomRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lampara bano Scale", &ligthbathroomScale.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Checkbox("Lampara modo debug visible", &ligthbathroomDebugVisible);
+       
+
+        ImGui::End();
+
 
         if (hudMessageTimer > 0.0f) {
             ImGui::SetNextWindowPos(ImVec2(currentWidth * 0.1f, currentHeight * 0.8f));
