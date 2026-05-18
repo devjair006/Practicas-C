@@ -35,16 +35,21 @@
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 768;
 
-// Variables de HUD (ImGui)----
+// Variables de HUD 
 std::string currentHUDMessage = "";
 float hudMessageTimer = 0.0f;
 bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
-glm::vec3 ligthbathroomPos(34.8f, 1.8f, 4.0f);
-glm::vec3 ligthbathroomRot(-90.0f, 0.0f, 0.0f);
-glm::vec3 ligthbathroomScale(0.4f, 0.4f, 0.4f);
+glm::vec3 ligthbathroom2Pos(35.160f, 0.480f, 3.403f);
+glm::vec3 ligthbathroom2Rot(0.0f, -180.0f, 0.0f);
+glm::vec3 ligthbathroom2Scale(0.520f, 0.490f, 1.0f);
+bool ligthbathroomDebugVisible2 = true;
+
+glm::vec3 ligthbathroomPos(35.160f, 0.480f, 7.403f);
+glm::vec3 ligthbathroomRot(0.0f, -180.0f, 0.0f);
+glm::vec3 ligthbathroomScale(0.520f, 0.490f, 1.0f);
 bool ligthbathroomDebugVisible = true;
 
 glm::vec3 banoPos(35.6f, -0.5f, 1.740f);
@@ -148,6 +153,14 @@ const char* fragmentShaderSource = R"(
     uniform vec2 resolution;
     uniform int useSolidColor;
 
+    struct PointLight {
+        vec3 position;
+        vec3 color;
+    };
+    #define MAX_POINT_LIGHTS 4
+    uniform int numPointLights;
+    uniform PointLight pointLights[MAX_POINT_LIGHTS];
+
     void main() {
         float ambientStrength = 0.05;
         vec3 ambientColor = vec3(1.0);
@@ -192,6 +205,23 @@ const char* fragmentShaderSource = R"(
 
             diffuse *= intensity * attenuation;
         }
+
+        // agregar las luces puntuales definidas en pointLights{}
+        vec3 pointLightsDiffuse = vec3(0.0);
+        vec3 norm = normalize(Normal);
+        for(int i = 0; i < numPointLights; i++) {
+            vec3 lightDirVec = normalize(pointLights[i].position - FragPos);
+            float diff = max(dot(norm, lightDirVec), 0.0);
+            
+            float distance = length(pointLights[i].position - FragPos);
+            float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance));
+            //como controlo el alcance? eso es en distance < 15.0
+            //como controlo el color? eso es en pointLights[i].color
+            if(distance < 15.0) {
+                pointLightsDiffuse += diff * pointLights[i].color * attenuation;
+            }
+        }
+        diffuse += pointLightsDiffuse;
 
         vec4 texColor = texture(texture1, TexCoord);
         if (useSolidColor == 1) {
@@ -995,7 +1025,7 @@ int main() {
         gnomeGLTF = new GLTFModel(gnomeModelPath);
     }
     std::cout << "[SISTEMA] Modelo activo del gnomo: " << gnomeModelPath << std::endl;
-
+    GLTFModel* ligthbathroom2GLTF = new GLTFModel("assets/ligthbathroom.glb");
     GLTFModel* ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
     GLTFModel* banoGLTF = new GLTFModel("assets/Bano.glb");
     GLTFModel* lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
@@ -1066,6 +1096,17 @@ int main() {
     int solidColorLoc = glGetUniformLocation(shaderProgram, "useSolidColor");
     int isAnimatedLoc = glGetUniformLocation(shaderProgram, "isAnimated");
     int finalBonesLoc = glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
+    
+    int numPointLightsLoc = glGetUniformLocation(shaderProgram, "numPointLights");
+    int pointLightPosLoc[4];
+    int pointLightColLoc[4];
+    for(int i = 0; i < 4; i++) {
+        std::string posStr = "pointLights[" + std::to_string(i) + "].position";
+        std::string colStr = "pointLights[" + std::to_string(i) + "].color";
+        pointLightPosLoc[i] = glGetUniformLocation(shaderProgram, posStr.c_str());
+        pointLightColLoc[i] = glGetUniformLocation(shaderProgram, colStr.c_str());
+    }
+    
     std::vector<glm::mat4> gnomeBoneTransforms;
 
     while (!glfwWindowShouldClose(window)) {
@@ -1132,6 +1173,17 @@ int main() {
         glUniform1i(zoneLoc, currentZone);
         glUniform1f(timeLoc, currentFrame);
         glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
+        //espacio donde se le da las luces a las lamparas 
+
+        glUniform1i(numPointLightsLoc, 2);
+        
+        // color de la lampara y posicion para ponerla en un color amarillento poner colores mas altos en vez de 0.8 0.9 1.0 a unos 0.8 0.6 0.2 para que se vea mas amarillento
+        glUniform3fv(pointLightPosLoc[0], 1, glm::value_ptr(ligthbathroomPos));
+        glUniform3f(pointLightColLoc[0], 0.8f, 0.6f, 0.2f);
+        
+       // lampara 2 
+        glUniform3fv(pointLightPosLoc[1], 1, glm::value_ptr(ligthbathroom2Pos));
+        glUniform3f(pointLightColLoc[1], 0.8f, 0.9f, 1.0f);
 
         // --- MAPA ---
         for (int z = 0; z < MAP_HEIGHT; z++) {
@@ -1437,20 +1489,26 @@ int main() {
             ligthbathroomModel = glm::rotate(ligthbathroomModel, glm::radians(ligthbathroomRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
             ligthbathroomModel = glm::rotate(ligthbathroomModel, glm::radians(ligthbathroomRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
             ligthbathroomModel = glm::scale(ligthbathroomModel, ligthbathroomScale);
+            
+            // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
+            ligthbathroomModel = glm::translate(ligthbathroomModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
+            
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroomModel));
-            if (ligthbathroomDebugVisible) {
-                glDisable(GL_CULL_FACE);
-                glUniform1i(solidColorLoc, 1);
-                glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f);
-                ligthbathroomGLTF->Draw(shaderProgram, -1);
-            } else {
-                ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
-            }
-            if (ligthbathroomDebugVisible) {
-                glEnable(GL_CULL_FACE);
-                glUniform1i(solidColorLoc, 0);
-                glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-            }
+            ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (ligthbathroom2GLTF && !ligthbathroom2GLTF->meshes.empty()) {
+            glm::mat4 ligthbathroom2Model = glm::mat4(1.0f);
+            ligthbathroom2Model = glm::translate(ligthbathroom2Model, ligthbathroom2Pos);
+            ligthbathroom2Model = glm::rotate(ligthbathroom2Model, glm::radians(ligthbathroom2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            ligthbathroom2Model = glm::rotate(ligthbathroom2Model, glm::radians(ligthbathroom2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            ligthbathroom2Model = glm::rotate(ligthbathroom2Model, glm::radians(ligthbathroom2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            ligthbathroom2Model = glm::scale(ligthbathroom2Model, ligthbathroom2Scale);
+            
+            // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
+            ligthbathroom2Model = glm::translate(ligthbathroom2Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroom2Model));
+            ligthbathroom2GLTF->Draw(shaderProgram, solidColorLoc);
         }
 
         if (urinarioGLTF && !urinarioGLTF->meshes.empty()) {
@@ -1693,12 +1751,12 @@ int main() {
         ImGui::DragFloat3("Lampara bano Rot", &ligthbathroomRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Lampara bano Scale", &ligthbathroomScale.x, 0.01f, 0.05f, 2.0f);
         ImGui::Checkbox("Lampara modo debug visible", &ligthbathroomDebugVisible);
-        if (ImGui::Button("Traer lampara frente a camara")) {
-            ligthbathroomPos = cameraPos + cameraFront * 0.8f;
-            ligthbathroomPos.y = cameraPos.y;
-            ligthbathroomRot = glm::vec3(0.0f, 0.0f, 0.0f);
-            ligthbathroomScale = glm::vec3(1.8f, 1.8f, 1.8f);
-        }
+        // if (ImGui::Button("Traer lampara frente a camara")) {
+        //     ligthbathroomPos = cameraPos + cameraFront * 0.8f;
+        //     ligthbathroomPos.y = cameraPos.y;
+        //     ligthbathroomRot = glm::vec3(0.0f, 0.0f, 0.0f);
+        //     ligthbathroomScale = glm::vec3(1.8f, 1.8f, 1.8f);
+        // }
 
         ImGui::End();
 

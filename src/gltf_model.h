@@ -274,6 +274,26 @@ private:
         std::vector<unsigned int> indices;
         std::vector<GLTFTexture> textures;
         
+        glm::vec3 matColor(1.0f, 1.0f, 1.0f);
+        if (mesh->mMaterialIndex >= 0) {
+            aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+            aiColor4D color(1.0f, 1.0f, 1.0f, 1.0f);
+            
+            // Try getting glTF PBR base color first, then fallback to diffuse
+            if (AI_SUCCESS == material->Get(AI_MATKEY_BASE_COLOR, color)) {
+                matColor = glm::vec3(color.r, color.g, color.b);
+            } else if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color)) {
+                matColor = glm::vec3(color.r, color.g, color.b);
+            }
+            
+            aiColor3D emissive(0.0f, 0.0f, 0.0f);
+            if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_EMISSIVE, emissive)) {
+                matColor += glm::vec3(emissive.r, emissive.g, emissive.b);
+            }
+            // clamp for sanity
+            matColor = glm::clamp(matColor, 0.0f, 1.0f);
+        }
+        
         for(unsigned int i = 0; i < mesh->mNumVertices; i++) {
             GLTFVertex vertex;
             vertex.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
@@ -283,7 +303,7 @@ private:
             if(mesh->mTextureCoords[0]) vertex.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
             else vertex.TexCoords = glm::vec2(0.0f, 0.0f);
             
-            vertex.Color = glm::vec3(1.0f, 1.0f, 1.0f);
+            vertex.Color = matColor;
             vertices.push_back(vertex);
         }
 
