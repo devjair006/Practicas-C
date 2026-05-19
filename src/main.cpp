@@ -42,19 +42,23 @@ bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
-glm::vec3 mirrorPos(33.250f, 0.100f, 3.00f);
+glm::vec3 azulejoPos(35.160f, 0.200f, 7.00f);
+glm::vec3 azulejoRot(90.0f, -90.0f, 0.0f);
+glm::vec3 azulejoScale(0.540f, 0.520f, 0.630f);
+
+glm::vec3 mirrorPos(33.160f, 0.100f, 3.00f);
 glm::vec3 mirrorRot(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale(0.540f, 0.520f, 0.630f);
 
-glm::vec3 mirrorPos2(33.250f, 0.100f, 3.00f + 1.0f);
+glm::vec3 mirrorPos2(33.160f, 0.100f, 3.00f + 1.0f);
 glm::vec3 mirrorRot2(0.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale2(0.540f, 0.520f, 0.630f);
 
-glm::vec3 mirrorPos3(33.250f, 0.100f, 3.00f + 2.0f);
+glm::vec3 mirrorPos3(33.160f, 0.100f, 3.00f + 2.0f);
 glm::vec3 mirrorRot3(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale3(0.540f, 0.520f, 0.630f);
 
-glm::vec3 mirrorPos4(33.250f, 0.1f, 3.00f + 3.0f);
+glm::vec3 mirrorPos4(33.160f, 0.1f, 3.00f + 3.0f);
 glm::vec3 mirrorRot4(0.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale4(0.540f, 0.520f, 0.630f);
 
@@ -62,6 +66,15 @@ glm::vec3 ligthbathroom2Pos(35.160f, 0.480f, 3.403f);
 glm::vec3 ligthbathroom2Rot(0.0f, -180.0f, 0.0f);
 glm::vec3 ligthbathroom2Scale(0.520f, 0.490f, 1.0f);
 bool ligthbathroomDebugVisible2 = true;
+
+glm::vec3 lamp3Pos(38.160f, 0.480f, 3.403f);
+glm::vec3 lamp3Rot(0.0f, -180.0f, 0.0f);
+glm::vec3 lamp3Scale(0.520f, 0.490f, 1.0f);
+
+glm::vec3 lamp4Pos(38.160f, 0.480f,  7.403f);
+glm::vec3 lamp4Rot(0.0f, -180.0f, 0.0f);
+glm::vec3 lamp4Scale(0.520f, 0.490f, 1.0f);
+
 
 glm::vec3 ligthbathroomPos(35.160f, 0.480f, 7.403f);
 glm::vec3 ligthbathroomRot(0.0f, -180.0f, 0.0f);
@@ -99,8 +112,8 @@ glm::vec3 lavamanosScale3(0.540f, 0.520f, 0.630f);
 glm::vec3 lavamanosPos4(33.250f, -0.300f, 3.00f + 3.0f);
 glm::vec3 lavamanosRot4(0.0f, -90.0f, 0.0f);
 glm::vec3 lavamanosScale4(0.540f, 0.520f, 0.630f);
-glm::vec3 urinarioPos(33.2f, -0.5f, 5.2f);
-glm::vec3 urinarioRot(-90.0f, 0.0f, 90.0f);
+glm::vec3 urinarioPos(36.8f, -0.54f, 5.2f);
+glm::vec3 urinarioRot(-90.5f, -2.5f, -90.0f);
 glm::vec3 urinarioScale(0.4f, 0.4f, 0.4f);
 
 
@@ -1072,6 +1085,8 @@ int main() {
         gnomeGLTF = new GLTFModel(gnomeModelPath);
     }
     std::cout << "[SISTEMA] Modelo activo del gnomo: " << gnomeModelPath << std::endl;
+
+    GLTFModel* azulejoGLTF = new GLTFModel("assets/azule.glb");
     GLTFModel* mirrorGLTF = new GLTFModel("assets/mirror.glb");
     GLTFModel* ligthbathroom2GLTF = new GLTFModel("assets/ligthbathroom.glb");
     GLTFModel* ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
@@ -1522,6 +1537,18 @@ int main() {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(banoModel));
             banoGLTF->Draw(shaderProgram, solidColorLoc);
         }
+
+        if (azulejoGLTF && !azulejoGLTF->meshes.empty()) {
+            glm::mat4 azulejoModel = glm::mat4(1.0f);
+            azulejoModel = glm::translate(azulejoModel, azulejoPos);
+            azulejoModel = glm::rotate(azulejoModel, glm::radians(azulejoRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            azulejoModel = glm::rotate(azulejoModel, glm::radians(azulejoRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            azulejoModel = glm::rotate(azulejoModel, glm::radians(azulejoRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            azulejoModel = glm::scale(azulejoModel, azulejoScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(azulejoModel));
+            azulejoGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
         if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
             // Lavamanos 1
             glm::mat4 lavamanosModel = glm::mat4(1.0f);
@@ -1648,8 +1675,38 @@ int main() {
             
             // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
             ligthbathroomModel = glm::translate(ligthbathroomModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
+
+
             
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroomModel));
+            glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
+            ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+            glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+
+            glm::mat4 ligthbathroom3Model = glm::mat4(1.0f);
+            ligthbathroom3Model = glm::translate(ligthbathroom3Model, lamp3Pos);
+            ligthbathroom3Model = glm::rotate(ligthbathroom3Model, glm::radians(lamp3Pos.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            ligthbathroom3Model = glm::rotate(ligthbathroom3Model, glm::radians(lamp3Pos.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            ligthbathroom3Model = glm::rotate(ligthbathroom3Model, glm::radians(lamp3Pos.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            ligthbathroom3Model = glm::scale(ligthbathroom3Model, lamp3Scale);
+            
+            // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
+            ligthbathroom3Model = glm::translate(ligthbathroom3Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroom3Model));
+            glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
+            ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+            glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+
+            glm::mat4 ligthbathroom4Model = glm::mat4(1.0f);
+            ligthbathroom4Model = glm::translate(ligthbathroom4Model, lamp4Pos);
+            ligthbathroom4Model = glm::rotate(ligthbathroom4Model, glm::radians(lamp4Pos.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            ligthbathroom4Model = glm::rotate(ligthbathroom4Model, glm::radians(lamp4Pos.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            ligthbathroom4Model = glm::rotate(ligthbathroom4Model, glm::radians(lamp4Pos.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            ligthbathroom4Model = glm::scale(ligthbathroom4Model, lamp4Scale);
+            
+            // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
+            ligthbathroom4Model = glm::translate(ligthbathroom4Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroom4Model));
             glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
             ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
             glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
@@ -1910,7 +1967,7 @@ int main() {
         ImGui::Text("Urinario");
         ImGui::DragFloat3("Uri Pos", &urinarioPos.x, 0.05f, 33.0f, 40.0f);
         ImGui::DragFloat3("Uri Rot", &urinarioRot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Uri Scale", &urinarioScale.x, 0.01f, 0.05f, 2.0f);
+        ImGui::DragFloat3("Uri Scale", &urinarioScale.x, 0.01f, 0.05f, 2.0f);// los parametros de dragfloat3 son name, escalas y posicion inicial
         ImGui::Separator();
         ImGui::Text("Bano 2");
         ImGui::DragFloat3("Bano 2 Pos", &banoPos2.x, 0.05f, 33.0f, 40.0f);
@@ -1933,6 +1990,18 @@ int main() {
         ImGui::DragFloat3("Lampara bano Rot", &ligthbathroomRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Lampara bano Scale", &ligthbathroomScale.x, 0.01f, 0.05f, 2.0f);
         ImGui::Checkbox("Lampara modo debug visible", &ligthbathroomDebugVisible);
+        ImGui::Separator();
+        ImGui::Text("Azulejo");
+        ImGui::DragFloat3("Azulejo Pos", &azulejoPos.x, 0.05f);
+        ImGui::DragFloat3("Azulejo Rot", &azulejoRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Azulejo Scale", &azulejoScale.x, 0.01f, 0.05f, 2.0f);
+        if (ImGui::Button("Traer azulejo frente a camara")) {
+            azulejoPos = cameraPos + cameraFront * 0.8f;
+            azulejoPos.y = cameraPos.y;
+            azulejoRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            azulejoScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
        
 
         ImGui::End();
@@ -1983,6 +2052,7 @@ int main() {
     
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    
     glfwTerminate();
     return 0;
 }
