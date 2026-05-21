@@ -1,0 +1,126 @@
+#pragma once
+
+#include <string>
+#include <vector>
+
+#include <glm/glm.hpp>
+#include <miniaudio.h>
+
+inline constexpr unsigned int SCR_WIDTH = 1024;
+inline constexpr unsigned int SCR_HEIGHT = 768;
+inline constexpr int MAP_WIDTH = 50;
+inline constexpr int MAP_HEIGHT = 50;
+
+enum GameState { MENU, PLAYING, GAMEOVER };
+
+struct Entity {
+    glm::vec3 pos;
+    int type; // 0=Log, 1=Bateria, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa, 5=Monitor, 6=Maquina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
+    bool active;
+    std::string text;
+    float seed;
+};
+
+extern std::string currentHUDMessage;
+extern float hudMessageTimer;
+extern bool isReadingDocument;
+extern std::string currentDocumentTitle;
+extern std::string currentDocumentBody;
+
+extern glm::vec3 azulejoPos;
+extern glm::vec3 azulejoRot;
+extern glm::vec3 azulejoScale;
+extern glm::vec3 mirrorPos;
+extern glm::vec3 mirrorRot;
+extern glm::vec3 mirrorScale;
+extern glm::vec3 mirrorPos2;
+extern glm::vec3 mirrorRot2;
+extern glm::vec3 mirrorScale2;
+extern glm::vec3 mirrorPos3;
+extern glm::vec3 mirrorRot3;
+extern glm::vec3 mirrorScale3;
+extern glm::vec3 mirrorPos4;
+extern glm::vec3 mirrorRot4;
+extern glm::vec3 mirrorScale4;
+extern glm::vec3 ligthbathroom2Pos;
+extern glm::vec3 ligthbathroom2Rot;
+extern glm::vec3 ligthbathroom2Scale;
+extern bool ligthbathroomDebugVisible2;
+extern glm::vec3 lamp3Pos;
+extern glm::vec3 lamp3Rot;
+extern glm::vec3 lamp3Scale;
+extern glm::vec3 lamp4Pos;
+extern glm::vec3 lamp4Rot;
+extern glm::vec3 lamp4Scale;
+extern glm::vec3 ligthbathroomPos;
+extern glm::vec3 ligthbathroomRot;
+extern glm::vec3 ligthbathroomScale;
+extern bool ligthbathroomDebugVisible;
+extern glm::vec3 banoPos;
+extern glm::vec3 banoRot;
+extern glm::vec3 banoScale;
+extern glm::vec3 banoPos2;
+extern glm::vec3 banoRot2;
+extern glm::vec3 banoScale2;
+extern glm::vec3 banoPos3;
+extern glm::vec3 banoRot3;
+extern glm::vec3 banoScale3;
+extern glm::vec3 banoPos4;
+extern glm::vec3 banoRot4;
+extern glm::vec3 banoScale4;
+extern glm::vec3 lavamanosPos;
+extern glm::vec3 lavamanosRot;
+extern glm::vec3 lavamanosScale;
+extern glm::vec3 lavamanosPos2;
+extern glm::vec3 lavamanosRot2;
+extern glm::vec3 lavamanosScale2;
+extern glm::vec3 lavamanosPos3;
+extern glm::vec3 lavamanosRot3;
+extern glm::vec3 lavamanosScale3;
+extern glm::vec3 lavamanosPos4;
+extern glm::vec3 lavamanosRot4;
+extern glm::vec3 lavamanosScale4;
+extern glm::vec3 urinarioPos;
+extern glm::vec3 urinarioRot;
+extern glm::vec3 urinarioScale;
+
+extern glm::vec3 cameraPos;
+extern glm::vec3 cameraFront;
+extern glm::vec3 cameraUp;
+
+extern bool firstMouse;
+extern float yaw;
+extern float pitch;
+extern float lastX;
+extern float lastY;
+extern float deltaTime;
+extern float lastFrame;
+extern float headBobTimer;
+extern float baseCameraY;
+extern bool isMoving;
+extern float stamina;
+extern bool isSprinting;
+extern bool isExhausted;
+extern GameState gameState;
+extern bool isCursorLocked;
+extern bool tabKeyWasPressed;
+extern bool eKeyWasPressed;
+extern bool isFlashlightOn;
+extern bool fKeyWasPressed;
+extern ma_engine audioEngine;
+extern int bateriasRecolectadas;
+extern bool hasKeycardLvl1;
+extern bool hasKeycardLvl2;
+extern bool dimensionAlterna;
+extern bool portalActivado;
+extern int currentZone;
+
+extern std::vector<Entity> gameEntities;
+
+extern float wallWidth;
+extern float wallHeight;
+extern float door1Anim;
+extern bool door1Opening;
+extern float door2Anim;
+extern bool door2Opening;
+extern int worldMap[MAP_HEIGHT][MAP_WIDTH];

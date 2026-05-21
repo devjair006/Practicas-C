@@ -130,6 +130,29 @@ public:
         return (int)m_Scene->mNumAnimations;
     }
 
+    std::string GetAnimationName(int index) const {
+        if (!m_Scene || !m_Scene->HasAnimations() || index < 0 || index >= (int)m_Scene->mNumAnimations) {
+            return "";
+        }
+        return m_Scene->mAnimations[index]->mName.C_Str();
+    }
+
+    float GetAnimationDuration(int index) const {
+        if (!m_Scene || !m_Scene->HasAnimations() || index < 0 || index >= (int)m_Scene->mNumAnimations) {
+            return 0.0f;
+        }
+        return (float)m_Scene->mAnimations[index]->mDuration;
+    }
+
+    float GetAnimationLengthSeconds(int index) const {
+        if (!m_Scene || !m_Scene->HasAnimations() || index < 0 || index >= (int)m_Scene->mNumAnimations) {
+            return 0.0f;
+        }
+        const aiAnimation* animation = m_Scene->mAnimations[index];
+        float ticksPerSecond = (float)(animation->mTicksPerSecond != 0 ? animation->mTicksPerSecond : 25.0f);
+        return ticksPerSecond > 0.0f ? (float)animation->mDuration / ticksPerSecond : 0.0f;
+    }
+
     int CountBonesInMeshes() const {
         if (!m_Scene) return 0;
         int totalBones = 0;

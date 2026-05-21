@@ -11,6 +11,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -29,93 +30,10 @@
 #include <assimp/postprocess.h>
 
 #include "headers/obj_mesh.h"
+#include "headers/game_state.h"
+#include "headers/gameplay.h"
 #include "headers/shader.h"
 #include "headers/texture.h"
-
-const unsigned int SCR_WIDTH = 1024;
-const unsigned int SCR_HEIGHT = 768;
-
-// Variables de HUD 
-std::string currentHUDMessage = "";
-float hudMessageTimer = 0.0f;
-bool isReadingDocument = false;
-std::string currentDocumentTitle = "";
-std::string currentDocumentBody = "";
-
-glm::vec3 azulejoPos(35.160f, 0.200f, 7.00f);
-glm::vec3 azulejoRot(90.0f, -90.0f, 0.0f);
-glm::vec3 azulejoScale(0.540f, 0.520f, 0.630f);
-
-glm::vec3 mirrorPos(33.160f, 0.100f, 3.00f);
-glm::vec3 mirrorRot(90.0f, -90.0f, 0.0f);
-glm::vec3 mirrorScale(0.540f, 0.520f, 0.630f);
-
-glm::vec3 mirrorPos2(33.160f, 0.100f, 3.00f + 1.0f);
-glm::vec3 mirrorRot2(0.0f, -90.0f, 0.0f);
-glm::vec3 mirrorScale2(0.540f, 0.520f, 0.630f);
-
-glm::vec3 mirrorPos3(33.160f, 0.100f, 3.00f + 2.0f);
-glm::vec3 mirrorRot3(90.0f, -90.0f, 0.0f);
-glm::vec3 mirrorScale3(0.540f, 0.520f, 0.630f);
-
-glm::vec3 mirrorPos4(33.160f, 0.1f, 3.00f + 3.0f);
-glm::vec3 mirrorRot4(0.0f, -90.0f, 0.0f);
-glm::vec3 mirrorScale4(0.540f, 0.520f, 0.630f);
-
-glm::vec3 ligthbathroom2Pos(35.160f, 0.480f, 3.403f);
-glm::vec3 ligthbathroom2Rot(0.0f, -180.0f, 0.0f);
-glm::vec3 ligthbathroom2Scale(0.520f, 0.490f, 1.0f);
-bool ligthbathroomDebugVisible2 = true;
-
-glm::vec3 lamp3Pos(38.160f, 0.480f, 3.403f);
-glm::vec3 lamp3Rot(0.0f, -180.0f, 0.0f);
-glm::vec3 lamp3Scale(0.520f, 0.490f, 1.0f);
-
-glm::vec3 lamp4Pos(38.160f, 0.480f,  7.403f);
-glm::vec3 lamp4Rot(0.0f, -180.0f, 0.0f);
-glm::vec3 lamp4Scale(0.520f, 0.490f, 1.0f);
-
-
-glm::vec3 ligthbathroomPos(35.160f, 0.480f, 7.403f);
-glm::vec3 ligthbathroomRot(0.0f, -180.0f, 0.0f);
-glm::vec3 ligthbathroomScale(0.520f, 0.490f, 1.0f);
-bool ligthbathroomDebugVisible = true;
-
-glm::vec3 banoPos(35.6f, -0.5f, 1.740f);
-glm::vec3 banoRot(-90.0f, 0.0f, 0.0f);
-glm::vec3 banoScale(0.5f, 0.4f, 0.4f);
-
-glm::vec3 banoPos2(36.150f, -0.5f, 1.740f);
-glm::vec3 banoRot2(-90.0f, 0.0f, 0.0f);
-glm::vec3 banoScale2(0.5f, 0.4f, 0.4f);
-
-glm::vec3 banoPos3(35.050f, -0.5f, 1.740f);
-glm::vec3 banoRot3(-90.0f, 0.0f, 0.0f);
-glm::vec3 banoScale3(0.5f, 0.4f, 0.4f);
-
-glm::vec3 banoPos4(34.500f, -0.5f, 1.740f);
-glm::vec3 banoRot4(-90.0f, 0.0f, 0.0f);
-glm::vec3 banoScale4(0.5f, 0.4f, 0.4f);
-
-glm::vec3 lavamanosPos(33.250f, -0.300f, 3.00f);
-glm::vec3 lavamanosRot(0.0f, -90.0f, 0.0f);
-glm::vec3 lavamanosScale(0.540f, 0.520f, 0.630f);
-
-glm::vec3 lavamanosPos2(33.250f, -0.300f, 3.00f + 1.0f);
-glm::vec3 lavamanosRot2(0.0f, -90.0f, 0.0f);
-glm::vec3 lavamanosScale2(0.540f, 0.520f, 0.630f);
-
-glm::vec3 lavamanosPos3(33.250f, -0.300f, 3.00f + 2.0f);
-glm::vec3 lavamanosRot3(0.0f, -90.0f, 0.0f);
-glm::vec3 lavamanosScale3(0.540f, 0.520f, 0.630f);
-
-glm::vec3 lavamanosPos4(33.250f, -0.300f, 3.00f + 3.0f);
-glm::vec3 lavamanosRot4(0.0f, -90.0f, 0.0f);
-glm::vec3 lavamanosScale4(0.540f, 0.520f, 0.630f);
-glm::vec3 urinarioPos(36.8f, -0.54f, 5.2f);
-glm::vec3 urinarioRot(-90.5f, -2.5f, -90.0f);
-glm::vec3 urinarioScale(0.4f, 0.4f, 0.4f);
-
 
 // SHADERS edwedew
 
@@ -302,590 +220,81 @@ const char* fragmentShaderSource = R"(
     }
 )";
 
-glm::vec3 cameraPos   = glm::vec3(6.0f, 0.0f, 5.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); 
-glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
-
-bool firstMouse = true;
-float yaw   = -90.0f;	
-float pitch =  0.0f;	
-float lastX = SCR_WIDTH / 2.0;
-float lastY = SCR_HEIGHT / 2.0;
-
-float deltaTime = 0.0f;	
-float lastFrame = 0.0f;
-
-// Headbobbing (Movimiento de cÃ¡mara al caminar)
-float headBobTimer = 0.0f;
-float baseCameraY = 0.0f;
-bool isMoving = false;
-
-// Stamina y Sprint
-float stamina = 100.0f;
-bool isSprinting = false;
-bool isExhausted = false;
-
-enum GameState { MENU, PLAYING, GAMEOVER };
-GameState gameState = MENU; 
-
-bool isCursorLocked = false; 
-bool tabKeyWasPressed = false;
-bool eKeyWasPressed = false;
-bool isFlashlightOn = true;
-bool fKeyWasPressed = false;
-
-ma_engine audioEngine;
-
-// Inventario
-int bateriasRecolectadas = 0;
-bool hasKeycardLvl1 = false; // Llave amarilla (Control)
-bool hasKeycardLvl2 = false; // Llave roja (Lab)
-bool dimensionAlterna = false;
-bool portalActivado = false;
-int currentZone = 1;
-
-// ==========================================
-// ENTIDADES
-// ==========================================
-struct Entity {
-    glm::vec3 pos;  
-    int type; // 0=Log, 1=BaterÃ­a, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa, 5=Monitor, 6=MÃ¡quina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
-    bool active;    
-    std::string text;
-    float seed;
-};
-
-std::vector<Entity> gameEntities = {
-    // --- ZONA NORTE (z=2 a 11) : INICIO, OFICINAS, BAÃ‘OS ---
-    {glm::vec3(8.0f, -0.4f, 4.0f), 3, true, "[CABLE SUELTO]:Hay un cable pelado aqui.", 0.0f},
-    {glm::vec3(20.0f, -0.4f, 5.0f), 0, true, "LOG 1 (Arrugado): 'Apagon general. Las compuertas se bloquearon.'", 0.0f},
-    {glm::vec3(42.0f, -0.2f, 5.0f), 8, true, "", 0.0f}, // TARJETA NV 1 (Amarilla) en BaÃ±os
-    {glm::vec3(12.0f, -0.2f, 6.0f), 1, true, "", 0.0f}, // Bateria 1 en Sala Descanso
-    {glm::vec3(24.0f, -0.5f, 6.0f), 4, true, "", 1.0f}, // Mesa en Oficinas
-    {glm::vec3(24.0f, 0.0f, 6.0f), 5, true, "[MONITOR AUXILIAR]: 'Sistema inestable.'", 1.5f},
-    
-    // --- ZONA MEDIA (z=13 a 20) : LABS, FRIGORIFICO, CONTENCION ---
-    {glm::vec3(10.0f, -0.5f, 15.0f), 4, true, "", 2.0f}, // Mesa en Labs
-    {glm::vec3(10.0f, 0.0f, 15.0f), 5, true, "[PANTALLA ERROR]: 'Falla de contencion.'", 2.5f},
-    {glm::vec3(28.0f, 0.0f, 16.0f), 6, true, "[MAQUINA]: Unidad Frigorifica.", 5.0f}, // Maquina en Frigorifico
-    {glm::vec3(42.0f, -0.4f, 17.0f), 9, true, "", 0.0f}, // TARJETA NV 2 (Roja) en Contencion
-    {glm::vec3(42.0f, -0.2f, 15.0f), 0, true, "LOG 2 (Sangriento): 'La muestra escapo.'", 0.0f},
-    {glm::vec3(15.0f, -0.2f, 18.0f), 1, true, "", 0.0f}, // Bateria 2 en Labs
-    
-    // --- ZONA SUR (z=25 a 43) : VENTILACION, PRUEBAS, GENERADORES ---
-    {glm::vec3(10.0f, -0.4f, 28.0f), 3, true, "[MANCHA]: Rastro oscuro hacia ventilacion.", 0.0f},
-    {glm::vec3(10.0f, -0.5f, 38.0f), 4, true, "", 3.0f}, // Mesa en Sala Pruebas
-    {glm::vec3(10.0f, 0.0f, 38.0f), 5, true, "[REGISTRO MAESTRO]: 'EVACUACION INMEDIATA.'", 3.5f},
-    {glm::vec3(28.0f, 0.0f, 38.0f), 6, true, "[GENERADOR]: Requiere reinicio.", 6.0f},
-    {glm::vec3(22.0f, -0.2f, 40.0f), 1, true, "", 0.0f}, // Bateria 3 en Generadores
-    
-    // --- CORREDOR FINAL (z=45 a 47) ---
-    {glm::vec3(24.0f, 1.0f, 46.0f), 7, true, "[PALANCA MAESTRA]: Energia restaurada.", 0.0f},
-
-    // La Entidad
-    {glm::vec3(25.0f, 0.0f, 3.0f), 2, true, "", 0.0f}
-};
-
-// ==========================================
-// MAPA EXPANDIDO (24x32) - Laboratorio Estructurado
-// 0=VacÃ­o, 1=Pasillo, 2=Control, 3=Lab, 4=Bloque sÃ³lido invisible, 8=Puerta Nivel 1, 9=Puerta Nivel 2
-// ==========================================
-const int MAP_WIDTH = 50;
-const int MAP_HEIGHT = 50;
-
-// --- ConfiguraciÃ³n de dimensiones de paredes ---
-float wallWidth = 0.3f;  // Grosor visual de las paredes (se estira automÃ¡ticamente si hay vecinos)
-float wallHeight = 1.0f; // 1.0 es la altura estÃ¡ndar
-
-// --- Animacion de Puertas ---
-float door1Anim = 0.0f; // 0.0 a 90.0 grados
-bool door1Opening = false;
-float door2Anim = 0.0f;
-bool door2Opening = false;
-
-int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
-    // ============ PROYECTO ÃTOMO - NIVEL -4 ============
-    // 0=VacÃ­o, 1=Pared, 8=Puerta Nivel 1, 9=Puerta Nivel 2
-    // NORTE (z=0): Borde superior
-    //0000 esos q estan ahi van a equivales a los asensores 
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    // z=1: Acceso desde Nivel -3 (entrada superior) + inicio de salas
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    // z=2-8: SALA DE DESCANSO(1) | ZONA DE OFICINAS(2) | BAÃ‘OS(3)
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
-    // z=9: Pared entre salas norte y corredor principal (con entradas a cada sala)
-    {1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,0,0,1,1,1},
-    // z=10-11: CORREDOR PRINCIPAL ESTE-OESTE
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    // z=12: Pared sur del corredor (puerta 8=Nivel1 hacia Labs ClÃ­nicos)
-    {1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,8,8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1},
-    // z=13-20: SALA VIGILANCIA | LABS CLÃNICOS(4) | C.FRIGORÃFICA(5) | CONTENCIÃ“N(6)
-    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    // z=21: Pared divisoria medio-sur (entradas a VentilaciÃ³n y corredor)
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1},
-    // z=22-23: CORREDOR CENTRAL
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    // z=24: Pared con entradas a zona sur
-    {1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1},
-    // z=25-33: CONDUCTOS VENTILACIÃ“N(7) izq | SALA DE PRUEBAS(8) centro-izq
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    // z=34: Pared divisoria con puerta 9 (Nivel 2) hacia Generadores
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,9,9,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    // z=35-43: SALA DE PRUEBAS(8) izq | SALA DE GENERADORES(9) der | SALIDA(10)
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1},
-    // z=44: Pared sur con entrada al corredor de interruptores
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    // z=45-47: CORREDOR DE INTERRUPTORES + PALANCA MAESTRA
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    // z=48-49: Pared inferior + borde
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-};
-
-// ==========================================
-// FUNCIONES DE CONTROL
-// ==========================================
-bool checkCollision(float x, float z) {
-    float playerRadius = 0.25f; 
-    
-    // Verificar celdas vecinas
-    int startX = (int)floor(x - 1.0f);
-    int endX   = (int)ceil(x + 1.0f);
-    int startZ = (int)floor(z - 1.0f);
-    int endZ   = (int)ceil(z + 1.0f);
-
-    for (int cz = startZ; cz <= endZ; cz++) {
-        for (int cx = startX; cx <= endX; cx++) {
-            if (cx < 0 || cx >= MAP_WIDTH || cz < 0 || cz >= MAP_HEIGHT) {
-                return true; // LÃ­mites sÃ³lidos del mapa
-            }
-            
-            if (worldMap[cz][cx] > 0) {
-                // AABB de la pared: delgada por defecto, se estira si tiene vecinos
-                float halfX = wallWidth / 2.0f;
-                float halfZ = wallWidth / 2.0f;
-                bool leftW  = (cx > 0 && worldMap[cz][cx-1] > 0);
-                bool rightW = (cx < MAP_WIDTH-1 && worldMap[cz][cx+1] > 0);
-                bool upW    = (cz > 0 && worldMap[cz-1][cx] > 0);
-                bool downW  = (cz < MAP_HEIGHT-1 && worldMap[cz+1][cx] > 0);
-                if (leftW || rightW) halfX = 0.5f;
-                if (upW || downW) halfZ = 0.5f;
-
-                float wallMinX = (float)cx - halfX;
-                float wallMaxX = (float)cx + halfX;
-                float wallMinZ = (float)cz - halfZ;
-                float wallMaxZ = (float)cz + halfZ;
-
-                // Encontrar el punto mÃ¡s cercano en la caja al jugador
-                float closestX = glm::clamp(x, wallMinX, wallMaxX);
-                float closestZ = glm::clamp(z, wallMinZ, wallMaxZ);
-
-                float dx = x - closestX;
-                float dz = z - closestZ;
-                if ((dx * dx + dz * dz) <= (playerRadius * playerRadius)) return true;
-            }
-        }
-    }
-    
-    // ColisiÃ³n con entidades (objetos grandes como mesas)
-    for (auto& entity : gameEntities) {
-        if (!entity.active) continue;
-        if (entity.type == 4 || entity.type == 6) { 
-            float dist = glm::length(glm::vec2(x - entity.pos.x, z - entity.pos.z));
-            if (dist < 0.8f) return true; 
-        }
-    }
-    
-    return false; 
-}
-
-void updateZone() {
-    if (cameraPos.z >= 35.0f) currentZone = 1;
-    else if (cameraPos.z >= 15.0f) currentZone = 2;
-    else currentZone = 3;
-}
-
-void printTypewriter(std::string text) {
-    currentHUDMessage = text;
-    hudMessageTimer = 5.0f; // Mostrar por 5 segundos
-    std::cout << "\n> " << text << "\n" << std::endl; // Mantenemos el log por si acaso
-}
-
-void openDocument(const std::string& title, const std::string& body) {
-    currentDocumentTitle = title;
-    currentDocumentBody = body;
-    isReadingDocument = true;
-}
-
-void closeDocument() {
-    isReadingDocument = false;
-    currentDocumentTitle.clear();
-    currentDocumentBody.clear();
-}
-
-void tryOpenDoor(GLFWwindow *window) {
-    // Escaneo de los bloques frente a la cÃ¡mara (rango 1.5)
-    glm::vec3 checkPos = cameraPos + cameraFront * 1.5f;
-    int gridX = (int)round(checkPos.x);
-    int gridZ = (int)round(checkPos.z);
-    
-    if (gridX >= 0 && gridX < MAP_WIDTH && gridZ >= 0 && gridZ < MAP_HEIGHT) {
-        int targetBlock = worldMap[gridZ][gridX];
-        
-        if (targetBlock == 8) { // Puerta Amarilla
-            if (hasKeycardLvl1) {
-                // Abrir ambas celdas de la puerta en esta fila
-                for (int cx = 0; cx < MAP_WIDTH; cx++) {
-                    if (worldMap[gridZ][cx] == 8) worldMap[gridZ][cx] = -8;
-                }
-                door1Opening = true; // Iniciar animacion
-                printTypewriter("[PUERTA]: Tarjeta Nivel 1 Aceptada. Accediendo a Sala de Control.");
-                ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
-            } else {
-                printTypewriter("[PUERTA BLOQUEADA]: Se requiere Tarjeta Amarilla (Nivel 1).");
-            }
-        } else if (targetBlock == 9) { // Puerta Roja
-            if (hasKeycardLvl2) {
-                // Abrir ambas celdas de la puerta en esta fila
-                for (int cx = 0; cx < MAP_WIDTH; cx++) {
-                    if (worldMap[gridZ][cx] == 9) worldMap[gridZ][cx] = -9;
-                }
-                door2Opening = true; // Iniciar animacion
-                printTypewriter("[PUERTA]: Tarjeta Nivel 2 Aceptada. Peligro: Zona de Alta Radiacion.");
-                ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
-            } else {
-                printTypewriter("[PUERTA BLOQUEADA]: Se requiere Tarjeta Roja (Nivel 2).");
-            }
-        }
-    }
-}
-
-void processInput(GLFWwindow *window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        if (isReadingDocument) closeDocument();
-        else glfwSetWindowShouldClose(window, true);
-
-    if (gameState == GAMEOVER) return;
-
-    if (isReadingDocument) {
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-            if (!eKeyWasPressed) {
-                closeDocument();
-                eKeyWasPressed = true;
-            }
-        } else {
-            eKeyWasPressed = false;
-        }
-        return;
-    }
-
-    if (gameState == MENU) {
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
-            gameState = PLAYING;
-            isCursorLocked = true; 
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            firstMouse = true;     
-            ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
-            std::cout << "=========================================================" << std::endl;
-            std::cout << "               PROYECTO CONFIDENCIAL - REINICIO          " << std::endl;
-            std::cout << "=========================================================\n" << std::endl;
-            printTypewriter("ESCENA 1: PASILLO DE ACCESO");
-            std::cout << "El entorno es silencioso y vacio." << std::endl;
-            std::cout << "Moverte: W A S D  | Mirar: MOUSE | Sprint: SHIFT" << std::endl;
-            std::cout << "Interactuar/Abrir Puertas: E | Linterna: F" << std::endl;
-            std::cout << "Busca TARJETAS DE ACCESO para avanzar a las siguientes salas." << std::endl;
-        }
-        return; 
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
-        if (!tabKeyWasPressed) {
-            isCursorLocked = !isCursorLocked;
-            if (isCursorLocked) {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                firstMouse = true;
-            } else {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            }
-            tabKeyWasPressed = true;
-        }
-    } else {
-        tabKeyWasPressed = false;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
-        if (!fKeyWasPressed) {
-            isFlashlightOn = !isFlashlightOn; 
-            fKeyWasPressed = true;
-            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
-        }
-    } else {
-        fKeyWasPressed = false;
-    }
-
-    if (!isCursorLocked) return;
-
-    // --- SPRINT Y ESTAMINA ---
-    float cameraSpeed = 3.5f; 
-    isSprinting = false;
-    
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS && stamina > 0.0f && !isExhausted) {
-        cameraSpeed = 6.0f; // Corre rÃ¡pido
-        stamina -= 30.0f * deltaTime;
-        isSprinting = true;
-        if (stamina <= 0.0f) {
-            isExhausted = true;
-            std::cout << "\n[AGITADO]: Te has quedado sin aliento.\n" << std::endl;
-        }
-    } else {
-        stamina += 15.0f * deltaTime;
-        if (stamina > 100.0f) {
-            stamina = 100.0f;
-            isExhausted = false;
-        }
-    }
-    
-    cameraSpeed *= deltaTime;
-
-    glm::vec3 moveDir(0.0f); 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) moveDir += cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) moveDir -= cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) moveDir -= glm::normalize(glm::cross(cameraFront, cameraUp));
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) moveDir += glm::normalize(glm::cross(cameraFront, cameraUp));
-    
-    moveDir.y = 0.0f;
-    isMoving = false;
-    
-    if (glm::length(moveDir) > 0.0f) {
-        moveDir = glm::normalize(moveDir) * cameraSpeed; 
-        if (!checkCollision(cameraPos.x + moveDir.x, cameraPos.z)) { cameraPos.x += moveDir.x; isMoving = true; }
-        if (!checkCollision(cameraPos.x, cameraPos.z + moveDir.z)) { cameraPos.z += moveDir.z; isMoving = true; }
-    }
-    
-    // --- HEADBOBBING ---
-    if (isMoving) {
-        float bobSpeed = isSprinting ? 15.0f : 10.0f;
-        headBobTimer += deltaTime * bobSpeed;
-        cameraPos.y = baseCameraY + sin(headBobTimer) * 0.1f;
-    } else {
-        // Suavizado hacia el centro
-        cameraPos.y = glm::mix(cameraPos.y, baseCameraY, deltaTime * 5.0f);
-        headBobTimer = 0.0f;
-    }
-
-    int prevZone = currentZone;
-    updateZone();
-    if (prevZone != currentZone) {
-        if (currentZone == 2 && !dimensionAlterna) printTypewriter("ESCENA 2: SALA DE CONTROL \nLuz verde tenue. Computadoras encendidas solas.");
-        if (currentZone == 3 && !dimensionAlterna) printTypewriter("ESCENA 3: LABORATORIO PRINCIPAL\nEncuentras la esfera central del experimento. Necesitas baterias.");
-    }
-
-    // --- INTERACCIÃ“N GENERAL (TECLA E) ---
-    bool justPressedE = false;
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-        if (!eKeyWasPressed) {
-            justPressedE = true;
-            eKeyWasPressed = true;
-            tryOpenDoor(window); // Intenta abrir puertas
-            
-            // Consola frente a la esfera (Solo se puede interactuar si estas en el laboratorio)
-            if (!portalActivado && currentZone == 3) {
-                float distA_Consola = glm::length(cameraPos - glm::vec3(25.0f, 0.0f, 7.0f)); 
-                if (distA_Consola < 2.0f) {
-                    if (bateriasRecolectadas >= 3) {
-                        portalActivado = true;
-                        dimensionAlterna = true; 
-                        std::cout << "\n=========================================================" << std::endl;
-                        printTypewriter("ESCENA 4 & 5: ACTIVACION Y DISTORSION DE LA REALIDAD");
-                        std::cout << "[SISTEMA REACTIVADO]... INICIANDO SECUENCIA DE COPIA." << std::endl;
-                        std::cout << "[ADVERTENCIA]... ANOMALIA DETECTADA EN LA REPLICACION." << std::endl;
-                        std::cout << "El entorno pierde estabilidad. Los objetos empiezan a flotar." << std::endl;
-                        printTypewriter("NO ES UNA COPIA... ESTA APRENDIENDO. CORRE.");
-                        std::cout << "=========================================================\n" << std::endl;
-                        ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
-                    } else {
-                        std::cout << "\n[CONSOLA]: Energia principal fuera de linea. Faltan " << 3 - bateriasRecolectadas << " Baterias.\n" << std::endl;
-                    }
-                }
-            }
-        }
-    } else {
-        eKeyWasPressed = false;
-    }
-
-    // LÃ“GICA DE ENTIDADES E INSPECCIÃ“N
-    for (auto& entity : gameEntities) {
-        if (entity.active) {
-            float distancia = glm::length(entity.pos - cameraPos);
-            glm::vec3 dirToEntity = glm::normalize(glm::vec3(entity.pos.x, cameraPos.y, entity.pos.z) - cameraPos); 
-            // Para objetos altos o bajos, la direcciÃ³n varÃ­a. Usamos la posiciÃ³n real para el Ã¡ngulo
-            glm::vec3 realDirToEntity = glm::normalize(entity.pos - cameraPos);
-            float lookAngle = glm::dot(cameraFront, realDirToEntity);
-            
-            // Recolectables (Por cercanÃ­a y mirando hacia ellos)
-            if (entity.type == 0 || entity.type == 1 || entity.type == 8 || entity.type == 9) { 
-                // Eliminamos la necesidad de apuntar exacto para no frustrar la recoleccion
-                if (distancia < 1.5f && justPressedE) {
-                    entity.active = false;
-                    ma_engine_play_sound(&audioEngine, "assets/collect.wav", NULL);
-                    
-                    if (entity.type == 0) { 
-                        printTypewriter(entity.text);
-                    } else if (entity.type == 1) { 
-                        bateriasRecolectadas++;
-                        std::cout << "\n[BATERIA RECOLECTADA]: Tienes " << bateriasRecolectadas << " / 3\n" << std::endl;
-                    } else if (entity.type == 8) {
-                        hasKeycardLvl1 = true;
-                        std::cout << "\n[OBJETO CLAVE]: Has obtenido la TARJETA AMARILLA (Nivel 1).\n" << std::endl;
-                        openDocument(
-                            "TARJETA AMARILLA - NIVEL 1",
-                            "Autorizacion: Sala de Control.\n\n"
-                            "Personal permitido: mantenimiento y soporte.\n"
-                            "Observacion manuscrita:\n"
-                            "\"Si la puerta se abre sola, no entres.\""
-                        );
-                    } else if (entity.type == 9) {
-                        hasKeycardLvl2 = true;
-                        std::cout << "\n[OBJETO CLAVE]: Has obtenido la TARJETA ROJA (Nivel 2).\n" << std::endl;
-                        openDocument(
-                            "TARJETA ROJA - NIVEL 2",
-                            "Autorizacion: Laboratorio principal.\n\n"
-                            "Acceso restringido a personal senior.\n"
-                            "Nota de emergencia:\n"
-                            "\"No activen el nucleo sin las baterias. La copia ya no obedece.\""
-                        );
-                    }
-                }
-            } 
-            // Objetos Inspectables EstÃ¡ticos (Mesa, Monitor, MÃ¡quina, Cable)
-            else if (entity.type == 3 || entity.type == 4 || entity.type == 5 || entity.type == 6 || entity.type == 7) {
-                // Precision Raycast Approximation (lookAngle > 0.95 significa mirar casi exactamente al objeto)
-                if (distancia < 3.0f && lookAngle > 0.92f && justPressedE) {
-                    if (entity.text != "") { // Solo si tiene texto
-                        printTypewriter(entity.text);
-                    } else if (entity.type == 4) { // Es una mesa sin texto, interactuar abre un cajÃ³n (simulado)
-                        printTypewriter("[CAJON]: Esta vacio o atascado.");
-                    }
-                }
-            }
-            
-            // Procesar animaciones de puertas
-        if (door1Opening && door1Anim < 90.0f) {
-            door1Anim += 120.0f * deltaTime; // Abre a 120 grados por segundo
-            if (door1Anim > 90.0f) door1Anim = 90.0f;
-        }
-        if (door2Opening && door2Anim < 90.0f) {
-            door2Anim += 120.0f * deltaTime;
-            if (door2Anim > 90.0f) door2Anim = 90.0f;
-        }
-
-        // DRAW CALLS
-            else if (entity.type == 2 && portalActivado) {
-                float entityLookAngle = glm::dot(cameraFront, -realDirToEntity);
-                
-                if (entityLookAngle < 0.5f) { // Se mueve si no la miras
-                    float speed = 4.5f * deltaTime; 
-                    if (!checkCollision(entity.pos.x + realDirToEntity.x * speed, entity.pos.z)) entity.pos.x += realDirToEntity.x * speed;
-                    if (!checkCollision(entity.pos.x, entity.pos.z + realDirToEntity.z * speed)) entity.pos.z += realDirToEntity.z * speed;
-                    entity.pos.y = 0.0f; 
-                }
-                
-                if (distancia < 0.9f) {
-                    gameState = GAMEOVER;
-                    std::cout << "\n=========================================================" << std::endl;
-                    printTypewriter("ESCENA 9: FALLO TOTAL");
-                    std::cout << "La silueta humanoide se retuerce frente a ti." << std::endl;
-                    std::cout << "Sus facciones se asientan. Son... las tuyas." << std::endl;
-                    std::cout << "La entidad ha imitado perfectamente tu postura." << std::endl;
-                    printTypewriter("COPIA COMPLETA. HAS SIDO REEMPLAZADO.");
-                    std::cout << "=========================================================\n" << std::endl;
-                }
-            }
-        }
-    }
-}
-
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
-    if (gameState != PLAYING || !isCursorLocked) return;
-
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-
-    if (firstMouse) {
-        lastX = xpos; lastY = ypos; firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; 
-    lastX = xpos; lastY = ypos;
-
-    float sensitivity = 0.15f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw   += xoffset;
-    pitch += yoffset;
-
-    if (pitch > 89.0f) pitch = 89.0f;
-    if (pitch < -89.0f) pitch = -89.0f;
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(front);
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
-
-
 #include "gltf_model.h"
-void printNodeHierarchy(const aiNode* node, int depth) {
-    if (!node || depth > 12) return;
-    for (int i = 0; i < depth; i++) std::cout << "  ";
-    aiVector3D scaling, position;
-    aiQuaternion rotation;
-    node->mTransformation.Decompose(scaling, rotation, position);
-    std::cout << "- Node: " << node->mName.C_Str() << " | Pos: (" << position.x << ", " << position.y << ", " << position.z 
-              << ") | Scale: (" << scaling.x << ", " << scaling.y << ", " << scaling.z << ")" << std::endl;
-    for (unsigned int i = 0; i < node->mNumChildren; i++) {
-        printNodeHierarchy(node->mChildren[i], depth + 1);
+
+static const char* getEntityTypeLabel(int type) {
+    switch (type) {
+        case 0: return "Log";
+        case 1: return "Bateria";
+        case 2: return "Entidad";
+        case 3: return "Cable/Pista";
+        case 4: return "Mesa";
+        case 5: return "Monitor";
+        case 6: return "Maquina";
+        case 7: return "Portal";
+        case 8: return "Tarjeta Nv1";
+        case 9: return "Tarjeta Nv2";
+        default: return "Desconocido";
+    }
+}
+
+static bool isCollectibleEntityType(int type) {
+    return type == 0 || type == 1 || type == 8 || type == 9;
+}
+
+static bool isInspectableEntityType(int type) {
+    return type == 3 || type == 4 || type == 5 || type == 6 || type == 7;
+}
+
+static int findFocusedEntityIndex(float* outDistance = nullptr, float* outLookAngle = nullptr) {
+    int focusedIndex = -1;
+    float bestScore = -9999.0f;
+
+    for (int i = 0; i < (int)gameEntities.size(); ++i) {
+        const Entity& entity = gameEntities[i];
+        if (!entity.active) continue;
+
+        float distance = glm::length(entity.pos - cameraPos);
+        glm::vec3 dir = glm::normalize(entity.pos - cameraPos);
+        float lookAngle = glm::dot(cameraFront, dir);
+
+        bool valid = false;
+        if (isCollectibleEntityType(entity.type)) valid = distance < 2.0f;
+        else if (isInspectableEntityType(entity.type)) valid = distance < 3.0f && lookAngle > 0.80f;
+        else if (entity.type == 2) valid = distance < 12.0f;
+
+        if (!valid) continue;
+
+        float score = lookAngle * 10.0f - distance;
+        if (score > bestScore) {
+            bestScore = score;
+            focusedIndex = i;
+            if (outDistance) *outDistance = distance;
+            if (outLookAngle) *outLookAngle = lookAngle;
+        }
+    }
+
+    return focusedIndex;
+}
+
+static bool findDoorAhead(int& gridX, int& gridZ, int& blockType, float distance = 1.5f) {
+    glm::vec3 checkPos = cameraPos + cameraFront * distance;
+    gridX = (int)round(checkPos.x);
+    gridZ = (int)round(checkPos.z);
+    blockType = 0;
+
+    if (gridX < 0 || gridX >= MAP_WIDTH || gridZ < 0 || gridZ >= MAP_HEIGHT) return false;
+    blockType = worldMap[gridZ][gridX];
+    return blockType == 8 || blockType == 9 || blockType == -8 || blockType == -9;
+}
+
+static const char* getDoorDebugLabel(int blockType) {
+    switch (blockType) {
+        case 8: return "Puerta Nv1 cerrada";
+        case -8: return "Puerta Nv1 abierta";
+        case 9: return "Puerta Nv2 cerrada";
+        case -9: return "Puerta Nv2 abierta";
+        default: return "Sin puerta";
     }
 }
 
@@ -1176,6 +585,27 @@ int main() {
     int emissiveStrengthLoc = glGetUniformLocation(shaderProgram, "emissiveStrength");
     
     std::vector<glm::mat4> gnomeBoneTransforms;
+    glm::vec3 gnomePos = glm::vec3(4.1f, -0.4f, 4.0f);
+    float gnomeStunTimer = 0.0f;
+    bool isGnomeActive = true;
+    unsigned int gnomeTexture = 0;
+    bool gnomeTextureFailed = false;
+    int gnomeDebugAnimIndex = 0;
+    float gnomeAnimSpeed = 1.0f;
+    bool gnomeAnimLoop = true;
+    float gnomeAnimPreviewTime = 0.0f;
+    bool gnomeForceAnimation = false;
+
+    glm::vec3 debugSpawnPos = cameraPos;
+    float debugSpawnYaw = yaw;
+    float debugSpawnPitch = pitch;
+    bool showCollisionViewer = false;
+    bool showInteractionDebugger = true;
+    bool showAnimationTester = true;
+    bool showSpawnInspector = true;
+    bool collisionShowWalls = true;
+    bool collisionShowProps = true;
+    float collisionViewerRadius = 8.0f;
 
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
@@ -1398,17 +828,11 @@ int main() {
 
         // --- LÃ“GICA Y DIBUJO DEL GNOMO ACOSADOR (AI) ---
         if (gnomeGLTF) {
-            static glm::vec3 gnomePos = glm::vec3(4.1f, -0.4f, 4.0f);
-            static float stunTimer = 0.0f;
-            static bool isGnomeActive = true;
-            static unsigned int gnomeTexture = 0;
-
-            static bool textureFailed = false;
             // Cargar textura una sola vez si no existe
-            if (gnomeTexture == 0 && !textureFailed) {
+            if (gnomeTexture == 0 && !gnomeTextureFailed) {
                 gnomeTexture = loadTexture("assets/Gnome_Albedo.png"); 
                 if (gnomeTexture == 0) {
-                    textureFailed = true;
+                    gnomeTextureFailed = true;
                     std::cout << "[SISTEMA] No se encontró assets/Gnome_Albedo.png. El gnomo usará sus colores por defecto." << std::endl;
                 }
             }
@@ -1429,13 +853,13 @@ int main() {
 
                 // 2. LÃ“GICA DEL TEMPORIZADOR
                 if (beingLookedAt) {
-                    stunTimer += deltaTime;
-                    if (stunTimer >= 2.0f) {
+                    gnomeStunTimer += deltaTime;
+                    if (gnomeStunTimer >= 2.0f) {
                         isGnomeActive = false; // El gnomo se asusta y desaparece (o se detiene)
                         std::cout << "[SISTEMA]: Gnomo ahuyentado por la luz   ." << std::endl;
                     }
                 } else {
-                    stunTimer = (std::max)(0.0f, stunTimer - deltaTime); // El timer baja si dejas de mirarlo
+                    gnomeStunTimer = (std::max)(0.0f, gnomeStunTimer - deltaTime); // El timer baja si dejas de mirarlo
                 }
 
                 // 3. MOVIMIENTO (Solo si NO lo está mirando o no ha sido aturdido)
@@ -1451,8 +875,6 @@ int main() {
                 // 4. RENDERIZADO
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
                 
-                float gnomeTime = (float)glfwGetTime();
-
                 bool hasSkinningBones = gnomeGLTF->CountBonesInMeshes() > 0;
 
                 glm::mat4 gnomeModel = glm::mat4(1.0f);
@@ -1491,15 +913,31 @@ int main() {
                 if (moveAnimIndex < 0) moveAnimIndex = idleAnimIndex;
 
                 int currentAnimIndex = idleAnimIndex;
-                if (beingLookedAt) {
-                    currentAnimIndex = stunAnimIndex;
-                } else if (isMoving) {
-                    currentAnimIndex = moveAnimIndex;
+                if (gnomeForceAnimation && animCount > 0) {
+                    if (gnomeDebugAnimIndex < 0) gnomeDebugAnimIndex = 0;
+                    if (gnomeDebugAnimIndex >= animCount) gnomeDebugAnimIndex = animCount - 1;
+                    currentAnimIndex = gnomeDebugAnimIndex;
+                } else {
+                    if (beingLookedAt) {
+                        currentAnimIndex = stunAnimIndex;
+                    } else if (isMoving) {
+                        currentAnimIndex = moveAnimIndex;
+                    }
+                }
+
+                float gnomeAnimLength = currentAnimIndex >= 0 ? gnomeGLTF->GetAnimationLengthSeconds(currentAnimIndex) : 0.0f;
+                float gnomeRenderTime = currentFrame * gnomeAnimSpeed;
+                if (gnomeForceAnimation) {
+                    if (gnomeAnimLoop && gnomeAnimLength > 0.0f) {
+                        gnomeRenderTime = fmod(gnomeAnimPreviewTime, gnomeAnimLength);
+                    } else {
+                        gnomeRenderTime = gnomeAnimPreviewTime;
+                    }
                 }
 
                 // Actualizar y enviar matrices de huesos para skinning (solo si el modelo realmente trae huesos)
                 if (hasSkinningBones) {
-                    gnomeGLTF->UpdateAnimation(gnomeTime, gnomeBoneTransforms, currentAnimIndex);
+                    gnomeGLTF->UpdateAnimation(gnomeRenderTime, gnomeBoneTransforms, currentAnimIndex);
                     if (finalBonesLoc >= 0 && !gnomeBoneTransforms.empty()) {
                         glUniformMatrix4fv(finalBonesLoc, (GLsizei)gnomeBoneTransforms.size(), GL_FALSE, glm::value_ptr(gnomeBoneTransforms[0]));
                     }
@@ -1514,7 +952,7 @@ int main() {
                     gnomeGLTF->Draw(shaderProgram, solidColorLoc);
                 } else {
                     // Fallback para modelos sin pesos de hueso exportados
-                    gnomeGLTF->DrawAnimated(gnomeTime, currentAnimIndex, shaderProgram, modelLoc, -1, gnomeModel);
+                    gnomeGLTF->DrawAnimated(gnomeRenderTime, currentAnimIndex, shaderProgram, modelLoc, -1, gnomeModel);
                 }
             }
         }
@@ -1829,6 +1267,64 @@ int main() {
             }
         }
 
+        if (showCollisionViewer) {
+            glBindVertexArray(VAO);
+            glBindTexture(GL_TEXTURE_2D, wallTex1);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glDisable(GL_CULL_FACE);
+            glLineWidth(2.0f);
+
+            if (collisionShowWalls) {
+                for (int z = 0; z < MAP_HEIGHT; ++z) {
+                    for (int x = 0; x < MAP_WIDTH; ++x) {
+                        int blockType = worldMap[z][x];
+                        if (blockType <= 0) continue;
+
+                        glm::vec2 cellCenter((float)x, (float)z);
+                        if (glm::length(cellCenter - glm::vec2(cameraPos.x, cameraPos.z)) > collisionViewerRadius) continue;
+
+                        float scaleX = wallWidth;
+                        float scaleZ = wallWidth;
+                        bool hasLeft = (x > 0 && worldMap[z][x - 1] > 0);
+                        bool hasRight = (x < MAP_WIDTH - 1 && worldMap[z][x + 1] > 0);
+                        bool hasUp = (z > 0 && worldMap[z - 1][x] > 0);
+                        bool hasDown = (z < MAP_HEIGHT - 1 && worldMap[z + 1][x] > 0);
+                        if (hasLeft || hasRight) scaleX = 1.0f;
+                        if (hasUp || hasDown) scaleZ = 1.0f;
+
+                        glm::mat4 debugModel = glm::mat4(1.0f);
+                        debugModel = glm::translate(debugModel, glm::vec3((float)x, (wallHeight - 1.0f) * 0.5f, (float)z));
+                        debugModel = glm::scale(debugModel, glm::vec3(scaleX + 0.02f, wallHeight + 0.02f, scaleZ + 0.02f));
+                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
+
+                        if (blockType == 8 || blockType == 9) glUniform3f(colorLoc, 1.0f, 0.4f, 0.1f);
+                        else glUniform3f(colorLoc, 0.1f, 1.0f, 0.2f);
+
+                        glDrawArrays(GL_TRIANGLES, 0, 36);
+                    }
+                }
+            }
+
+            if (collisionShowProps) {
+                for (const auto& entity : gameEntities) {
+                    if (!entity.active) continue;
+                    if (entity.type != 4 && entity.type != 6) continue;
+                    if (glm::length(glm::vec2(entity.pos.x - cameraPos.x, entity.pos.z - cameraPos.z)) > collisionViewerRadius) continue;
+
+                    glm::vec3 scale = (entity.type == 4) ? glm::vec3(1.6f, 1.0f, 1.2f) : glm::vec3(1.2f, 2.2f, 1.2f);
+                    glm::mat4 debugModel = glm::mat4(1.0f);
+                    debugModel = glm::translate(debugModel, glm::vec3(entity.pos.x, entity.pos.y + 0.2f, entity.pos.z));
+                    debugModel = glm::scale(debugModel, scale);
+                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
+                    glUniform3f(colorLoc, 1.0f, 0.9f, 0.2f);
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                }
+            }
+
+            glLineWidth(1.0f);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+
         // --- DIBUJAR ENTIDADES 2D ---
         glBindVertexArray(quadVAO);
         glDisable(GL_CULL_FACE);
@@ -2005,6 +1501,261 @@ int main() {
        
 
         ImGui::End();
+
+        static int selectedEntityIndex = 0;
+        static bool entityOnlyCollectibles = false;
+        if (!gameEntities.empty()) {
+            if (selectedEntityIndex < 0) selectedEntityIndex = 0;
+            if (selectedEntityIndex >= (int)gameEntities.size()) selectedEntityIndex = (int)gameEntities.size() - 1;
+        }
+
+        ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 350.0f, 360.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(340.0f, 330.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.78f);
+        ImGui::Begin("Editor Entidades", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Text("Mover pickups y props en runtime");
+        ImGui::Separator();
+
+        if (gameEntities.empty()) {
+            ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "No hay entidades cargadas.");
+        } else {
+            ImGui::Checkbox("Solo pickups clave", &entityOnlyCollectibles);
+
+            if (ImGui::BeginListBox("Entidades", ImVec2(0.0f, 120.0f))) {
+                for (int i = 0; i < (int)gameEntities.size(); ++i) {
+                    const Entity& entity = gameEntities[i];
+                    if (entityOnlyCollectibles && !(entity.type == 0 || entity.type == 1 || entity.type == 8 || entity.type == 9)) continue;
+
+                    std::string label = std::to_string(i) + " - " + getEntityTypeLabel(entity.type);
+                    label += entity.active ? " [ON]" : " [OFF]";
+                    if (!entity.text.empty()) label += " *";
+
+                    bool isSelected = (selectedEntityIndex == i);
+                    if (ImGui::Selectable(label.c_str(), isSelected)) selectedEntityIndex = i;
+                    if (isSelected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndListBox();
+            }
+
+            Entity& selectedEntity = gameEntities[selectedEntityIndex];
+            ImGui::Text("Tipo: %s", getEntityTypeLabel(selectedEntity.type));
+            ImGui::Text("Indice: %d", selectedEntityIndex);
+            ImGui::Checkbox("Activa", &selectedEntity.active);
+            ImGui::DragFloat3("Posicion", &selectedEntity.pos.x, 0.05f);
+            ImGui::DragFloat("Seed", &selectedEntity.seed, 0.05f, -100.0f, 100.0f);
+
+            if (ImGui::Button("Traer frente a camara")) {
+                selectedEntity.pos = cameraPos + cameraFront * 1.2f;
+                selectedEntity.pos.y = cameraPos.y - 0.2f;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Ir a entidad")) {
+                cameraPos = selectedEntity.pos - glm::normalize(cameraFront) * 1.5f;
+                cameraPos.y = baseCameraY;
+            }
+
+            std::string exportLine =
+                "{glm::vec3(" + std::to_string(selectedEntity.pos.x) + "f, " +
+                std::to_string(selectedEntity.pos.y) + "f, " +
+                std::to_string(selectedEntity.pos.z) + "f), " +
+                std::to_string(selectedEntity.type) + ", " +
+                (selectedEntity.active ? "true" : "false") + ", \"" +
+                selectedEntity.text + "\", " +
+                std::to_string(selectedEntity.seed) + "f},";
+
+            ImGui::Separator();
+            ImGui::TextWrapped("Export rapido:");
+            ImGui::InputTextMultiline("##entity_export", exportLine.data(), exportLine.size() + 1, ImVec2(0.0f, 70.0f), ImGuiInputTextFlags_ReadOnly);
+            if (ImGui::Button("Copiar linea")) {
+                ImGui::SetClipboardText(exportLine.c_str());
+            }
+
+            if (!selectedEntity.text.empty()) {
+                ImGui::Separator();
+                ImGui::TextWrapped("Texto:");
+                ImGui::BeginChild("entity_text_preview", ImVec2(0.0f, 45.0f), true);
+                ImGui::TextWrapped("%s", selectedEntity.text.c_str());
+                ImGui::EndChild();
+            }
+        }
+
+        ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2(10.0f, 70.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(240.0f, 205.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.62f);
+        ImGui::Begin("Debug Juego", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Text("Zona: %d", currentZone);
+        ImGui::Text("Baterias: %d / 3", bateriasRecolectadas);
+        ImGui::Text("Tarjeta N1: %s", hasKeycardLvl1 ? "SI" : "NO");
+        ImGui::Text("Tarjeta N2: %s", hasKeycardLvl2 ? "SI" : "NO");
+        ImGui::Text("Portal: %s", portalActivado ? "ACTIVO" : "INACTIVO");
+        ImGui::Text("Dimension: %s", dimensionAlterna ? "ALTERNA" : "NORMAL");
+        ImGui::Separator();
+        ImGui::Checkbox("Collision Viewer", &showCollisionViewer);
+        ImGui::Checkbox("Interaction Debug", &showInteractionDebugger);
+        ImGui::Checkbox("Animation Tester", &showAnimationTester);
+        ImGui::Checkbox("Spawn Inspector", &showSpawnInspector);
+        ImGui::End();
+
+        if (showInteractionDebugger) {
+            float focusedDistance = 0.0f;
+            float focusedAngle = 0.0f;
+            int focusedIndex = findFocusedEntityIndex(&focusedDistance, &focusedAngle);
+            int doorGridX = 0;
+            int doorGridZ = 0;
+            int doorBlockType = 0;
+            bool hasDoorAhead = findDoorAhead(doorGridX, doorGridZ, doorBlockType);
+
+            ImGui::SetNextWindowPos(ImVec2(10.0f, 285.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(290.0f, 220.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.72f);
+            ImGui::Begin("Interaction Debugger", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            ImGui::Text("Camara dir: %.2f %.2f %.2f", cameraFront.x, cameraFront.y, cameraFront.z);
+            ImGui::Separator();
+
+            if (focusedIndex >= 0) {
+                const Entity& focusedEntity = gameEntities[focusedIndex];
+                ImGui::Text("Entidad enfocada: %d", focusedIndex);
+                ImGui::Text("Tipo: %s", getEntityTypeLabel(focusedEntity.type));
+                ImGui::Text("Distancia: %.2f", focusedDistance);
+                ImGui::Text("Dot mira: %.3f", focusedAngle);
+                if (!focusedEntity.text.empty()) {
+                    ImGui::TextWrapped("Texto: %s", focusedEntity.text.c_str());
+                }
+            } else {
+                ImGui::TextColored(ImVec4(1.0f, 0.7f, 0.3f, 1.0f), "No hay entidad enfocada.");
+            }
+
+            ImGui::Separator();
+            if (hasDoorAhead) {
+                bool hasAccess = (doorBlockType == 8 || doorBlockType == -8) ? hasKeycardLvl1 : hasKeycardLvl2;
+                ImGui::Text("Puerta enfrente: %s", getDoorDebugLabel(doorBlockType));
+                ImGui::Text("Celda: %d, %d", doorGridX, doorGridZ);
+                ImGui::Text("Acceso actual: %s", hasAccess ? "SI" : "NO");
+            } else {
+                ImGui::Text("Puerta enfrente: no");
+            }
+            ImGui::End();
+        }
+
+        if (showAnimationTester) {
+            ImGui::SetNextWindowPos(ImVec2(260.0f, 70.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(310.0f, 300.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.78f);
+            ImGui::Begin("Animation Tester", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            if (!gnomeGLTF) {
+                ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "No se cargo gnome.glb");
+            } else {
+                int animCount = gnomeGLTF->GetAnimationCount();
+                ImGui::Text("Gnomo activo: %s", isGnomeActive ? "SI" : "NO");
+                ImGui::DragFloat3("Gnomo Pos", &gnomePos.x, 0.05f);
+                ImGui::Checkbox("Forzar animacion", &gnomeForceAnimation);
+                ImGui::SliderFloat("Velocidad", &gnomeAnimSpeed, 0.0f, 3.0f, "%.2f");
+                ImGui::Checkbox("Loop manual", &gnomeAnimLoop);
+
+                if (animCount > 0) {
+                    if (gnomeDebugAnimIndex < 0) gnomeDebugAnimIndex = 0;
+                    if (gnomeDebugAnimIndex >= animCount) gnomeDebugAnimIndex = animCount - 1;
+
+                    ImGui::SliderInt("Indice anim", &gnomeDebugAnimIndex, 0, animCount - 1);
+                    std::string animName = gnomeGLTF->GetAnimationName(gnomeDebugAnimIndex);
+                    float animLength = gnomeGLTF->GetAnimationLengthSeconds(gnomeDebugAnimIndex);
+                    if (animName.empty()) animName = "(sin nombre)";
+                    ImGui::TextWrapped("Anim actual: %s", animName.c_str());
+                    ImGui::Text("Duracion aprox: %.2f s", animLength);
+
+                    float maxPreviewTime = animLength > 0.05f ? animLength : 10.0f;
+                    if (gnomeAnimPreviewTime > maxPreviewTime) gnomeAnimPreviewTime = maxPreviewTime;
+                    ImGui::SliderFloat("Pose / tiempo", &gnomeAnimPreviewTime, 0.0f, maxPreviewTime, "%.2f s");
+
+                    if (ImGui::Button("Reset pose")) {
+                        gnomeAnimPreviewTime = 0.0f;
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Frente a camara")) {
+                        gnomePos = cameraPos + cameraFront * 2.0f;
+                        gnomePos.y = -0.4f;
+                    }
+                } else {
+                    ImGui::TextColored(ImVec4(1.0f, 0.7f, 0.3f, 1.0f), "El modelo no trae animaciones.");
+                }
+            }
+            ImGui::End();
+        }
+
+        if (showSpawnInspector) {
+            auto teleportNear = [&](const glm::vec3& target) {
+                cameraPos = target + glm::vec3(0.0f, 0.0f, 1.8f);
+                cameraPos.y = baseCameraY;
+                updateZone();
+            };
+
+            auto findEntityByType = [&](int type) -> int {
+                for (int i = 0; i < (int)gameEntities.size(); ++i) {
+                    if (gameEntities[i].type == type && gameEntities[i].active) return i;
+                }
+                return -1;
+            };
+
+            ImGui::SetNextWindowPos(ImVec2(260.0f, 380.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(310.0f, 250.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.78f);
+            ImGui::Begin("Spawn Inspector", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            ImGui::Text("Spawn guardado");
+            ImGui::Text("Pos: %.1f %.1f %.1f", debugSpawnPos.x, debugSpawnPos.y, debugSpawnPos.z);
+            ImGui::Text("Yaw/Pitch: %.1f / %.1f", debugSpawnYaw, debugSpawnPitch);
+            if (ImGui::Button("Guardar actual")) {
+                debugSpawnPos = cameraPos;
+                debugSpawnYaw = yaw;
+                debugSpawnPitch = pitch;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Ir a guardado")) {
+                cameraPos = debugSpawnPos;
+                yaw = debugSpawnYaw;
+                pitch = debugSpawnPitch;
+                updateZone();
+            }
+
+            ImGui::Separator();
+            if (ImGui::Button("Inicio")) {
+                cameraPos = glm::vec3(6.0f, baseCameraY, 5.0f);
+                yaw = -90.0f;
+                pitch = 0.0f;
+                updateZone();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Gnomo")) {
+                teleportNear(gnomePos);
+            }
+
+            int yellowKeycardIndex = findEntityByType(8);
+            int redKeycardIndex = findEntityByType(9);
+            int portalIndex = findEntityByType(7);
+
+            if (ImGui::Button("Tarjeta amarilla") && yellowKeycardIndex >= 0) teleportNear(gameEntities[yellowKeycardIndex].pos);
+            ImGui::SameLine();
+            if (ImGui::Button("Tarjeta roja") && redKeycardIndex >= 0) teleportNear(gameEntities[redKeycardIndex].pos);
+
+            if (ImGui::Button("Portal") && portalIndex >= 0) teleportNear(gameEntities[portalIndex].pos);
+            ImGui::SameLine();
+            if (!gameEntities.empty() && ImGui::Button("Entidad seleccionada")) {
+                teleportNear(gameEntities[selectedEntityIndex].pos);
+            }
+            ImGui::End();
+        }
+
+        if (showCollisionViewer) {
+            ImGui::SetNextWindowPos(ImVec2(10.0f, 515.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(290.0f, 120.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.72f);
+            ImGui::Begin("Collision Viewer", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            ImGui::Checkbox("Paredes", &collisionShowWalls);
+            ImGui::Checkbox("Props bloqueantes", &collisionShowProps);
+            ImGui::SliderFloat("Radio", &collisionViewerRadius, 2.0f, 20.0f, "%.1f");
+            ImGui::End();
+        }
 
 
         if (hudMessageTimer > 0.0f) {
