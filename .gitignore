@@ -10,6 +10,7 @@ build_win/
 
 app
 app.dSYM/
+imgui.ini
 
 # VS y CMake generados locales
 .vs/
