@@ -14,11 +14,12 @@ inline constexpr int MAP_HEIGHT = 50;
 enum GameState { MENU, PLAYING, GAMEOVER };
 
 struct Entity {
-    glm::vec3 pos;
-    int type; // 0=Log, 1=Bateria, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa, 5=Monitor, 6=Maquina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
-    bool active;
-    std::string text;
-    float seed;
+  glm::vec3 pos;
+  int type; // 0=Log, 1=Bateria, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa,
+            // 5=Monitor, 6=Maquina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
+  bool active;
+  std::string text;
+  float seed;
 };
 
 extern std::string currentHUDMessage;
@@ -116,9 +117,15 @@ extern bool portalActivado;
 extern int currentZone;
 
 class GLTFModel;
-extern GLTFModel* banoGLTF;
-extern GLTFModel* lavamanosGLTF;
-extern GLTFModel* urinarioGLTF;
+extern GLTFModel *banoGLTF;
+extern GLTFModel *lavamanosGLTF;
+extern GLTFModel *urinarioGLTF;
+// area de contencion
+extern GLTFModel *teslaGLTF;
+
+extern glm::vec3 teslaPos;
+extern glm::vec3 teslaRot;
+extern glm::vec3 teslaScale;
 
 extern std::vector<Entity> gameEntities;
 
