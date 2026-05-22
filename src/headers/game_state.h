@@ -122,10 +122,18 @@ extern GLTFModel *lavamanosGLTF;
 extern GLTFModel *urinarioGLTF;
 // area de contencion
 extern GLTFModel *teslaGLTF;
-
 extern glm::vec3 teslaPos;
 extern glm::vec3 teslaRot;
 extern glm::vec3 teslaScale;
+
+struct WallDef {
+    glm::vec3 pos;
+    glm::vec3 rot;
+    glm::vec3 scale;
+};
+
+extern GLTFModel *paredesGLTF;
+extern std::vector<WallDef> paredesList;
 
 extern std::vector<Entity> gameEntities;
 
