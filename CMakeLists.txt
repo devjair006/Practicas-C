@@ -41,6 +41,8 @@ endif()
 # Fuentes
 set(SOURCES
     src/main.cpp
+    src/game_state.cpp
+    src/gameplay.cpp
     src/glad.c
     include/imgui/imgui.cpp
     include/imgui/imgui_draw.cpp
