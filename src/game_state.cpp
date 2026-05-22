@@ -127,19 +127,15 @@ glm::vec3 teslaScale(0.150f, 0.120f, 0.090f);
 
 std::vector<WallDef> paredesList = {
     // pared sur
-    {glm::vec3(48.750f, -0.500f, 14.500f),
+    {glm::vec3(48.750f, -0.500f, 15.500f),
      glm::vec3(-90.000f, 1.000f, -88.500f), glm::vec3(1.040f, 0.090f, 0.520f)},
-    {glm::vec3(48.750f, -0.500f, 16.500f),
-     glm::vec3(-90.000f, 1.000f, -88.500f), glm::vec3(1.040f, 0.090f, 0.520f)},
-    {glm::vec3(48.750f, -0.500f, 18.500f),
+    {glm::vec3(48.750f, -0.500f, 17.500f),
      glm::vec3(-90.000f, 1.000f, -88.500f), glm::vec3(1.040f, 0.090f, 0.520f)},
 
     // pared norte
-    {glm::vec3(34.250f, -0.500f, 14.500f), glm::vec3(-90.000f, 1.000f, 91.500f),
+    {glm::vec3(34.250f, -0.500f, 15.500f), glm::vec3(-90.000f, 1.000f, 91.500f),
      glm::vec3(1.040f, 0.090f, 0.520f)},
-    {glm::vec3(34.250f, -0.500f, 16.500f), glm::vec3(-90.000f, 1.000f, 91.500f),
-     glm::vec3(1.040f, 0.090f, 0.520f)},
-    {glm::vec3(34.250f, -0.500f, 18.500f), glm::vec3(-90.000f, 1.000f, 91.500f),
+    {glm::vec3(34.250f, -0.500f, 17.500f), glm::vec3(-90.000f, 1.000f, 91.500f),
      glm::vec3(1.040f, 0.090f, 0.520f)}};
 
 std::vector<Entity> gameEntities = {
