@@ -499,12 +499,12 @@ int main() {
     GLTFModel* mirrorGLTF = new GLTFModel("assets/mirror.glb");
     GLTFModel* ligthbathroom2GLTF = new GLTFModel("assets/ligthbathroom.glb");
     GLTFModel* ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
-    GLTFModel* banoGLTF = new GLTFModel("assets/Bano.glb");
+    banoGLTF = new GLTFModel("assets/Bano.glb");
     GLTFModel* bano2GLTF = new GLTFModel("assets/Bano.glb");
     GLTFModel* bano3GLTF = new GLTFModel("assets/Bano.glb");
     GLTFModel* bano4GLTF = new GLTFModel("assets/Bano.glb");
-    GLTFModel* lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
-    GLTFModel* urinarioGLTF = new GLTFModel("assets/urinario.glb");
+    lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
+    urinarioGLTF = new GLTFModel("assets/urinario.glb");
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
               << "Bano(" << banoGLTF->meshes.size() << "), "

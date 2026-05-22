@@ -1,6 +1,10 @@
 #ifndef GLTF_MODEL_H
 #define GLTF_MODEL_H
 
+#ifndef GLM_ENABLE_EXPERIMENTAL
+#define GLM_ENABLE_EXPERIMENTAL
+#endif
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -15,6 +19,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cctype>
+#include "headers/texture.h"
 
 #define MAX_BONES 100
 #define MAX_BONE_INFLUENCE 4
@@ -43,6 +48,11 @@ struct GLTFVertex {
 struct BoneInfo {
     int id;
     glm::mat4 offset;
+};
+
+struct AABB {
+    glm::vec3 min;
+    glm::vec3 max;
 };
 
 // Declaración global para que main.cpp pueda usarla
@@ -115,6 +125,45 @@ public:
     const aiScene* m_Scene = nullptr;
     glm::mat4 m_GlobalInverseTransform;
     Assimp::Importer m_Importer; // Ahora es persistente
+
+    AABB localAABB;
+
+    void CalculateLocalAABB() {
+        if (meshes.empty()) return;
+        glm::vec3 minPoint(1e9f);
+        glm::vec3 maxPoint(-1e9f);
+        for (const auto& mesh : meshes) {
+            for (const auto& vertex : mesh.vertices) {
+                minPoint = (glm::min)(minPoint, vertex.Position);
+                maxPoint = (glm::max)(maxPoint, vertex.Position);
+            }
+        }
+        localAABB.min = minPoint;
+        localAABB.max = maxPoint;
+    }
+
+    AABB GetWorldAABB(const glm::mat4& modelMatrix) const {
+        glm::vec3 min = localAABB.min;
+        glm::vec3 max = localAABB.max;
+        glm::vec3 corners[8] = {
+            glm::vec3(min.x, min.y, min.z),
+            glm::vec3(min.x, min.y, max.z),
+            glm::vec3(min.x, max.y, min.z),
+            glm::vec3(min.x, max.y, max.z),
+            glm::vec3(max.x, min.y, min.z),
+            glm::vec3(max.x, min.y, max.z),
+            glm::vec3(max.x, max.y, min.z),
+            glm::vec3(max.x, max.y, max.z)
+        };
+        glm::vec3 worldMin(1e9f);
+        glm::vec3 worldMax(-1e9f);
+        for (int i = 0; i < 8; i++) {
+            glm::vec3 worldCorner = glm::vec3(modelMatrix * glm::vec4(corners[i], 1.0f));
+            worldMin = (glm::min)(worldMin, worldCorner);
+            worldMax = (glm::max)(worldMax, worldCorner);
+        }
+        return { worldMin, worldMax };
+    }
 
     GLTFModel(std::string path) {
         loadModel(path);
@@ -275,6 +324,8 @@ private:
         m_GlobalInverseTransform = glm::inverse(m_GlobalInverseTransform);
 
         processNode(scene->mRootNode, scene);
+        
+        CalculateLocalAABB();
         
         std::cout << "[SISTEMA] Huesos cargados en m_BoneInfoMap: " << m_BoneInfoMap.size() << std::endl;
         

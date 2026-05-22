@@ -114,6 +114,10 @@ bool dimensionAlterna = false;
 bool portalActivado = false;
 int currentZone = 1;
 
+GLTFModel* banoGLTF = nullptr;
+GLTFModel* lavamanosGLTF = nullptr;
+GLTFModel* urinarioGLTF = nullptr;
+
 std::vector<Entity> gameEntities = {
     {glm::vec3(8.0f, -0.4f, 4.0f), 3, true, "[CABLE SUELTO]:Hay un cable pelado aqui.", 0.0f},
     {glm::vec3(20.0f, -0.4f, 5.0f), 0, true, "LOG 1 (Arrugado): 'Apagon general. Las compuertas se bloquearon.'", 0.0f},

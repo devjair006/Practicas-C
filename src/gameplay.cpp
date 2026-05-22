@@ -10,6 +10,20 @@
 #include <glm/glm.hpp>
 
 #include "headers/game_state.h"
+#include "gltf_model.h"
+
+bool checkSphereAABBCollision(glm::vec3 sphereCenter, float radius, AABB box) {
+    float closestX = glm::max(box.min.x, glm::min(sphereCenter.x, box.max.x));
+    float closestY = glm::max(box.min.y, glm::min(sphereCenter.y, box.max.y));
+    float closestZ = glm::max(box.min.z, glm::min(sphereCenter.z, box.max.z));
+
+    float dx = sphereCenter.x - closestX;
+    float dy = sphereCenter.y - closestY;
+    float dz = sphereCenter.z - closestZ;
+    float distanceSq = dx * dx + dy * dy + dz * dz;
+
+    return distanceSq <= (radius * radius);
+}
 
 bool checkCollision(float x, float z) {
     float playerRadius = 0.25f;
@@ -55,6 +69,58 @@ bool checkCollision(float x, float z) {
         if (entity.type == 4 || entity.type == 6) {
             float dist = glm::length(glm::vec2(x - entity.pos.x, z - entity.pos.z));
             if (dist < 0.8f) return true;
+        }
+    }
+
+    // --- COLISIÓN CON PROPS DE BAÑO GLB (AABB) ---
+    glm::vec3 playerPos(x, cameraPos.y, z);
+
+    if (banoGLTF && !banoGLTF->meshes.empty()) {
+        glm::vec3 positions[4] = { banoPos, banoPos2, banoPos3, banoPos4 };
+        glm::vec3 rotations[4] = { banoRot, banoRot2, banoRot3, banoRot4 };
+        glm::vec3 scales[4] = { banoScale, banoScale2, banoScale3, banoScale4 };
+        for (int i = 0; i < 4; i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, positions[i]);
+            model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::scale(model, scales[i]);
+            AABB worldBox = banoGLTF->GetWorldAABB(model);
+            if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+                return true;
+            }
+        }
+    }
+
+    if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
+        glm::vec3 positions[4] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4 };
+        glm::vec3 rotations[4] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4 };
+        glm::vec3 scales[4] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4 };
+        for (int i = 0; i < 4; i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, positions[i]);
+            model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::scale(model, scales[i]);
+            AABB worldBox = lavamanosGLTF->GetWorldAABB(model);
+            if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+                return true;
+            }
+        }
+    }
+
+    if (urinarioGLTF && !urinarioGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, urinarioPos);
+        model = glm::rotate(model, glm::radians(urinarioRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(urinarioRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(urinarioRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, urinarioScale);
+        AABB worldBox = urinarioGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+            return true;
         }
     }
 

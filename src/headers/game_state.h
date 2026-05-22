@@ -115,6 +115,11 @@ extern bool dimensionAlterna;
 extern bool portalActivado;
 extern int currentZone;
 
+class GLTFModel;
+extern GLTFModel* banoGLTF;
+extern GLTFModel* lavamanosGLTF;
+extern GLTFModel* urinarioGLTF;
+
 extern std::vector<Entity> gameEntities;
 
 extern float wallWidth;
