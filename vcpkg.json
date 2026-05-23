@@ -1,0 +1,8 @@
+{
+  "name": "practicas-opengl",
+  "version-string": "1.0.0",
+  "dependencies": [
+    "assimp"
+  ],
+  "builtin-baseline": "2b65c20fc66eda893aa15a15a453c3cf09500b19"
+}

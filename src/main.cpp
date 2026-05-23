@@ -505,11 +505,15 @@ int main() {
     GLTFModel* bano4GLTF = new GLTFModel("assets/Bano.glb");
     lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
     urinarioGLTF = new GLTFModel("assets/urinario.glb");
+    teslaGLTF = new GLTFModel("assets/contencion/tesla.glb");
+    paredesGLTF = new GLTFModel("assets/contencion/paredes.glb");
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
               << "Bano(" << banoGLTF->meshes.size() << "), "
               << "Lavamanos(" << lavamanosGLTF->meshes.size() << "), "
               << "Urinario(" << urinarioGLTF->meshes.size() << ")" << std::endl;
+    std::cout << "[SISTEMA] Props contención cargados: "
+              << "Tesla(" << teslaGLTF->meshes.size() << ")" << std::endl;
     
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
@@ -1176,6 +1180,30 @@ int main() {
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(urinarioModel));
             urinarioGLTF->Draw(shaderProgram, solidColorLoc);
         }
+
+        if (teslaGLTF && !teslaGLTF->meshes.empty()) {
+            glm::mat4 teslaModel = glm::mat4(1.0f);
+            teslaModel = glm::translate(teslaModel, teslaPos);
+            teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            teslaModel = glm::scale(teslaModel, teslaScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(teslaModel));
+            teslaGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (paredesGLTF && !paredesGLTF->meshes.empty()) {
+            for (const auto& w : paredesList) {
+                glm::mat4 paredesModel = glm::mat4(1.0f);
+                paredesModel = glm::translate(paredesModel, w.pos);
+                paredesModel = glm::rotate(paredesModel, glm::radians(w.rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+                paredesModel = glm::rotate(paredesModel, glm::radians(w.rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+                paredesModel = glm::rotate(paredesModel, glm::radians(w.rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+                paredesModel = glm::scale(paredesModel, w.scale);
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(paredesModel));
+                paredesGLTF->Draw(shaderProgram, solidColorLoc);
+            }
+        }
         glUniform1i(solidColorLoc, 0);
 
         // --- DIBUJAR ENTIDADES 3D ---
@@ -1500,6 +1528,35 @@ int main() {
         ImGui::Separator();
        
 
+        ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 700.0f, 10.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(340.0f, 300.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.75f);
+        ImGui::Begin("Editor Contencion", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Text("Tesla Model");
+        ImGui::DragFloat3("Tesla Pos", &teslaPos.x, 0.05f);
+        ImGui::DragFloat3("Tesla Rot", &teslaRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Tesla Scale", &teslaScale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer Tesla frente a camara")) {
+            teslaPos = cameraPos + cameraFront * 2.0f;
+            teslaPos.y = -0.5f;
+            teslaRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            teslaScale = glm::vec3(0.15f, 0.15f, 0.15f);
+        }
+        ImGui::Separator();
+        ImGui::Text("Paredes Model");
+        if (!paredesList.empty()) {
+            ImGui::DragFloat3("Paredes Pos", &paredesList[0].pos.x, 0.05f);
+            ImGui::DragFloat3("Paredes Rot", &paredesList[0].rot.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("Paredes Scale", &paredesList[0].scale.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer Paredes frente a camara")) {
+                paredesList[0].pos = cameraPos + cameraFront * 2.0f;
+                paredesList[0].pos.y = -0.5f;
+                paredesList[0].rot = glm::vec3(0.0f, 0.0f, 0.0f);
+                paredesList[0].scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+        }
         ImGui::End();
 
         static int selectedEntityIndex = 0;

@@ -124,6 +124,20 @@ bool checkCollision(float x, float z) {
         }
     }
 
+    // --- COLISION CON TESLA GLB ---
+    if (teslaGLTF && !teslaGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, teslaPos);
+        model = glm::rotate(model, glm::radians(teslaRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(teslaRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(teslaRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, teslaScale);
+        AABB worldBox = teslaGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
