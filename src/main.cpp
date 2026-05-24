@@ -516,9 +516,10 @@ int main() {
               << "Tesla(" << teslaGLTF->meshes.size() << ")" << std::endl;
     
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
-    unsigned int wallTex2 = loadTexture("assets/paredes.png");  
-    unsigned int wallTex3 = loadTexture("assets/wall.png");     
-    
+    unsigned int wallTex2 = loadTexture("assets/paredbanosT.png");  
+    unsigned int wallTex3 = loadTexture("assets/wall.png");  
+    unsigned int wallTex4 = loadTexture("assets/paredbanosGT.png");  
+    unsigned int wallTex5 = loadTexture("assets/pisosBanos.png");  
     // Textura de metal generada para las puertas
     unsigned int doorTex = loadTextureWithFallback("assets/puerta_metal.png", 0); 
     
@@ -611,6 +612,27 @@ int main() {
     bool collisionShowProps = true;
     float collisionViewerRadius = 8.0f;
 
+    // --- ZONAS DE HABITACION ---
+    // Cada zona define un rectángulo del worldMap con texturas propias para
+    // paredes, piso y techo. Las coords son celdas del grid (igual que el worldMap).
+    // Tip: camina al cuarto en el juego y lee cameraPos.x / cameraPos.z en el editor
+    // para encontrar las coordenadas exactas del área que quieres cubrir.
+    //
+    //  { x1, z1, x2, z2,  wallTex,  floorTex, ceilColor,               overrideWall, overrideFloor, overrideCeil }
+    std::vector<RoomZone> roomZones = {
+        { 33,  0,  37,  8,  wallTex2, wallTex5,         {0.15f, 0.15f, 0.2f},  true,  true, false  }, // Baños (cambia a tu textura de azulejo)
+        { 38,  0, 41, 8, wallTex4, wallTex5,         {0.15f, 0.15f, 0.2f},  true,  true, false},//banos de girls
+       
+        {}, //pisos
+    };
+
+    auto getZone = [&](int gx, int gz) -> const RoomZone* {
+        for (const auto& rz : roomZones)
+            if (gx >= rz.x1 && gx <= rz.x2 && gz >= rz.z1 && gz <= rz.z2)
+                return &rz;
+        return nullptr;
+    };
+
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -678,21 +700,46 @@ int main() {
         glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
         //espacio donde se le da las luces a las lamparas antes de poner su figura .gltf o .obj
 
-        glUniform1i(numPointLightsLoc, 2);
+        // Efecto de parpadeo (flicker) para las 4 lámparas (desfasadas e independientes)
+        auto getFlicker = [](float t, float offset) -> float {
+            float val = t + offset - 1.0f;
+            float n1 = sin(val * 14.0f) * cos(val * 8.0f);
+            float n2 = sin(val * 20.0f);
+            if (n1 > 0.65f) return 0.15f;      // Caída repentina de tensión
+            if (n2 > 0.88f) return 0.0f;       // Apagón total momentáneo
+            if (n2 < -0.92f) return 0.40f;     // Parpadeo tenue
+            return 0.9f + 0.1f * sin(val * 55.0f); // Vibración/hum sutil constante
+        };
+
+        float flicker1 = getFlicker(currentFrame, 0.0f);
+        float flicker2 = getFlicker(currentFrame, 12.4f);
+        float flicker3 = getFlicker(currentFrame, 28.7f);
+        float flicker4 = getFlicker(currentFrame, 45.2f);
+
+        glUniform1i(numPointLightsLoc, 4);
         
-        // color de la lampara y posicion para ponerla en un color amarillento poner colores mas altos en vez de 0.8 0.9 1.0 a unos 0.8 0.6 0.2 para que se vea mas amarillento
+        // Lámpara 1
         glUniform3fv(pointLightPosLoc[0], 1, glm::value_ptr(ligthbathroomPos));
-        glUniform3f(pointLightColLoc[0], 0.8f, 0.6f, 0.2f);
+        glUniform3f(pointLightColLoc[0], 0.8f * flicker1, 0.6f * flicker1, 0.2f * flicker1);
         
-       // lampara 2 
+        // Lámpara 2 
         glUniform3fv(pointLightPosLoc[1], 1, glm::value_ptr(ligthbathroom2Pos));
-        glUniform3f(pointLightColLoc[1], 0.8f, 0.6f, 0.2f);
+        glUniform3f(pointLightColLoc[1], 0.8f * flicker2, 0.6f * flicker2, 0.2f * flicker2);
+
+        // Lámpara 3
+        glUniform3fv(pointLightPosLoc[2], 1, glm::value_ptr(lamp3Pos));
+        glUniform3f(pointLightColLoc[2], 0.8f * flicker3, 0.6f * flicker3, 0.2f * flicker3);
+
+        // Lámpara 4
+        glUniform3fv(pointLightPosLoc[3], 1, glm::value_ptr(lamp4Pos));
+        glUniform3f(pointLightColLoc[3], 0.8f * flicker4, 0.6f * flicker4, 0.2f * flicker4);
 
         // --- MAPA ---
         for (int z = 0; z < MAP_HEIGHT; z++) {
             for (int x = 0; x < MAP_WIDTH; x++) {
                 int blockType = worldMap[z][x];
-                
+                const RoomZone* zone = getZone(x, z);
+
                 // Consideramos la puerta visible tanto si esta cerrada (>0) como abierta (<0)
                 int renderBlock = worldMap[z][x];
                 if (renderBlock != 0 && (blockType > 0 || renderBlock == -8 || renderBlock == -9)) { 
@@ -785,10 +832,13 @@ int main() {
                         glUniform1i(solidColorLoc, 0);
                         glBindVertexArray(VAO);
                     } else if (blockType > 0) {
-                        // Bloques normales (paredes)
-                        if (blockType == 1) glBindTexture(GL_TEXTURE_2D, wallTex1);
-                        else if (blockType == 2) glBindTexture(GL_TEXTURE_2D, wallTex2);
-                        else if (blockType == 3) glBindTexture(GL_TEXTURE_2D, wallTex3);
+                        // Paredes: zona override tiene prioridad, si no usa blockType
+                        unsigned int wTex = wallTex1;
+                        if (zone && zone->overrideWall && zone->wallTex != 0)
+                            wTex = zone->wallTex;
+                        else if (blockType == 2) wTex = wallTex2;
+                        else if (blockType == 3) wTex = wallTex3;
+                        glBindTexture(GL_TEXTURE_2D, wTex);
                         glBindVertexArray(VAO);
 
                         // Escalar paredes inteligentemente segÃºn vecinos
@@ -810,21 +860,25 @@ int main() {
                     }
                 }
                 
-                glBindTexture(GL_TEXTURE_2D, floorTexture);
-                glm::mat4 floorModel = glm::mat4(1.0f);
-                floorModel = glm::translate(floorModel, glm::vec3((float)x, -1.0f, (float)z));
-                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(floorModel));
-                
-                if (dimensionAlterna) glUniform3f(colorLoc, 0.4f, 0.1f, 0.1f);
-                else glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
-                
-                glDrawArrays(GL_TRIANGLES, 0, 36);
+                {
+                    unsigned int fTex = (zone && zone->overrideFloor && zone->floorTex != 0)
+                                        ? zone->floorTex : floorTexture;
+                    glBindTexture(GL_TEXTURE_2D, fTex);
+                    glm::mat4 floorModel = glm::mat4(1.0f);
+                    floorModel = glm::translate(floorModel, glm::vec3((float)x, -1.0f, (float)z));
+                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(floorModel));
+                    if (dimensionAlterna) glUniform3f(colorLoc, 0.4f, 0.1f, 0.1f);
+                    else glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                }
 
                 { // Techo en TODAS las celdas (incluidas las de pared, para cubrir huecos de paredes delgadas)
                     glm::mat4 roofModel = glm::mat4(1.0f);
                     roofModel = glm::translate(roofModel, glm::vec3((float)x, wallHeight, (float)z));
                     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(roofModel));
-                    glUniform3f(colorLoc, 0.3f, 0.3f, 0.3f); 
+                    glm::vec3 cCol = (zone && zone->overrideCeil)
+                                     ? zone->ceilColor : glm::vec3(0.3f, 0.3f, 0.3f);
+                    glUniform3f(colorLoc, cCol.x, cCol.y, cCol.z);
                     glDrawArrays(GL_TRIANGLES, 0, 36);
                 }
             }
@@ -1117,39 +1171,37 @@ int main() {
             
             // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
             ligthbathroomModel = glm::translate(ligthbathroomModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
-
-
             
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroomModel));
-            glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
+            glUniform1f(emissiveStrengthLoc, 1.5f * flicker1); // Hacer que brille la lampara
             ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
             glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
 
             glm::mat4 ligthbathroom3Model = glm::mat4(1.0f);
             ligthbathroom3Model = glm::translate(ligthbathroom3Model, lamp3Pos);
-            ligthbathroom3Model = glm::rotate(ligthbathroom3Model, glm::radians(lamp3Pos.x), glm::vec3(1.0f, 0.0f, 0.0f));
-            ligthbathroom3Model = glm::rotate(ligthbathroom3Model, glm::radians(lamp3Pos.y), glm::vec3(0.0f, 1.0f, 0.0f));
-            ligthbathroom3Model = glm::rotate(ligthbathroom3Model, glm::radians(lamp3Pos.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            ligthbathroom3Model = glm::rotate(ligthbathroom3Model, glm::radians(lamp3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            ligthbathroom3Model = glm::rotate(ligthbathroom3Model, glm::radians(lamp3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            ligthbathroom3Model = glm::rotate(ligthbathroom3Model, glm::radians(lamp3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
             ligthbathroom3Model = glm::scale(ligthbathroom3Model, lamp3Scale);
             
             // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
             ligthbathroom3Model = glm::translate(ligthbathroom3Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroom3Model));
-            glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
+            glUniform1f(emissiveStrengthLoc, 1.5f * flicker3); // Hacer que brille la lampara
             ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
             glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
 
             glm::mat4 ligthbathroom4Model = glm::mat4(1.0f);
             ligthbathroom4Model = glm::translate(ligthbathroom4Model, lamp4Pos);
-            ligthbathroom4Model = glm::rotate(ligthbathroom4Model, glm::radians(lamp4Pos.x), glm::vec3(1.0f, 0.0f, 0.0f));
-            ligthbathroom4Model = glm::rotate(ligthbathroom4Model, glm::radians(lamp4Pos.y), glm::vec3(0.0f, 1.0f, 0.0f));
-            ligthbathroom4Model = glm::rotate(ligthbathroom4Model, glm::radians(lamp4Pos.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            ligthbathroom4Model = glm::rotate(ligthbathroom4Model, glm::radians(lamp4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            ligthbathroom4Model = glm::rotate(ligthbathroom4Model, glm::radians(lamp4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            ligthbathroom4Model = glm::rotate(ligthbathroom4Model, glm::radians(lamp4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
             ligthbathroom4Model = glm::scale(ligthbathroom4Model, lamp4Scale);
             
             // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
             ligthbathroom4Model = glm::translate(ligthbathroom4Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroom4Model));
-            glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
+            glUniform1f(emissiveStrengthLoc, 1.5f * flicker4); // Hacer que brille la lampara
             ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
             glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
         }
@@ -1165,7 +1217,7 @@ int main() {
             // Compensar el offset original del modelo en Blender para centrarlo en su pivote real
             ligthbathroom2Model = glm::translate(ligthbathroom2Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ligthbathroom2Model));
-            glUniform1f(emissiveStrengthLoc, 1.5f); // Hacer que brille la lampara
+            glUniform1f(emissiveStrengthLoc, 1.5f * flicker2); // Hacer que brille la lampara
             ligthbathroom2GLTF->Draw(shaderProgram, solidColorLoc);
             glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
         }
@@ -1457,14 +1509,19 @@ int main() {
         }
 
         // --- RENDER IMGUI HUD ---
-        // Display coordinates top-left
-        ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
-        ImGui::SetNextWindowSize(ImVec2(180.0f, 50.0f));
-        ImGui::SetNextWindowBgAlpha(0.6f);
-        ImGui::Begin("Coords", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "POSICION ACTUAL:");
-        ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
-        ImGui::End();
+        if (showDebugGUI) {
+            // Display coordinates top-left
+            ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
+            ImGui::SetNextWindowSize(ImVec2(180.0f, 85.0f));
+            ImGui::SetNextWindowBgAlpha(0.6f);
+            ImGui::Begin("Coords", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "POSICION ACTUAL:");
+            ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
+            ImGui::Spacing();
+            if (ImGui::Button("Ocultar Editor (G)", ImVec2(-1, 0))) {
+                showDebugGUI = false;
+            }
+            ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 350.0f, 10.0f));
         ImGui::SetNextWindowSize(ImVec2(340.0f, 340.0f));
@@ -1811,6 +1868,16 @@ int main() {
             ImGui::Checkbox("Paredes", &collisionShowWalls);
             ImGui::Checkbox("Props bloqueantes", &collisionShowProps);
             ImGui::SliderFloat("Radio", &collisionViewerRadius, 2.0f, 20.0f, "%.1f");
+            ImGui::End();
+        }
+        } else {
+            ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
+            ImGui::SetNextWindowSize(ImVec2(180.0f, 35.0f));
+            ImGui::SetNextWindowBgAlpha(0.4f);
+            ImGui::Begin("ShowEditorBtn", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            if (ImGui::Button("Mostrar Editor (G)", ImVec2(-1, 0))) {
+                showDebugGUI = true;
+            }
             ImGui::End();
         }
 

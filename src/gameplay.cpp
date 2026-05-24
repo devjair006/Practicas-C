@@ -264,6 +264,30 @@ void processInput(GLFWwindow* window) {
         fKeyWasPressed = false;
     }
 
+    static bool gKeyWasPressed = false;
+    static bool f1KeyWasPressed = false;
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+        if (!gKeyWasPressed) {
+            showDebugGUI = !showDebugGUI;
+            gKeyWasPressed = true;
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            std::cout << "[GUI DEPURACION]: " << (showDebugGUI ? "VISIBLE" : "OCULTO") << std::endl;
+        }
+    } else {
+        gKeyWasPressed = false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+        if (!f1KeyWasPressed) {
+            showDebugGUI = !showDebugGUI;
+            f1KeyWasPressed = true;
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            std::cout << "[GUI DEPURACION]: " << (showDebugGUI ? "VISIBLE" : "OCULTO") << std::endl;
+        }
+    } else {
+        f1KeyWasPressed = false;
+    }
+
     if (!isCursorLocked) return;
 
     float cameraSpeed = 3.5f;

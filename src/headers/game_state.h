@@ -115,6 +115,7 @@ extern bool hasKeycardLvl2;
 extern bool dimensionAlterna;
 extern bool portalActivado;
 extern int currentZone;
+extern bool showDebugGUI;
 
 class GLTFModel;
 extern GLTFModel *banoGLTF;
@@ -127,9 +128,22 @@ extern glm::vec3 teslaRot;
 extern glm::vec3 teslaScale;
 
 struct WallDef {
-    glm::vec3 pos;
-    glm::vec3 rot;
-    glm::vec3 scale;
+  glm::vec3 pos;
+  glm::vec3 rot;
+  glm::vec3 scale;
+};
+
+// Una zona rectangular del mapa con texturas propias.
+// Las coords son celdas del worldMap (mismo sistema de coordenadas que el
+// mundo).
+struct RoomZone {
+  int x1, z1, x2, z2;
+  unsigned int wallTex = 0;  // 0 = usa blockType por defecto
+  unsigned int floorTex = 0; // 0 = usa floorTexture por defecto
+  glm::vec3 ceilColor = {0.3f, 0.3f, 0.3f};
+  bool overrideWall = false;
+  bool overrideFloor = false;
+  bool overrideCeil = false;
 };
 
 extern GLTFModel *paredesGLTF;
