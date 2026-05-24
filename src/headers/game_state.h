@@ -126,6 +126,23 @@ extern glm::vec3 teslaPos;
 extern glm::vec3 teslaRot;
 extern glm::vec3 teslaScale;
 
+extern GLTFModel *esquinerosGLTF;
+extern glm::vec3 esquinerosPos;
+extern glm::vec3 esquinerosRot;
+extern glm::vec3 esquinerosScale;
+
+extern glm::vec3 esquineros2Pos;
+extern glm::vec3 esquineros2Rot;
+extern glm::vec3 esquineros2Scale;
+
+extern glm::vec3 esquineros3Pos;
+extern glm::vec3 esquineros3Rot;
+extern glm::vec3 esquineros3Scale;
+
+extern glm::vec3 esquineros4Pos;
+extern glm::vec3 esquineros4Rot;
+extern glm::vec3 esquineros4Scale;
+
 struct WallDef {
     glm::vec3 pos;
     glm::vec3 rot;
