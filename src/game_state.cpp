@@ -134,8 +134,8 @@ glm::vec3 esquineros2Pos(48.383f, 0.250f, 20.251f);
 glm::vec3 esquineros2Rot(-2.500f, -144.000f, -0.500f);
 glm::vec3 esquineros2Scale(1.070f, 0.410f, 0.830f);
 
-glm::vec3 esquineros3Pos(34.583f, 0.450f, 12.801f);
-glm::vec3 esquineros3Rot(-0.500f, -31.500f, -0.500f);
+glm::vec3 esquineros3Pos(34.583f, 0.450f, 12.851f);
+glm::vec3 esquineros3Rot(-0.500f, 28.000f, -0.500f);
 glm::vec3 esquineros3Scale(0.930f, 0.520f, 0.840f);
 
 glm::vec3 esquineros4Pos(34.833f, 0.200f, 20.451f);
