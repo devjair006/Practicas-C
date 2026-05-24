@@ -6,6 +6,18 @@ bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
+glm::vec3 mensBpos(35.231f, 0.250f, 9.150f);
+glm::vec3 mensBrot(90.000f, 0.000f, 0.000f);
+glm::vec3 mensBscale(1.700f, 1.700f, 1.700f);
+
+glm::vec3 girlBpos(38.776f, 0.250f, 9.150f);
+glm::vec3 girlBrot(90.000f, 0.000f, 0.000f);
+glm::vec3 girlBscale(1.700f, 1.700f, 1.700f);
+
+glm::vec3 mirrorBGpos(40.815f, 0.150f, 5.55f);
+glm::vec3 mirrorBGRot(0.0f, 0.5f, -90.0f);
+glm::vec3 mirrorBGScale(1.30f, 1.0f, 3.0f);
+
 glm::vec3 azulejoPos(35.160f, 0.200f, 7.00f);
 glm::vec3 azulejoRot(90.0f, -90.0f, 0.0f);
 glm::vec3 azulejoScale(0.540f, 0.520f, 0.630f);
@@ -59,6 +71,22 @@ glm::vec3 banoScale3(0.5f, 0.4f, 0.4f);
 glm::vec3 banoPos4(34.500f, -0.5f, 1.740f);
 glm::vec3 banoRot4(-90.0f, 0.0f, 0.0f);
 glm::vec3 banoScale4(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos5(38.400f, -0.5f, 1.740f);
+glm::vec3 banoRot5(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale5(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos6(37.850f, -0.5f, 1.740f);
+glm::vec3 banoRot6(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale6(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos7(38.950f, -0.5f, 1.740f);
+glm::vec3 banoRot7(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale7(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos8(39.500f, -0.5f, 1.740f);
+glm::vec3 banoRot8(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale8(0.5f, 0.4f, 0.4f);
 
 glm::vec3 lavamanosPos(33.250f, -0.300f, 3.00f);
 glm::vec3 lavamanosRot(0.0f, -90.0f, 0.0f);
@@ -118,6 +146,8 @@ bool showDebugGUI = true;
 GLTFModel *banoGLTF = nullptr;
 GLTFModel *lavamanosGLTF = nullptr;
 GLTFModel *urinarioGLTF = nullptr;
+GLTFModel *mensBGLTF = nullptr;
+GLTFModel *girlBGLTF = nullptr;
 // area de contencion
 GLTFModel *teslaGLTF = nullptr;
 GLTFModel *paredesGLTF = nullptr;

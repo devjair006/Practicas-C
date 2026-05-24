@@ -76,10 +76,10 @@ bool checkCollision(float x, float z) {
     glm::vec3 playerPos(x, cameraPos.y, z);
 
     if (banoGLTF && !banoGLTF->meshes.empty()) {
-        glm::vec3 positions[4] = { banoPos, banoPos2, banoPos3, banoPos4 };
-        glm::vec3 rotations[4] = { banoRot, banoRot2, banoRot3, banoRot4 };
-        glm::vec3 scales[4] = { banoScale, banoScale2, banoScale3, banoScale4 };
-        for (int i = 0; i < 4; i++) {
+        glm::vec3 positions[8] = { banoPos, banoPos2, banoPos3, banoPos4, banoPos5, banoPos6, banoPos7, banoPos8 };
+        glm::vec3 rotations[8] = { banoRot, banoRot2, banoRot3, banoRot4, banoRot5, banoRot6, banoRot7, banoRot8 };
+        glm::vec3 scales[8] = { banoScale, banoScale2, banoScale3, banoScale4, banoScale5, banoScale6, banoScale7, banoScale8 };
+        for (int i = 0; i < 8; i++) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, positions[i]);
             model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -90,6 +90,32 @@ bool checkCollision(float x, float z) {
             if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
                 return true;
             }
+        }
+    }
+
+    if (mensBGLTF && !mensBGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, mensBpos);
+        model = glm::rotate(model, glm::radians(mensBrot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(mensBrot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(mensBrot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, mensBscale);
+        AABB worldBox = mensBGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+            return true;
+        }
+    }
+
+    if (girlBGLTF && !girlBGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, girlBpos);
+        model = glm::rotate(model, glm::radians(girlBrot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(girlBrot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(girlBrot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, girlBscale);
+        AABB worldBox = girlBGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+            return true;
         }
     }
 

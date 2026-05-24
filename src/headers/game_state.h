@@ -28,6 +28,17 @@ extern bool isReadingDocument;
 extern std::string currentDocumentTitle;
 extern std::string currentDocumentBody;
 
+extern glm::vec3 mensBpos;
+extern glm::vec3 mensBrot;
+extern glm::vec3 mensBscale;
+
+extern glm::vec3 girlBpos;
+extern glm::vec3 girlBrot;
+extern glm::vec3 girlBscale;
+extern glm::vec3 mirrorBGpos;
+extern glm::vec3 mirrorBGRot;
+extern glm::vec3 mirrorBGScale;
+
 extern glm::vec3 azulejoPos;
 extern glm::vec3 azulejoRot;
 extern glm::vec3 azulejoScale;
@@ -69,6 +80,22 @@ extern glm::vec3 banoScale3;
 extern glm::vec3 banoPos4;
 extern glm::vec3 banoRot4;
 extern glm::vec3 banoScale4;
+
+extern glm::vec3 banoPos5;
+extern glm::vec3 banoRot5;
+extern glm::vec3 banoScale5;
+
+extern glm::vec3 banoPos6;
+extern glm::vec3 banoRot6;
+extern glm::vec3 banoScale6;
+
+extern glm::vec3 banoPos7;
+extern glm::vec3 banoRot7;
+extern glm::vec3 banoScale7;
+
+extern glm::vec3 banoPos8;
+extern glm::vec3 banoRot8;
+extern glm::vec3 banoScale8;
 extern glm::vec3 lavamanosPos;
 extern glm::vec3 lavamanosRot;
 extern glm::vec3 lavamanosScale;
@@ -121,6 +148,8 @@ class GLTFModel;
 extern GLTFModel *banoGLTF;
 extern GLTFModel *lavamanosGLTF;
 extern GLTFModel *urinarioGLTF;
+extern GLTFModel *mensBGLTF;
+extern GLTFModel *girlBGLTF;
 // area de contencion
 extern GLTFModel *teslaGLTF;
 extern glm::vec3 teslaPos;

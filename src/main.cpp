@@ -495,10 +495,16 @@ int main() {
     }
     std::cout << "[SISTEMA] Modelo activo del gnomo: " << gnomeModelPath << std::endl;
 
+//----------------------------------------------------------------------------AGREGAR LOS ARCHIVOS GLTF/OBJ AQUI--------------------------------------------------------------------------------
+
+
     GLTFModel* azulejoGLTF = new GLTFModel("assets/azule.glb");
     GLTFModel* mirrorGLTF = new GLTFModel("assets/mirror.glb");
+    GLTFModel* mirrorBGGLTF = new GLTFModel("assets/mirrorBG.glb");
     GLTFModel* ligthbathroom2GLTF = new GLTFModel("assets/ligthbathroom.glb");
     GLTFModel* ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
+    mensBGLTF = new GLTFModel("assets/mensB.glb");
+    girlBGLTF = new GLTFModel("assets/girlB.glb");
     banoGLTF = new GLTFModel("assets/Bano.glb");
     GLTFModel* bano2GLTF = new GLTFModel("assets/Bano.glb");
     GLTFModel* bano3GLTF = new GLTFModel("assets/Bano.glb");
@@ -534,6 +540,9 @@ int main() {
     unsigned int batteryTex = loadTextureWithFallback("assets/battery.png", clueTexture);
     unsigned int keycardTex = loadTextureWithFallback("assets/keycard.png", clueTexture);
     unsigned int pcTex = loadTextureWithFallback("assets/pc.png", wallTex2);
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
     float quadVertices[] = {
         -0.5f,  0.5f, 0.0f,    0.0f, 0.0f, 1.0f,    0.0f, 1.0f,
@@ -655,6 +664,7 @@ int main() {
         glVertexAttrib3f(3, 1.0f, 1.0f, 1.0f); // Default obj color para otros VAOs
         glUniform1f(emissiveStrengthLoc, 0.0f); // Por defecto nada emite luz propia
 
+//-----------------------------------------------------------CONTROLAR LUCES DE BANO----------------------------------------------------------------------------
         int currentWidth, currentHeight;
         glfwGetFramebufferSize(window, &currentWidth, &currentHeight);
         if (currentHeight == 0) currentHeight = 1;
@@ -677,10 +687,15 @@ int main() {
             front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
             cameraFront = glm::normalize(front);
         }
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------BACK FACE CULLING----------------------------------------------------------------------------
 
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
         glBindVertexArray(VAO);
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
         glm::mat4 projection = glm::perspective(glm::radians(55.0f), (float)currentWidth / (float)currentHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
@@ -1032,6 +1047,28 @@ int main() {
             banoModel = glm::scale(banoModel, banoScale);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(banoModel));
             banoGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Bano 5 (Mujeres 1)
+            glm::mat4 bano5Model = glm::mat4(1.0f);
+            bano5Model = glm::translate(bano5Model, banoPos5);
+            bano5Model = glm::rotate(bano5Model, glm::radians(banoRot5.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            bano5Model = glm::rotate(bano5Model, glm::radians(banoRot5.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            bano5Model = glm::rotate(bano5Model, glm::radians(banoRot5.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            bano5Model = glm::scale(bano5Model, banoScale5);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano5Model));
+            banoGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (mensBGLTF && !mensBGLTF->meshes.empty()) {
+            glm::mat4 mensBModel = glm::mat4(1.0f);
+            mensBModel = glm::translate(mensBModel, mensBpos);
+            mensBModel = glm::rotate(mensBModel, glm::radians(mensBrot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            mensBModel = glm::rotate(mensBModel, glm::radians(mensBrot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            mensBModel = glm::rotate(mensBModel, glm::radians(mensBrot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            mensBModel = glm::scale(mensBModel, mensBscale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mensBModel));
+            mensBGLTF->Draw(shaderProgram, solidColorLoc);
+ 
         }
 
         if (azulejoGLTF && !azulejoGLTF->meshes.empty()) {
@@ -1128,6 +1165,17 @@ int main() {
             mirrorGLTF->Draw(shaderProgram, solidColorLoc);
         }
 
+        if (girlBGLTF && !girlBGLTF->meshes.empty()) {
+            glm::mat4 girlBModel = glm::mat4(1.0f);
+            girlBModel = glm::translate(girlBModel, girlBpos);
+            girlBModel = glm::rotate(girlBModel, glm::radians(girlBrot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            girlBModel = glm::rotate(girlBModel, glm::radians(girlBrot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            girlBModel = glm::rotate(girlBModel, glm::radians(girlBrot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            girlBModel = glm::scale(girlBModel, girlBscale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(girlBModel));
+            girlBGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
         if (bano2GLTF && !bano2GLTF->meshes.empty()) {
             glm::mat4 bano2Model = glm::mat4(1.0f);
             bano2Model = glm::translate(bano2Model, banoPos2);
@@ -1136,6 +1184,16 @@ int main() {
             bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.z), glm::vec3(0.0f, 0.0f, 1.0f));
             bano2Model = glm::scale(bano2Model, banoScale2);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano2Model));
+            bano2GLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Bano 6 (Mujeres 2)
+            glm::mat4 bano6Model = glm::mat4(1.0f);
+            bano6Model = glm::translate(bano6Model, banoPos6);
+            bano6Model = glm::rotate(bano6Model, glm::radians(banoRot6.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            bano6Model = glm::rotate(bano6Model, glm::radians(banoRot6.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            bano6Model = glm::rotate(bano6Model, glm::radians(banoRot6.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            bano6Model = glm::scale(bano6Model, banoScale6);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano6Model));
             bano2GLTF->Draw(shaderProgram, solidColorLoc);
         }
         
@@ -1148,6 +1206,16 @@ int main() {
             bano3Model = glm::scale(bano3Model, banoScale3);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano3Model));
             bano3GLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Bano 7 (Mujeres 3)
+            glm::mat4 bano7Model = glm::mat4(1.0f);
+            bano7Model = glm::translate(bano7Model, banoPos7);
+            bano7Model = glm::rotate(bano7Model, glm::radians(banoRot7.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            bano7Model = glm::rotate(bano7Model, glm::radians(banoRot7.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            bano7Model = glm::rotate(bano7Model, glm::radians(banoRot7.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            bano7Model = glm::scale(bano7Model, banoScale7);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano7Model));
+            bano3GLTF->Draw(shaderProgram, solidColorLoc);
         }
 
         if (bano4GLTF && !bano4GLTF->meshes.empty()) {
@@ -1158,6 +1226,16 @@ int main() {
             bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.z), glm::vec3(0.0f, 0.0f, 1.0f));
             bano4Model = glm::scale(bano4Model, banoScale4);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano4Model));
+            bano4GLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Bano 8 (Mujeres 4)
+            glm::mat4 bano8Model = glm::mat4(1.0f);
+            bano8Model = glm::translate(bano8Model, banoPos8);
+            bano8Model = glm::rotate(bano8Model, glm::radians(banoRot8.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            bano8Model = glm::rotate(bano8Model, glm::radians(banoRot8.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            bano8Model = glm::rotate(bano8Model, glm::radians(banoRot8.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            bano8Model = glm::scale(bano8Model, banoScale8);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano8Model));
             bano4GLTF->Draw(shaderProgram, solidColorLoc);
         }
 
@@ -1220,6 +1298,17 @@ int main() {
             glUniform1f(emissiveStrengthLoc, 1.5f * flicker2); // Hacer que brille la lampara
             ligthbathroom2GLTF->Draw(shaderProgram, solidColorLoc);
             glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+        }
+
+        if (mirrorBGGLTF && !mirrorBGGLTF->meshes.empty()) {
+            glm::mat4 mirrorBGModel = glm::mat4(1.0f);
+            mirrorBGModel = glm::translate(mirrorBGModel, mirrorBGpos);
+            mirrorBGModel = glm::rotate(mirrorBGModel, glm::radians(mirrorBGRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            mirrorBGModel = glm::rotate(mirrorBGModel, glm::radians(mirrorBGRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            mirrorBGModel = glm::rotate(mirrorBGModel, glm::radians(mirrorBGRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            mirrorBGModel = glm::scale(mirrorBGModel, mirrorBGScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorBGModel));
+            mirrorBGGLTF->Draw(shaderProgram, solidColorLoc);
         }
 
         if (urinarioGLTF && !urinarioGLTF->meshes.empty()) {
@@ -1566,24 +1655,69 @@ int main() {
         ImGui::DragFloat3("Bano 4 Scale", &banoScale4.x, 0.01f, 0.05f, 2.0f);
         ImGui::Separator();
 
+        ImGui::Text("Bano 5 (Mujeres 1)");
+        ImGui::DragFloat3("Bano 5 Pos", &banoPos5.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 5 Rot", &banoRot5.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 5 Scale", &banoScale5.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Bano 6 (Mujeres 2)");
+        ImGui::DragFloat3("Bano 6 Pos", &banoPos6.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 6 Rot", &banoRot6.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 6 Scale", &banoScale6.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Bano 7 (Mujeres 3)");
+        ImGui::DragFloat3("Bano 7 Pos", &banoPos7.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 7 Rot", &banoRot7.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 7 Scale", &banoScale7.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Bano 8 (Mujeres 4)");
+        ImGui::DragFloat3("Bano 8 Pos", &banoPos8.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 8 Rot", &banoRot8.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 8 Scale", &banoScale8.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
         ImGui::Text("Lampara bano");
         ImGui::DragFloat3("Lampara bano Pos", &ligthbathroomPos.x, 0.05f);
         ImGui::DragFloat3("Lampara bano Rot", &ligthbathroomRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Lampara bano Scale", &ligthbathroomScale.x, 0.01f, 0.05f, 2.0f);
         ImGui::Checkbox("Lampara modo debug visible", &ligthbathroomDebugVisible);
         ImGui::Separator();
-        ImGui::Text("Azulejo");
-        ImGui::DragFloat3("Azulejo Pos", &azulejoPos.x, 0.05f);
-        ImGui::DragFloat3("Azulejo Rot", &azulejoRot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Azulejo Scale", &azulejoScale.x, 0.01f, 0.05f, 2.0f);
-        if (ImGui::Button("Traer azulejo frente a camara")) {
-            azulejoPos = cameraPos + cameraFront * 0.8f;
-            azulejoPos.y = cameraPos.y;
-            azulejoRot = glm::vec3(0.0f, 0.0f, 0.0f);
-            azulejoScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        ImGui::Text("mensB");
+        ImGui::DragFloat3("mensB Pos", &mensBpos.x, 0.05f);
+        ImGui::DragFloat3("mensB Rot", &mensBrot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("mensB Scale", &mensBscale.x, 0.01f, 0.05f, 2.0f);
+        if (ImGui::Button("Traer mensB frente a camara")) {
+            mensBpos = cameraPos + cameraFront * 0.8f;
+            mensBpos.y = cameraPos.y;
+            mensBrot = glm::vec3(0.0f, 0.0f, 0.0f);
+            mensBscale = glm::vec3(1.0f, 1.0f, 1.0f);
         }
         ImGui::Separator();
-       
+        ImGui::Text("girlB");
+        ImGui::DragFloat3("girlB Pos", &girlBpos.x, 0.05f);
+        ImGui::DragFloat3("girlB Rot", &girlBrot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("girlB Scale", &girlBscale.x, 0.01f, 0.05f, 2.0f);
+        if (ImGui::Button("Traer girlB frente a camara")) {
+            girlBpos = cameraPos + cameraFront * 0.8f;
+            girlBpos.y = cameraPos.y;
+            girlBrot = glm::vec3(0.0f, 0.0f, 0.0f);
+            girlBscale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+        ImGui::Text("mirrorBG");
+        ImGui::DragFloat3("mirrorBG Pos", &mirrorBGpos.x, 0.05f);
+        ImGui::DragFloat3("mirrorBG Rot", &mirrorBGRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("mirrorBG Scale", &mirrorBGScale.x, 0.01f, 0.05f, 2.0f);
+        if (ImGui::Button("Traer mirrorBG frente a camara")) {
+            mirrorBGpos = cameraPos + cameraFront * 0.8f;
+            mirrorBGpos.y = cameraPos.y;
+            mirrorBGRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            mirrorBGScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
 
         ImGui::End();
 
