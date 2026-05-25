@@ -193,10 +193,25 @@ extern glm::vec3 teslaPos;
 extern glm::vec3 teslaRot;
 extern glm::vec3 teslaScale;
 
+extern GLTFModel *lamparaContencionGLTF;
+extern glm::vec3 lamparaContencionPos;
+extern glm::vec3 lamparaContencionRot;
+extern glm::vec3 lamparaContencionScale;
+
+extern GLTFModel *panelControlGLTF;
+extern glm::vec3 panelControlPos;
+extern glm::vec3 panelControlRot;
+extern glm::vec3 panelControlScale;
+
 extern GLTFModel *esquinerosGLTF;
 extern glm::vec3 esquinerosPos;
 extern glm::vec3 esquinerosRot;
 extern glm::vec3 esquinerosScale;
+
+extern GLTFModel *generadorGLTF;
+extern glm::vec3 generadorPos[3];
+extern glm::vec3 generadorRot[3];
+extern glm::vec3 generadorScale[3];
 
 extern glm::vec3 esquineros2Pos;
 extern glm::vec3 esquineros2Rot;

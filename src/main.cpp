@@ -293,6 +293,9 @@ int main() {
     GLTFModel* sofaGLTF = new GLTFModel("assets/sofa.glb"); 
     GLTFModel* monitorGLTF = new GLTFModel("assets/monitor.glb"); 
     esquinerosGLTF = new GLTFModel("assets/contencion/esquineros.glb");
+    generadorGLTF = new GLTFModel("assets/contencion/generador.glb");
+    lamparaContencionGLTF = new GLTFModel("assets/contencion/lampara.glb");
+    panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
               << "Bano(" << banoGLTF->meshes.size() << "), "
@@ -529,6 +532,10 @@ int main() {
         // Lámpara 4
         glUniform3fv(pointLightPosLoc[3], 1, glm::value_ptr(lamp4Pos));
         glUniform3f(pointLightColLoc[3], 0.8f * flicker4, 0.6f * flicker4, 0.2f * flicker4);
+
+       // lampara contencion 
+        glUniform3fv(pointLightPosLoc[2], 1, glm::value_ptr(lamparaContencionPos));
+        glUniform3f(pointLightColLoc[2], 0.8f, 0.9f, 1.0f);
 
         // --- MAPA ---
         for (int z = 0; z < MAP_HEIGHT; z++) {
@@ -1154,6 +1161,30 @@ int main() {
             teslaGLTF->Draw(shaderProgram, solidColorLoc);
         }
 
+        if (lamparaContencionGLTF && !lamparaContencionGLTF->meshes.empty()) {
+            glm::mat4 lampModel = glm::mat4(1.0f);
+            lampModel = glm::translate(lampModel, lamparaContencionPos);
+            lampModel = glm::rotate(lampModel, glm::radians(lamparaContencionRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lampModel = glm::rotate(lampModel, glm::radians(lamparaContencionRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lampModel = glm::rotate(lampModel, glm::radians(lamparaContencionRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lampModel = glm::scale(lampModel, lamparaContencionScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lampModel));
+            glUniform1f(emissiveStrengthLoc, 1.5f);
+            lamparaContencionGLTF->Draw(shaderProgram, solidColorLoc);
+            glUniform1f(emissiveStrengthLoc, 0.0f);
+        }
+
+        if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
+            glm::mat4 panelModel = glm::mat4(1.0f);
+            panelModel = glm::translate(panelModel, panelControlPos);
+            panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            panelModel = glm::scale(panelModel, panelControlScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(panelModel));
+            panelControlGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
         if (esquinerosGLTF && !esquinerosGLTF->meshes.empty()) {
             // Esquinero 1
             glm::mat4 esquinerosModel = glm::mat4(1.0f);
@@ -1194,6 +1225,19 @@ int main() {
             esquinerosModel4 = glm::scale(esquinerosModel4, esquineros4Scale);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(esquinerosModel4));
             esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (generadorGLTF && !generadorGLTF->meshes.empty()) {
+            for (int i = 0; i < 3; i++) { // Dibujamos los 3 ejemplares
+                glm::mat4 generadorModel = glm::mat4(1.0f);
+                generadorModel = glm::translate(generadorModel, generadorPos[i]);
+                generadorModel = glm::rotate(generadorModel, glm::radians(generadorRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+                generadorModel = glm::rotate(generadorModel, glm::radians(generadorRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+                generadorModel = glm::rotate(generadorModel, glm::radians(generadorRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+                generadorModel = glm::scale(generadorModel, generadorScale[i]);
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(generadorModel));
+                generadorGLTF->Draw(shaderProgram, solidColorLoc);
+            }
         }
 
         if (paredesGLTF && !paredesGLTF->meshes.empty()) {
@@ -1768,6 +1812,46 @@ int main() {
             teslaPos.y = -0.5f;
             teslaRot = glm::vec3(0.0f, 0.0f, 0.0f);
             teslaScale = glm::vec3(0.15f, 0.15f, 0.15f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Lampara Contencion");
+        ImGui::DragFloat3("Lamp Pos", &lamparaContencionPos.x, 0.05f);
+        ImGui::DragFloat3("Lamp Rot", &lamparaContencionRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lamp Scale", &lamparaContencionScale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer Lampara frente a camara")) {
+            lamparaContencionPos = cameraPos + cameraFront * 2.0f;
+            lamparaContencionPos.y = 2.0f;
+            lamparaContencionRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            lamparaContencionScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Panel de Control");
+        ImGui::DragFloat3("PanelCtrl Pos", &panelControlPos.x, 0.05f);
+        ImGui::DragFloat3("PanelCtrl Rot", &panelControlRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("PanelCtrl Scale", &panelControlScale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer Panel Ctrl frente a camara")) {
+            panelControlPos = cameraPos + cameraFront * 2.0f;
+            panelControlPos.y = -0.5f;
+            panelControlRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            panelControlScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Generador Model (3 Instancias)");
+        static int selectedGenerador = 0;
+        const char* generadorItems[] = { "Generador 1", "Generador 2", "Generador 3" };
+        ImGui::Combo("Seleccionar Generador", &selectedGenerador, generadorItems, IM_ARRAYSIZE(generadorItems));
+        
+        ImGui::DragFloat3("Gen Pos", &generadorPos[selectedGenerador].x, 0.05f);
+        ImGui::DragFloat3("Gen Rot", &generadorRot[selectedGenerador].x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Gen Scale", &generadorScale[selectedGenerador].x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer Generador frente a camara")) {
+            generadorPos[selectedGenerador] = cameraPos + cameraFront * 2.0f;
+            generadorPos[selectedGenerador].y = -0.5f;
+            generadorRot[selectedGenerador] = glm::vec3(0.0f, 0.0f, 0.0f);
+            generadorScale[selectedGenerador] = glm::vec3(1.0f, 1.0f, 1.0f);
         }
         ImGui::Separator();
 
