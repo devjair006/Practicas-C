@@ -1122,6 +1122,46 @@ int main() {
             lavamanosModel4 = glm::scale(lavamanosModel4, lavamanosScale4);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel4));
             lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Lavamanos 5 (Mujeres 1)
+            glm::mat4 lavamanosModel5 = glm::mat4(1.0f);
+            lavamanosModel5 = glm::translate(lavamanosModel5, lavamanosPos5);
+            lavamanosModel5 = glm::rotate(lavamanosModel5, glm::radians(lavamanosRot5.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel5 = glm::rotate(lavamanosModel5, glm::radians(lavamanosRot5.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel5 = glm::rotate(lavamanosModel5, glm::radians(lavamanosRot5.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel5 = glm::scale(lavamanosModel5, lavamanosScale5);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel5));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Lavamanos 6 (Mujeres 2)
+            glm::mat4 lavamanosModel6 = glm::mat4(1.0f);
+            lavamanosModel6 = glm::translate(lavamanosModel6, lavamanosPos6);
+            lavamanosModel6 = glm::rotate(lavamanosModel6, glm::radians(lavamanosRot6.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel6 = glm::rotate(lavamanosModel6, glm::radians(lavamanosRot6.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel6 = glm::rotate(lavamanosModel6, glm::radians(lavamanosRot6.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel6 = glm::scale(lavamanosModel6, lavamanosScale6);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel6));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Lavamanos 7 (Mujeres 3)
+            glm::mat4 lavamanosModel7 = glm::mat4(1.0f);
+            lavamanosModel7 = glm::translate(lavamanosModel7, lavamanosPos7);
+            lavamanosModel7 = glm::rotate(lavamanosModel7, glm::radians(lavamanosRot7.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel7 = glm::rotate(lavamanosModel7, glm::radians(lavamanosRot7.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel7 = glm::rotate(lavamanosModel7, glm::radians(lavamanosRot7.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel7 = glm::scale(lavamanosModel7, lavamanosScale7);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel7));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Lavamanos 8 (Mujeres 4)
+            glm::mat4 lavamanosModel8 = glm::mat4(1.0f);
+            lavamanosModel8 = glm::translate(lavamanosModel8, lavamanosPos8);
+            lavamanosModel8 = glm::rotate(lavamanosModel8, glm::radians(lavamanosRot8.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lavamanosModel8 = glm::rotate(lavamanosModel8, glm::radians(lavamanosRot8.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lavamanosModel8 = glm::rotate(lavamanosModel8, glm::radians(lavamanosRot8.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lavamanosModel8 = glm::scale(lavamanosModel8, lavamanosScale8);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel8));
+            lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
         }
 
         if (mirrorGLTF && !mirrorGLTF->meshes.empty()) {
@@ -1624,7 +1664,7 @@ int main() {
         ImGui::DragFloat3("Bano Scale", &banoScale.x, 0.01f, 0.05f, 2.0f);
         ImGui::Separator();
         ImGui::Text("Lavamanos");
-        ImGui::DragFloat3("Lava Pos", &lavamanosPos.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Lava Pos", &lavamanosPos.x, 0.05f, 33.0f, 42.0f);
         ImGui::DragFloat3("Lava Rot", &lavamanosRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Lava Scale", &lavamanosScale.x, 0.01f, 0.05f, 2.0f);
         if (ImGui::Button("Traer lavamanos frente a camara")) {
@@ -1633,6 +1673,48 @@ int main() {
             lavamanosRot = glm::vec3(0.0f, 0.0f, 0.0f);
             lavamanosScale = glm::vec3(1.0f, 1.0f, 1.0f);
         }
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 2");
+        ImGui::DragFloat3("Lava 2 Pos", &lavamanosPos2.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 2 Rot", &lavamanosRot2.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lava 2 Scale", &lavamanosScale2.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 3");
+        ImGui::DragFloat3("Lava 3 Pos", &lavamanosPos3.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 3 Rot", &lavamanosRot3.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lava 3 Scale", &lavamanosScale3.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 4");
+        ImGui::DragFloat3("Lava 4 Pos", &lavamanosPos4.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 4 Rot", &lavamanosRot4.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lava 4 Scale", &lavamanosScale4.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 5 (Mujeres 1)");
+        ImGui::DragFloat3("Lava 5 Pos", &lavamanosPos5.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 5 Rot", &lavamanosRot5.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lava 5 Scale", &lavamanosScale5.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 6 (Mujeres 2)");
+        ImGui::DragFloat3("Lava 6 Pos", &lavamanosPos6.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 6 Rot", &lavamanosRot6.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lava 6 Scale", &lavamanosScale6.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 7 (Mujeres 3)");
+        ImGui::DragFloat3("Lava 7 Pos", &lavamanosPos7.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 7 Rot", &lavamanosRot7.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lava 7 Scale", &lavamanosScale7.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 8 (Mujeres 4)");
+        ImGui::DragFloat3("Lava 8 Pos", &lavamanosPos8.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 8 Rot", &lavamanosRot8.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lava 8 Scale", &lavamanosScale8.x, 0.01f, 0.05f, 2.0f);
         ImGui::Separator();
         ImGui::Text("Urinario");
         ImGui::DragFloat3("Uri Pos", &urinarioPos.x, 0.05f, 33.0f, 40.0f);

@@ -120,10 +120,10 @@ bool checkCollision(float x, float z) {
     }
 
     if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
-        glm::vec3 positions[4] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4 };
-        glm::vec3 rotations[4] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4 };
-        glm::vec3 scales[4] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4 };
-        for (int i = 0; i < 4; i++) {
+        glm::vec3 positions[8] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4, lavamanosPos5, lavamanosPos6, lavamanosPos7, lavamanosPos8 };
+        glm::vec3 rotations[8] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4, lavamanosRot5, lavamanosRot6, lavamanosRot7, lavamanosRot8 };
+        glm::vec3 scales[8] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4, lavamanosScale5, lavamanosScale6, lavamanosScale7, lavamanosScale8 };
+        for (int i = 0; i < 8; i++) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, positions[i]);
             model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));

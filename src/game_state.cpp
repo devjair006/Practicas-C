@@ -104,6 +104,22 @@ glm::vec3 lavamanosPos4(33.250f, -0.300f, 6.00f);
 glm::vec3 lavamanosRot4(0.0f, -90.0f, 0.0f);
 glm::vec3 lavamanosScale4(0.540f, 0.520f, 0.630f);
 
+glm::vec3 lavamanosPos5(40.750f, -0.300f, 3.00f);
+glm::vec3 lavamanosRot5(0.0f, 90.0f, 0.0f);
+glm::vec3 lavamanosScale5(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos6(40.750f, -0.300f, 4.00f);
+glm::vec3 lavamanosRot6(0.0f, 90.0f, 0.0f);
+glm::vec3 lavamanosScale6(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos7(40.750f, -0.300f, 5.00f);
+glm::vec3 lavamanosRot7(0.0f, 90.0f, 0.0f);
+glm::vec3 lavamanosScale7(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos8(40.750f, -0.300f, 6.00f);
+glm::vec3 lavamanosRot8(0.0f, 90.0f, 0.0f);
+glm::vec3 lavamanosScale8(0.540f, 0.520f, 0.630f);
+
 glm::vec3 urinarioPos(36.8f, -0.54f, 5.2f);
 glm::vec3 urinarioRot(-90.5f, -2.5f, -90.0f);
 glm::vec3 urinarioScale(0.4f, 0.4f, 0.4f);

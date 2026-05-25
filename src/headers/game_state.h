@@ -108,6 +108,22 @@ extern glm::vec3 lavamanosScale3;
 extern glm::vec3 lavamanosPos4;
 extern glm::vec3 lavamanosRot4;
 extern glm::vec3 lavamanosScale4;
+
+extern glm::vec3 lavamanosPos5;
+extern glm::vec3 lavamanosRot5;
+extern glm::vec3 lavamanosScale5;
+
+extern glm::vec3 lavamanosPos6;
+extern glm::vec3 lavamanosRot6;
+extern glm::vec3 lavamanosScale6;
+
+extern glm::vec3 lavamanosPos7;
+extern glm::vec3 lavamanosRot7;
+extern glm::vec3 lavamanosScale7;
+
+extern glm::vec3 lavamanosPos8;
+extern glm::vec3 lavamanosRot8;
+extern glm::vec3 lavamanosScale8;
 extern glm::vec3 urinarioPos;
 extern glm::vec3 urinarioRot;
 extern glm::vec3 urinarioScale;
