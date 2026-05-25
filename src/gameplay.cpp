@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 
 #include "headers/game_state.h"
-#include "gltf_model.h"
+#include "headers/gltf_model.h"
 
 bool checkSphereAABBCollision(glm::vec3 sphereCenter, float radius, AABB box) {
     float closestX = glm::max(box.min.x, glm::min(sphereCenter.x, box.max.x));
