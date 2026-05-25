@@ -80,6 +80,26 @@ glm::vec3 urinarioPos(36.8f, -0.54f, 5.2f);
 glm::vec3 urinarioRot(-90.5f, -2.5f, -90.0f);
 glm::vec3 urinarioScale(0.4f, 0.4f, 0.4f);
 
+glm::vec3 sillasPos = glm::vec3(30.3f, -0.40f, 8.6f); 
+glm::vec3 sillasRot = glm::vec3(0.0f, 90.0f, 0.0f); 
+glm::vec3 sillasScale = glm::vec3(0.65f, 0.65f, 0.65f);
+
+glm::vec3 sillas2Pos = glm::vec3(27.0f, -0.40f, 8.6f);
+glm::vec3 sillas2Rot = glm::vec3(0.0f, 90.0f, 0.0f);   
+glm::vec3 sillas2Scale = glm::vec3(0.65f, 0.65f, 0.65f);
+
+glm::vec3 sillas3Pos = glm::vec3(31.8f, -0.40f, 8.6f);
+glm::vec3 sillas3Rot = glm::vec3(0.0f, 90.0f, 0.0f);
+glm::vec3 sillas3Scale = glm::vec3(0.65f, 0.65f, 0.65f);
+
+glm::vec3 sillas4Pos = glm::vec3(24.0f, -0.40f, 8.6f); 
+glm::vec3 sillas4Rot = glm::vec3(0.0f, 90.0f, 0.0f);
+glm::vec3 sillas4Scale = glm::vec3(0.65f, 0.65f, 0.65f);
+
+glm::vec3 sofaPos = glm::vec3(27.0f, -0.40f, 1.7f);
+glm::vec3 sofaRot = glm::vec3(90.0f, 180.0f, 0.0f);
+glm::vec3 sofaScale = glm::vec3(0.5f, 0.5f, 0.5f);
+
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);

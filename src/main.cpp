@@ -507,6 +507,9 @@ int main() {
     urinarioGLTF = new GLTFModel("assets/urinario.glb");
     teslaGLTF = new GLTFModel("assets/contencion/tesla.glb");
     paredesGLTF = new GLTFModel("assets/contencion/paredes.glb");
+    GLTFModel* sillasGLTF = new GLTFModel("assets/sillas.glb");
+    GLTFModel* sofaGLTF = new GLTFModel("assets/sofa.glb"); 
+
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
               << "Bano(" << banoGLTF->meshes.size() << "), "
@@ -1204,6 +1207,67 @@ int main() {
                 paredesGLTF->Draw(shaderProgram, solidColorLoc);
             }
         }
+
+        if (sillasGLTF && !sillasGLTF->meshes.empty()) {
+        glm::mat4 sillasModel = glm::mat4(1.0f);
+        
+        sillasModel = glm::translate(sillasModel, sillasPos);
+        sillasModel = glm::rotate(sillasModel, glm::radians(sillasRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        sillasModel = glm::rotate(sillasModel, glm::radians(sillasRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        sillasModel = glm::rotate(sillasModel, glm::radians(sillasRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        sillasModel = glm::scale(sillasModel, sillasScale);
+        
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sillasModel));
+        sillasGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
+    if (sillasGLTF && !sillasGLTF->meshes.empty()) {
+        glm::mat4 sillas2Model = glm::mat4(1.0f);
+        sillas2Model = glm::translate(sillas2Model, sillas2Pos);
+        sillas2Model = glm::rotate(sillas2Model, glm::radians(sillas2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        sillas2Model = glm::rotate(sillas2Model, glm::radians(sillas2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        sillas2Model = glm::rotate(sillas2Model, glm::radians(sillas2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        sillas2Model = glm::scale(sillas2Model, sillas2Scale); 
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sillas2Model));
+        sillasGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
+    if (sillasGLTF && !sillasGLTF->meshes.empty()) {
+        glm::mat4 sillas3Model = glm::mat4(1.0f);
+        sillas3Model = glm::translate(sillas3Model, sillas3Pos);
+        sillas3Model = glm::rotate(sillas3Model, glm::radians(sillas3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        sillas3Model = glm::rotate(sillas3Model, glm::radians(sillas3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        sillas3Model = glm::rotate(sillas3Model, glm::radians(sillas3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        sillas3Model = glm::scale(sillas3Model, sillas3Scale);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sillas3Model));
+        sillasGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
+
+    if (sillasGLTF && !sillasGLTF->meshes.empty()) {
+        glm::mat4 sillas4Model = glm::mat4(1.0f);
+        sillas4Model = glm::translate(sillas4Model, sillas4Pos);
+        sillas4Model = glm::rotate(sillas4Model, glm::radians(sillas4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        sillas4Model = glm::rotate(sillas4Model, glm::radians(sillas4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        sillas4Model = glm::rotate(sillas4Model, glm::radians(sillas4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        sillas4Model = glm::scale(sillas4Model, sillas4Scale);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sillas4Model));
+        sillasGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
+    if (sofaGLTF && !sofaGLTF->meshes.empty()) {
+        glm::mat4 sofaModel = glm::mat4(1.0f);
+        
+        sofaModel = glm::translate(sofaModel, sofaPos);
+        sofaModel = glm::rotate(sofaModel, glm::radians(sofaRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        sofaModel = glm::rotate(sofaModel, glm::radians(sofaRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        sofaModel = glm::rotate(sofaModel, glm::radians(sofaRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        sofaModel = glm::scale(sofaModel, sofaScale);
+        
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sofaModel));
+        sofaGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+    glUniform1i(solidColorLoc, 0);
         glUniform1i(solidColorLoc, 0);
 
         // --- DIBUJAR ENTIDADES 3D ---
@@ -1526,7 +1590,37 @@ int main() {
             azulejoScale = glm::vec3(1.0f, 1.0f, 1.0f);
         }
         ImGui::Separator();
-       
+
+        ImGui::Text("Sillas");
+        ImGui::DragFloat3("Sillas Pos", &sillasPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Sillas Rot", &sillasRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sillas Scale", &sillasScale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Sillas - 2");
+        ImGui::DragFloat3("Sillas 2 Pos", &sillas2Pos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Sillas 2 Rot", &sillas2Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sillas 2 Scale", &sillas2Scale.x, 0.01f, 0.001f, 3.0f); 
+        ImGui::Separator();
+
+        ImGui::Text("Sillas - Fila Ext. Derecha (3)");
+        ImGui::DragFloat3("Sillas 3 Pos", &sillas3Pos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Sillas 3 Rot", &sillas3Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sillas 3 Scale", &sillas3Scale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Sillas - Fila Ext. Izquierda (4)");
+        ImGui::DragFloat3("Sillas 4 Pos", &sillas4Pos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Sillas 4 Rot", &sillas4Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sillas 4 Scale", &sillas4Scale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Sofa");
+        ImGui::DragFloat3("Sofa Pos", &sofaPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Sofa Rot", &sofaRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sofa Scale", &sofaScale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::Separator();
+    
 
         ImGui::End();
 
