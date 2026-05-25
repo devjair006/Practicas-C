@@ -76,10 +76,10 @@ bool checkCollision(float x, float z) {
     glm::vec3 playerPos(x, cameraPos.y, z);
 
     if (banoGLTF && !banoGLTF->meshes.empty()) {
-        glm::vec3 positions[4] = { banoPos, banoPos2, banoPos3, banoPos4 };
-        glm::vec3 rotations[4] = { banoRot, banoRot2, banoRot3, banoRot4 };
-        glm::vec3 scales[4] = { banoScale, banoScale2, banoScale3, banoScale4 };
-        for (int i = 0; i < 4; i++) {
+        glm::vec3 positions[8] = { banoPos, banoPos2, banoPos3, banoPos4, banoPos5, banoPos6, banoPos7, banoPos8 };
+        glm::vec3 rotations[8] = { banoRot, banoRot2, banoRot3, banoRot4, banoRot5, banoRot6, banoRot7, banoRot8 };
+        glm::vec3 scales[8] = { banoScale, banoScale2, banoScale3, banoScale4, banoScale5, banoScale6, banoScale7, banoScale8 };
+        for (int i = 0; i < 8; i++) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, positions[i]);
             model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -93,11 +93,37 @@ bool checkCollision(float x, float z) {
         }
     }
 
+    if (mensBGLTF && !mensBGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, mensBpos);
+        model = glm::rotate(model, glm::radians(mensBrot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(mensBrot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(mensBrot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, mensBscale);
+        AABB worldBox = mensBGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+            return true;
+        }
+    }
+
+    if (girlBGLTF && !girlBGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, girlBpos);
+        model = glm::rotate(model, glm::radians(girlBrot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(girlBrot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(girlBrot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, girlBscale);
+        AABB worldBox = girlBGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+            return true;
+        }
+    }
+
     if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
-        glm::vec3 positions[4] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4 };
-        glm::vec3 rotations[4] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4 };
-        glm::vec3 scales[4] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4 };
-        for (int i = 0; i < 4; i++) {
+        glm::vec3 positions[8] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4, lavamanosPos5, lavamanosPos6, lavamanosPos7, lavamanosPos8 };
+        glm::vec3 rotations[8] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4, lavamanosRot5, lavamanosRot6, lavamanosRot7, lavamanosRot8 };
+        glm::vec3 scales[8] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4, lavamanosScale5, lavamanosScale6, lavamanosScale7, lavamanosScale8 };
+        for (int i = 0; i < 8; i++) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, positions[i]);
             model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -262,6 +288,30 @@ void processInput(GLFWwindow* window) {
         }
     } else {
         fKeyWasPressed = false;
+    }
+
+    static bool gKeyWasPressed = false;
+    static bool f1KeyWasPressed = false;
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+        if (!gKeyWasPressed) {
+            showDebugGUI = !showDebugGUI;
+            gKeyWasPressed = true;
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            std::cout << "[GUI DEPURACION]: " << (showDebugGUI ? "VISIBLE" : "OCULTO") << std::endl;
+        }
+    } else {
+        gKeyWasPressed = false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+        if (!f1KeyWasPressed) {
+            showDebugGUI = !showDebugGUI;
+            f1KeyWasPressed = true;
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            std::cout << "[GUI DEPURACION]: " << (showDebugGUI ? "VISIBLE" : "OCULTO") << std::endl;
+        }
+    } else {
+        f1KeyWasPressed = false;
     }
 
     if (!isCursorLocked) return;
