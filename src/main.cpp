@@ -513,13 +513,15 @@ int main() {
     urinarioGLTF = new GLTFModel("assets/urinario.glb");
     teslaGLTF = new GLTFModel("assets/contencion/tesla.glb");
     paredesGLTF = new GLTFModel("assets/contencion/paredes.glb");
+    esquinerosGLTF = new GLTFModel("assets/contencion/esquineros.glb");
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
               << "Bano(" << banoGLTF->meshes.size() << "), "
               << "Lavamanos(" << lavamanosGLTF->meshes.size() << "), "
               << "Urinario(" << urinarioGLTF->meshes.size() << ")" << std::endl;
     std::cout << "[SISTEMA] Props contención cargados: "
-              << "Tesla(" << teslaGLTF->meshes.size() << ")" << std::endl;
+              << "Tesla(" << teslaGLTF->meshes.size() << "), "
+              << "Esquineros(" << esquinerosGLTF->meshes.size() << ")" << std::endl;
     
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredbanosT.png");  
@@ -1373,6 +1375,48 @@ int main() {
             teslaGLTF->Draw(shaderProgram, solidColorLoc);
         }
 
+        if (esquinerosGLTF && !esquinerosGLTF->meshes.empty()) {
+            // Esquinero 1
+            glm::mat4 esquinerosModel = glm::mat4(1.0f);
+            esquinerosModel = glm::translate(esquinerosModel, esquinerosPos);
+            esquinerosModel = glm::rotate(esquinerosModel, glm::radians(esquinerosRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            esquinerosModel = glm::rotate(esquinerosModel, glm::radians(esquinerosRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            esquinerosModel = glm::rotate(esquinerosModel, glm::radians(esquinerosRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            esquinerosModel = glm::scale(esquinerosModel, esquinerosScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(esquinerosModel));
+            esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Esquinero 2
+            glm::mat4 esquinerosModel2 = glm::mat4(1.0f);
+            esquinerosModel2 = glm::translate(esquinerosModel2, esquineros2Pos);
+            esquinerosModel2 = glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            esquinerosModel2 = glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            esquinerosModel2 = glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            esquinerosModel2 = glm::scale(esquinerosModel2, esquineros2Scale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(esquinerosModel2));
+            esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Esquinero 3
+            glm::mat4 esquinerosModel3 = glm::mat4(1.0f);
+            esquinerosModel3 = glm::translate(esquinerosModel3, esquineros3Pos);
+            esquinerosModel3 = glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            esquinerosModel3 = glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            esquinerosModel3 = glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            esquinerosModel3 = glm::scale(esquinerosModel3, esquineros3Scale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(esquinerosModel3));
+            esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
+
+            // Esquinero 4
+            glm::mat4 esquinerosModel4 = glm::mat4(1.0f);
+            esquinerosModel4 = glm::translate(esquinerosModel4, esquineros4Pos);
+            esquinerosModel4 = glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            esquinerosModel4 = glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            esquinerosModel4 = glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            esquinerosModel4 = glm::scale(esquinerosModel4, esquineros4Scale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(esquinerosModel4));
+            esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
         if (paredesGLTF && !paredesGLTF->meshes.empty()) {
             for (const auto& w : paredesList) {
                 glm::mat4 paredesModel = glm::mat4(1.0f);
@@ -1818,16 +1862,78 @@ int main() {
             teslaScale = glm::vec3(0.15f, 0.15f, 0.15f);
         }
         ImGui::Separator();
+
+        ImGui::Text("Esquineros Model (4 Instancias)");
+        static int selectedEsquinero = 0;
+        const char* esquineroItems[] = { "Esquinero 1", "Esquinero 2", "Esquinero 3", "Esquinero 4" };
+        ImGui::Combo("Seleccionar Esquinero", &selectedEsquinero, esquineroItems, IM_ARRAYSIZE(esquineroItems));
+
+        glm::vec3* targetPos = nullptr;
+        glm::vec3* targetRot = nullptr;
+        glm::vec3* targetScale = nullptr;
+
+        if (selectedEsquinero == 0) { targetPos = &esquinerosPos; targetRot = &esquinerosRot; targetScale = &esquinerosScale; }
+        else if (selectedEsquinero == 1) { targetPos = &esquineros2Pos; targetRot = &esquineros2Rot; targetScale = &esquineros2Scale; }
+        else if (selectedEsquinero == 2) { targetPos = &esquineros3Pos; targetRot = &esquineros3Rot; targetScale = &esquineros3Scale; }
+        else if (selectedEsquinero == 3) { targetPos = &esquineros4Pos; targetRot = &esquineros4Rot; targetScale = &esquineros4Scale; }
+
+        if (targetPos) {
+            ImGui::DragFloat3("Pos", &targetPos->x, 0.05f);
+            ImGui::DragFloat3("Rot", &targetRot->x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("Scale", &targetScale->x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer frente a camara")) {
+                *targetPos = cameraPos + cameraFront * 2.0f;
+                targetPos->y = -0.5f;
+                *targetRot = glm::vec3(0.0f, 0.0f, 0.0f);
+                *targetScale = esquinerosScale; // Usar la escala del primero como base
+            }
+        }
+        ImGui::Separator();
         ImGui::Text("Paredes Model");
         if (!paredesList.empty()) {
-            ImGui::DragFloat3("Paredes Pos", &paredesList[0].pos.x, 0.05f);
-            ImGui::DragFloat3("Paredes Rot", &paredesList[0].rot.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Paredes Scale", &paredesList[0].scale.x, 0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer Paredes frente a camara")) {
-                paredesList[0].pos = cameraPos + cameraFront * 2.0f;
-                paredesList[0].pos.y = -0.5f;
-                paredesList[0].rot = glm::vec3(0.0f, 0.0f, 0.0f);
-                paredesList[0].scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            static int selectedWallIndex = 0;
+            if (selectedWallIndex >= (int)paredesList.size()) selectedWallIndex = (int)paredesList.size() - 1;
+            
+            std::string comboLabel = "Panel " + std::to_string(selectedWallIndex);
+            if (ImGui::BeginCombo("Seleccionar Panel", comboLabel.c_str())) {
+                for (int n = 0; n < (int)paredesList.size(); n++) {
+                    const bool is_selected = (selectedWallIndex == n);
+                    std::string itemLabel = "Panel " + std::to_string(n);
+                    if (ImGui::Selectable(itemLabel.c_str(), is_selected))
+                        selectedWallIndex = n;
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+            ImGui::DragFloat3("Panel Pos", &paredesList[selectedWallIndex].pos.x, 0.05f);
+            ImGui::DragFloat3("Panel Rot", &paredesList[selectedWallIndex].rot.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("Panel Scale", &paredesList[selectedWallIndex].scale.x, 0.01f, 0.01f, 10.0f);
+            
+            if (ImGui::Button("Traer Panel frente a camara")) {
+                paredesList[selectedWallIndex].pos = cameraPos + cameraFront * 2.0f;
+                paredesList[selectedWallIndex].pos.y = -0.5f;
+                paredesList[selectedWallIndex].rot = glm::vec3(0.0f, 0.0f, 0.0f);
+                paredesList[selectedWallIndex].scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+
+            ImGui::Separator();
+            if (ImGui::Button("Copiar ParedesList a Portapapeles")) {
+                std::string exportText = "std::vector<WallDef> paredesList = {\n";
+                for (size_t i = 0; i < paredesList.size(); ++i) {
+                    exportText += "    {glm::vec3(" + std::to_string(paredesList[i].pos.x) + "f, " +
+                                  std::to_string(paredesList[i].pos.y) + "f, " +
+                                  std::to_string(paredesList[i].pos.z) + "f),\n" +
+                                  "     glm::vec3(" + std::to_string(paredesList[i].rot.x) + "f, " +
+                                  std::to_string(paredesList[i].rot.y) + "f, " +
+                                  std::to_string(paredesList[i].rot.z) + "f), " +
+                                  "glm::vec3(" + std::to_string(paredesList[i].scale.x) + "f, " +
+                                  std::to_string(paredesList[i].scale.y) + "f, " +
+                                  std::to_string(paredesList[i].scale.z) + "f)}" + 
+                                  (i < paredesList.size() - 1 ? ",\n" : "};\n");
+                }
+                ImGui::SetClipboardText(exportText.c_str());
             }
         }
         ImGui::End();
