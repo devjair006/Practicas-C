@@ -121,14 +121,36 @@ GLTFModel *urinarioGLTF = nullptr;
 GLTFModel *teslaGLTF = nullptr;
 GLTFModel *paredesGLTF = nullptr;
 GLTFModel *esquinerosGLTF = nullptr;
+GLTFModel *generadorGLTF = nullptr;
+
+GLTFModel *lamparaContencionGLTF = nullptr;
+GLTFModel *panelControlGLTF = nullptr;
 
 glm::vec3 teslaPos(44.800f, -0.500f, 14.200f);
 glm::vec3 teslaRot(-88.000f, 0.0f, 0.0f);
 glm::vec3 teslaScale(0.150f, 0.120f, 0.090f);
 
+glm::vec3 lamparaContencionPos(46.450f, 1.050f, 18.650f);
+glm::vec3 lamparaContencionRot(-88.000f, 0.0f, 89.000f);
+glm::vec3 lamparaContencionScale(0.570f, 0.720f, 0.900f);
+
+glm::vec3 panelControlPos(48.350f, -0.500f, 17.450f);
+glm::vec3 panelControlRot(-91.000f, 0.000f, -180.000f);
+glm::vec3 panelControlScale(0.450f, 0.490f, 0.180f);
+
 glm::vec3 esquinerosPos(48.133f, 0.200f, 12.601f);
 glm::vec3 esquinerosRot(-0.500f, -63.000f, -1.000f);
 glm::vec3 esquinerosScale(0.890f, 0.390f, 0.750f);
+
+glm::vec3 generadorPos[3] = {glm::vec3(36.234f, -0.600f, 15.550f),
+                             glm::vec3(36.266f, -0.600f, 17.254f),
+                             glm::vec3(36.261f, -0.600f, 18.923f)};
+glm::vec3 generadorRot[3] = {glm::vec3(-1.500f, 92.500f, -0.500f),
+                             glm::vec3(0.000f, 92.500f, 1.500f),
+                             glm::vec3(0.000f, 95.500f, 0.000f)};
+glm::vec3 generadorScale[3] = {glm::vec3(1.0f, 1.0f, 1.0f),
+                               glm::vec3(1.0f, 1.0f, 1.0f),
+                               glm::vec3(1.0f, 1.0f, 1.0f)};
 
 glm::vec3 esquineros2Pos(48.383f, 0.250f, 20.251f);
 glm::vec3 esquineros2Rot(-2.500f, -144.000f, -0.500f);
@@ -165,13 +187,15 @@ std::vector<WallDef> paredesList = {
     {glm::vec3(42.417999f, -0.500000f, 12.185000f),
      glm::vec3(-91.500000f, 0.000000f, 0.000000f),
      glm::vec3(1.100000f, 1.000000f, 0.400000f)},
-    // Panel 7 was 35.997... (REMOVED)
     {glm::vec3(46.250000f, -0.500000f, 20.750000f),
      glm::vec3(-90.000000f, 0.000000f, 180.000000f),
      glm::vec3(1.120000f, 0.060000f, 0.380000f)},
     {glm::vec3(42.049999f, -0.500000f, 20.799999f),
      glm::vec3(-90.000000f, 0.000000f, 180.000000f),
-     glm::vec3(0.990000f, 0.610000f, 0.390000f)}};
+     glm::vec3(0.990000f, 0.610000f, 0.390000f)},
+    {glm::vec3(35.850f, -0.500000f, 20.850f),
+     glm::vec3(-90.000000f, 0.000000f, -180.000f),
+     glm::vec3(0.830f, 0.290f, 0.400f)}};
 
 std::vector<Entity> gameEntities = {
     {glm::vec3(8.0f, -0.4f, 4.0f), 3, true,
