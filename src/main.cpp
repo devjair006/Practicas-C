@@ -509,6 +509,7 @@ int main() {
     paredesGLTF = new GLTFModel("assets/contencion/paredes.glb");
     GLTFModel* sillasGLTF = new GLTFModel("assets/sillas.glb");
     GLTFModel* sofaGLTF = new GLTFModel("assets/sofa.glb"); 
+    GLTFModel* monitorGLTF = new GLTFModel("assets/monitor.glb"); 
 
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
@@ -1255,6 +1256,33 @@ int main() {
         sillasGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
+    if (sillasGLTF && !sillasGLTF->meshes.empty()) {
+        glm::mat4 sillas5Model = glm::mat4(1.0f);
+        sillas5Model = glm::translate(sillas5Model, sillas5Pos);
+        sillas5Model = glm::rotate(sillas5Model, glm::radians(sillas5Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        sillas5Model = glm::rotate(sillas5Model, glm::radians(sillas5Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        sillas5Model = glm::rotate(sillas5Model, glm::radians(sillas5Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        sillas5Model = glm::scale(sillas5Model, sillas5Scale);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sillas5Model));
+        sillasGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
+    if (monitorGLTF && !monitorGLTF->meshes.empty()) {
+        glm::mat4 monitorModel = glm::mat4(1.0f);
+        
+        monitorModel = glm::translate(monitorModel, monitorPos);
+        
+        // Comprueba que estas tres líneas estén tal cual para que aplique el giro correctamente
+        monitorModel = glm::rotate(monitorModel, glm::radians(monitorRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        monitorModel = glm::rotate(monitorModel, glm::radians(monitorRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        monitorModel = glm::rotate(monitorModel, glm::radians(monitorRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        
+        monitorModel = glm::scale(monitorModel, monitorScale);
+        
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(monitorModel));
+        monitorGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
     if (sofaGLTF && !sofaGLTF->meshes.empty()) {
         glm::mat4 sofaModel = glm::mat4(1.0f);
         
@@ -1615,10 +1643,22 @@ int main() {
         ImGui::DragFloat3("Sillas 4 Scale", &sillas4Scale.x, 0.01f, 0.001f, 3.0f);
         ImGui::Separator();
 
+        ImGui::Text("Sillas - Fila Ext. Izquierda 2 (5)");
+        ImGui::DragFloat3("Sillas 5 Pos", &sillas5Pos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Sillas 5 Rot", &sillas5Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sillas 5 Scale", &sillas5Scale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::Separator();
+
         ImGui::Text("Sofa");
         ImGui::DragFloat3("Sofa Pos", &sofaPos.x, 0.05f, -100.0f, 100.0f);
         ImGui::DragFloat3("Sofa Rot", &sofaRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Sofa Scale", &sofaScale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Monitor de Pared");
+        ImGui::DragFloat3("Monitor Pos", &monitorPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Monitor Rot", &monitorRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Monitor Scale", &monitorScale.x, 0.01f, 0.001f, 3.0f);
         ImGui::Separator();
     
 

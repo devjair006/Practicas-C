@@ -99,6 +99,12 @@ extern glm::vec3 sillas3Scale;
 extern glm::vec3 sillas4Pos; 
 extern glm::vec3 sillas4Rot; 
 extern glm::vec3 sillas4Scale;
+extern glm::vec3 sillas5Pos;
+extern glm::vec3 sillas5Rot;
+extern glm::vec3 sillas5Scale;
+extern glm::vec3 monitorPos;
+extern glm::vec3 monitorRot;
+extern glm::vec3 monitorScale;
 
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
