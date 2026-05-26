@@ -295,6 +295,7 @@ int main() {
     lampara2GLTF = new GLTFModel("assets/contencion/lampara2.glb");
     lampara3GLTF = new GLTFModel("assets/contencion/lampara2.glb");
     emergencyGLTF = new GLTFModel("assets/contencion/emergency.glb");
+    reactorGLTF = new GLTFModel("assets/contencion/reactor.glb");
     panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
@@ -375,13 +376,19 @@ int main() {
     int finalBonesLoc = glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
     
     int numPointLightsLoc = glGetUniformLocation(shaderProgram, "numPointLights");
-    int pointLightPosLoc[8];
-    int pointLightColLoc[8];
-    for(int i = 0; i < 8; i++) {
-        std::string posStr = "pointLights[" + std::to_string(i) + "].position";
-        std::string colStr = "pointLights[" + std::to_string(i) + "].color";
+    int pointLightPosLoc[12];
+    int pointLightColLoc[12];
+    int pointLightRadLoc[12];
+    for(int i = 0; i < 12; i++) {
+        std::string posStr = "pointLights[" + std::to_string(i) + "]";
+        posStr += ".position";
+        std::string colStr = "pointLights[" + std::to_string(i) + "]";
+        colStr += ".color";
+        std::string radStr = "pointLights[" + std::to_string(i) + "]";
+        radStr += ".radius";
         pointLightPosLoc[i] = glGetUniformLocation(shaderProgram, posStr.c_str());
         pointLightColLoc[i] = glGetUniformLocation(shaderProgram, colStr.c_str());
+        pointLightRadLoc[i] = glGetUniformLocation(shaderProgram, radStr.c_str());
     }
     
     int emissiveStrengthLoc = glGetUniformLocation(shaderProgram, "emissiveStrength");
@@ -532,37 +539,64 @@ int main() {
         float flicker3 = getFlicker(currentFrame, 28.7f);
         float flicker4 = getFlicker(currentFrame, 45.2f);
 
-        glUniform1i(numPointLightsLoc, 7);
-        
         float lampFlicker = 0.8f + 0.2f * sin(currentFrame * 10.0f);
+        float emergencyPulse = (sin(currentFrame * 5.0f) * 0.5f) + 0.5f;
+
+        glUniform1i(numPointLightsLoc, 8);
 
         // color de la lampara y posicion para ponerla en un color amarillento poner colores mas altos en vez de 0.8 0.9 1.0 a unos 0.8 0.6 0.2 para que se vea mas amarillento
         glUniform3fv(pointLightPosLoc[0], 1, glm::value_ptr(ligthbathroomPos));
         glUniform3f(pointLightColLoc[0], 0.8f * flicker1, 0.6f * flicker1, 0.2f * flicker1);
+        glUniform1f(pointLightRadLoc[0], 4.0f);
         
         // Lámpara 2 
         glUniform3fv(pointLightPosLoc[1], 1, glm::value_ptr(ligthbathroom2Pos));
         glUniform3f(pointLightColLoc[1], 0.8f * flicker2, 0.6f * flicker2, 0.2f * flicker2);
+        glUniform1f(pointLightRadLoc[1], 4.0f);
 
         // Lámpara 3 (baño)
         glUniform3fv(pointLightPosLoc[2], 1, glm::value_ptr(lamp3Pos));
         glUniform3f(pointLightColLoc[2], 0.8f * flicker3, 0.6f * flicker3, 0.2f * flicker3);
+        glUniform1f(pointLightRadLoc[2], 4.0f);
 
         // Lámpara 4 (baño)
         glUniform3fv(pointLightPosLoc[3], 1, glm::value_ptr(lamp4Pos));
         glUniform3f(pointLightColLoc[3], 0.8f * flicker4, 0.6f * flicker4, 0.2f * flicker4);
+        glUniform1f(pointLightRadLoc[3], 4.0f);
 
        // lampara contencion 1
         glUniform3fv(pointLightPosLoc[4], 1, glm::value_ptr(lamparaContencionPos));
         glUniform3f(pointLightColLoc[4], 0.8f * lampFlicker, 0.9f * lampFlicker, 1.0f * lampFlicker);
+        glUniform1f(pointLightRadLoc[4], 4.0f);
 
-        // lampara contencion 2
+        // lampara contencion 2 (tenue)
         glUniform3fv(pointLightPosLoc[5], 1, glm::value_ptr(lampara2Pos));
-        glUniform3f(pointLightColLoc[5], 0.8f * lampFlicker, 0.9f * lampFlicker, 1.0f * lampFlicker);
+        glUniform3f(pointLightColLoc[5], 0.4f * lampFlicker, 0.45f * lampFlicker, 0.5f * lampFlicker);
+        glUniform1f(pointLightRadLoc[5], 3.0f);
 
-        // lampara contencion 3
+        // lampara contencion 3 (tenue)
         glUniform3fv(pointLightPosLoc[6], 1, glm::value_ptr(lampara3Pos));
-        glUniform3f(pointLightColLoc[6], 0.8f * lampFlicker, 0.9f * lampFlicker, 1.0f * lampFlicker);
+        glUniform3f(pointLightColLoc[6], 0.4f * lampFlicker, 0.45f * lampFlicker, 0.5f * lampFlicker);
+        glUniform1f(pointLightRadLoc[6], 3.0f);
+
+        // --- LUCES DE EMERGENCIA DINAMICAS ---
+        // Empezamos en el indice 7 (despues de las fijas)
+        int currentLightIdx = 7;
+        for (size_t i = 0; i < emergencyPos.size() && currentLightIdx < 12; i++) {
+            glUniform3fv(pointLightPosLoc[currentLightIdx], 1, glm::value_ptr(emergencyPos[i]));
+            glUniform3f(pointLightColLoc[currentLightIdx], 1.0f * emergencyPulse, 0.0f, 0.0f);
+            glUniform1f(pointLightRadLoc[currentLightIdx], 2.0f); // Radio corto para evitar traspasar paredes
+            currentLightIdx++;
+        }
+        
+        // Informar al shader cuantas luces reales estamos usando
+        glUniform1i(numPointLightsLoc, currentLightIdx);
+
+        // Limpiar las luces restantes por si acaso
+        for (int i = currentLightIdx; i < 12; i++) {
+            glUniform3f(pointLightColLoc[i], 0.0f, 0.0f, 0.0f);
+            glUniform1f(pointLightRadLoc[i], 0.0f);
+        }
 
         // --- MAPA ---
         for (int z = 0; z < MAP_HEIGHT; z++) {
@@ -688,7 +722,14 @@ int main() {
                     }
                 }
                 
-                if (x >= 34 && x <= 49 && z >= 12 && z <= 21) {
+                // Determinar si esta celda pertenece al area de contencion:
+                // - Celdas de pared tipo 4 (perimetro)
+                // - Celdas interiores vacias dentro del rectangulo x=[34..49], z=[12..21]
+                bool isContencionCell = (blockType == 4) ||
+                    (x >= 34 && x <= 49 && z >= 12 && z <= 21 &&
+                     blockType == 0);
+
+                if (isContencionCell) {
                     glBindTexture(GL_TEXTURE_2D, floorContencionTex);
                 } else {
                     glBindTexture(GL_TEXTURE_2D, floorTexture);
@@ -700,7 +741,7 @@ int main() {
                 
                 if (dimensionAlterna) glUniform3f(colorLoc, 0.4f, 0.1f, 0.1f);
                 else {
-                    if (x >= 34 && x <= 49 && z >= 12 && z <= 21) glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Bright texture
+                    if (isContencionCell) glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Bright texture
                     else glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
                 }
                 
@@ -710,7 +751,7 @@ int main() {
                     glm::mat4 roofModel = glm::mat4(1.0f);
                     roofModel = glm::translate(roofModel, glm::vec3((float)x, wallHeight, (float)z));
                     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(roofModel));
-                    if (x >= 34 && x <= 49 && z >= 12 && z <= 21) {
+                    if (isContencionCell) {
                         glBindTexture(GL_TEXTURE_2D, roofContencionTex);
                         glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); 
                     } else {
@@ -1217,9 +1258,9 @@ int main() {
             lamp2Model = glm::rotate(lamp2Model, glm::radians(lampara2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
             lamp2Model = glm::rotate(lamp2Model, glm::radians(lampara2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
             lamp2Model = glm::scale(lamp2Model, lampara2Scale);
-            
+
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lamp2Model));
-            glUniform1f(emissiveStrengthLoc, 1.5f * lampFlicker);
+            glUniform1f(emissiveStrengthLoc, 0.8f * lampFlicker);
             lampara2GLTF->Draw(shaderProgram, solidColorLoc);
             glUniform1f(emissiveStrengthLoc, 0.0f);
         }
@@ -1231,13 +1272,12 @@ int main() {
             lamp3Model = glm::rotate(lamp3Model, glm::radians(lampara3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
             lamp3Model = glm::rotate(lamp3Model, glm::radians(lampara3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
             lamp3Model = glm::scale(lamp3Model, lampara3Scale);
-            
+
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lamp3Model));
-            glUniform1f(emissiveStrengthLoc, 1.5f * lampFlicker);
+            glUniform1f(emissiveStrengthLoc, 0.8f * lampFlicker);
             lampara3GLTF->Draw(shaderProgram, solidColorLoc);
             glUniform1f(emissiveStrengthLoc, 0.0f);
         }
-
         if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
             for (size_t i = 0; i < emergencyPos.size(); i++) {
                 glm::mat4 emergModel = glm::mat4(1.0f);
@@ -1248,12 +1288,23 @@ int main() {
                 emergModel = glm::scale(emergModel, emergencyScale[i]);
                 
                 glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(emergModel));
-                // Pulsing red effect for emergency
-                float emergencyPulse = (sin(glfwGetTime() * 5.0f) * 0.5f) + 0.5f; 
-                glUniform1f(emissiveStrengthLoc, 2.0f * emergencyPulse);
+                // Usar el pulso compartido y aumentar intensidad emisiva
+                glUniform1f(emissiveStrengthLoc, 4.0f * emergencyPulse);
                 emergencyGLTF->Draw(shaderProgram, solidColorLoc);
                 glUniform1f(emissiveStrengthLoc, 0.0f);
             }
+        }
+
+        if (reactorGLTF && !reactorGLTF->meshes.empty()) {
+            glm::mat4 reactorModel = glm::mat4(1.0f);
+            reactorModel = glm::translate(reactorModel, reactorPos);
+            reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            reactorModel = glm::scale(reactorModel, reactorScale);
+            
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(reactorModel));
+            reactorGLTF->Draw(shaderProgram, solidColorLoc);
         }
 
         if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
@@ -1858,6 +1909,19 @@ int main() {
             }
             ImGui::PopID();
         }
+
+        ImGui::Separator();
+        ImGui::Text("Reactor Model");
+        ImGui::DragFloat3("Reactor Pos", &reactorPos.x, 0.05f);
+        ImGui::DragFloat3("Reactor Rot", &reactorRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Reactor Scale", &reactorScale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer frente a camara##reactor")) {
+            reactorPos = cameraPos + cameraFront * 2.0f;
+            reactorPos.y = 2.0f;
+            reactorRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            reactorScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
         ImGui::Separator();
 
         ImGui::Text("Panel de Control");

@@ -213,6 +213,11 @@ extern std::vector<glm::vec3> emergencyPos;
 extern std::vector<glm::vec3> emergencyRot;
 extern std::vector<glm::vec3> emergencyScale;
 
+extern GLTFModel *reactorGLTF;
+extern glm::vec3 reactorPos;
+extern glm::vec3 reactorRot;
+extern glm::vec3 reactorScale;
+
 extern GLTFModel *panelControlGLTF;
 extern glm::vec3 panelControlPos;
 extern glm::vec3 panelControlRot;

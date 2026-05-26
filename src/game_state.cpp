@@ -203,6 +203,7 @@ GLTFModel *lamparaContencionGLTF = nullptr;
 GLTFModel *lampara2GLTF = nullptr;
 GLTFModel *lampara3GLTF = nullptr;
 GLTFModel *emergencyGLTF = nullptr;
+GLTFModel *reactorGLTF = nullptr;
 GLTFModel *panelControlGLTF = nullptr;
 
 glm::vec3 teslaPos(44.800f, -0.500f, 14.200f);
@@ -217,9 +218,17 @@ glm::vec3 lampara2Pos(36.155f, 0.450f, 18.042f);
 glm::vec3 lampara2Rot(-89.000f, 0.000f, 89.000f);
 glm::vec3 lampara2Scale(1.010f, 8.980f, 1.070f);
 
-std::vector<glm::vec3> emergencyPos;
-std::vector<glm::vec3> emergencyRot;
-std::vector<glm::vec3> emergencyScale;
+std::vector<glm::vec3> emergencyPos = {
+    glm::vec3(39.693f, 0.400f, 20.935f),
+};
+std::vector<glm::vec3> emergencyRot = {
+    glm::vec3(-93.500f, 0.000f, 0.000f),
+};
+std::vector<glm::vec3> emergencyScale = {glm::vec3(1.0f, 1.0f, 1.0f)};
+
+glm::vec3 reactorPos(40.963f, -0.550f, 18.761f);
+glm::vec3 reactorRot(0.000f, 0.000f, 0.000f);
+glm::vec3 reactorScale(1.00f, 1.000f, 1.000f);
 
 glm::vec3 lampara3Pos(36.155f, 0.450f, 16.392f);
 glm::vec3 lampara3Rot(-89.000f, 0.000f, 89.000f);
