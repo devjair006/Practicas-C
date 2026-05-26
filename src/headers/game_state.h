@@ -198,6 +198,21 @@ extern glm::vec3 lamparaContencionPos;
 extern glm::vec3 lamparaContencionRot;
 extern glm::vec3 lamparaContencionScale;
 
+extern GLTFModel *lampara2GLTF;
+extern glm::vec3 lampara2Pos;
+extern glm::vec3 lampara2Rot;
+extern glm::vec3 lampara2Scale;
+
+extern GLTFModel *lampara3GLTF;
+extern glm::vec3 lampara3Pos;
+extern glm::vec3 lampara3Rot;
+extern glm::vec3 lampara3Scale;
+
+extern GLTFModel *emergencyGLTF;
+extern std::vector<glm::vec3> emergencyPos;
+extern std::vector<glm::vec3> emergencyRot;
+extern std::vector<glm::vec3> emergencyScale;
+
 extern GLTFModel *panelControlGLTF;
 extern glm::vec3 panelControlPos;
 extern glm::vec3 panelControlRot;

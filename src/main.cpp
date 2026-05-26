@@ -292,6 +292,9 @@ int main() {
     esquinerosGLTF = new GLTFModel("assets/contencion/esquineros.glb");
     generadorGLTF = new GLTFModel("assets/contencion/generador.glb");
     lamparaContencionGLTF = new GLTFModel("assets/contencion/lampara.glb");
+    lampara2GLTF = new GLTFModel("assets/contencion/lampara2.glb");
+    lampara3GLTF = new GLTFModel("assets/contencion/lampara2.glb");
+    emergencyGLTF = new GLTFModel("assets/contencion/emergency.glb");
     panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
@@ -372,9 +375,9 @@ int main() {
     int finalBonesLoc = glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
     
     int numPointLightsLoc = glGetUniformLocation(shaderProgram, "numPointLights");
-    int pointLightPosLoc[4];
-    int pointLightColLoc[4];
-    for(int i = 0; i < 4; i++) {
+    int pointLightPosLoc[8];
+    int pointLightColLoc[8];
+    for(int i = 0; i < 8; i++) {
         std::string posStr = "pointLights[" + std::to_string(i) + "].position";
         std::string colStr = "pointLights[" + std::to_string(i) + "].color";
         pointLightPosLoc[i] = glGetUniformLocation(shaderProgram, posStr.c_str());
@@ -412,6 +415,19 @@ int main() {
     // Tip: camina al cuarto en el juego y lee cameraPos.x / cameraPos.z en el editor
     // para encontrar las coordenadas exactas del área que quieres cubrir.
     //
+    unsigned int wallTex4 = 0;
+    unsigned int wallTex5 = 0;
+
+    struct RoomZone {
+        int x1, z1, x2, z2;
+        unsigned int wallTex;
+        unsigned int floorTex;
+        glm::vec3 ceilColor;
+        bool overrideWall;
+        bool overrideFloor;
+        bool overrideCeil;
+    };
+
     //  { x1, z1, x2, z2,  wallTex,  floorTex, ceilColor,               overrideWall, overrideFloor, overrideCeil }
     std::vector<RoomZone> roomZones = {
         { 33,  0,  37,  8,  wallTex2, wallTex5,         {0.15f, 0.15f, 0.2f},  true,  true, false  }, // Baños (cambia a tu textura de azulejo)
@@ -516,9 +532,9 @@ int main() {
         float flicker3 = getFlicker(currentFrame, 28.7f);
         float flicker4 = getFlicker(currentFrame, 45.2f);
 
-        glUniform1i(numPointLightsLoc, 4);
+        glUniform1i(numPointLightsLoc, 7);
         
-        float lampFlicker = 0.7f + 0.1f * sin(currentFrame * 4.0f);
+        float lampFlicker = 0.8f + 0.2f * sin(currentFrame * 10.0f);
 
         // color de la lampara y posicion para ponerla en un color amarillento poner colores mas altos en vez de 0.8 0.9 1.0 a unos 0.8 0.6 0.2 para que se vea mas amarillento
         glUniform3fv(pointLightPosLoc[0], 1, glm::value_ptr(ligthbathroomPos));
@@ -528,17 +544,25 @@ int main() {
         glUniform3fv(pointLightPosLoc[1], 1, glm::value_ptr(ligthbathroom2Pos));
         glUniform3f(pointLightColLoc[1], 0.8f * flicker2, 0.6f * flicker2, 0.2f * flicker2);
 
-        // Lámpara 3
+        // Lámpara 3 (baño)
         glUniform3fv(pointLightPosLoc[2], 1, glm::value_ptr(lamp3Pos));
         glUniform3f(pointLightColLoc[2], 0.8f * flicker3, 0.6f * flicker3, 0.2f * flicker3);
 
-        // Lámpara 4
+        // Lámpara 4 (baño)
         glUniform3fv(pointLightPosLoc[3], 1, glm::value_ptr(lamp4Pos));
         glUniform3f(pointLightColLoc[3], 0.8f * flicker4, 0.6f * flicker4, 0.2f * flicker4);
 
-       // lampara contencion 
-        glUniform3fv(pointLightPosLoc[2], 1, glm::value_ptr(lamparaContencionPos));
-        glUniform3f(pointLightColLoc[2], 0.8f * lampFlicker, 0.9f * lampFlicker, 1.0f * lampFlicker);
+       // lampara contencion 1
+        glUniform3fv(pointLightPosLoc[4], 1, glm::value_ptr(lamparaContencionPos));
+        glUniform3f(pointLightColLoc[4], 0.8f * lampFlicker, 0.9f * lampFlicker, 1.0f * lampFlicker);
+
+        // lampara contencion 2
+        glUniform3fv(pointLightPosLoc[5], 1, glm::value_ptr(lampara2Pos));
+        glUniform3f(pointLightColLoc[5], 0.8f * lampFlicker, 0.9f * lampFlicker, 1.0f * lampFlicker);
+
+        // lampara contencion 3
+        glUniform3fv(pointLightPosLoc[6], 1, glm::value_ptr(lampara3Pos));
+        glUniform3f(pointLightColLoc[6], 0.8f * lampFlicker, 0.9f * lampFlicker, 1.0f * lampFlicker);
 
         // --- MAPA ---
         for (int z = 0; z < MAP_HEIGHT; z++) {
@@ -1179,10 +1203,57 @@ int main() {
             lampModel = glm::rotate(lampModel, glm::radians(lamparaContencionRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
             lampModel = glm::rotate(lampModel, glm::radians(lamparaContencionRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
             lampModel = glm::scale(lampModel, lamparaContencionScale);
+            
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lampModel));
             glUniform1f(emissiveStrengthLoc, 1.5f * lampFlicker);
             lamparaContencionGLTF->Draw(shaderProgram, solidColorLoc);
             glUniform1f(emissiveStrengthLoc, 0.0f);
+        }
+
+        if (lampara2GLTF && !lampara2GLTF->meshes.empty()) {
+            glm::mat4 lamp2Model = glm::mat4(1.0f);
+            lamp2Model = glm::translate(lamp2Model, lampara2Pos);
+            lamp2Model = glm::rotate(lamp2Model, glm::radians(lampara2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lamp2Model = glm::rotate(lamp2Model, glm::radians(lampara2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lamp2Model = glm::rotate(lamp2Model, glm::radians(lampara2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lamp2Model = glm::scale(lamp2Model, lampara2Scale);
+            
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lamp2Model));
+            glUniform1f(emissiveStrengthLoc, 1.5f * lampFlicker);
+            lampara2GLTF->Draw(shaderProgram, solidColorLoc);
+            glUniform1f(emissiveStrengthLoc, 0.0f);
+        }
+
+        if (lampara3GLTF && !lampara3GLTF->meshes.empty()) {
+            glm::mat4 lamp3Model = glm::mat4(1.0f);
+            lamp3Model = glm::translate(lamp3Model, lampara3Pos);
+            lamp3Model = glm::rotate(lamp3Model, glm::radians(lampara3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            lamp3Model = glm::rotate(lamp3Model, glm::radians(lampara3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            lamp3Model = glm::rotate(lamp3Model, glm::radians(lampara3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            lamp3Model = glm::scale(lamp3Model, lampara3Scale);
+            
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lamp3Model));
+            glUniform1f(emissiveStrengthLoc, 1.5f * lampFlicker);
+            lampara3GLTF->Draw(shaderProgram, solidColorLoc);
+            glUniform1f(emissiveStrengthLoc, 0.0f);
+        }
+
+        if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
+            for (size_t i = 0; i < emergencyPos.size(); i++) {
+                glm::mat4 emergModel = glm::mat4(1.0f);
+                emergModel = glm::translate(emergModel, emergencyPos[i]);
+                emergModel = glm::rotate(emergModel, glm::radians(emergencyRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+                emergModel = glm::rotate(emergModel, glm::radians(emergencyRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+                emergModel = glm::rotate(emergModel, glm::radians(emergencyRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+                emergModel = glm::scale(emergModel, emergencyScale[i]);
+                
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(emergModel));
+                // Pulsing red effect for emergency
+                float emergencyPulse = (sin(glfwGetTime() * 5.0f) * 0.5f) + 0.5f; 
+                glUniform1f(emissiveStrengthLoc, 2.0f * emergencyPulse);
+                emergencyGLTF->Draw(shaderProgram, solidColorLoc);
+                glUniform1f(emissiveStrengthLoc, 0.0f);
+            }
         }
 
         if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
@@ -1711,7 +1782,7 @@ int main() {
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 700.0f, 10.0f), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(340.0f, 300.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(340.0f, 450.0f), ImGuiCond_Always);
         ImGui::SetNextWindowBgAlpha(0.75f);
         ImGui::Begin("Editor Contencion", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
         ImGui::Text("Tesla Model");
@@ -1726,15 +1797,66 @@ int main() {
         }
         ImGui::Separator();
 
-        ImGui::Text("Lampara Contencion");
+        ImGui::Text("Lampara Contencion Model");
         ImGui::DragFloat3("Lamp Pos", &lamparaContencionPos.x, 0.05f);
         ImGui::DragFloat3("Lamp Rot", &lamparaContencionRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Lamp Scale", &lamparaContencionScale.x, 0.01f, 0.01f, 10.0f);
-        if (ImGui::Button("Traer Lampara frente a camara")) {
+        if (ImGui::Button("Traer frente a camara##lampara")) {
             lamparaContencionPos = cameraPos + cameraFront * 2.0f;
             lamparaContencionPos.y = 2.0f;
             lamparaContencionRot = glm::vec3(0.0f, 0.0f, 0.0f);
             lamparaContencionScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Lampara 2 Model");
+        ImGui::DragFloat3("Lamp2 Pos", &lampara2Pos.x, 0.05f);
+        ImGui::DragFloat3("Lamp2 Rot", &lampara2Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lamp2 Scale", &lampara2Scale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer frente a camara##lampara2")) {
+            lampara2Pos = cameraPos + cameraFront * 2.0f;
+            lampara2Pos.y = 2.0f;
+            lampara2Rot = glm::vec3(0.0f, 0.0f, 0.0f);
+            lampara2Scale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Lampara 3 Model");
+        ImGui::DragFloat3("Lamp3 Pos", &lampara3Pos.x, 0.05f);
+        ImGui::DragFloat3("Lamp3 Rot", &lampara3Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lamp3 Scale", &lampara3Scale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer frente a camara##lampara3")) {
+            lampara3Pos = cameraPos + cameraFront * 2.0f;
+            lampara3Pos.y = 2.0f;
+            lampara3Rot = glm::vec3(0.0f, 0.0f, 0.0f);
+            lampara3Scale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Emergency Lights");
+        if (ImGui::Button("Agregar Luz de Emergencia")) {
+            emergencyPos.push_back(cameraPos + cameraFront * 2.0f);
+            emergencyRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+            emergencyScale.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
+        }
+        for (size_t i = 0; i < emergencyPos.size(); i++) {
+            ImGui::PushID(i);
+            ImGui::Text("Luz %d", (int)i);
+            ImGui::DragFloat3("Pos", &emergencyPos[i].x, 0.05f);
+            ImGui::DragFloat3("Rot", &emergencyRot[i].x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("Scale", &emergencyScale[i].x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer frente a camara")) {
+                emergencyPos[i] = cameraPos + cameraFront * 2.0f;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Eliminar")) {
+                emergencyPos.erase(emergencyPos.begin() + i);
+                emergencyRot.erase(emergencyRot.begin() + i);
+                emergencyScale.erase(emergencyScale.begin() + i);
+                ImGui::PopID();
+                break; // Break the loop to avoid invalid iterator
+            }
+            ImGui::PopID();
         }
         ImGui::Separator();
 

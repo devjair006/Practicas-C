@@ -26,7 +26,7 @@ struct PointLight {
     vec3 position;
     vec3 color;
 };
-#define MAX_POINT_LIGHTS 4
+#define MAX_POINT_LIGHTS 8
 uniform int numPointLights;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
