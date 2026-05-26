@@ -28,6 +28,17 @@ extern bool isReadingDocument;
 extern std::string currentDocumentTitle;
 extern std::string currentDocumentBody;
 
+extern glm::vec3 mensBpos;
+extern glm::vec3 mensBrot;
+extern glm::vec3 mensBscale;
+
+extern glm::vec3 girlBpos;
+extern glm::vec3 girlBrot;
+extern glm::vec3 girlBscale;
+extern glm::vec3 mirrorBGpos;
+extern glm::vec3 mirrorBGRot;
+extern glm::vec3 mirrorBGScale;
+
 extern glm::vec3 azulejoPos;
 extern glm::vec3 azulejoRot;
 extern glm::vec3 azulejoScale;
@@ -69,6 +80,22 @@ extern glm::vec3 banoScale3;
 extern glm::vec3 banoPos4;
 extern glm::vec3 banoRot4;
 extern glm::vec3 banoScale4;
+
+extern glm::vec3 banoPos5;
+extern glm::vec3 banoRot5;
+extern glm::vec3 banoScale5;
+
+extern glm::vec3 banoPos6;
+extern glm::vec3 banoRot6;
+extern glm::vec3 banoScale6;
+
+extern glm::vec3 banoPos7;
+extern glm::vec3 banoRot7;
+extern glm::vec3 banoScale7;
+
+extern glm::vec3 banoPos8;
+extern glm::vec3 banoRot8;
+extern glm::vec3 banoScale8;
 extern glm::vec3 lavamanosPos;
 extern glm::vec3 lavamanosRot;
 extern glm::vec3 lavamanosScale;
@@ -81,9 +108,46 @@ extern glm::vec3 lavamanosScale3;
 extern glm::vec3 lavamanosPos4;
 extern glm::vec3 lavamanosRot4;
 extern glm::vec3 lavamanosScale4;
+
+extern glm::vec3 lavamanosPos5;
+extern glm::vec3 lavamanosRot5;
+extern glm::vec3 lavamanosScale5;
+
+extern glm::vec3 lavamanosPos6;
+extern glm::vec3 lavamanosRot6;
+extern glm::vec3 lavamanosScale6;
+
+extern glm::vec3 lavamanosPos7;
+extern glm::vec3 lavamanosRot7;
+extern glm::vec3 lavamanosScale7;
+
+extern glm::vec3 lavamanosPos8;
+extern glm::vec3 lavamanosRot8;
+extern glm::vec3 lavamanosScale8;
 extern glm::vec3 urinarioPos;
 extern glm::vec3 urinarioRot;
 extern glm::vec3 urinarioScale;
+extern glm::vec3 sillasPos;
+extern glm::vec3 sillasRot;
+extern glm::vec3 sillasScale;
+extern glm::vec3 sofaPos;
+extern glm::vec3 sofaRot;
+extern glm::vec3 sofaScale;
+extern glm::vec3 sillas2Pos;
+extern glm::vec3 sillas2Rot;
+extern glm::vec3 sillas2Scale; 
+extern glm::vec3 sillas3Pos; 
+extern glm::vec3 sillas3Rot; 
+extern glm::vec3 sillas3Scale;
+extern glm::vec3 sillas4Pos; 
+extern glm::vec3 sillas4Rot; 
+extern glm::vec3 sillas4Scale;
+extern glm::vec3 sillas5Pos;
+extern glm::vec3 sillas5Rot;
+extern glm::vec3 sillas5Scale;
+extern glm::vec3 monitorPos;
+extern glm::vec3 monitorRot;
+extern glm::vec3 monitorScale;
 
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
@@ -115,11 +179,14 @@ extern bool hasKeycardLvl2;
 extern bool dimensionAlterna;
 extern bool portalActivado;
 extern int currentZone;
+extern bool showDebugGUI;
 
 class GLTFModel;
 extern GLTFModel *banoGLTF;
 extern GLTFModel *lavamanosGLTF;
 extern GLTFModel *urinarioGLTF;
+extern GLTFModel *mensBGLTF;
+extern GLTFModel *girlBGLTF;
 // area de contencion
 extern GLTFModel *teslaGLTF;
 extern glm::vec3 teslaPos;

@@ -31,11 +31,16 @@ if(WIN32)
 else()
     find_package(glfw3 CONFIG REQUIRED)
     set(GLFW_LIBRARIES glfw)
-    
-    # Buscar GLUT para macOS/Linux
-    find_package(GLUT REQUIRED)
-    include_directories(${GLUT_INCLUDE_DIRS})
-    set(GLUT_LIBRARIES ${GLUT_LIBRARIES})
+
+    # Buscar ASSIMP para macOS/Linux (brew install assimp)
+    find_package(assimp REQUIRED)
+    # brew exporta assimp como target moderno; ASSIMP_INCLUDE_DIRS no se setea automáticamente
+    get_target_property(ASSIMP_INC_DIR assimp::assimp INTERFACE_INCLUDE_DIRECTORIES)
+    include_directories(BEFORE ${ASSIMP_INC_DIR})
+    set(ASSIMP_LIBRARIES assimp::assimp)
+
+    # GLUT no se usa en el código; en macOS usamos los frameworks del sistema
+    set(GLUT_LIBRARIES "")
 endif()
 
 # Fuentes
@@ -79,12 +84,12 @@ if(WIN32)
         )
     endif()
 else()
-    target_link_libraries(app ${GLFW_LIBRARIES} ${GLUT_LIBRARIES})
+    target_link_libraries(app ${GLFW_LIBRARIES} ${ASSIMP_LIBRARIES})
 endif()
 
 # Configuración específica para macOS
 if(APPLE)
-    target_link_libraries(app "-framework OpenGL" "-framework Cocoa" "-framework IOKit" "-framework CoreVideo" "-framework GLUT")
+    target_link_libraries(app "-framework OpenGL" "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
 endif()
 
 # Configuración específica para Windows (MSVC)
