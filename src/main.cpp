@@ -506,7 +506,7 @@ int main() {
     lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
     urinarioGLTF = new GLTFModel("assets/urinario.glb");
     teslaGLTF = new GLTFModel("assets/contencion/tesla.glb");
-    paredesGLTF = new GLTFModel("assets/contencion/paredes.glb");
+
     esquinerosGLTF = new GLTFModel("assets/contencion/esquineros.glb");
     generadorGLTF = new GLTFModel("assets/contencion/generador.glb");
     lamparaContencionGLTF = new GLTFModel("assets/contencion/lampara.glb");
@@ -523,6 +523,11 @@ int main() {
     unsigned int wallTex1 = loadTexture("assets/paredesH.png"); 
     unsigned int wallTex2 = loadTexture("assets/paredes.png");  
     unsigned int wallTex3 = loadTexture("assets/wall.png");     
+    
+    // Texturas de área de contención
+    unsigned int wallContencionTex = loadTexture("assets/contencion/paredes-contencion.png");
+    unsigned int floorContencionTex = loadTexture("assets/contencion/piso-contencion.png");
+    unsigned int roofContencionTex = loadTexture("assets/contencion/techo-contencion.png");
     
     // Textura de metal generada para las puertas
     unsigned int doorTex = loadTextureWithFallback("assets/puerta_metal.png", 0); 
@@ -685,6 +690,8 @@ int main() {
 
         glUniform1i(numPointLightsLoc, 3);
         
+        float lampFlicker = 0.7f + 0.1f * sin(currentFrame * 4.0f);
+
         // color de la lampara y posicion para ponerla en un color amarillento poner colores mas altos en vez de 0.8 0.9 1.0 a unos 0.8 0.6 0.2 para que se vea mas amarillento
         glUniform3fv(pointLightPosLoc[0], 1, glm::value_ptr(ligthbathroomPos));
         glUniform3f(pointLightColLoc[0], 0.8f, 0.6f, 0.2f);
@@ -695,7 +702,7 @@ int main() {
 
        // lampara contencion 
         glUniform3fv(pointLightPosLoc[2], 1, glm::value_ptr(lamparaContencionPos));
-        glUniform3f(pointLightColLoc[2], 0.8f, 0.9f, 1.0f);
+        glUniform3f(pointLightColLoc[2], 0.8f * lampFlicker, 0.9f * lampFlicker, 1.0f * lampFlicker);
 
         // --- MAPA ---
         for (int z = 0; z < MAP_HEIGHT; z++) {
@@ -798,9 +805,10 @@ int main() {
                         if (blockType == 1) glBindTexture(GL_TEXTURE_2D, wallTex1);
                         else if (blockType == 2) glBindTexture(GL_TEXTURE_2D, wallTex2);
                         else if (blockType == 3) glBindTexture(GL_TEXTURE_2D, wallTex3);
+                        else if (blockType == 4) glBindTexture(GL_TEXTURE_2D, wallContencionTex);
                         glBindVertexArray(VAO);
 
-                        // Escalar paredes inteligentemente segÃºn vecinos
+                        // Escalar paredes inteligentemente según vecinos
                         float scaleX = wallWidth;
                         float scaleZ = wallWidth;
                         bool hasLeft  = (x > 0 && worldMap[z][x-1] > 0);
@@ -819,13 +827,21 @@ int main() {
                     }
                 }
                 
-                glBindTexture(GL_TEXTURE_2D, floorTexture);
+                if (x >= 34 && x <= 49 && z >= 12 && z <= 21) {
+                    glBindTexture(GL_TEXTURE_2D, floorContencionTex);
+                } else {
+                    glBindTexture(GL_TEXTURE_2D, floorTexture);
+                }
+                
                 glm::mat4 floorModel = glm::mat4(1.0f);
                 floorModel = glm::translate(floorModel, glm::vec3((float)x, -1.0f, (float)z));
                 glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(floorModel));
                 
                 if (dimensionAlterna) glUniform3f(colorLoc, 0.4f, 0.1f, 0.1f);
-                else glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
+                else {
+                    if (x >= 34 && x <= 49 && z >= 12 && z <= 21) glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Bright texture
+                    else glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
+                }
                 
                 glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -833,7 +849,13 @@ int main() {
                     glm::mat4 roofModel = glm::mat4(1.0f);
                     roofModel = glm::translate(roofModel, glm::vec3((float)x, wallHeight, (float)z));
                     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(roofModel));
-                    glUniform3f(colorLoc, 0.3f, 0.3f, 0.3f); 
+                    if (x >= 34 && x <= 49 && z >= 12 && z <= 21) {
+                        glBindTexture(GL_TEXTURE_2D, roofContencionTex);
+                        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); 
+                    } else {
+                        glBindTexture(GL_TEXTURE_2D, floorTexture);
+                        glUniform3f(colorLoc, 0.3f, 0.3f, 0.3f); 
+                    }
                     glDrawArrays(GL_TRIANGLES, 0, 36);
                 }
             }
@@ -1209,7 +1231,7 @@ int main() {
             lampModel = glm::rotate(lampModel, glm::radians(lamparaContencionRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
             lampModel = glm::scale(lampModel, lamparaContencionScale);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lampModel));
-            glUniform1f(emissiveStrengthLoc, 1.5f);
+            glUniform1f(emissiveStrengthLoc, 1.5f * lampFlicker);
             lamparaContencionGLTF->Draw(shaderProgram, solidColorLoc);
             glUniform1f(emissiveStrengthLoc, 0.0f);
         }
@@ -1280,18 +1302,6 @@ int main() {
             }
         }
 
-        if (paredesGLTF && !paredesGLTF->meshes.empty()) {
-            for (const auto& w : paredesList) {
-                glm::mat4 paredesModel = glm::mat4(1.0f);
-                paredesModel = glm::translate(paredesModel, w.pos);
-                paredesModel = glm::rotate(paredesModel, glm::radians(w.rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-                paredesModel = glm::rotate(paredesModel, glm::radians(w.rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-                paredesModel = glm::rotate(paredesModel, glm::radians(w.rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-                paredesModel = glm::scale(paredesModel, w.scale);
-                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(paredesModel));
-                paredesGLTF->Draw(shaderProgram, solidColorLoc);
-            }
-        }
         glUniform1i(solidColorLoc, 0);
 
         // --- DIBUJAR ENTIDADES 3D ---
@@ -1699,54 +1709,7 @@ int main() {
                 *targetScale = esquinerosScale; // Usar la escala del primero como base
             }
         }
-        ImGui::Separator();
-        ImGui::Text("Paredes Model");
-        if (!paredesList.empty()) {
-            static int selectedWallIndex = 0;
-            if (selectedWallIndex >= (int)paredesList.size()) selectedWallIndex = (int)paredesList.size() - 1;
-            
-            std::string comboLabel = "Panel " + std::to_string(selectedWallIndex);
-            if (ImGui::BeginCombo("Seleccionar Panel", comboLabel.c_str())) {
-                for (int n = 0; n < (int)paredesList.size(); n++) {
-                    const bool is_selected = (selectedWallIndex == n);
-                    std::string itemLabel = "Panel " + std::to_string(n);
-                    if (ImGui::Selectable(itemLabel.c_str(), is_selected))
-                        selectedWallIndex = n;
-                    if (is_selected)
-                        ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
 
-            ImGui::DragFloat3("Panel Pos", &paredesList[selectedWallIndex].pos.x, 0.05f);
-            ImGui::DragFloat3("Panel Rot", &paredesList[selectedWallIndex].rot.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Panel Scale", &paredesList[selectedWallIndex].scale.x, 0.01f, 0.01f, 10.0f);
-            
-            if (ImGui::Button("Traer Panel frente a camara")) {
-                paredesList[selectedWallIndex].pos = cameraPos + cameraFront * 2.0f;
-                paredesList[selectedWallIndex].pos.y = -0.5f;
-                paredesList[selectedWallIndex].rot = glm::vec3(0.0f, 0.0f, 0.0f);
-                paredesList[selectedWallIndex].scale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-
-            ImGui::Separator();
-            if (ImGui::Button("Copiar ParedesList a Portapapeles")) {
-                std::string exportText = "std::vector<WallDef> paredesList = {\n";
-                for (size_t i = 0; i < paredesList.size(); ++i) {
-                    exportText += "    {glm::vec3(" + std::to_string(paredesList[i].pos.x) + "f, " +
-                                  std::to_string(paredesList[i].pos.y) + "f, " +
-                                  std::to_string(paredesList[i].pos.z) + "f),\n" +
-                                  "     glm::vec3(" + std::to_string(paredesList[i].rot.x) + "f, " +
-                                  std::to_string(paredesList[i].rot.y) + "f, " +
-                                  std::to_string(paredesList[i].rot.z) + "f), " +
-                                  "glm::vec3(" + std::to_string(paredesList[i].scale.x) + "f, " +
-                                  std::to_string(paredesList[i].scale.y) + "f, " +
-                                  std::to_string(paredesList[i].scale.z) + "f)}" + 
-                                  (i < paredesList.size() - 1 ? ",\n" : "};\n");
-                }
-                ImGui::SetClipboardText(exportText.c_str());
-            }
-        }
         ImGui::End();
 
         static int selectedEntityIndex = 0;

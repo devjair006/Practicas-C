@@ -158,14 +158,6 @@ extern glm::vec3 esquineros4Pos;
 extern glm::vec3 esquineros4Rot;
 extern glm::vec3 esquineros4Scale;
 
-struct WallDef {
-    glm::vec3 pos;
-    glm::vec3 rot;
-    glm::vec3 scale;
-};
-
-extern GLTFModel *paredesGLTF;
-extern std::vector<WallDef> paredesList;
 
 extern std::vector<Entity> gameEntities;
 
