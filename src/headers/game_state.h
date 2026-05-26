@@ -198,6 +198,21 @@ extern glm::vec3 lamparaContencionPos;
 extern glm::vec3 lamparaContencionRot;
 extern glm::vec3 lamparaContencionScale;
 
+extern GLTFModel *lampara2GLTF;
+extern glm::vec3 lampara2Pos;
+extern glm::vec3 lampara2Rot;
+extern glm::vec3 lampara2Scale;
+
+extern GLTFModel *lampara3GLTF;
+extern glm::vec3 lampara3Pos;
+extern glm::vec3 lampara3Rot;
+extern glm::vec3 lampara3Scale;
+
+extern GLTFModel *emergencyGLTF;
+extern std::vector<glm::vec3> emergencyPos;
+extern std::vector<glm::vec3> emergencyRot;
+extern std::vector<glm::vec3> emergencyScale;
+
 extern GLTFModel *panelControlGLTF;
 extern glm::vec3 panelControlPos;
 extern glm::vec3 panelControlRot;
@@ -225,27 +240,6 @@ extern glm::vec3 esquineros4Pos;
 extern glm::vec3 esquineros4Rot;
 extern glm::vec3 esquineros4Scale;
 
-struct WallDef {
-  glm::vec3 pos;
-  glm::vec3 rot;
-  glm::vec3 scale;
-};
-
-// Una zona rectangular del mapa con texturas propias.
-// Las coords son celdas del worldMap (mismo sistema de coordenadas que el
-// mundo).
-struct RoomZone {
-  int x1, z1, x2, z2;
-  unsigned int wallTex = 0;  // 0 = usa blockType por defecto
-  unsigned int floorTex = 0; // 0 = usa floorTexture por defecto
-  glm::vec3 ceilColor = {0.3f, 0.3f, 0.3f};
-  bool overrideWall = false;
-  bool overrideFloor = false;
-  bool overrideCeil = false;
-};
-
-extern GLTFModel *paredesGLTF;
-extern std::vector<WallDef> paredesList;
 
 extern std::vector<Entity> gameEntities;
 

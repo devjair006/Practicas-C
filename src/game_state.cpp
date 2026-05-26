@@ -124,23 +124,23 @@ glm::vec3 urinarioPos(36.8f, -0.54f, 5.2f);
 glm::vec3 urinarioRot(-90.5f, -2.5f, -90.0f);
 glm::vec3 urinarioScale(0.4f, 0.4f, 0.4f);
 
-glm::vec3 sillasPos = glm::vec3(30.3f, -0.35f, 8.6f); 
-glm::vec3 sillasRot = glm::vec3(0.0f, 90.0f, 0.0f); 
+glm::vec3 sillasPos = glm::vec3(30.3f, -0.35f, 8.6f);
+glm::vec3 sillasRot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillasScale = glm::vec3(0.65f, 0.65f, 0.65f);
 
 glm::vec3 sillas2Pos = glm::vec3(26.7f, -0.35f, 8.6f);
-glm::vec3 sillas2Rot = glm::vec3(0.0f, 90.0f, 0.0f);   
+glm::vec3 sillas2Rot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillas2Scale = glm::vec3(0.65f, 0.65f, 0.65f);
 
-glm::vec3 sillas3Pos = glm::vec3(31.8f, -0.35f, 8.6f); 
+glm::vec3 sillas3Pos = glm::vec3(31.8f, -0.35f, 8.6f);
 glm::vec3 sillas3Rot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillas3Scale = glm::vec3(0.65f, 0.65f, 0.65f);
 
-glm::vec3 sillas4Pos = glm::vec3(24.0f, -0.35f, 8.6f); 
+glm::vec3 sillas4Pos = glm::vec3(24.0f, -0.35f, 8.6f);
 glm::vec3 sillas4Rot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillas4Scale = glm::vec3(0.65f, 0.65f, 0.65f);
 
-glm::vec3 sillas5Pos = glm::vec3(21.3f, -0.35f, 8.6f); 
+glm::vec3 sillas5Pos = glm::vec3(21.3f, -0.35f, 8.6f);
 glm::vec3 sillas5Rot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillas5Scale = glm::vec3(0.65f, 0.65f, 0.65f);
 
@@ -148,10 +148,9 @@ glm::vec3 sofaPos = glm::vec3(13.7f, -0.40f, 1.7f);
 glm::vec3 sofaRot = glm::vec3(90.0f, 180.0f, 0.0f);
 glm::vec3 sofaScale = glm::vec3(0.5f, 0.5f, 0.5f);
 
-
-glm::vec3 monitorPos = glm::vec3(32.75f, 0.0f, 5.2f);    
-glm::vec3 monitorRot = glm::vec3(0.0f, -180.0f, 0.0f); 
-glm::vec3 monitorScale = glm::vec3(1.5f, 1.5f, 1.5f);  
+glm::vec3 monitorPos = glm::vec3(32.75f, 0.0f, 5.2f);
+glm::vec3 monitorRot = glm::vec3(0.0f, -180.0f, 0.0f);
+glm::vec3 monitorScale = glm::vec3(1.5f, 1.5f, 1.5f);
 
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -201,6 +200,9 @@ GLTFModel *esquinerosGLTF = nullptr;
 GLTFModel *generadorGLTF = nullptr;
 
 GLTFModel *lamparaContencionGLTF = nullptr;
+GLTFModel *lampara2GLTF = nullptr;
+GLTFModel *lampara3GLTF = nullptr;
+GLTFModel *emergencyGLTF = nullptr;
 GLTFModel *panelControlGLTF = nullptr;
 
 glm::vec3 teslaPos(44.800f, -0.500f, 14.200f);
@@ -210,6 +212,18 @@ glm::vec3 teslaScale(0.150f, 0.120f, 0.090f);
 glm::vec3 lamparaContencionPos(46.450f, 1.050f, 18.650f);
 glm::vec3 lamparaContencionRot(-88.000f, 0.0f, 89.000f);
 glm::vec3 lamparaContencionScale(0.570f, 0.720f, 0.900f);
+
+glm::vec3 lampara2Pos(36.155f, 0.450f, 18.042f);
+glm::vec3 lampara2Rot(-89.000f, 0.000f, 89.000f);
+glm::vec3 lampara2Scale(1.010f, 8.980f, 1.070f);
+
+std::vector<glm::vec3> emergencyPos;
+std::vector<glm::vec3> emergencyRot;
+std::vector<glm::vec3> emergencyScale;
+
+glm::vec3 lampara3Pos(36.155f, 0.450f, 16.392f);
+glm::vec3 lampara3Rot(-89.000f, 0.000f, 89.000f);
+glm::vec3 lampara3Scale(1.010f, 8.980f, 1.070f);
 
 glm::vec3 panelControlPos(48.350f, -0.500f, 17.450f);
 glm::vec3 panelControlRot(-91.000f, 0.000f, -180.000f);
@@ -229,9 +243,9 @@ glm::vec3 generadorScale[3] = {glm::vec3(1.0f, 1.0f, 1.0f),
                                glm::vec3(1.0f, 1.0f, 1.0f),
                                glm::vec3(1.0f, 1.0f, 1.0f)};
 
-glm::vec3 esquineros2Pos(48.383f, 0.250f, 20.251f);
+glm::vec3 esquineros2Pos(48.383f, 0.200f, 20.301f);
 glm::vec3 esquineros2Rot(-2.500f, -144.000f, -0.500f);
-glm::vec3 esquineros2Scale(1.070f, 0.410f, 0.830f);
+glm::vec3 esquineros2Scale(0.850f, 0.370f, 0.830f);
 
 glm::vec3 esquineros3Pos(34.583f, 0.450f, 12.851f);
 glm::vec3 esquineros3Rot(-0.500f, 28.000f, -0.500f);
@@ -240,39 +254,6 @@ glm::vec3 esquineros3Scale(0.930f, 0.520f, 0.840f);
 glm::vec3 esquineros4Pos(34.833f, 0.200f, 20.451f);
 glm::vec3 esquineros4Rot(0.500f, 120.000f, -0.500f);
 glm::vec3 esquineros4Scale(1.000f, 0.400f, 0.620f);
-
-// paredes rojas
-std::vector<WallDef> paredesList = {
-    {glm::vec3(48.750000f, -0.500000f, 14.350000f),
-     glm::vec3(-90.000000f, 1.000000f, -88.500000f),
-     glm::vec3(1.010000f, 0.730000f, 0.410000f)},
-    {glm::vec3(48.799999f, -0.500000f, 18.450001f),
-     glm::vec3(-90.000000f, 1.000000f, -88.500000f),
-     glm::vec3(1.040000f, 0.520000f, 0.410000f)},
-    {glm::vec3(34.150002f, -0.550000f, 14.600000f),
-     glm::vec3(-90.000000f, 1.000000f, 91.500000f),
-     glm::vec3(1.040000f, 0.730000f, 0.420000f)},
-    {glm::vec3(34.200001f, -0.500000f, 18.600000f),
-     glm::vec3(-90.000000f, 1.000000f, 91.500000f),
-     glm::vec3(0.970000f, 1.350000f, 0.400000f)},
-    {glm::vec3(35.849998f, -0.500000f, 12.150000f),
-     glm::vec3(-90.000000f, 0.000000f, 0.000000f),
-     glm::vec3(0.680000f, 1.940000f, 0.400000f)},
-    {glm::vec3(46.500000f, -0.500000f, 12.200000f),
-     glm::vec3(-90.000000f, 0.000000f, 0.000000f),
-     glm::vec3(1.010000f, 1.000000f, 0.400000f)},
-    {glm::vec3(42.417999f, -0.500000f, 12.185000f),
-     glm::vec3(-91.500000f, 0.000000f, 0.000000f),
-     glm::vec3(1.100000f, 1.000000f, 0.400000f)},
-    {glm::vec3(46.250000f, -0.500000f, 20.750000f),
-     glm::vec3(-90.000000f, 0.000000f, 180.000000f),
-     glm::vec3(1.120000f, 0.060000f, 0.380000f)},
-    {glm::vec3(42.049999f, -0.500000f, 20.799999f),
-     glm::vec3(-90.000000f, 0.000000f, 180.000000f),
-     glm::vec3(0.990000f, 0.610000f, 0.390000f)},
-    {glm::vec3(35.850f, -0.500000f, 20.850f),
-     glm::vec3(-90.000000f, 0.000000f, -180.000f),
-     glm::vec3(0.830f, 0.290f, 0.400f)}};
 
 std::vector<Entity> gameEntities = {
     {glm::vec3(8.0f, -0.4f, 4.0f), 3, true,
@@ -339,25 +320,25 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 8, 8, 1, 1, 1, 1, 1, 1, 1,
-     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

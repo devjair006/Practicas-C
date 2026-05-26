@@ -235,19 +235,7 @@ bool checkCollision(float x, float z) {
         }
     }
 
-    // --- COLISION CON PAREDES ---
-    if (paredesGLTF && !paredesGLTF->meshes.empty()) {
-        for (const auto& pared : paredesList) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, pared.pos);
-            model = glm::rotate(model, glm::radians(pared.rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(pared.rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(pared.rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-            model = glm::scale(model, pared.scale);
-            AABB worldBox = paredesGLTF->GetWorldAABB(model);
-            if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
-        }
-    }
+
 
     return false;
 }
