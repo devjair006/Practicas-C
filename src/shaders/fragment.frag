@@ -25,8 +25,9 @@ uniform float emissiveStrength;
 struct PointLight {
     vec3 position;
     vec3 color;
+    float radius;
 };
-#define MAX_POINT_LIGHTS 8
+#define MAX_POINT_LIGHTS 12
 uniform int numPointLights;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
@@ -84,7 +85,8 @@ void main() {
         float distance = length(pointLights[i].position - FragPos);
 
         // Atenuación suave estilo Unreal: la luz muere exactamente en "radius" sin cortes feos
-        float radius = 4.0;
+        float radius = pointLights[i].radius;
+        if (radius <= 0.0) radius = 4.0; // Fallback
         float falloff = clamp(1.0 - (distance * distance) / (radius * radius), 0.0, 1.0);
         float attenuation = falloff * falloff;
 
