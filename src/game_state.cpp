@@ -207,6 +207,7 @@ GLTFModel *emergencyGLTF = nullptr;
 GLTFModel *reactorGLTF = nullptr;
 GLTFModel *panelControlGLTF = nullptr;
 GLTFModel *reactorControlGLTF = nullptr;
+GLTFModel *lamparaReactorGLTF = nullptr;
 GLTFModel *sarcofagoGLTF = nullptr;
 GLTFModel *cablePisoGLTF = nullptr;
 GLTFModel *cableTechoGLTF = nullptr;
@@ -216,16 +217,18 @@ glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
 glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);
 glm::vec3 sarcofagoScale(1.260f, 1.060f, 0.930f);
 
-std::vector<glm::vec3> cablePisoPos = { glm::vec3(43.235f, -0.100f, 12.691f) };
-std::vector<glm::vec3> cablePisoRot = { glm::vec3(0.0f, 0.0f, 0.0f) };
-std::vector<glm::vec3> cablePisoScale = { glm::vec3(0.01918f, 0.01918f, 0.01918f) };
+std::vector<glm::vec3> cablePisoPos = {glm::vec3(43.235f, -0.100f, 12.691f)};
+std::vector<glm::vec3> cablePisoRot = {glm::vec3(0.0f, 0.0f, 0.0f)};
+std::vector<glm::vec3> cablePisoScale = {
+    glm::vec3(0.01918f, 0.01918f, 0.01918f)};
 
-std::vector<glm::vec3> cableTechoPos = { glm::vec3(43.235f, -0.100f, 12.691f) };
-std::vector<glm::vec3> cableTechoRot = { glm::vec3(0.0f, 0.0f, 0.0f) };
-std::vector<glm::vec3> cableTechoScale = { glm::vec3(-0.001557f, -0.001557f, -0.001557f) };
+std::vector<glm::vec3> cableTechoPos = {glm::vec3(43.235f, -0.100f, 12.691f)};
+std::vector<glm::vec3> cableTechoRot = {glm::vec3(0.0f, 0.0f, 0.0f)};
+std::vector<glm::vec3> cableTechoScale = {
+    glm::vec3(-0.001557f, -0.001557f, -0.001557f)};
 
-glm::vec3 warningPos(39.893f, 0.200f, 20.066f);
-glm::vec3 warningRot(-90.000f, -180.000f, -4.000f);
+glm::vec3 warningPos(39.993f, 0.200f, 20.866f);
+glm::vec3 warningRot(-89.000f, -180.000f, -0.500f);
 glm::vec3 warningScale(1.410f, 0.950f, 1.570f);
 
 glm::vec3 teslaPos(47.950f, -0.500f, 14.400f);
@@ -268,6 +271,10 @@ glm::vec3 panelControlScale(0.450f, 0.490f, 0.180f);
 glm::vec3 reactorControlPos(48.350f, -0.500f, 18.450f);
 glm::vec3 reactorControlRot(-91.000f, 0.000f, -180.000f);
 glm::vec3 reactorControlScale(0.450f, 0.490f, 0.180f);
+
+glm::vec3 lamparaReactorPos(48.350f, -0.500f, 18.450f);
+glm::vec3 lamparaReactorRot(-90.000f, 0.000f, 0.000f);
+glm::vec3 lamparaReactorScale(1.000f, 1.000f, 1.000f);
 
 glm::vec3 esquinerosPos(48.133f, 0.200f, 12.601f);
 glm::vec3 esquinerosRot(-0.500f, -63.000f, -1.000f);
