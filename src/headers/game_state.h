@@ -270,6 +270,17 @@ extern glm::vec3 esquineros4Pos;
 extern glm::vec3 esquineros4Rot;
 extern glm::vec3 esquineros4Scale;
 
+// area principal (escenario grande)
+extern GLTFModel *machineLabGLTF;
+extern glm::vec3 machineLabPos[3];
+extern glm::vec3 machineLabRot[3];
+extern glm::vec3 machineLabScale[3];
+
+extern GLTFModel *metalDeskGLTF;
+extern glm::vec3 metalDeskPos[8];
+extern glm::vec3 metalDeskRot[8];
+extern glm::vec3 metalDeskScale[8];
+
 
 extern std::vector<Entity> gameEntities;
 

@@ -295,6 +295,44 @@ glm::vec3 esquineros4Pos(34.833f, 0.200f, 20.451f);
 glm::vec3 esquineros4Rot(0.500f, 120.000f, -0.500f);
 glm::vec3 esquineros4Scale(1.000f, 0.400f, 0.620f);
 
+// area principal (escenario grande)
+GLTFModel *machineLabGLTF = nullptr;
+glm::vec3 machineLabPos[3] = {glm::vec3(17.213f, -0.300f, 2.773f),
+                              glm::vec3(26.963f, -0.300f, 2.773f),
+                              glm::vec3(22.463f, -0.300f, 4.523f)};
+glm::vec3 machineLabRot[3] = {glm::vec3(0.000f, 0.000f, 0.000f),
+                              glm::vec3(0.000f, 0.000f, 0.000f),
+                              glm::vec3(0.000f, 0.000f, 0.000f)};
+glm::vec3 machineLabScale[3] = {glm::vec3(1.000f, 1.000f, 1.000f),
+                                glm::vec3(1.000f, 1.000f, 1.000f),
+                                glm::vec3(1.000f, 1.000f, 1.000f)};
+
+GLTFModel *metalDeskGLTF = nullptr;
+glm::vec3 metalDeskPos[8] = {glm::vec3(16.500f, -0.300f, 6.000f),
+                             glm::vec3(18.000f, -0.300f, 6.000f),
+                             glm::vec3(19.500f, -0.300f, 6.000f),
+                             glm::vec3(21.000f, -0.300f, 6.000f),
+                             glm::vec3(22.500f, -0.300f, 6.000f),
+                             glm::vec3(24.000f, -0.300f, 6.000f),
+                             glm::vec3(25.500f, -0.300f, 6.000f),
+                             glm::vec3(27.000f, -0.300f, 6.000f)};
+glm::vec3 metalDeskRot[8] = {glm::vec3(0.000f, 0.000f, 0.000f),
+                             glm::vec3(0.000f, 0.000f, 0.000f),
+                             glm::vec3(0.000f, 0.000f, 0.000f),
+                             glm::vec3(0.000f, 0.000f, 0.000f),
+                             glm::vec3(0.000f, 0.000f, 0.000f),
+                             glm::vec3(0.000f, 0.000f, 0.000f),
+                             glm::vec3(0.000f, 0.000f, 0.000f),
+                             glm::vec3(0.000f, 0.000f, 0.000f)};
+glm::vec3 metalDeskScale[8] = {glm::vec3(0.880f, 0.460f, 1.000f),
+                               glm::vec3(0.880f, 0.460f, 1.000f),
+                               glm::vec3(0.880f, 0.460f, 1.000f),
+                               glm::vec3(0.880f, 0.460f, 1.000f),
+                               glm::vec3(0.880f, 0.460f, 1.000f),
+                               glm::vec3(0.880f, 0.460f, 1.000f),
+                               glm::vec3(0.880f, 0.460f, 1.000f),
+                               glm::vec3(0.880f, 0.460f, 1.000f)};
+
 std::vector<Entity> gameEntities = {
     {glm::vec3(8.0f, -0.4f, 4.0f), 3, true,
      "[CABLE SUELTO]:Hay un cable pelado aqui.", 0.0f},
