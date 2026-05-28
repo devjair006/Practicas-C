@@ -297,6 +297,9 @@ int main() {
     emergencyGLTF = new GLTFModel("assets/contencion/emergency.glb");
     reactorGLTF = new GLTFModel("assets/contencion/reactor.glb");
     panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
+
+    // Modelo del area principal (escenario grande)
+    machineLabGLTF = new GLTFModel("assets/machine_lab.glb");
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
               << "Bano(" << banoGLTF->meshes.size() << "), "
@@ -1307,6 +1310,19 @@ int main() {
             reactorGLTF->Draw(shaderProgram, solidColorLoc);
         }
 
+        if (machineLabGLTF && !machineLabGLTF->meshes.empty()) {
+            for (int i = 0; i < 3; i++) { // Dibujamos las 3 instancias
+                glm::mat4 machineLabModel = glm::mat4(1.0f);
+                machineLabModel = glm::translate(machineLabModel, machineLabPos[i]);
+                machineLabModel = glm::rotate(machineLabModel, glm::radians(machineLabRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+                machineLabModel = glm::rotate(machineLabModel, glm::radians(machineLabRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+                machineLabModel = glm::rotate(machineLabModel, glm::radians(machineLabRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+                machineLabModel = glm::scale(machineLabModel, machineLabScale[i]);
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(machineLabModel));
+                machineLabGLTF->Draw(shaderProgram, solidColorLoc);
+            }
+        }
+
         if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
             glm::mat4 panelModel = glm::mat4(1.0f);
             panelModel = glm::translate(panelModel, panelControlPos);
@@ -1920,6 +1936,22 @@ int main() {
             reactorPos.y = 2.0f;
             reactorRot = glm::vec3(0.0f, 0.0f, 0.0f);
             reactorScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+
+        ImGui::Text("Machine Lab Model (Escenario Grande) - 3 Instancias");
+        static int selectedMachineLab = 0;
+        const char* machineLabItems[] = { "Machine Lab 1", "Machine Lab 2", "Machine Lab 3" };
+        ImGui::Combo("Seleccionar Machine Lab", &selectedMachineLab, machineLabItems, IM_ARRAYSIZE(machineLabItems));
+        ImGui::DragFloat3("MachineLab Pos", &machineLabPos[selectedMachineLab].x, 0.05f);
+        ImGui::DragFloat3("MachineLab Rot", &machineLabRot[selectedMachineLab].x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("MachineLab Scale", &machineLabScale[selectedMachineLab].x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer frente a camara##machinelab")) {
+            machineLabPos[selectedMachineLab] = cameraPos + cameraFront * 2.0f;
+            machineLabPos[selectedMachineLab].y = -0.5f;
+            machineLabRot[selectedMachineLab] = glm::vec3(0.0f, 0.0f, 0.0f);
+            machineLabScale[selectedMachineLab] = glm::vec3(1.0f, 1.0f, 1.0f);
         }
 
         ImGui::Separator();
