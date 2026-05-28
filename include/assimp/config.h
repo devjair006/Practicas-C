@@ -4,4 +4,9 @@
 #define ASSIMP_BUILD_NO_OWN_ZLIB
 #define ASSIMP_BUILD_DLL_EXPORT
 
+// Required by assimp 6.x headers (matrix4x4.h default argument)
+#ifndef AI_CONFIG_CHECK_IDENTITY_MATRIX_EPSILON_DEFAULT
+#   define AI_CONFIG_CHECK_IDENTITY_MATRIX_EPSILON_DEFAULT 10e-3f
+#endif
+
 #endif // INCLUDED_AI_CONFIG_H

@@ -6,6 +6,18 @@ bool isReadingDocument = false;
 std::string currentDocumentTitle = "";
 std::string currentDocumentBody = "";
 
+glm::vec3 mensBpos(35.231f, 0.250f, 9.150f);
+glm::vec3 mensBrot(90.000f, 0.000f, 0.000f);
+glm::vec3 mensBscale(1.700f, 1.700f, 1.700f);
+
+glm::vec3 girlBpos(38.776f, 0.250f, 9.150f);
+glm::vec3 girlBrot(90.000f, 0.000f, 0.000f);
+glm::vec3 girlBscale(1.700f, 1.700f, 1.700f);
+
+glm::vec3 mirrorBGpos(40.815f, 0.150f, 5.55f);
+glm::vec3 mirrorBGRot(0.0f, 0.5f, -90.0f);
+glm::vec3 mirrorBGScale(1.30f, 1.0f, 3.0f);
+
 glm::vec3 azulejoPos(35.160f, 0.200f, 7.00f);
 glm::vec3 azulejoRot(90.0f, -90.0f, 0.0f);
 glm::vec3 azulejoScale(0.540f, 0.520f, 0.630f);
@@ -60,6 +72,22 @@ glm::vec3 banoPos4(34.500f, -0.5f, 1.740f);
 glm::vec3 banoRot4(-90.0f, 0.0f, 0.0f);
 glm::vec3 banoScale4(0.5f, 0.4f, 0.4f);
 
+glm::vec3 banoPos5(38.400f, -0.5f, 1.740f);
+glm::vec3 banoRot5(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale5(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos6(37.850f, -0.5f, 1.740f);
+glm::vec3 banoRot6(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale6(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos7(38.950f, -0.5f, 1.740f);
+glm::vec3 banoRot7(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale7(0.5f, 0.4f, 0.4f);
+
+glm::vec3 banoPos8(39.500f, -0.5f, 1.740f);
+glm::vec3 banoRot8(-90.0f, 0.0f, 0.0f);
+glm::vec3 banoScale8(0.5f, 0.4f, 0.4f);
+
 glm::vec3 lavamanosPos(33.250f, -0.300f, 3.00f);
 glm::vec3 lavamanosRot(0.0f, -90.0f, 0.0f);
 glm::vec3 lavamanosScale(0.540f, 0.520f, 0.630f);
@@ -75,6 +103,22 @@ glm::vec3 lavamanosScale3(0.540f, 0.520f, 0.630f);
 glm::vec3 lavamanosPos4(33.250f, -0.300f, 6.00f);
 glm::vec3 lavamanosRot4(0.0f, -90.0f, 0.0f);
 glm::vec3 lavamanosScale4(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos5(40.750f, -0.300f, 3.00f);
+glm::vec3 lavamanosRot5(0.0f, 90.0f, 0.0f);
+glm::vec3 lavamanosScale5(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos6(40.750f, -0.300f, 4.00f);
+glm::vec3 lavamanosRot6(0.0f, 90.0f, 0.0f);
+glm::vec3 lavamanosScale6(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos7(40.750f, -0.300f, 5.00f);
+glm::vec3 lavamanosRot7(0.0f, 90.0f, 0.0f);
+glm::vec3 lavamanosScale7(0.540f, 0.520f, 0.630f);
+
+glm::vec3 lavamanosPos8(40.750f, -0.300f, 6.00f);
+glm::vec3 lavamanosRot8(0.0f, 90.0f, 0.0f);
+glm::vec3 lavamanosScale8(0.540f, 0.520f, 0.630f);
 
 glm::vec3 urinarioPos(36.8f, -0.54f, 5.2f);
 glm::vec3 urinarioRot(-90.5f, -2.5f, -90.0f);
@@ -158,33 +202,71 @@ bool hasKeycardLvl2 = false;
 bool dimensionAlterna = false;
 bool portalActivado = false;
 int currentZone = 1;
+bool showDebugGUI = true;
 
 GLTFModel *banoGLTF = nullptr;
 GLTFModel *lavamanosGLTF = nullptr;
 GLTFModel *urinarioGLTF = nullptr;
+GLTFModel *mensBGLTF = nullptr;
+GLTFModel *girlBGLTF = nullptr;
 // area de contencion
 GLTFModel *teslaGLTF = nullptr;
 GLTFModel *paredesGLTF = nullptr;
 GLTFModel* monitorGLTF = nullptr;
 GLTFModel* lockerGLTF = nullptr;
 GLTFModel* maquinaGLTF = nullptr;
+GLTFModel *esquinerosGLTF = nullptr;
 
 glm::vec3 teslaPos(44.800f, -0.500f, 14.200f);
 glm::vec3 teslaRot(-88.000f, 0.0f, 0.0f);
 glm::vec3 teslaScale(0.150f, 0.120f, 0.090f);
 
-std::vector<WallDef> paredesList = {
-    // pared sur (x=48.75) - 2 paneles que cubren Z≈13..21
-    {glm::vec3(48.750f, -0.500f, 15.000f),
-     glm::vec3(-90.000f, 1.000f, -88.500f), glm::vec3(1.040f, 3.000f, 0.520f)},
-    {glm::vec3(48.750f, -0.500f, 19.000f),
-     glm::vec3(-90.000f, 1.000f, -88.500f), glm::vec3(1.040f, 3.000f, 0.520f)},
+glm::vec3 esquinerosPos(48.133f, 0.200f, 12.601f);
+glm::vec3 esquinerosRot(-0.500f, -63.000f, -1.000f);
+glm::vec3 esquinerosScale(0.890f, 0.390f, 0.750f);
 
-    // pared norte (x=34.25) - 2 paneles que cubren Z≈13..21
-    {glm::vec3(34.250f, -0.500f, 15.000f), glm::vec3(-90.000f, 1.000f, 91.500f),
-     glm::vec3(1.040f, 3.000f, 0.520f)},
-    {glm::vec3(34.250f, -0.500f, 19.000f), glm::vec3(-90.000f, 1.000f, 91.500f),
-     glm::vec3(1.040f, 3.000f, 0.520f)}};
+glm::vec3 esquineros2Pos(48.383f, 0.250f, 20.251f);
+glm::vec3 esquineros2Rot(-2.500f, -144.000f, -0.500f);
+glm::vec3 esquineros2Scale(1.070f, 0.410f, 0.830f);
+
+glm::vec3 esquineros3Pos(34.583f, 0.450f, 12.851f);
+glm::vec3 esquineros3Rot(-0.500f, 28.000f, -0.500f);
+glm::vec3 esquineros3Scale(0.930f, 0.520f, 0.840f);
+
+glm::vec3 esquineros4Pos(34.833f, 0.200f, 20.451f);
+glm::vec3 esquineros4Rot(0.500f, 120.000f, -0.500f);
+glm::vec3 esquineros4Scale(1.000f, 0.400f, 0.620f);
+
+// paredes rojas
+std::vector<WallDef> paredesList = {
+    {glm::vec3(48.750000f, -0.500000f, 14.350000f),
+     glm::vec3(-90.000000f, 1.000000f, -88.500000f),
+     glm::vec3(1.010000f, 0.730000f, 0.410000f)},
+    {glm::vec3(48.799999f, -0.500000f, 18.450001f),
+     glm::vec3(-90.000000f, 1.000000f, -88.500000f),
+     glm::vec3(1.040000f, 0.520000f, 0.410000f)},
+    {glm::vec3(34.150002f, -0.550000f, 14.600000f),
+     glm::vec3(-90.000000f, 1.000000f, 91.500000f),
+     glm::vec3(1.040000f, 0.730000f, 0.420000f)},
+    {glm::vec3(34.200001f, -0.500000f, 18.600000f),
+     glm::vec3(-90.000000f, 1.000000f, 91.500000f),
+     glm::vec3(0.970000f, 1.350000f, 0.400000f)},
+    {glm::vec3(35.849998f, -0.500000f, 12.150000f),
+     glm::vec3(-90.000000f, 0.000000f, 0.000000f),
+     glm::vec3(0.680000f, 1.940000f, 0.400000f)},
+    {glm::vec3(46.500000f, -0.500000f, 12.200000f),
+     glm::vec3(-90.000000f, 0.000000f, 0.000000f),
+     glm::vec3(1.010000f, 1.000000f, 0.400000f)},
+    {glm::vec3(42.417999f, -0.500000f, 12.185000f),
+     glm::vec3(-91.500000f, 0.000000f, 0.000000f),
+     glm::vec3(1.100000f, 1.000000f, 0.400000f)},
+    // Panel 7 was 35.997... (REMOVED)
+    {glm::vec3(46.250000f, -0.500000f, 20.750000f),
+     glm::vec3(-90.000000f, 0.000000f, 180.000000f),
+     glm::vec3(1.120000f, 0.060000f, 0.380000f)},
+    {glm::vec3(42.049999f, -0.500000f, 20.799999f),
+     glm::vec3(-90.000000f, 0.000000f, 180.000000f),
+     glm::vec3(0.990000f, 0.610000f, 0.390000f)}};
 
 std::vector<Entity> gameEntities = {
     {glm::vec3(8.0f, -0.4f, 4.0f), 3, true,
@@ -230,21 +312,22 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
      0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
+    //////////////////////
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
