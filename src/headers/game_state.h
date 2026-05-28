@@ -251,6 +251,11 @@ extern glm::vec3 machineLabPos[3];
 extern glm::vec3 machineLabRot[3];
 extern glm::vec3 machineLabScale[3];
 
+extern GLTFModel *metalDeskGLTF;
+extern glm::vec3 metalDeskPos[8];
+extern glm::vec3 metalDeskRot[8];
+extern glm::vec3 metalDeskScale[8];
+
 
 extern std::vector<Entity> gameEntities;
 

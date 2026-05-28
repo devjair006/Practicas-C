@@ -300,6 +300,7 @@ int main() {
 
     // Modelo del area principal (escenario grande)
     machineLabGLTF = new GLTFModel("assets/machine_lab.glb");
+    metalDeskGLTF = new GLTFModel("assets/metal_desk.glb");
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
               << "Bano(" << banoGLTF->meshes.size() << "), "
@@ -1323,6 +1324,19 @@ int main() {
             }
         }
 
+        if (metalDeskGLTF && !metalDeskGLTF->meshes.empty()) {
+            for (int i = 0; i < 8; i++) { // Dibujamos las 8 instancias
+                glm::mat4 metalDeskModel = glm::mat4(1.0f);
+                metalDeskModel = glm::translate(metalDeskModel, metalDeskPos[i]);
+                metalDeskModel = glm::rotate(metalDeskModel, glm::radians(metalDeskRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+                metalDeskModel = glm::rotate(metalDeskModel, glm::radians(metalDeskRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+                metalDeskModel = glm::rotate(metalDeskModel, glm::radians(metalDeskRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+                metalDeskModel = glm::scale(metalDeskModel, metalDeskScale[i]);
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(metalDeskModel));
+                metalDeskGLTF->Draw(shaderProgram, solidColorLoc);
+            }
+        }
+
         if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
             glm::mat4 panelModel = glm::mat4(1.0f);
             panelModel = glm::translate(panelModel, panelControlPos);
@@ -1952,6 +1966,23 @@ int main() {
             machineLabPos[selectedMachineLab].y = -0.5f;
             machineLabRot[selectedMachineLab] = glm::vec3(0.0f, 0.0f, 0.0f);
             machineLabScale[selectedMachineLab] = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+
+        ImGui::Text("Metal Desk Model (Escenario Grande) - 8 Instancias");
+        static int selectedMetalDesk = 0;
+        const char* metalDeskItems[] = { "Metal Desk 1", "Metal Desk 2", "Metal Desk 3", "Metal Desk 4",
+                                         "Metal Desk 5", "Metal Desk 6", "Metal Desk 7", "Metal Desk 8" };
+        ImGui::Combo("Seleccionar Metal Desk", &selectedMetalDesk, metalDeskItems, IM_ARRAYSIZE(metalDeskItems));
+        ImGui::DragFloat3("MetalDesk Pos", &metalDeskPos[selectedMetalDesk].x, 0.05f);
+        ImGui::DragFloat3("MetalDesk Rot", &metalDeskRot[selectedMetalDesk].x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("MetalDesk Scale", &metalDeskScale[selectedMetalDesk].x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer frente a camara##metaldesk")) {
+            metalDeskPos[selectedMetalDesk] = cameraPos + cameraFront * 2.0f;
+            metalDeskPos[selectedMetalDesk].y = -0.5f;
+            metalDeskRot[selectedMetalDesk] = glm::vec3(0.0f, 0.0f, 0.0f);
+            metalDeskScale[selectedMetalDesk] = glm::vec3(1.0f, 1.0f, 1.0f);
         }
 
         ImGui::Separator();
