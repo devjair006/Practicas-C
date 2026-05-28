@@ -256,7 +256,7 @@ std::vector<glm::vec3> emergencyScale = {
     glm::vec3(0.990f, 0.980f, 1.0f),
 };
 
-glm::vec3 reactorPos(41.963f, -0.550f, 19.211f);
+glm::vec3 reactorPos(43.163f, -0.550f, 19.211f);
 glm::vec3 reactorRot(0.000f, 0.000f, 0.000f);
 glm::vec3 reactorScale(1.00f, 1.000f, 1.000f);
 
