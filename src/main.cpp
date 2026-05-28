@@ -288,6 +288,9 @@ int main() {
     lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
     urinarioGLTF = new GLTFModel("assets/urinario.glb");
     teslaGLTF = new GLTFModel("assets/contencion/tesla.glb");
+    sarcofagoGLTF = new GLTFModel("assets/contencion/sarcofago.glb");
+    cablePisoGLTF = new GLTFModel("assets/contencion/cables_piso.glb");
+    cableTechoGLTF = new GLTFModel("assets/contencion/cables_techo.glb");
 
     esquinerosGLTF = new GLTFModel("assets/contencion/esquineros.glb");
     generadorGLTF = new GLTFModel("assets/contencion/generador.glb");
@@ -297,10 +300,12 @@ int main() {
     emergencyGLTF = new GLTFModel("assets/contencion/emergency.glb");
     reactorGLTF = new GLTFModel("assets/contencion/reactor.glb");
     panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
-
     // Modelo del area principal (escenario grande)
     machineLabGLTF = new GLTFModel("assets/machine_lab.glb");
     metalDeskGLTF = new GLTFModel("assets/metal_desk.glb");
+
+    reactorControlGLTF = new GLTFModel("assets/contencion/reactor-control.glb");
+    warningGLTF = new GLTFModel("assets/contencion/warning.glb");
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
               << "Bano(" << banoGLTF->meshes.size() << "), "
@@ -546,6 +551,10 @@ int main() {
         float lampFlicker = 0.8f + 0.2f * sin(currentFrame * 10.0f);
         float emergencyPulse = (sin(currentFrame * 5.0f) * 0.5f) + 0.5f;
 
+        // Un parpadeo agresivo para simular arcos electricos en la Tesla
+        float teslaFlicker = (sin(currentFrame * 40.0f) * 0.5f + 0.5f) * (cos(currentFrame * 10.0f) * 0.5f + 0.5f);
+        if (teslaFlicker < 0.2f) teslaFlicker = 0.0f; // Silencio electrico
+
         glUniform1i(numPointLightsLoc, 8);
 
         // color de la lampara y posicion para ponerla en un color amarillento poner colores mas altos en vez de 0.8 0.9 1.0 a unos 0.8 0.6 0.2 para que se vea mas amarillento
@@ -586,10 +595,24 @@ int main() {
         // --- LUCES DE EMERGENCIA DINAMICAS ---
         // Empezamos en el indice 7 (despues de las fijas)
         int currentLightIdx = 7;
-        for (size_t i = 0; i < emergencyPos.size() && currentLightIdx < 12; i++) {
+        for (size_t i = 0; i < emergencyPos.size() && currentLightIdx < 11; i++) { // Dejamos el 11 para la Tesla
             glUniform3fv(pointLightPosLoc[currentLightIdx], 1, glm::value_ptr(emergencyPos[i]));
             glUniform3f(pointLightColLoc[currentLightIdx], 1.0f * emergencyPulse, 0.0f, 0.0f);
             glUniform1f(pointLightRadLoc[currentLightIdx], 2.0f); // Radio corto para evitar traspasar paredes
+            currentLightIdx++;
+        }
+
+        // --- LUZ DE LA BOBINA TESLA ---
+        if (currentLightIdx < 12) {
+            // Un parpadeo agresivo para simular arcos electricos
+            float teslaFlicker = (sin(currentFrame * 40.0f) * 0.5f + 0.5f) * (cos(currentFrame * 10.0f) * 0.5f + 0.5f);
+            if (teslaFlicker < 0.2f) teslaFlicker = 0.0f; // Silencio electrico
+            
+            glm::vec3 teslaLightPos = teslaPos + glm::vec3(0.0f, 1.2f, 0.0f); // Elevar la luz al tope de la bobina
+            glUniform3fv(pointLightPosLoc[currentLightIdx], 1, glm::value_ptr(teslaLightPos));
+            // Azul cian electrico
+            glUniform3f(pointLightColLoc[currentLightIdx], 0.2f * teslaFlicker, 0.5f * teslaFlicker, 1.0f * teslaFlicker);
+            glUniform1f(pointLightRadLoc[currentLightIdx], 5.0f * teslaFlicker); 
             currentLightIdx++;
         }
         
@@ -1238,7 +1261,63 @@ int main() {
             teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
             teslaModel = glm::scale(teslaModel, teslaScale);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(teslaModel));
+            
+            // Efecto de brillo electrico en el modelo
+            glUniform1f(emissiveStrengthLoc, 3.5f * teslaFlicker);
             teslaGLTF->Draw(shaderProgram, solidColorLoc);
+            glUniform1f(emissiveStrengthLoc, 0.0f);
+        }
+
+        if (sarcofagoGLTF && !sarcofagoGLTF->meshes.empty()) {
+            glm::mat4 sModel = glm::mat4(1.0f);
+            sModel = glm::translate(sModel, sarcofagoPos);
+            sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            sModel = glm::scale(sModel, sarcofagoScale);
+            
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sModel));
+            sarcofagoGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (cablePisoGLTF && !cablePisoGLTF->meshes.empty()) {
+            for (size_t i = 0; i < cablePisoPos.size(); i++) {
+                glm::mat4 cpModel = glm::mat4(1.0f);
+                cpModel = glm::translate(cpModel, cablePisoPos[i]);
+                cpModel = glm::rotate(cpModel, glm::radians(cablePisoRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+                cpModel = glm::rotate(cpModel, glm::radians(cablePisoRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+                cpModel = glm::rotate(cpModel, glm::radians(cablePisoRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+                cpModel = glm::scale(cpModel, cablePisoScale[i]);
+                
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cpModel));
+                cablePisoGLTF->Draw(shaderProgram, solidColorLoc);
+            }
+        }
+
+        if (cableTechoGLTF && !cableTechoGLTF->meshes.empty()) {
+            for (size_t i = 0; i < cableTechoPos.size(); i++) {
+                glm::mat4 ctModel = glm::mat4(1.0f);
+                ctModel = glm::translate(ctModel, cableTechoPos[i]);
+                ctModel = glm::rotate(ctModel, glm::radians(cableTechoRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+                ctModel = glm::rotate(ctModel, glm::radians(cableTechoRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+                ctModel = glm::rotate(ctModel, glm::radians(cableTechoRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+                ctModel = glm::scale(ctModel, cableTechoScale[i]);
+                
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ctModel));
+                cableTechoGLTF->Draw(shaderProgram, solidColorLoc);
+            }
+        }
+
+        if (warningGLTF && !warningGLTF->meshes.empty()) {
+            glm::mat4 wModel = glm::mat4(1.0f);
+            wModel = glm::translate(wModel, warningPos);
+            wModel = glm::rotate(wModel, glm::radians(warningRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            wModel = glm::rotate(wModel, glm::radians(warningRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            wModel = glm::rotate(wModel, glm::radians(warningRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            wModel = glm::scale(wModel, warningScale);
+            
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(wModel));
+            warningGLTF->Draw(shaderProgram, solidColorLoc);
         }
 
         if (lamparaContencionGLTF && !lamparaContencionGLTF->meshes.empty()) {
@@ -1346,6 +1425,17 @@ int main() {
             panelModel = glm::scale(panelModel, panelControlScale);
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(panelModel));
             panelControlGLTF->Draw(shaderProgram, solidColorLoc);
+        }
+
+        if (reactorControlGLTF && !reactorControlGLTF->meshes.empty()) {
+            glm::mat4 rcModel = glm::mat4(1.0f);
+            rcModel = glm::translate(rcModel, reactorControlPos);
+            rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            rcModel = glm::scale(rcModel, reactorControlScale);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(rcModel));
+            reactorControlGLTF->Draw(shaderProgram, solidColorLoc);
         }
 
         if (esquinerosGLTF && !esquinerosGLTF->meshes.empty()) {
@@ -1878,6 +1968,86 @@ int main() {
         }
         ImGui::Separator();
 
+        ImGui::Text("Sarcofago Model");
+        ImGui::DragFloat3("Sarcofago Pos", &sarcofagoPos.x, 0.05f);
+        ImGui::DragFloat3("Sarcofago Rot", &sarcofagoRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sarcofago Scale", &sarcofagoScale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer frente a camara##sarcofago")) {
+            sarcofagoPos = cameraPos + cameraFront * 2.0f;
+            sarcofagoPos.y = -0.5f;
+            sarcofagoRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            sarcofagoScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Cable Piso Models");
+        if (ImGui::Button("Add Cable Piso")) {
+            cablePisoPos.push_back(cameraPos + cameraFront * 2.0f);
+            cablePisoRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+            cablePisoScale.push_back(glm::vec3(0.01918f, 0.01918f, 0.01918f));
+        }
+        for (size_t i = 0; i < cablePisoPos.size(); i++) {
+            ImGui::PushID(static_cast<int>(i) + 5000);
+            ImGui::Text("Cable Piso %zu", i);
+            ImGui::DragFloat3("Pos", &cablePisoPos[i].x, 0.05f);
+            ImGui::DragFloat3("Rot", &cablePisoRot[i].x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("Scale", &cablePisoScale[i].x, 0.001f, 0.001f, 10.0f);
+            if (ImGui::Button("Traer frente a camara")) {
+                cablePisoPos[i] = cameraPos + cameraFront * 2.0f;
+                cablePisoPos[i].y = -0.5f;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Eliminar")) {
+                cablePisoPos.erase(cablePisoPos.begin() + i);
+                cablePisoRot.erase(cablePisoRot.begin() + i);
+                cablePisoScale.erase(cablePisoScale.begin() + i);
+                ImGui::PopID();
+                break;
+            }
+            ImGui::PopID();
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Cable Techo Models");
+        if (ImGui::Button("Add Cable Techo")) {
+            cableTechoPos.push_back(cameraPos + cameraFront * 2.0f);
+            cableTechoRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+            cableTechoScale.push_back(glm::vec3(-0.001557f, -0.001557f, -0.001557f));
+        }
+        for (size_t i = 0; i < cableTechoPos.size(); i++) {
+            ImGui::PushID(static_cast<int>(i) + 6000);
+            ImGui::Text("Cable Techo %zu", i);
+            ImGui::DragFloat3("Pos", &cableTechoPos[i].x, 0.05f);
+            ImGui::DragFloat3("Rot", &cableTechoRot[i].x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("Scale", &cableTechoScale[i].x, 0.001f, 0.001f, 10.0f);
+            if (ImGui::Button("Traer frente a camara")) {
+                cableTechoPos[i] = cameraPos + cameraFront * 2.0f;
+                cableTechoPos[i].y = -0.5f;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Eliminar")) {
+                cableTechoPos.erase(cableTechoPos.begin() + i);
+                cableTechoRot.erase(cableTechoRot.begin() + i);
+                cableTechoScale.erase(cableTechoScale.begin() + i);
+                ImGui::PopID();
+                break;
+            }
+            ImGui::PopID();
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Warning Model");
+        ImGui::DragFloat3("Warning Pos", &warningPos.x, 0.05f);
+        ImGui::DragFloat3("Warning Rot", &warningRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Warning Scale", &warningScale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer frente a camara##warning")) {
+            warningPos = cameraPos + cameraFront * 2.0f;
+            warningPos.y = -0.5f;
+            warningRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            warningScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
         ImGui::Text("Lampara Contencion Model");
         ImGui::DragFloat3("Lamp Pos", &lamparaContencionPos.x, 0.05f);
         ImGui::DragFloat3("Lamp Rot", &lamparaContencionRot.x, 0.5f, -180.0f, 180.0f);
@@ -1996,6 +2166,18 @@ int main() {
             panelControlPos.y = -0.5f;
             panelControlRot = glm::vec3(0.0f, 0.0f, 0.0f);
             panelControlScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Reactor Control");
+        ImGui::DragFloat3("ReactorCtrl Pos", &reactorControlPos.x, 0.05f);
+        ImGui::DragFloat3("ReactorCtrl Rot", &reactorControlRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("ReactorCtrl Scale", &reactorControlScale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer Reactor Ctrl frente a camara")) {
+            reactorControlPos = cameraPos + cameraFront * 2.0f;
+            reactorControlPos.y = -0.5f;
+            reactorControlRot = glm::vec3(0.0f, 0.0f, 0.0f);
+            reactorControlScale = glm::vec3(1.0f, 1.0f, 1.0f);
         }
         ImGui::Separator();
 
