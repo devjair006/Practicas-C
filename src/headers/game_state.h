@@ -198,6 +198,26 @@ extern glm::vec3 lamparaContencionPos;
 extern glm::vec3 lamparaContencionRot;
 extern glm::vec3 lamparaContencionScale;
 
+extern GLTFModel *sarcofagoGLTF;
+extern glm::vec3 sarcofagoPos;
+extern glm::vec3 sarcofagoRot;
+extern glm::vec3 sarcofagoScale;
+
+extern GLTFModel *cablePisoGLTF;
+extern glm::vec3 cablePisoPos;
+extern glm::vec3 cablePisoRot;
+extern glm::vec3 cablePisoScale;
+
+extern GLTFModel *cableTechoGLTF;
+extern glm::vec3 cableTechoPos;
+extern glm::vec3 cableTechoRot;
+extern glm::vec3 cableTechoScale;
+
+extern GLTFModel *warningGLTF;
+extern glm::vec3 warningPos;
+extern glm::vec3 warningRot;
+extern glm::vec3 warningScale;
+
 extern GLTFModel *lampara2GLTF;
 extern glm::vec3 lampara2Pos;
 extern glm::vec3 lampara2Rot;

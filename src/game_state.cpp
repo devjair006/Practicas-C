@@ -192,6 +192,7 @@ GLTFModel *lavamanosGLTF = nullptr;
 GLTFModel *urinarioGLTF = nullptr;
 GLTFModel *mensBGLTF = nullptr;
 GLTFModel *girlBGLTF = nullptr;
+
 // area de contencion
 GLTFModel *teslaGLTF = nullptr;
 GLTFModel *paredesGLTF = nullptr;
@@ -205,8 +206,28 @@ GLTFModel *lampara3GLTF = nullptr;
 GLTFModel *emergencyGLTF = nullptr;
 GLTFModel *reactorGLTF = nullptr;
 GLTFModel *panelControlGLTF = nullptr;
+GLTFModel *sarcofagoGLTF = nullptr;
+GLTFModel *cablePisoGLTF = nullptr;
+GLTFModel *cableTechoGLTF = nullptr;
+GLTFModel *warningGLTF = nullptr;
 
-glm::vec3 teslaPos(44.800f, -0.500f, 14.200f);
+glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
+glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);
+glm::vec3 sarcofagoScale(1.260f, 1.060f, 0.930f);
+
+glm::vec3 cablePisoPos(43.235f, -0.100f, 12.691f);
+glm::vec3 cablePisoRot(0.0f, 0.0f, 0.0f);
+glm::vec3 cablePisoScale(1.0f, 1.0f, 1.0f);
+
+glm::vec3 cableTechoPos(43.235f, -0.100f, 12.691f);
+glm::vec3 cableTechoRot(0.0f, 0.0f, 0.0f);
+glm::vec3 cableTechoScale(1.0f, 1.0f, 1.0f);
+
+glm::vec3 warningPos(43.235f, -0.100f, 12.691f);
+glm::vec3 warningRot(0.0f, 0.0f, 0.0f);
+glm::vec3 warningScale(1.0f, 1.0f, 1.0f);
+
+glm::vec3 teslaPos(47.950f, -0.500f, 14.400f);
 glm::vec3 teslaRot(-88.000f, 0.0f, 0.0f);
 glm::vec3 teslaScale(0.150f, 0.120f, 0.090f);
 
@@ -220,11 +241,16 @@ glm::vec3 lampara2Scale(1.010f, 8.980f, 1.070f);
 
 std::vector<glm::vec3> emergencyPos = {
     glm::vec3(39.693f, 0.400f, 20.935f),
+    glm::vec3(39.597f, 0.274f, 11.987f),
 };
 std::vector<glm::vec3> emergencyRot = {
     glm::vec3(-93.500f, 0.000f, 0.000f),
+    glm::vec3(93.500f, 2.500f, 88.000f),
 };
-std::vector<glm::vec3> emergencyScale = {glm::vec3(1.0f, 1.0f, 1.0f)};
+std::vector<glm::vec3> emergencyScale = {
+    glm::vec3(1.0f, 1.0f, 1.0f),
+    glm::vec3(0.990f, 0.980f, 1.0f),
+};
 
 glm::vec3 reactorPos(40.963f, -0.550f, 18.761f);
 glm::vec3 reactorRot(0.000f, 0.000f, 0.000f);
