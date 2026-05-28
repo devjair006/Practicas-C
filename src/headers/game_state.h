@@ -160,6 +160,27 @@ extern glm::vec3 locker3Scale;
 extern glm::vec3 maquinaPos;
 extern glm::vec3 maquinaRot;
 extern glm::vec3 maquinaScale;
+extern glm::vec3 deskPos;
+extern glm::vec3 deskRot;
+extern glm::vec3 deskScale;
+extern glm::vec3 desk2Pos;
+extern glm::vec3 desk2Rot;
+extern glm::vec3 desk2Scale;
+extern glm::vec3 desk3Pos;
+extern glm::vec3 desk3Rot;
+extern glm::vec3 desk3Scale;
+
+extern glm::vec3 desk4Pos;
+extern glm::vec3 desk4Rot;
+extern glm::vec3 desk4Scale;
+
+extern glm::vec3 desk5Pos;
+extern glm::vec3 desk5Rot;
+extern glm::vec3 desk5Scale;
+
+extern glm::vec3 desk6Pos;
+extern glm::vec3 desk6Rot;
+extern glm::vec3 desk6Scale;
 
 
 extern glm::vec3 cameraPos;

@@ -518,6 +518,8 @@ int main() {
     GLTFModel* monitorGLTF = new GLTFModel("assets/monitor.glb"); 
     GLTFModel* lockerGLTF = new GLTFModel("assets/locker.glb");
     GLTFModel* maquinaGLTF = new GLTFModel("assets/maquina.glb");
+    GLTFModel* deskGLTF = new GLTFModel("assets/desk.glb");
+
 
    
     
@@ -1573,6 +1575,76 @@ int main() {
         lockerGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
+    if (deskGLTF && !deskGLTF->meshes.empty()) {
+    glm::mat4 deskModel = glm::mat4(1.0f);
+    
+    deskModel = glm::translate(deskModel, deskPos);
+    
+    deskModel = glm::rotate(deskModel, glm::radians(deskRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    deskModel = glm::rotate(deskModel, glm::radians(deskRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    deskModel = glm::rotate(deskModel, glm::radians(deskRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    
+    deskModel = glm::scale(deskModel, deskScale);
+    
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(deskModel));
+    deskGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (deskGLTF && !deskGLTF->meshes.empty()) {
+    glm::mat4 desk2Model = glm::mat4(1.0f);
+    desk2Model = glm::translate(desk2Model, desk2Pos);
+    desk2Model = glm::rotate(desk2Model, glm::radians(desk2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    desk2Model = glm::rotate(desk2Model, glm::radians(desk2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    desk2Model = glm::rotate(desk2Model, glm::radians(desk2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    desk2Model = glm::scale(desk2Model, desk2Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk2Model));
+    deskGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (deskGLTF && !deskGLTF->meshes.empty()) {
+    glm::mat4 desk3Model = glm::mat4(1.0f);
+    desk3Model = glm::translate(desk3Model, desk3Pos);
+    desk3Model = glm::rotate(desk3Model, glm::radians(desk3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    desk3Model = glm::rotate(desk3Model, glm::radians(desk3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    desk3Model = glm::rotate(desk3Model, glm::radians(desk3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    desk3Model = glm::scale(desk3Model, desk3Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk3Model));
+    deskGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (deskGLTF && !deskGLTF->meshes.empty()) {
+    glm::mat4 desk4Model = glm::mat4(1.0f);
+    desk4Model = glm::translate(desk4Model, desk4Pos);
+    desk4Model = glm::rotate(desk4Model, glm::radians(desk4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    desk4Model = glm::rotate(desk4Model, glm::radians(desk4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    desk4Model = glm::rotate(desk4Model, glm::radians(desk4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    desk4Model = glm::scale(desk4Model, desk4Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk4Model));
+    deskGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (deskGLTF && !deskGLTF->meshes.empty()) {
+    glm::mat4 desk5Model = glm::mat4(1.0f);
+    desk5Model = glm::translate(desk5Model, desk5Pos);
+    desk5Model = glm::rotate(desk5Model, glm::radians(desk5Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    desk5Model = glm::rotate(desk5Model, glm::radians(desk5Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    desk5Model = glm::rotate(desk5Model, glm::radians(desk5Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    desk5Model = glm::scale(desk5Model, desk5Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk5Model));
+    deskGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (deskGLTF && !deskGLTF->meshes.empty()) {
+    glm::mat4 desk6Model = glm::mat4(1.0f);
+    desk6Model = glm::translate(desk6Model, desk6Pos);
+    desk6Model = glm::rotate(desk6Model, glm::radians(desk6Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    desk6Model = glm::rotate(desk6Model, glm::radians(desk6Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    desk6Model = glm::rotate(desk6Model, glm::radians(desk6Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    desk6Model = glm::scale(desk6Model, desk6Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk6Model));
+    deskGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
     if (sofaGLTF && !sofaGLTF->meshes.empty()) {
         glm::mat4 sofaModel = glm::mat4(1.0f);
         
@@ -2066,6 +2138,42 @@ int main() {
         ImGui::DragFloat3("Maquina Rot", &maquinaRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Maquina Scale", &maquinaScale.x, 0.01f, 0.001f, 10.0f);
         ImGui::Separator();
+
+        ImGui::Text("Mueble - Desk Lab");
+        ImGui::DragFloat3("Desk Pos", &deskPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Desk Rot (X, Y, Z)", &deskRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Desk Scale", &deskScale.x, 0.005f, 0.001f, 10.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Mueble - Desk 2 Lab");
+        ImGui::DragFloat3("Desk 2 Pos", &desk2Pos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Desk 2 Rot (X, Y, Z)", &desk2Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Desk 2 Scale", &desk2Scale.x, 0.005f, 0.001f, 10.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Mueble - Desk 3 Lab");
+        ImGui::DragFloat3("Desk 3 Pos", &desk3Pos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Desk 3 Rot (X, Y, Z)", &desk3Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Desk 3 Scale", &desk3Scale.x, 0.005f, 0.001f, 10.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Mueble - Desk 4 Lab");
+        ImGui::DragFloat3("Desk 4 Pos", &desk4Pos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Desk 4 Rot (X, Y, Z)", &desk4Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Desk 4 Scale", &desk4Scale.x, 0.005f, 0.001f, 10.0f);
+        ImGui::Separator();
+
+ImGui::Text("Mueble - Desk 5 Lab");
+ImGui::DragFloat3("Desk 5 Pos", &desk5Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Desk 5 Rot (X, Y, Z)", &desk5Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Desk 5 Scale", &desk5Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+ImGui::Text("Mueble - Desk 6 Lab");
+ImGui::DragFloat3("Desk 6 Pos", &desk6Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Desk 6 Rot (X, Y, Z)", &desk6Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Desk 6 Scale", &desk6Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
     
 
         ImGui::End();

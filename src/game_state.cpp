@@ -169,6 +169,30 @@ glm::vec3 maquinaPos = glm::vec3(30.38f, 0.0f, 7.8f);
 glm::vec3 maquinaRot = glm::vec3(0.0f, 0.0f, 180.0f); 
 glm::vec3 maquinaScale = glm::vec3(0.5f, 0.5f, 0.5f);  
 
+glm::vec3 deskPos(15.600f, -0.300f, 3.000f); 
+glm::vec3 deskRot(0.0f, -90.0f, 13.0f);            
+glm::vec3 deskScale(0.60f, 0.60f, 0.60f);    
+
+glm::vec3 desk2Pos(17.600f, -0.300f, 3.000f); 
+glm::vec3 desk2Rot(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk2Scale(0.600f, 0.600f, 0.600f);
+
+glm::vec3 desk3Pos(15.600f, -0.300f, 5.300f); 
+glm::vec3 desk3Rot(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk3Scale(0.600f, 0.600f, 0.600f);    
+
+glm::vec3 desk4Pos(17.400f, -0.300f, 5.300f); 
+glm::vec3 desk4Rot(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk4Scale(0.600f, 0.600f, 0.600f);
+
+glm::vec3 desk5Pos(19.400f, -0.300f, 5.200f); 
+glm::vec3 desk5Rot(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk5Scale(0.600f, 0.600f, 0.600f);    
+
+glm::vec3 desk6Pos(19.400f, -0.300f, 3.000f); 
+glm::vec3 desk6Rot(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk6Scale(0.600f, 0.600f, 0.600f);
+
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -216,6 +240,7 @@ GLTFModel* monitorGLTF = nullptr;
 GLTFModel* lockerGLTF = nullptr;
 GLTFModel* maquinaGLTF = nullptr;
 GLTFModel *esquinerosGLTF = nullptr;
+GLTFModel* deskGLTF = nullptr;
 
 glm::vec3 teslaPos(44.800f, -0.500f, 14.200f);
 glm::vec3 teslaRot(-88.000f, 0.0f, 0.0f);
