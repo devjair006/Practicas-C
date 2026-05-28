@@ -248,6 +248,11 @@ extern glm::vec3 reactorControlPos;
 extern glm::vec3 reactorControlRot;
 extern glm::vec3 reactorControlScale;
 
+extern GLTFModel *lamparaReactorGLTF;
+extern glm::vec3 lamparaReactorPos;
+extern glm::vec3 lamparaReactorRot;
+extern glm::vec3 lamparaReactorScale;
+
 extern GLTFModel *esquinerosGLTF;
 extern glm::vec3 esquinerosPos;
 extern glm::vec3 esquinerosRot;
