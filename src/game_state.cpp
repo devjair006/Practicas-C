@@ -235,7 +235,7 @@ glm::vec3 teslaPos(47.950f, -0.500f, 14.400f);
 glm::vec3 teslaRot(-88.000f, 0.0f, 0.0f);
 glm::vec3 teslaScale(0.150f, 0.120f, 0.090f);
 
-glm::vec3 lamparaContencionPos(46.450f, 1.050f, 18.650f);
+glm::vec3 lamparaContencionPos(47.800f, 1.050f, 15.450f);
 glm::vec3 lamparaContencionRot(-88.000f, 0.0f, 89.000f);
 glm::vec3 lamparaContencionScale(0.570f, 0.720f, 0.900f);
 
@@ -268,9 +268,9 @@ glm::vec3 panelControlPos(48.350f, -0.500f, 17.450f);
 glm::vec3 panelControlRot(-91.000f, 0.000f, -180.000f);
 glm::vec3 panelControlScale(0.450f, 0.490f, 0.180f);
 
-glm::vec3 reactorControlPos(48.350f, -0.500f, 18.450f);
-glm::vec3 reactorControlRot(-91.000f, 0.000f, -180.000f);
-glm::vec3 reactorControlScale(0.450f, 0.490f, 0.180f);
+glm::vec3 reactorControlPos(40.613f, -0.500f, 17.770f);
+glm::vec3 reactorControlRot(-90.000f, 0.000f, -147.500f);
+glm::vec3 reactorControlScale(0.890f, 0.730f, 0.280f);
 
 glm::vec3 lamparaReactorPos(48.350f, -0.500f, 18.450f);
 glm::vec3 lamparaReactorRot(-90.000f, 0.000f, 0.000f);

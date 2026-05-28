@@ -1,4 +1,7 @@
+// GLAD siempre primero, antes que cualquier header OpenGL
 #include <glad/glad.h>
+// GLFW_INCLUDE_NONE evita que GLFW incluya <GL/gl.h> en Windows
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #include "headers/gameplay.h"
