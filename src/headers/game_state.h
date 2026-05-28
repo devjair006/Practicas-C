@@ -105,6 +105,19 @@ extern glm::vec3 sillas5Scale;
 extern glm::vec3 monitorPos;
 extern glm::vec3 monitorRot;
 extern glm::vec3 monitorScale;
+extern glm::vec3 lockerPos;
+extern glm::vec3 lockerRot;
+extern glm::vec3 lockerScale;
+extern glm::vec3 locker2Pos;
+extern glm::vec3 locker2Rot;
+extern glm::vec3 locker2Scale;
+extern glm::vec3 locker3Pos;
+extern glm::vec3 locker3Rot;
+extern glm::vec3 locker3Scale;
+extern glm::vec3 maquinaPos;
+extern glm::vec3 maquinaRot;
+extern glm::vec3 maquinaScale;
+
 
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;

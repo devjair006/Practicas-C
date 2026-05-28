@@ -510,6 +510,11 @@ int main() {
     GLTFModel* sillasGLTF = new GLTFModel("assets/sillas.glb");
     GLTFModel* sofaGLTF = new GLTFModel("assets/sofa.glb"); 
     GLTFModel* monitorGLTF = new GLTFModel("assets/monitor.glb"); 
+    GLTFModel* lockerGLTF = new GLTFModel("assets/locker.glb");
+    GLTFModel* maquinaGLTF = new GLTFModel("assets/maquina.glb");
+
+   
+    
 
     std::cout << "[SISTEMA] Props baño cargados: "
               << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
@@ -1267,6 +1272,21 @@ int main() {
         sillasGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
+    if (maquinaGLTF && !maquinaGLTF->meshes.empty()) {
+        glm::mat4 maquinaModel = glm::mat4(1.0f);
+        
+        maquinaModel = glm::translate(maquinaModel, maquinaPos);
+        
+        maquinaModel = glm::rotate(maquinaModel, glm::radians(maquinaRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        maquinaModel = glm::rotate(maquinaModel, glm::radians(maquinaRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        maquinaModel = glm::rotate(maquinaModel, glm::radians(maquinaRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        
+        maquinaModel = glm::scale(maquinaModel, maquinaScale);
+        
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(maquinaModel));
+        maquinaGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
     if (monitorGLTF && !monitorGLTF->meshes.empty()) {
         glm::mat4 monitorModel = glm::mat4(1.0f);
         
@@ -1281,6 +1301,51 @@ int main() {
         
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(monitorModel));
         monitorGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
+    if (lockerGLTF && !lockerGLTF->meshes.empty()) {
+        glm::mat4 locker2Model = glm::mat4(1.0f);
+        
+        locker2Model = glm::translate(locker2Model, locker2Pos);
+        
+        locker2Model = glm::rotate(locker2Model, glm::radians(locker2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        locker2Model = glm::rotate(locker2Model, glm::radians(locker2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        locker2Model = glm::rotate(locker2Model, glm::radians(locker2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        
+        locker2Model = glm::scale(locker2Model, locker2Scale);
+        
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(locker2Model));
+        lockerGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
+    if (lockerGLTF && !lockerGLTF->meshes.empty()) {
+        glm::mat4 lockerModel = glm::mat4(1.0f);
+        
+        lockerModel = glm::translate(lockerModel, lockerPos);
+        
+        lockerModel = glm::rotate(lockerModel, glm::radians(lockerRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        lockerModel = glm::rotate(lockerModel, glm::radians(lockerRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        lockerModel = glm::rotate(lockerModel, glm::radians(lockerRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        
+        lockerModel = glm::scale(lockerModel, lockerScale);
+        
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lockerModel));
+        lockerGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
+    if (lockerGLTF && !lockerGLTF->meshes.empty()) {
+        glm::mat4 locker3Model = glm::mat4(1.0f);
+        
+        locker3Model = glm::translate(locker3Model, locker3Pos);
+        
+        locker3Model = glm::rotate(locker3Model, glm::radians(locker3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        locker3Model = glm::rotate(locker3Model, glm::radians(locker3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        locker3Model = glm::rotate(locker3Model, glm::radians(locker3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        
+        locker3Model = glm::scale(locker3Model, locker3Scale);
+        
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(locker3Model));
+        lockerGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (sofaGLTF && !sofaGLTF->meshes.empty()) {
@@ -1659,6 +1724,30 @@ int main() {
         ImGui::DragFloat3("Monitor Pos", &monitorPos.x, 0.05f, -100.0f, 100.0f);
         ImGui::DragFloat3("Monitor Rot", &monitorRot.x, 0.5f, -180.0f, 180.0f);
         ImGui::DragFloat3("Monitor Scale", &monitorScale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Mueble - Locker Lab");
+        ImGui::DragFloat3("Locker Pos", &lockerPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Locker Rot", &lockerRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Locker Scale", &lockerScale.x, 0.01f, 0.001f, 10.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Mueble 2 - Locker Lab");
+        ImGui::DragFloat3("Locker 2 Pos", &locker2Pos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Locker 2 Rot", &locker2Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Locker 2 Scale", &locker2Scale.x, 0.01f, 0.001f, 10.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Mueble 3 - Locker Lab");
+        ImGui::DragFloat3("Locker 3 Pos", &locker3Pos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Locker 3 Rot", &locker3Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Locker 3 Scale", &locker3Scale.x, 0.01f, 0.001f, 10.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Mueble - Maquina Lab");
+        ImGui::DragFloat3("Maquina Pos", &maquinaPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Maquina Rot", &maquinaRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Maquina Scale", &maquinaScale.x, 0.01f, 0.001f, 10.0f);
         ImGui::Separator();
     
 

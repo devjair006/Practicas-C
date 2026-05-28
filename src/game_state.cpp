@@ -107,7 +107,23 @@ glm::vec3 sofaScale = glm::vec3(0.5f, 0.5f, 0.5f);
 
 glm::vec3 monitorPos = glm::vec3(32.75f, 0.0f, 5.2f);    
 glm::vec3 monitorRot = glm::vec3(0.0f, -180.0f, 0.0f); 
-glm::vec3 monitorScale = glm::vec3(1.5f, 1.5f, 1.5f);  
+glm::vec3 monitorScale = glm::vec3(1.5f, 1.5f, 1.5f); 
+
+glm::vec3 lockerPos = glm::vec3(25.3f, -0.35f, 8.5f); 
+glm::vec3 lockerRot = glm::vec3(0.0f, 90.0f, 0.0f);    
+glm::vec3 lockerScale = glm::vec3(0.8f, 0.8f, 0.8f); 
+
+glm::vec3 locker2Pos = glm::vec3(32.00f, -0.35f, 1.8f); 
+glm::vec3 locker2Rot = glm::vec3(0.0f, -90.0f, 0.0f);    
+glm::vec3 locker2Scale = glm::vec3(0.8f, 0.8f, 0.8f); 
+
+glm::vec3 locker3Pos = glm::vec3(22.7f, -0.35f, 8.5f); 
+glm::vec3 locker3Rot = glm::vec3(0.0f, 90.0f, 0.0f);   
+glm::vec3 locker3Scale = glm::vec3(0.8f, 0.8f, 0.8f); 
+
+glm::vec3 maquinaPos = glm::vec3(32.38f, 0.0f, 7.8f); 
+glm::vec3 maquinaRot = glm::vec3(0.0f, 0.0f, 180.0f); 
+glm::vec3 maquinaScale = glm::vec3(0.5f, 0.5f, 0.5f);  
 
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -150,6 +166,8 @@ GLTFModel *urinarioGLTF = nullptr;
 GLTFModel *teslaGLTF = nullptr;
 GLTFModel *paredesGLTF = nullptr;
 GLTFModel* monitorGLTF = nullptr;
+GLTFModel* lockerGLTF = nullptr;
+GLTFModel* maquinaGLTF = nullptr;
 
 glm::vec3 teslaPos(44.800f, -0.500f, 14.200f);
 glm::vec3 teslaRot(-88.000f, 0.0f, 0.0f);
