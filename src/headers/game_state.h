@@ -204,14 +204,14 @@ extern glm::vec3 sarcofagoRot;
 extern glm::vec3 sarcofagoScale;
 
 extern GLTFModel *cablePisoGLTF;
-extern glm::vec3 cablePisoPos;
-extern glm::vec3 cablePisoRot;
-extern glm::vec3 cablePisoScale;
+extern std::vector<glm::vec3> cablePisoPos;
+extern std::vector<glm::vec3> cablePisoRot;
+extern std::vector<glm::vec3> cablePisoScale;
 
 extern GLTFModel *cableTechoGLTF;
-extern glm::vec3 cableTechoPos;
-extern glm::vec3 cableTechoRot;
-extern glm::vec3 cableTechoScale;
+extern std::vector<glm::vec3> cableTechoPos;
+extern std::vector<glm::vec3> cableTechoRot;
+extern std::vector<glm::vec3> cableTechoScale;
 
 extern GLTFModel *warningGLTF;
 extern glm::vec3 warningPos;
@@ -242,6 +242,11 @@ extern GLTFModel *panelControlGLTF;
 extern glm::vec3 panelControlPos;
 extern glm::vec3 panelControlRot;
 extern glm::vec3 panelControlScale;
+
+extern GLTFModel *reactorControlGLTF;
+extern glm::vec3 reactorControlPos;
+extern glm::vec3 reactorControlRot;
+extern glm::vec3 reactorControlScale;
 
 extern GLTFModel *esquinerosGLTF;
 extern glm::vec3 esquinerosPos;
