@@ -317,9 +317,6 @@ int main() {
   mensBGLTF = new GLTFModel("assets/mensB.glb");
   girlBGLTF = new GLTFModel("assets/girlB.glb");
   banoGLTF = new GLTFModel("assets/Bano.glb");
-  GLTFModel *bano2GLTF = new GLTFModel("assets/Bano.glb");
-  GLTFModel *bano3GLTF = new GLTFModel("assets/Bano.glb");
-  GLTFModel *bano4GLTF = new GLTFModel("assets/Bano.glb");
   lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
   urinarioGLTF = new GLTFModel("assets/urinario.glb");
 
@@ -442,6 +439,23 @@ int main() {
     pointLightRadLoc[i] = glGetUniformLocation(shaderProgram, radStr.c_str());
   }
 
+  int numSpotLightsLoc = glGetUniformLocation(shaderProgram, "numSpotLights");
+  int spotLightPosLoc[4];
+  int spotLightDirLoc[4];
+  int spotLightColLoc[4];
+  int spotLightCutOffLoc[4];
+  int spotLightOuterCutOffLoc[4];
+  int spotLightRadLoc[4];
+  for (int i = 0; i < 4; i++) {
+    std::string base = "spotLights[" + std::to_string(i) + "]";
+    spotLightPosLoc[i] = glGetUniformLocation(shaderProgram, (base + ".position").c_str());
+    spotLightDirLoc[i] = glGetUniformLocation(shaderProgram, (base + ".direction").c_str());
+    spotLightColLoc[i] = glGetUniformLocation(shaderProgram, (base + ".color").c_str());
+    spotLightCutOffLoc[i] = glGetUniformLocation(shaderProgram, (base + ".cutOff").c_str());
+    spotLightOuterCutOffLoc[i] = glGetUniformLocation(shaderProgram, (base + ".outerCutOff").c_str());
+    spotLightRadLoc[i] = glGetUniformLocation(shaderProgram, (base + ".radius").c_str());
+  }
+
   int emissiveStrengthLoc =
       glGetUniformLocation(shaderProgram, "emissiveStrength");
 
@@ -522,6 +536,111 @@ int main() {
     return nullptr;
   };
 
+
+    // --- STATIC MAP BATCHING ---
+    struct MapBatch {
+        unsigned int textureID;
+        glm::vec3 baseColor;
+        std::vector<float> vertices;
+        unsigned int VAO, VBO;
+    };
+    std::vector<MapBatch> mapBatches;
+
+    auto getBatch = [&](unsigned int tex, glm::vec3 color) -> MapBatch& {
+        for (auto& b : mapBatches) {
+            if (b.textureID == tex && abs(b.baseColor.x - color.x) < 0.01f && abs(b.baseColor.y - color.y) < 0.01f && abs(b.baseColor.z - color.z) < 0.01f) {
+                return b;
+            }
+        }
+        mapBatches.push_back({tex, color, {}, 0, 0});
+        return mapBatches.back();
+    };
+
+    auto addCubeToBatch = [&](MapBatch& batch, glm::mat4 model) {
+        for (int i = 0; i < 36; i++) {
+            glm::vec4 pos(vertices[i*8+0], vertices[i*8+1], vertices[i*8+2], 1.0f);
+            pos = model * pos;
+            
+            glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
+            glm::vec3 normal(vertices[i*8+3], vertices[i*8+4], vertices[i*8+5]);
+            normal = glm::normalize(normalMatrix * normal);
+
+            batch.vertices.push_back(pos.x);
+            batch.vertices.push_back(pos.y);
+            batch.vertices.push_back(pos.z);
+            batch.vertices.push_back(normal.x);
+            batch.vertices.push_back(normal.y);
+            batch.vertices.push_back(normal.z);
+            batch.vertices.push_back(vertices[i*8+6]); // u
+            batch.vertices.push_back(vertices[i*8+7]); // v
+        }
+    };
+
+    auto buildStaticMapBatches = [&]() {
+        for (int z = 0; z < MAP_HEIGHT; z++) {
+            for (int x = 0; x < MAP_WIDTH; x++) {
+                int blockType = worldMap[z][x];
+                
+                // Paredes
+                if (blockType > 0 && blockType < 8) {
+                    float scaleX = wallWidth;
+                    float scaleZ = wallWidth;
+                    bool hasLeft = (x > 0 && worldMap[z][x - 1] > 0);
+                    bool hasRight = (x < MAP_WIDTH - 1 && worldMap[z][x + 1] > 0);
+                    bool hasUp = (z > 0 && worldMap[z - 1][x] > 0);
+                    bool hasDown = (z < MAP_HEIGHT - 1 && worldMap[z + 1][x] > 0);
+                    if (hasLeft || hasRight) scaleX = 1.0f;
+                    if (hasUp || hasDown) scaleZ = 1.0f;
+
+                    glm::mat4 model = glm::mat4(1.0f);
+                    model = glm::translate(model, glm::vec3((float)x, (wallHeight - 1.0f) * 0.5f, (float)z));
+                    model = glm::scale(model, glm::vec3(scaleX, wallHeight, scaleZ));
+
+                    unsigned int tex = wallTex1;
+                    if (blockType == 1) tex = wallTex1;
+                    else if (blockType == 2) tex = wallTex2;
+                    else if (blockType == 3) tex = wallTex3;
+                    else if (blockType == 4) tex = wallContencionTex;
+                    
+                    addCubeToBatch(getBatch(tex, glm::vec3(1.0f, 1.0f, 1.0f)), model);
+                }
+
+                // Piso y Techo
+                bool isContencionCell = (blockType == 4) || (x >= 34 && x <= 49 && z >= 12 && z <= 21 && blockType == 0);
+                
+                // Piso
+                unsigned int fTex = isContencionCell ? floorContencionTex : floorTexture;
+                glm::vec3 fCol = isContencionCell ? glm::vec3(1.0f, 1.0f, 1.0f) : glm::vec3(0.5f, 0.5f, 0.5f);
+                glm::mat4 floorModel = glm::mat4(1.0f);
+                floorModel = glm::translate(floorModel, glm::vec3((float)x, -1.0f, (float)z));
+                addCubeToBatch(getBatch(fTex, fCol), floorModel);
+
+                // Techo
+                unsigned int cTex = isContencionCell ? roofContencionTex : floorTexture;
+                glm::vec3 cCol = isContencionCell ? glm::vec3(1.0f, 1.0f, 1.0f) : glm::vec3(0.3f, 0.3f, 0.3f);
+                glm::mat4 roofModel = glm::mat4(1.0f);
+                roofModel = glm::translate(roofModel, glm::vec3((float)x, wallHeight, (float)z));
+                addCubeToBatch(getBatch(cTex, cCol), roofModel);
+            }
+        }
+
+        // Bind batches
+        for (auto& b : mapBatches) {
+            glGenVertexArrays(1, &b.VAO);
+            glGenBuffers(1, &b.VBO);
+            glBindVertexArray(b.VAO);
+            glBindBuffer(GL_ARRAY_BUFFER, b.VBO);
+            glBufferData(GL_ARRAY_BUFFER, b.vertices.size() * sizeof(float), b.vertices.data(), GL_STATIC_DRAW);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+            glEnableVertexAttribArray(2);
+        }
+        glBindVertexArray(0);
+    };
+    buildStaticMapBatches();
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
@@ -687,21 +806,77 @@ int main() {
       currentLightIdx++;
     }
 
+    // --- LUZ DE LA TESLA (Indice 11) ---
+    float teslaPulse = 0.5f + 0.5f * sin(currentFrame * 20.0f);
+    glUniform3fv(pointLightPosLoc[11], 1, glm::value_ptr(teslaPos));
+    glUniform3f(pointLightColLoc[11], 0.2f * teslaPulse, 0.4f * teslaPulse, 1.0f * teslaPulse);
+    glUniform1f(pointLightRadLoc[11], 5.0f);
 
     // Informar al shader cuantas luces reales estamos usando
-    glUniform1i(numPointLightsLoc, currentLightIdx);
+    // Usamos 12 si la tesla esta activa, o el currentLightIdx si no
+    glUniform1i(numPointLightsLoc, 12);
 
-    // Limpiar las luces restantes por si acaso
-    for (int i = currentLightIdx; i < 12; i++) {
+    for (int i = currentLightIdx; i < 11; i++) {
       glUniform3f(pointLightColLoc[i], 0.0f, 0.0f, 0.0f);
       glUniform1f(pointLightRadLoc[i], 0.0f);
     }
 
-    // --- MAPA ---
+    // --- SPOTLIGHTS PARA LÁMPARAS DE REACTOR ---
+    glUniform1i(numSpotLightsLoc, 4);
+    glm::vec3 lp[4] = { lamparaReactorPos, lamparaReactorPos2, lamparaReactorPos3, lamparaReactorPos4 };
+    glm::vec3 lr[4] = { lamparaReactorRot, lamparaReactorRot2, lamparaReactorRot3, lamparaReactorRot4 };
+    for (int i = 0; i < 4; i++) {
+      glUniform3fv(spotLightPosLoc[i], 1, glm::value_ptr(lp[i]));
+      
+      glm::mat4 rotMat = glm::mat4(1.0f);
+      rotMat = glm::rotate(rotMat, glm::radians(lr[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+      rotMat = glm::rotate(rotMat, glm::radians(lr[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+      rotMat = glm::rotate(rotMat, glm::radians(lr[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+      glm::vec3 dir = glm::normalize(glm::vec3(rotMat * glm::vec4(0.0f, -1.0f, 0.0f, 0.0f)));
+      
+      glUniform3fv(spotLightDirLoc[i], 1, glm::value_ptr(dir));
+      glUniform3f(spotLightColLoc[i], 1.0f, 0.9f, 0.6f); // Warm yellow
+      glUniform1f(spotLightCutOffLoc[i], glm::cos(glm::radians(25.0f)));
+      glUniform1f(spotLightOuterCutOffLoc[i], glm::cos(glm::radians(35.0f)));
+      glUniform1f(spotLightRadLoc[i], 20.0f);
+    }
+
+    // --- CULLING HELPER ---
+    glm::vec2 camDir2D = glm::length(glm::vec2(cameraFront.x, cameraFront.z)) > 0.001f ? glm::normalize(glm::vec2(cameraFront.x, cameraFront.z)) : glm::vec2(1,0);
+    auto shouldRender = [&](float x, float z, float radius = 2.0f) -> bool {
+        glm::vec2 objPos(x, z);
+        glm::vec2 dir = objPos - glm::vec2(cameraPos.x, cameraPos.z);
+        float dist = glm::length(dir);
+        if (dist > 35.0f + radius) return false;
+        if (dist > radius + 3.0f) {
+            dir /= dist;
+            if (glm::dot(camDir2D, dir) < -0.4f) return false;
+        }
+        return true;
+    };
+
+    // --- DIBUJAR MAPA BATCHEADO (Optimizado) ---
+    for (auto& b : mapBatches) {
+        glBindVertexArray(b.VAO);
+        glBindTexture(GL_TEXTURE_2D, b.textureID);
+        if (dimensionAlterna)
+            glUniform3f(colorLoc, 0.4f, 0.1f, 0.1f);
+        else
+            glUniform3f(colorLoc, b.baseColor.x, b.baseColor.y, b.baseColor.z);
+        
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)b.vertices.size() / 8);
+    }
+
+    // --- MAPA (Solo objetos dinamicos/puertas) ---
     for (int z = 0; z < MAP_HEIGHT; z++) {
       for (int x = 0; x < MAP_WIDTH; x++) {
+        if (!shouldRender((float)x, (float)z, 1.5f)) continue;
         int blockType = worldMap[z][x];
         const RoomZone *zone = getZone(x, z);
+
+        // Solo procesamos puertas en el bucle dinámico
+        if (blockType != 8 && blockType != 9 && blockType != -8 && blockType != -9) continue;
 
         // Consideramos la puerta visible tanto si esta cerrada (>0) como
         // abierta (<0)
@@ -1032,15 +1207,17 @@ int main() {
           glUniform1i(isAnimatedLoc, hasSkinningBones ? 1 : 0);
         }
 
-        if (hasSkinningBones) {
-          // En modelos con skinning, evitar doble transformación (nodos +
-          // huesos)
-          glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
-          gnomeGLTF->Draw(shaderProgram, solidColorLoc);
-        } else {
-          // Fallback para modelos sin pesos de hueso exportados
-          gnomeGLTF->DrawAnimated(gnomeRenderTime, currentAnimIndex,
-                                  shaderProgram, modelLoc, -1, gnomeModel);
+        if (shouldRender(gnomePos.x, gnomePos.z, 2.0f)) {
+          if (hasSkinningBones) {
+            // En modelos con skinning, evitar doble transformación (nodos +
+            // huesos)
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
+            gnomeGLTF->Draw(shaderProgram, solidColorLoc);
+          } else {
+            // Fallback para modelos sin pesos de hueso exportados
+            gnomeGLTF->DrawAnimated(gnomeRenderTime, currentAnimIndex,
+                                    shaderProgram, modelLoc, -1, gnomeModel);
+          }
         }
       }
     }
@@ -1058,30 +1235,22 @@ int main() {
     glBindVertexArray(VAO);
 
     if (banoGLTF && !banoGLTF->meshes.empty()) {
-      glm::mat4 banoModel = glm::mat4(1.0f);
-      banoModel = glm::translate(banoModel, banoPos);
-      banoModel = glm::rotate(banoModel, glm::radians(banoRot.x),
-                              glm::vec3(1.0f, 0.0f, 0.0f));
-      banoModel = glm::rotate(banoModel, glm::radians(banoRot.y),
-                              glm::vec3(0.0f, 1.0f, 0.0f));
-      banoModel = glm::rotate(banoModel, glm::radians(banoRot.z),
-                              glm::vec3(0.0f, 0.0f, 1.0f));
-      banoModel = glm::scale(banoModel, banoScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(banoModel));
-      banoGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Bano 5 (Mujeres 1)
-      glm::mat4 bano5Model = glm::mat4(1.0f);
-      bano5Model = glm::translate(bano5Model, banoPos5);
-      bano5Model = glm::rotate(bano5Model, glm::radians(banoRot5.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano5Model = glm::rotate(bano5Model, glm::radians(banoRot5.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano5Model = glm::rotate(bano5Model, glm::radians(banoRot5.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano5Model = glm::scale(bano5Model, banoScale5);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano5Model));
-      banoGLTF->Draw(shaderProgram, solidColorLoc);
+      std::vector<glm::mat4> instanceModels;
+      glm::vec3 positions[8] = { banoPos, banoPos2, banoPos3, banoPos4, banoPos5, banoPos6, banoPos7, banoPos8 };
+      glm::vec3 rotations[8] = { banoRot, banoRot2, banoRot3, banoRot4, banoRot5, banoRot6, banoRot7, banoRot8 };
+      glm::vec3 scales[8] = { banoScale, banoScale2, banoScale3, banoScale4, banoScale5, banoScale6, banoScale7, banoScale8 };
+      for (int i = 0; i < 8; i++) {
+        if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
+          glm::mat4 model = glm::mat4(1.0f);
+          model = glm::translate(model, positions[i]);
+          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::scale(model, scales[i]);
+          instanceModels.push_back(model);
+        }
+      }
+      if (!instanceModels.empty()) banoGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
     }
 
     if (mensBGLTF && !mensBGLTF->meshes.empty()) {
@@ -1095,7 +1264,7 @@ int main() {
                                glm::vec3(0.0f, 0.0f, 1.0f));
       mensBModel = glm::scale(mensBModel, mensBscale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mensBModel));
-      mensBGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mensBpos.x, mensBpos.z, 3.0f)) mensBGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (azulejoGLTF && !azulejoGLTF->meshes.empty()) {
@@ -1109,141 +1278,26 @@ int main() {
                                  glm::vec3(0.0f, 0.0f, 1.0f));
       azulejoModel = glm::scale(azulejoModel, azulejoScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(azulejoModel));
-      azulejoGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(azulejoPos.x, azulejoPos.z, 3.0f)) azulejoGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
-      // Lavamanos 1
-      glm::mat4 lavamanosModel = glm::mat4(1.0f);
-      lavamanosModel = glm::translate(lavamanosModel, lavamanosPos);
-      lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.x),
-                                   glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.y),
-                                   glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.z),
-                                   glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel = glm::scale(lavamanosModel, lavamanosScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel));
-      lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 2
-      glm::mat4 lavamanosModel2 = glm::mat4(1.0f);
-      lavamanosModel2 = glm::translate(lavamanosModel2, lavamanosPos2);
-      lavamanosModel2 =
-          glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel2 =
-          glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel2 =
-          glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel2 = glm::scale(lavamanosModel2, lavamanosScale2);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel2));
-      lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 3
-      glm::mat4 lavamanosModel3 = glm::mat4(1.0f);
-      lavamanosModel3 = glm::translate(lavamanosModel3, lavamanosPos3);
-      lavamanosModel3 =
-          glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel3 =
-          glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel3 =
-          glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel3 = glm::scale(lavamanosModel3, lavamanosScale3);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel3));
-      lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 4
-      glm::mat4 lavamanosModel4 = glm::mat4(1.0f);
-      lavamanosModel4 = glm::translate(lavamanosModel4, lavamanosPos4);
-      lavamanosModel4 =
-          glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel4 =
-          glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel4 =
-          glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel4 = glm::scale(lavamanosModel4, lavamanosScale4);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel4));
-      lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 5 (Mujeres 1)
-      glm::mat4 lavamanosModel5 = glm::mat4(1.0f);
-      lavamanosModel5 = glm::translate(lavamanosModel5, lavamanosPos5);
-      lavamanosModel5 =
-          glm::rotate(lavamanosModel5, glm::radians(lavamanosRot5.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel5 =
-          glm::rotate(lavamanosModel5, glm::radians(lavamanosRot5.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel5 =
-          glm::rotate(lavamanosModel5, glm::radians(lavamanosRot5.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel5 = glm::scale(lavamanosModel5, lavamanosScale5);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel5));
-      lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 6 (Mujeres 2)
-      glm::mat4 lavamanosModel6 = glm::mat4(1.0f);
-      lavamanosModel6 = glm::translate(lavamanosModel6, lavamanosPos6);
-      lavamanosModel6 =
-          glm::rotate(lavamanosModel6, glm::radians(lavamanosRot6.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel6 =
-          glm::rotate(lavamanosModel6, glm::radians(lavamanosRot6.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel6 =
-          glm::rotate(lavamanosModel6, glm::radians(lavamanosRot6.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel6 = glm::scale(lavamanosModel6, lavamanosScale6);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel6));
-      lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 7 (Mujeres 3)
-      glm::mat4 lavamanosModel7 = glm::mat4(1.0f);
-      lavamanosModel7 = glm::translate(lavamanosModel7, lavamanosPos7);
-      lavamanosModel7 =
-          glm::rotate(lavamanosModel7, glm::radians(lavamanosRot7.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel7 =
-          glm::rotate(lavamanosModel7, glm::radians(lavamanosRot7.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel7 =
-          glm::rotate(lavamanosModel7, glm::radians(lavamanosRot7.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel7 = glm::scale(lavamanosModel7, lavamanosScale7);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel7));
-      lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 8 (Mujeres 4)
-      glm::mat4 lavamanosModel8 = glm::mat4(1.0f);
-      lavamanosModel8 = glm::translate(lavamanosModel8, lavamanosPos8);
-      lavamanosModel8 =
-          glm::rotate(lavamanosModel8, glm::radians(lavamanosRot8.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel8 =
-          glm::rotate(lavamanosModel8, glm::radians(lavamanosRot8.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel8 =
-          glm::rotate(lavamanosModel8, glm::radians(lavamanosRot8.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel8 = glm::scale(lavamanosModel8, lavamanosScale8);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel8));
-      lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+      std::vector<glm::mat4> instanceModels;
+      glm::vec3 positions[8] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4, lavamanosPos5, lavamanosPos6, lavamanosPos7, lavamanosPos8 };
+      glm::vec3 rotations[8] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4, lavamanosRot5, lavamanosRot6, lavamanosRot7, lavamanosRot8 };
+      glm::vec3 scales[8] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4, lavamanosScale5, lavamanosScale6, lavamanosScale7, lavamanosScale8 };
+      for (int i = 0; i < 8; i++) {
+        if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
+          glm::mat4 model = glm::mat4(1.0f);
+          model = glm::translate(model, positions[i]);
+          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::scale(model, scales[i]);
+          instanceModels.push_back(model);
+        }
+      }
+      if (!instanceModels.empty()) lavamanosGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
     }
 
     if (mirrorGLTF && !mirrorGLTF->meshes.empty()) {
@@ -1257,7 +1311,7 @@ int main() {
                                 glm::vec3(0.0f, 0.0f, 1.0f));
       mirrorModel = glm::scale(mirrorModel, mirrorScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel));
-      mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mirrorPos.x, mirrorPos.z, 3.0f)) mirrorGLTF->Draw(shaderProgram, solidColorLoc);
 
       // Mirror 2
       glm::mat4 mirrorModel2 = glm::mat4(1.0f);
@@ -1270,7 +1324,7 @@ int main() {
                                  glm::vec3(0.0f, 0.0f, 1.0f));
       mirrorModel2 = glm::scale(mirrorModel2, mirrorScale2);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel2));
-      mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mirrorPos2.x, mirrorPos2.z, 3.0f)) mirrorGLTF->Draw(shaderProgram, solidColorLoc);
 
       // Mirror 3
       glm::mat4 mirrorModel3 = glm::mat4(1.0f);
@@ -1283,7 +1337,7 @@ int main() {
                                  glm::vec3(0.0f, 0.0f, 1.0f));
       mirrorModel3 = glm::scale(mirrorModel3, mirrorScale3);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel3));
-      mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mirrorPos3.x, mirrorPos3.z, 3.0f)) mirrorGLTF->Draw(shaderProgram, solidColorLoc);
 
       // Mirror 4
       glm::mat4 mirrorModel4 = glm::mat4(1.0f);
@@ -1296,7 +1350,7 @@ int main() {
                                  glm::vec3(0.0f, 0.0f, 1.0f));
       mirrorModel4 = glm::scale(mirrorModel4, mirrorScale4);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel4));
-      mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mirrorPos4.x, mirrorPos4.z, 3.0f)) mirrorGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (girlBGLTF && !girlBGLTF->meshes.empty()) {
@@ -1310,89 +1364,9 @@ int main() {
                                glm::vec3(0.0f, 0.0f, 1.0f));
       girlBModel = glm::scale(girlBModel, girlBscale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(girlBModel));
-      girlBGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(girlBpos.x, girlBpos.z, 3.0f)) girlBGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
-    if (bano2GLTF && !bano2GLTF->meshes.empty()) {
-      glm::mat4 bano2Model = glm::mat4(1.0f);
-      bano2Model = glm::translate(bano2Model, banoPos2);
-      bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano2Model = glm::scale(bano2Model, banoScale2);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano2Model));
-      bano2GLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Bano 6 (Mujeres 2)
-      glm::mat4 bano6Model = glm::mat4(1.0f);
-      bano6Model = glm::translate(bano6Model, banoPos6);
-      bano6Model = glm::rotate(bano6Model, glm::radians(banoRot6.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano6Model = glm::rotate(bano6Model, glm::radians(banoRot6.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano6Model = glm::rotate(bano6Model, glm::radians(banoRot6.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano6Model = glm::scale(bano6Model, banoScale6);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano6Model));
-      bano2GLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (bano3GLTF && !bano3GLTF->meshes.empty()) {
-      glm::mat4 bano3Model = glm::mat4(1.0f);
-      bano3Model = glm::translate(bano3Model, banoPos3);
-      bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano3Model = glm::scale(bano3Model, banoScale3);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano3Model));
-      bano3GLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Bano 7 (Mujeres 3)
-      glm::mat4 bano7Model = glm::mat4(1.0f);
-      bano7Model = glm::translate(bano7Model, banoPos7);
-      bano7Model = glm::rotate(bano7Model, glm::radians(banoRot7.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano7Model = glm::rotate(bano7Model, glm::radians(banoRot7.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano7Model = glm::rotate(bano7Model, glm::radians(banoRot7.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano7Model = glm::scale(bano7Model, banoScale7);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano7Model));
-      bano3GLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (bano4GLTF && !bano4GLTF->meshes.empty()) {
-      glm::mat4 bano4Model = glm::mat4(1.0f);
-      bano4Model = glm::translate(bano4Model, banoPos4);
-      bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano4Model = glm::scale(bano4Model, banoScale4);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano4Model));
-      bano4GLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Bano 8 (Mujeres 4)
-      glm::mat4 bano8Model = glm::mat4(1.0f);
-      bano8Model = glm::translate(bano8Model, banoPos8);
-      bano8Model = glm::rotate(bano8Model, glm::radians(banoRot8.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano8Model = glm::rotate(bano8Model, glm::radians(banoRot8.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano8Model = glm::rotate(bano8Model, glm::radians(banoRot8.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano8Model = glm::scale(bano8Model, banoScale8);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano8Model));
-      bano4GLTF->Draw(shaderProgram, solidColorLoc);
-    }
 
     if (ligthbathroomGLTF && !ligthbathroomGLTF->meshes.empty()) {
       glm::mat4 ligthbathroomModel = glm::mat4(1.0f);
@@ -1417,7 +1391,7 @@ int main() {
                          glm::value_ptr(ligthbathroomModel));
       glUniform1f(emissiveStrengthLoc,
                   1.5f * flicker1); // Hacer que brille la lampara
-      ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(ligthbathroomPos.x, ligthbathroomPos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
 
       glm::mat4 ligthbathroom3Model = glm::mat4(1.0f);
@@ -1441,7 +1415,7 @@ int main() {
                          glm::value_ptr(ligthbathroom3Model));
       glUniform1f(emissiveStrengthLoc,
                   1.5f * flicker3); // Hacer que brille la lampara
-      ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamp3Pos.x, lamp3Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
 
       glm::mat4 ligthbathroom4Model = glm::mat4(1.0f);
@@ -1465,7 +1439,7 @@ int main() {
                          glm::value_ptr(ligthbathroom4Model));
       glUniform1f(emissiveStrengthLoc,
                   1.5f * flicker4); // Hacer que brille la lampara
-      ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamp4Pos.x, lamp4Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
 
@@ -1493,7 +1467,7 @@ int main() {
                          glm::value_ptr(ligthbathroom2Model));
       glUniform1f(emissiveStrengthLoc,
                   1.5f * flicker2); // Hacer que brille la lampara
-      ligthbathroom2GLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(ligthbathroom2Pos.x, ligthbathroom2Pos.z, 3.0f)) ligthbathroom2GLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
 
@@ -1508,7 +1482,7 @@ int main() {
                                   glm::vec3(0.0f, 0.0f, 1.0f));
       mirrorBGModel = glm::scale(mirrorBGModel, mirrorBGScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorBGModel));
-      mirrorBGGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mirrorBGpos.x, mirrorBGpos.z, 3.0f)) mirrorBGGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (urinarioGLTF && !urinarioGLTF->meshes.empty()) {
@@ -1522,7 +1496,7 @@ int main() {
                                   glm::vec3(0.0f, 0.0f, 1.0f));
       urinarioModel = glm::scale(urinarioModel, urinarioScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(urinarioModel));
-      urinarioGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(urinarioPos.x, urinarioPos.z, 3.0f)) urinarioGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (teslaGLTF && !teslaGLTF->meshes.empty()) {
@@ -1537,7 +1511,7 @@ int main() {
       teslaModel = glm::scale(teslaModel, teslaScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(teslaModel));
 
-      teslaGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(teslaPos.x, teslaPos.z, 3.0f)) teslaGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (sarcofagoGLTF && !sarcofagoGLTF->meshes.empty()) {
@@ -1552,7 +1526,7 @@ int main() {
       sModel = glm::scale(sModel, sarcofagoScale);
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sModel));
-      sarcofagoGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(sarcofagoPos.x, sarcofagoPos.z, 3.0f)) sarcofagoGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (cablePisoGLTF && !cablePisoGLTF->meshes.empty()) {
@@ -1568,7 +1542,7 @@ int main() {
         cpModel = glm::scale(cpModel, cablePisoScale[i]);
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cpModel));
-        cablePisoGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(cablePisoPos[i].x, cablePisoPos[i].z, 3.0f)) cablePisoGLTF->Draw(shaderProgram, solidColorLoc);
       }
     }
 
@@ -1585,7 +1559,7 @@ int main() {
         ctModel = glm::scale(ctModel, cableTechoScale[i]);
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ctModel));
-        cableTechoGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(cableTechoPos[i].x, cableTechoPos[i].z, 3.0f)) cableTechoGLTF->Draw(shaderProgram, solidColorLoc);
       }
     }
 
@@ -1601,7 +1575,7 @@ int main() {
       wModel = glm::scale(wModel, warningScale);
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(wModel));
-      warningGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(warningPos.x, warningPos.z, 3.0f)) warningGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (lamparaContencionGLTF && !lamparaContencionGLTF->meshes.empty()) {
@@ -1617,7 +1591,7 @@ int main() {
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lampModel));
       glUniform1f(emissiveStrengthLoc, 1.5f * lampFlicker);
-      lamparaContencionGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamparaContencionPos.x, lamparaContencionPos.z, 3.0f)) lamparaContencionGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f);
     }
 
@@ -1634,7 +1608,7 @@ int main() {
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lamp2Model));
       glUniform1f(emissiveStrengthLoc, 0.8f * lampFlicker);
-      lampara2GLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lampara2Pos.x, lampara2Pos.z, 3.0f)) lampara2GLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f);
     }
 
@@ -1651,7 +1625,7 @@ int main() {
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lamp3Model));
       glUniform1f(emissiveStrengthLoc, 0.8f * lampFlicker);
-      lampara3GLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lampara3Pos.x, lampara3Pos.z, 3.0f)) lampara3GLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f);
     }
     if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
@@ -1669,7 +1643,7 @@ int main() {
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(emergModel));
         // Usar el pulso compartido y aumentar intensidad emisiva
         glUniform1f(emissiveStrengthLoc, 4.0f * emergencyPulse);
-        emergencyGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(emergencyPos[i].x, emergencyPos[i].z, 3.0f)) emergencyGLTF->Draw(shaderProgram, solidColorLoc);
         glUniform1f(emissiveStrengthLoc, 0.0f);
       }
     }
@@ -1686,7 +1660,7 @@ int main() {
       reactorModel = glm::scale(reactorModel, reactorScale);
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(reactorModel));
-      reactorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(reactorPos.x, reactorPos.z, 3.0f)) reactorGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
@@ -1700,7 +1674,7 @@ int main() {
                                glm::vec3(0.0f, 0.0f, 1.0f));
       panelModel = glm::scale(panelModel, panelControlScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(panelModel));
-      panelControlGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(panelControlPos.x, panelControlPos.z, 3.0f)) panelControlGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (reactorControlGLTF && !reactorControlGLTF->meshes.empty()) {
@@ -1714,7 +1688,7 @@ int main() {
                             glm::vec3(0.0f, 0.0f, 1.0f));
       rcModel = glm::scale(rcModel, reactorControlScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(rcModel));
-      reactorControlGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(reactorControlPos.x, reactorControlPos.z, 3.0f)) reactorControlGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (lamparaReactorGLTF && !lamparaReactorGLTF->meshes.empty()) {
@@ -1728,7 +1702,43 @@ int main() {
                             glm::vec3(0.0f, 0.0f, 1.0f));
       lrModel = glm::scale(lrModel, lamparaReactorScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel));
-      lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamparaReactorPos.x, lamparaReactorPos.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+
+      glm::mat4 lrModel2 = glm::mat4(1.0f);
+      lrModel2 = glm::translate(lrModel2, lamparaReactorPos2);
+      lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.x),
+                            glm::vec3(1.0f, 0.0f, 0.0f));
+      lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.y),
+                            glm::vec3(0.0f, 1.0f, 0.0f));
+      lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.z),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
+      lrModel2 = glm::scale(lrModel2, lamparaReactorScale2);
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel2));
+      if (shouldRender(lamparaReactorPos2.x, lamparaReactorPos2.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+
+      glm::mat4 lrModel3 = glm::mat4(1.0f);
+      lrModel3 = glm::translate(lrModel3, lamparaReactorPos3);
+      lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.x),
+                            glm::vec3(1.0f, 0.0f, 0.0f));
+      lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.y),
+                            glm::vec3(0.0f, 1.0f, 0.0f));
+      lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.z),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
+      lrModel3 = glm::scale(lrModel3, lamparaReactorScale3);
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel3));
+      if (shouldRender(lamparaReactorPos3.x, lamparaReactorPos3.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+
+      glm::mat4 lrModel4 = glm::mat4(1.0f);
+      lrModel4 = glm::translate(lrModel4, lamparaReactorPos4);
+      lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.x),
+                            glm::vec3(1.0f, 0.0f, 0.0f));
+      lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.y),
+                            glm::vec3(0.0f, 1.0f, 0.0f));
+      lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.z),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
+      lrModel4 = glm::scale(lrModel4, lamparaReactorScale4);
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel4));
+      if (shouldRender(lamparaReactorPos4.x, lamparaReactorPos4.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (esquinerosGLTF && !esquinerosGLTF->meshes.empty()) {
@@ -1747,7 +1757,7 @@ int main() {
       esquinerosModel = glm::scale(esquinerosModel, esquinerosScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                          glm::value_ptr(esquinerosModel));
-      esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(esquinerosPos.x, esquinerosPos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
 
       // Esquinero 2
       glm::mat4 esquinerosModel2 = glm::mat4(1.0f);
@@ -1764,7 +1774,7 @@ int main() {
       esquinerosModel2 = glm::scale(esquinerosModel2, esquineros2Scale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                          glm::value_ptr(esquinerosModel2));
-      esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(esquineros2Pos.x, esquineros2Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
 
       // Esquinero 3
       glm::mat4 esquinerosModel3 = glm::mat4(1.0f);
@@ -1781,7 +1791,7 @@ int main() {
       esquinerosModel3 = glm::scale(esquinerosModel3, esquineros3Scale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                          glm::value_ptr(esquinerosModel3));
-      esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(esquineros3Pos.x, esquineros3Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
 
       // Esquinero 4
       glm::mat4 esquinerosModel4 = glm::mat4(1.0f);
@@ -1798,7 +1808,7 @@ int main() {
       esquinerosModel4 = glm::scale(esquinerosModel4, esquineros4Scale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                          glm::value_ptr(esquinerosModel4));
-      esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(esquineros4Pos.x, esquineros4Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (generadorGLTF && !generadorGLTF->meshes.empty()) {
@@ -1817,7 +1827,7 @@ int main() {
         generadorModel = glm::scale(generadorModel, generadorScale[i]);
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                            glm::value_ptr(generadorModel));
-        generadorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(generadorPos[i].x, generadorPos[i].z, 3.0f)) generadorGLTF->Draw(shaderProgram, solidColorLoc);
       }
     }
 
@@ -2680,6 +2690,54 @@ int main() {
               reactorControlPos.y = -0.5f;
               reactorControlRot = glm::vec3(0.0f, 0.0f, 0.0f);
               reactorControlScale = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+            ImGui::Separator();
+
+            ImGui::Text("Lampara Reactor Model");
+            ImGui::DragFloat3("LampReactor Pos", &lamparaReactorPos.x, 0.05f);
+            ImGui::DragFloat3("LampReactor Rot", &lamparaReactorRot.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("LampReactor Scale", &lamparaReactorScale.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer Lampara Reactor frente a camara")) {
+              lamparaReactorPos = cameraPos + cameraFront * 2.0f;
+              lamparaReactorPos.y = 2.0f;
+              lamparaReactorRot = glm::vec3(0.0f, 0.0f, 0.0f);
+              lamparaReactorScale = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+            ImGui::Separator();
+
+            ImGui::Text("Lampara Reactor Model 2");
+            ImGui::DragFloat3("LampReactor Pos 2", &lamparaReactorPos2.x, 0.05f);
+            ImGui::DragFloat3("LampReactor Rot 2", &lamparaReactorRot2.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("LampReactor Scale 2", &lamparaReactorScale2.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer Lampara Reactor 2 frente a camara")) {
+              lamparaReactorPos2 = cameraPos + cameraFront * 2.0f;
+              lamparaReactorPos2.y = 2.0f;
+              lamparaReactorRot2 = glm::vec3(0.0f, 0.0f, 0.0f);
+              lamparaReactorScale2 = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+            ImGui::Separator();
+
+            ImGui::Text("Lampara Reactor Model 3");
+            ImGui::DragFloat3("LampReactor Pos 3", &lamparaReactorPos3.x, 0.05f);
+            ImGui::DragFloat3("LampReactor Rot 3", &lamparaReactorRot3.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("LampReactor Scale 3", &lamparaReactorScale3.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer Lampara Reactor 3 frente a camara")) {
+              lamparaReactorPos3 = cameraPos + cameraFront * 2.0f;
+              lamparaReactorPos3.y = 2.0f;
+              lamparaReactorRot3 = glm::vec3(0.0f, 0.0f, 0.0f);
+              lamparaReactorScale3 = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+            ImGui::Separator();
+
+            ImGui::Text("Lampara Reactor Model 4");
+            ImGui::DragFloat3("LampReactor Pos 4", &lamparaReactorPos4.x, 0.05f);
+            ImGui::DragFloat3("LampReactor Rot 4", &lamparaReactorRot4.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("LampReactor Scale 4", &lamparaReactorScale4.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer Lampara Reactor 4 frente a camara")) {
+              lamparaReactorPos4 = cameraPos + cameraFront * 2.0f;
+              lamparaReactorPos4.y = 2.0f;
+              lamparaReactorRot4 = glm::vec3(0.0f, 0.0f, 0.0f);
+              lamparaReactorScale4 = glm::vec3(1.0f, 1.0f, 1.0f);
             }
             ImGui::Separator();
 

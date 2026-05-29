@@ -31,6 +31,18 @@ struct PointLight {
 uniform int numPointLights;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
+struct SpotLight {
+    vec3 position;
+    vec3 direction;
+    vec3 color;
+    float cutOff;
+    float outerCutOff;
+    float radius;
+};
+#define MAX_SPOT_LIGHTS 4
+uniform int numSpotLights;
+uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
+
 void main() {
     float ambientStrength = 0.05;
     vec3 ambientColor = vec3(1.0);
@@ -92,7 +104,26 @@ void main() {
 
         pointLightsDiffuse += diff * pointLights[i].color * attenuation;
     }
-    diffuse += pointLightsDiffuse;
+
+    vec3 spotLightsDiffuse = vec3(0.0);
+    for(int i = 0; i < numSpotLights; i++) {
+        vec3 lightDirVec = normalize(spotLights[i].position - FragPos);
+        float diff = max(dot(norm, lightDirVec), 0.0);
+
+        float theta = dot(lightDirVec, normalize(-spotLights[i].direction));
+        float epsilon = spotLights[i].cutOff - spotLights[i].outerCutOff;
+        float intensity = clamp((theta - spotLights[i].outerCutOff) / epsilon, 0.0, 1.0);
+
+        float distance = length(spotLights[i].position - FragPos);
+        float radius = spotLights[i].radius;
+        if (radius <= 0.0) radius = 10.0;
+        float falloff = clamp(1.0 - (distance * distance) / (radius * radius), 0.0, 1.0);
+        float attenuation = falloff * falloff;
+
+        spotLightsDiffuse += diff * spotLights[i].color * intensity * attenuation;
+    }
+
+    diffuse += pointLightsDiffuse + spotLightsDiffuse;
 
     vec4 texColor = texture(texture1, TexCoord);
     if (useSolidColor == 1) {
