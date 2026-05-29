@@ -238,7 +238,67 @@ bool checkCollision(float x, float z) {
         }
     }
 
+    // --- COLISION CON SARCOFAGO ---
+    if (sarcofagoGLTF && !sarcofagoGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, sarcofagoPos);
+        model = glm::rotate(model, glm::radians(sarcofagoRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(sarcofagoRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(sarcofagoRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, sarcofagoScale);
+        AABB worldBox = sarcofagoGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+    }
 
+    // --- COLISION CON EMERGENCY ---
+    if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
+        for (size_t i = 0; i < emergencyPos.size(); ++i) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, emergencyPos[i]);
+            model = glm::rotate(model, glm::radians(emergencyRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(emergencyRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(emergencyRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::scale(model, emergencyScale[i]);
+            AABB worldBox = emergencyGLTF->GetWorldAABB(model);
+            if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+        }
+    }
+
+    // --- COLISION CON REACTOR ---
+    if (reactorGLTF && !reactorGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, reactorPos);
+        model = glm::rotate(model, glm::radians(reactorRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(reactorRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(reactorRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, reactorScale);
+        AABB worldBox = reactorGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+    }
+
+    // --- COLISION CON REACTOR CONTROL ---
+    if (reactorControlGLTF && !reactorControlGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, reactorControlPos);
+        model = glm::rotate(model, glm::radians(reactorControlRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(reactorControlRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(reactorControlRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, reactorControlScale);
+        AABB worldBox = reactorControlGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+    }
+
+    // --- COLISION CON WARNING ---
+    if (warningGLTF && !warningGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, warningPos);
+        model = glm::rotate(model, glm::radians(warningRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(warningRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(warningRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, warningScale);
+        AABB worldBox = warningGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+    }
 
     return false;
 }
