@@ -157,6 +157,9 @@ extern glm::vec3 locker2Scale;
 extern glm::vec3 locker3Pos;
 extern glm::vec3 locker3Rot;
 extern glm::vec3 locker3Scale;
+extern glm::vec3 locker4Pos;
+extern glm::vec3 locker4Rot;
+extern glm::vec3 locker4Scale;
 extern glm::vec3 maquinaPos;
 extern glm::vec3 maquinaRot;
 extern glm::vec3 maquinaScale;
@@ -182,6 +185,29 @@ extern glm::vec3 desk6Pos;
 extern glm::vec3 desk6Rot;
 extern glm::vec3 desk6Scale;
 
+extern glm::vec3 silla1Pos;
+extern glm::vec3 silla1Rot;
+extern glm::vec3 silla1Scale;
+
+extern glm::vec3 silla2Pos;
+extern glm::vec3 silla2Rot;
+extern glm::vec3 silla2Scale;
+
+extern glm::vec3 silla3Pos;
+extern glm::vec3 silla3Rot;
+extern glm::vec3 silla3Scale;
+
+extern glm::vec3 silla4Pos;
+extern glm::vec3 silla4Rot;
+extern glm::vec3 silla4Scale;
+
+extern glm::vec3 silla5Pos;
+extern glm::vec3 silla5Rot;
+extern glm::vec3 silla5Scale;
+
+extern glm::vec3 silla6Pos;
+extern glm::vec3 silla6Rot;
+extern glm::vec3 silla6Scale;
 
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
@@ -275,3 +301,5 @@ extern bool door1Opening;
 extern float door2Anim;
 extern bool door2Opening;
 extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
+
+

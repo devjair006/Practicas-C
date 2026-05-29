@@ -519,6 +519,7 @@ int main() {
     GLTFModel* lockerGLTF = new GLTFModel("assets/locker.glb");
     GLTFModel* maquinaGLTF = new GLTFModel("assets/maquina.glb");
     GLTFModel* deskGLTF = new GLTFModel("assets/desk.glb");
+    GLTFModel* sillaGLTF = new GLTFModel("assets/silla.glb");
 
 
    
@@ -1575,6 +1576,17 @@ int main() {
         lockerGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
+    if (lockerGLTF && !lockerGLTF->meshes.empty()) {
+    glm::mat4 locker4Model = glm::mat4(1.0f);
+    locker4Model = glm::translate(locker4Model, locker4Pos);
+    locker4Model = glm::rotate(locker4Model, glm::radians(locker4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    locker4Model = glm::rotate(locker4Model, glm::radians(locker4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    locker4Model = glm::rotate(locker4Model, glm::radians(locker4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    locker4Model = glm::scale(locker4Model, locker4Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(locker4Model));
+    lockerGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
     if (deskGLTF && !deskGLTF->meshes.empty()) {
     glm::mat4 deskModel = glm::mat4(1.0f);
     
@@ -1643,6 +1655,72 @@ if (deskGLTF && !deskGLTF->meshes.empty()) {
     desk6Model = glm::scale(desk6Model, desk6Scale);
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk6Model));
     deskGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (sillaGLTF && !sillaGLTF->meshes.empty()) {
+    glm::mat4 silla1Model = glm::mat4(1.0f);
+    silla1Model = glm::translate(silla1Model, silla1Pos);
+    silla1Model = glm::rotate(silla1Model, glm::radians(silla1Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    silla1Model = glm::rotate(silla1Model, glm::radians(silla1Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    silla1Model = glm::rotate(silla1Model, glm::radians(silla1Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    silla1Model = glm::scale(silla1Model, silla1Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla1Model));
+    sillaGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (sillaGLTF && !sillaGLTF->meshes.empty()) {
+    glm::mat4 silla2Model = glm::mat4(1.0f);
+    silla2Model = glm::translate(silla2Model, silla2Pos);
+    silla2Model = glm::rotate(silla2Model, glm::radians(silla2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    silla2Model = glm::rotate(silla2Model, glm::radians(silla2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    silla2Model = glm::rotate(silla2Model, glm::radians(silla2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    silla2Model = glm::scale(silla2Model, silla2Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla2Model));
+    sillaGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (sillaGLTF && !sillaGLTF->meshes.empty()) {
+    glm::mat4 silla3Model = glm::mat4(1.0f);
+    silla3Model = glm::translate(silla3Model, silla3Pos);
+    silla3Model = glm::rotate(silla3Model, glm::radians(silla3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    silla3Model = glm::rotate(silla3Model, glm::radians(silla3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    silla3Model = glm::rotate(silla3Model, glm::radians(silla3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    silla3Model = glm::scale(silla3Model, silla3Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla3Model));
+    sillaGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (sillaGLTF && !sillaGLTF->meshes.empty()) {
+    glm::mat4 silla4Model = glm::mat4(1.0f);
+    silla4Model = glm::translate(silla4Model, silla4Pos);
+    silla4Model = glm::rotate(silla4Model, glm::radians(silla4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    silla4Model = glm::rotate(silla4Model, glm::radians(silla4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    silla4Model = glm::rotate(silla4Model, glm::radians(silla4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    silla4Model = glm::scale(silla4Model, silla4Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla4Model));
+    sillaGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (sillaGLTF && !sillaGLTF->meshes.empty()) {
+    glm::mat4 silla5Model = glm::mat4(1.0f);
+    silla5Model = glm::translate(silla5Model, silla5Pos);
+    silla5Model = glm::rotate(silla5Model, glm::radians(silla5Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    silla5Model = glm::rotate(silla5Model, glm::radians(silla5Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    silla5Model = glm::rotate(silla5Model, glm::radians(silla5Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    silla5Model = glm::scale(silla5Model, silla5Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla5Model));
+    sillaGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (sillaGLTF && !sillaGLTF->meshes.empty()) {
+    glm::mat4 silla6Model = glm::mat4(1.0f);
+    silla6Model = glm::translate(silla6Model, silla6Pos);
+    silla6Model = glm::rotate(silla6Model, glm::radians(silla6Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    silla6Model = glm::rotate(silla6Model, glm::radians(silla6Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    silla6Model = glm::rotate(silla6Model, glm::radians(silla6Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    silla6Model = glm::scale(silla6Model, silla6Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla6Model));
+    sillaGLTF->Draw(shaderProgram, solidColorLoc);
 }
 
     if (sofaGLTF && !sofaGLTF->meshes.empty()) {
@@ -2133,6 +2211,12 @@ if (deskGLTF && !deskGLTF->meshes.empty()) {
         ImGui::DragFloat3("Locker 3 Scale", &locker3Scale.x, 0.01f, 0.001f, 10.0f);
         ImGui::Separator();
 
+        ImGui::Text("Locker 4");
+        ImGui::DragFloat3("Locker 4 Pos", &locker4Pos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Locker 4 Rot (X, Y, Z)", &locker4Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Locker 4 Scale", &locker4Scale.x, 0.005f, 0.001f, 10.0f);
+        ImGui::Separator();
+
         ImGui::Text("Mueble - Maquina Lab");
         ImGui::DragFloat3("Maquina Pos", &maquinaPos.x, 0.05f, -100.0f, 100.0f);
         ImGui::DragFloat3("Maquina Rot", &maquinaRot.x, 0.5f, -180.0f, 180.0f);
@@ -2173,6 +2257,48 @@ ImGui::Text("Mueble - Desk 6 Lab");
 ImGui::DragFloat3("Desk 6 Pos", &desk6Pos.x, 0.05f, -100.0f, 100.0f);
 ImGui::DragFloat3("Desk 6 Rot (X, Y, Z)", &desk6Rot.x, 0.5f, -180.0f, 180.0f);
 ImGui::DragFloat3("Desk 6 Scale", &desk6Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+
+ImGui::Text("Silla 1 Laboratorio");
+ImGui::DragFloat3("Silla 1 Pos", &silla1Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Silla 1 Rot (X, Y, Z)", &silla1Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Silla 1 Scale", &silla1Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+
+ImGui::Text("Silla 2 Laboratorio");
+ImGui::DragFloat3("Silla 2 Pos", &silla2Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Silla 2 Rot (X, Y, Z)", &silla2Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Silla 2 Scale", &silla2Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+
+ImGui::Text("Silla 3 Laboratorio");
+ImGui::DragFloat3("Silla 3 Pos", &silla3Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Silla 3 Rot (X, Y, Z)", &silla3Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Silla 3 Scale", &silla3Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+
+ImGui::Text("Silla 4 Laboratorio");
+ImGui::DragFloat3("Silla 4 Pos", &silla4Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Silla 4 Rot (X, Y, Z)", &silla4Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Silla 4 Scale", &silla4Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+
+ImGui::Text("Silla 5 Laboratorio");
+ImGui::DragFloat3("Silla 5 Pos", &silla5Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Silla 5 Rot (X, Y, Z)", &silla5Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Silla 5 Scale", &silla5Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+
+ImGui::Text("Silla 6 Laboratorio");
+ImGui::DragFloat3("Silla 6 Pos", &silla6Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Silla 6 Rot (X, Y, Z)", &silla6Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Silla 6 Scale", &silla6Scale.x, 0.005f, 0.001f, 10.0f);
 ImGui::Separator();
     
 

@@ -161,9 +161,13 @@ glm::vec3 locker2Pos = glm::vec3(22.60f, -0.35f, 8.5f);
 glm::vec3 locker2Rot = glm::vec3(0.0f, 90.0f, 0.0f);    
 glm::vec3 locker2Scale = glm::vec3(0.8f, 0.8f, 0.8f); 
 
-glm::vec3 locker3Pos = glm::vec3(29.5f, -0.35f, 1.8f); 
+glm::vec3 locker3Pos = glm::vec3(30.0f, -0.35f, 1.8f); 
 glm::vec3 locker3Rot = glm::vec3(0.0f, -90.0f, 0.0f);   
 glm::vec3 locker3Scale = glm::vec3(0.8f, 0.8f, 0.8f); 
+
+glm::vec3 locker4Pos = glm::vec3(27.4f, -0.35f, 1.8f); 
+glm::vec3 locker4Rot = glm::vec3(0.0f, -90.0f, 0.0f);   
+glm::vec3 locker4Scale = glm::vec3(0.8f, 0.8f, 0.8f);
 
 glm::vec3 maquinaPos = glm::vec3(30.38f, 0.0f, 7.8f); 
 glm::vec3 maquinaRot = glm::vec3(0.0f, 0.0f, 180.0f); 
@@ -192,6 +196,30 @@ glm::vec3 desk5Scale(0.600f, 0.600f, 0.600f);
 glm::vec3 desk6Pos(19.400f, -0.300f, 3.000f); 
 glm::vec3 desk6Rot(0.0f, -90.0f, 13.0f);            
 glm::vec3 desk6Scale(0.600f, 0.600f, 0.600f);
+
+glm::vec3 silla1Pos(15.600f, -0.300f, 2.500f); 
+glm::vec3 silla1Rot(0.0f, -90.0f, 0.0f);            
+glm::vec3 silla1Scale(0.600f, 0.600f, 0.600f);    
+
+glm::vec3 silla2Pos(17.600f, -0.300f, 2.500f); 
+glm::vec3 silla2Rot(0.0f, -90.0f, 0.0f);            
+glm::vec3 silla2Scale(0.600f, 0.600f, 0.600f);    
+
+glm::vec3 silla3Pos(15.600f, -0.300f, 4.800f); 
+glm::vec3 silla3Rot(0.0f, -90.0f, 0.0f);            
+glm::vec3 silla3Scale(0.600f, 0.600f, 0.600f);    
+
+glm::vec3 silla4Pos(17.400f, -0.300f, 4.800f); 
+glm::vec3 silla4Rot(0.0f, -90.0f, 0.0f);            
+glm::vec3 silla4Scale(0.600f, 0.600f, 0.600f);    
+
+glm::vec3 silla5Pos(19.400f, -0.300f, 2.500f); 
+glm::vec3 silla5Rot(0.0f, -90.0f, 0.0f);            
+glm::vec3 silla5Scale(0.600f, 0.600f, 0.600f);    
+
+glm::vec3 silla6Pos(19.400f, -0.300f, 4.800f); 
+glm::vec3 silla6Rot(0.0f, -90.0f, 0.0f);            
+glm::vec3 silla6Scale(0.600f, 0.600f, 0.600f);
 
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
