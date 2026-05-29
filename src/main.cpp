@@ -139,6 +139,9 @@ static const char *getDoorDebugLabel(int blockType) {
     return "Puerta Nv2 abierta";
   default:
     return "Sin puerta";
+  }
+}
+
 int main() {
   std::cout << "--- PRUEBA DE ASSIMP (GNOME) ---" << std::endl;
   std::string diagnosticPath = "assets/gnome.glb";
@@ -314,9 +317,6 @@ int main() {
   mensBGLTF = new GLTFModel("assets/mensB.glb");
   girlBGLTF = new GLTFModel("assets/girlB.glb");
   banoGLTF = new GLTFModel("assets/Bano.glb");
-  GLTFModel *bano2GLTF = new GLTFModel("assets/Bano.glb");
-  GLTFModel *bano3GLTF = new GLTFModel("assets/Bano.glb");
-  GLTFModel *bano4GLTF = new GLTFModel("assets/Bano.glb");
   lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
   urinarioGLTF = new GLTFModel("assets/urinario.glb");
 
@@ -1235,30 +1235,22 @@ int main() {
     glBindVertexArray(VAO);
 
     if (banoGLTF && !banoGLTF->meshes.empty()) {
-      glm::mat4 banoModel = glm::mat4(1.0f);
-      banoModel = glm::translate(banoModel, banoPos);
-      banoModel = glm::rotate(banoModel, glm::radians(banoRot.x),
-                              glm::vec3(1.0f, 0.0f, 0.0f));
-      banoModel = glm::rotate(banoModel, glm::radians(banoRot.y),
-                              glm::vec3(0.0f, 1.0f, 0.0f));
-      banoModel = glm::rotate(banoModel, glm::radians(banoRot.z),
-                              glm::vec3(0.0f, 0.0f, 1.0f));
-      banoModel = glm::scale(banoModel, banoScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(banoModel));
-      if (shouldRender(banoPos.x, banoPos.z, 3.0f)) banoGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Bano 5 (Mujeres 1)
-      glm::mat4 bano5Model = glm::mat4(1.0f);
-      bano5Model = glm::translate(bano5Model, banoPos5);
-      bano5Model = glm::rotate(bano5Model, glm::radians(banoRot5.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano5Model = glm::rotate(bano5Model, glm::radians(banoRot5.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano5Model = glm::rotate(bano5Model, glm::radians(banoRot5.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano5Model = glm::scale(bano5Model, banoScale5);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano5Model));
-      if (shouldRender(banoPos5.x, banoPos5.z, 3.0f)) banoGLTF->Draw(shaderProgram, solidColorLoc);
+      std::vector<glm::mat4> instanceModels;
+      glm::vec3 positions[8] = { banoPos, banoPos2, banoPos3, banoPos4, banoPos5, banoPos6, banoPos7, banoPos8 };
+      glm::vec3 rotations[8] = { banoRot, banoRot2, banoRot3, banoRot4, banoRot5, banoRot6, banoRot7, banoRot8 };
+      glm::vec3 scales[8] = { banoScale, banoScale2, banoScale3, banoScale4, banoScale5, banoScale6, banoScale7, banoScale8 };
+      for (int i = 0; i < 8; i++) {
+        if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
+          glm::mat4 model = glm::mat4(1.0f);
+          model = glm::translate(model, positions[i]);
+          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::scale(model, scales[i]);
+          instanceModels.push_back(model);
+        }
+      }
+      if (!instanceModels.empty()) banoGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
     }
 
     if (mensBGLTF && !mensBGLTF->meshes.empty()) {
@@ -1290,137 +1282,22 @@ int main() {
     }
 
     if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
-      // Lavamanos 1
-      glm::mat4 lavamanosModel = glm::mat4(1.0f);
-      lavamanosModel = glm::translate(lavamanosModel, lavamanosPos);
-      lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.x),
-                                   glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.y),
-                                   glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel = glm::rotate(lavamanosModel, glm::radians(lavamanosRot.z),
-                                   glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel = glm::scale(lavamanosModel, lavamanosScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lavamanosModel));
-      if (shouldRender(lavamanosPos.x, lavamanosPos.z, 3.0f)) lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 2
-      glm::mat4 lavamanosModel2 = glm::mat4(1.0f);
-      lavamanosModel2 = glm::translate(lavamanosModel2, lavamanosPos2);
-      lavamanosModel2 =
-          glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel2 =
-          glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel2 =
-          glm::rotate(lavamanosModel2, glm::radians(lavamanosRot2.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel2 = glm::scale(lavamanosModel2, lavamanosScale2);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel2));
-      if (shouldRender(lavamanosPos2.x, lavamanosPos2.z, 3.0f)) lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 3
-      glm::mat4 lavamanosModel3 = glm::mat4(1.0f);
-      lavamanosModel3 = glm::translate(lavamanosModel3, lavamanosPos3);
-      lavamanosModel3 =
-          glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel3 =
-          glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel3 =
-          glm::rotate(lavamanosModel3, glm::radians(lavamanosRot3.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel3 = glm::scale(lavamanosModel3, lavamanosScale3);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel3));
-      if (shouldRender(lavamanosPos3.x, lavamanosPos3.z, 3.0f)) lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 4
-      glm::mat4 lavamanosModel4 = glm::mat4(1.0f);
-      lavamanosModel4 = glm::translate(lavamanosModel4, lavamanosPos4);
-      lavamanosModel4 =
-          glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel4 =
-          glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel4 =
-          glm::rotate(lavamanosModel4, glm::radians(lavamanosRot4.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel4 = glm::scale(lavamanosModel4, lavamanosScale4);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel4));
-      if (shouldRender(lavamanosPos4.x, lavamanosPos4.z, 3.0f)) lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 5 (Mujeres 1)
-      glm::mat4 lavamanosModel5 = glm::mat4(1.0f);
-      lavamanosModel5 = glm::translate(lavamanosModel5, lavamanosPos5);
-      lavamanosModel5 =
-          glm::rotate(lavamanosModel5, glm::radians(lavamanosRot5.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel5 =
-          glm::rotate(lavamanosModel5, glm::radians(lavamanosRot5.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel5 =
-          glm::rotate(lavamanosModel5, glm::radians(lavamanosRot5.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel5 = glm::scale(lavamanosModel5, lavamanosScale5);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel5));
-      if (shouldRender(lavamanosPos5.x, lavamanosPos5.z, 3.0f)) lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 6 (Mujeres 2)
-      glm::mat4 lavamanosModel6 = glm::mat4(1.0f);
-      lavamanosModel6 = glm::translate(lavamanosModel6, lavamanosPos6);
-      lavamanosModel6 =
-          glm::rotate(lavamanosModel6, glm::radians(lavamanosRot6.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel6 =
-          glm::rotate(lavamanosModel6, glm::radians(lavamanosRot6.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel6 =
-          glm::rotate(lavamanosModel6, glm::radians(lavamanosRot6.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel6 = glm::scale(lavamanosModel6, lavamanosScale6);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel6));
-      if (shouldRender(lavamanosPos6.x, lavamanosPos6.z, 3.0f)) lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 7 (Mujeres 3)
-      glm::mat4 lavamanosModel7 = glm::mat4(1.0f);
-      lavamanosModel7 = glm::translate(lavamanosModel7, lavamanosPos7);
-      lavamanosModel7 =
-          glm::rotate(lavamanosModel7, glm::radians(lavamanosRot7.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel7 =
-          glm::rotate(lavamanosModel7, glm::radians(lavamanosRot7.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel7 =
-          glm::rotate(lavamanosModel7, glm::radians(lavamanosRot7.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel7 = glm::scale(lavamanosModel7, lavamanosScale7);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel7));
-      if (shouldRender(lavamanosPos7.x, lavamanosPos7.z, 3.0f)) lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Lavamanos 8 (Mujeres 4)
-      glm::mat4 lavamanosModel8 = glm::mat4(1.0f);
-      lavamanosModel8 = glm::translate(lavamanosModel8, lavamanosPos8);
-      lavamanosModel8 =
-          glm::rotate(lavamanosModel8, glm::radians(lavamanosRot8.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      lavamanosModel8 =
-          glm::rotate(lavamanosModel8, glm::radians(lavamanosRot8.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      lavamanosModel8 =
-          glm::rotate(lavamanosModel8, glm::radians(lavamanosRot8.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      lavamanosModel8 = glm::scale(lavamanosModel8, lavamanosScale8);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(lavamanosModel8));
-      if (shouldRender(lavamanosPos8.x, lavamanosPos8.z, 3.0f)) lavamanosGLTF->Draw(shaderProgram, solidColorLoc);
+      std::vector<glm::mat4> instanceModels;
+      glm::vec3 positions[8] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4, lavamanosPos5, lavamanosPos6, lavamanosPos7, lavamanosPos8 };
+      glm::vec3 rotations[8] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4, lavamanosRot5, lavamanosRot6, lavamanosRot7, lavamanosRot8 };
+      glm::vec3 scales[8] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4, lavamanosScale5, lavamanosScale6, lavamanosScale7, lavamanosScale8 };
+      for (int i = 0; i < 8; i++) {
+        if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
+          glm::mat4 model = glm::mat4(1.0f);
+          model = glm::translate(model, positions[i]);
+          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::scale(model, scales[i]);
+          instanceModels.push_back(model);
+        }
+      }
+      if (!instanceModels.empty()) lavamanosGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
     }
 
     if (mirrorGLTF && !mirrorGLTF->meshes.empty()) {
@@ -1490,86 +1367,6 @@ int main() {
       if (shouldRender(girlBpos.x, girlBpos.z, 3.0f)) girlBGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
-    if (bano2GLTF && !bano2GLTF->meshes.empty()) {
-      glm::mat4 bano2Model = glm::mat4(1.0f);
-      bano2Model = glm::translate(bano2Model, banoPos2);
-      bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano2Model = glm::rotate(bano2Model, glm::radians(banoRot2.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano2Model = glm::scale(bano2Model, banoScale2);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano2Model));
-      if (shouldRender(banoPos2.x, banoPos2.z, 3.0f)) bano2GLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Bano 6 (Mujeres 2)
-      glm::mat4 bano6Model = glm::mat4(1.0f);
-      bano6Model = glm::translate(bano6Model, banoPos6);
-      bano6Model = glm::rotate(bano6Model, glm::radians(banoRot6.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano6Model = glm::rotate(bano6Model, glm::radians(banoRot6.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano6Model = glm::rotate(bano6Model, glm::radians(banoRot6.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano6Model = glm::scale(bano6Model, banoScale6);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano6Model));
-      if (shouldRender(banoPos6.x, banoPos6.z, 3.0f)) bano2GLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (bano3GLTF && !bano3GLTF->meshes.empty()) {
-      glm::mat4 bano3Model = glm::mat4(1.0f);
-      bano3Model = glm::translate(bano3Model, banoPos3);
-      bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano3Model = glm::rotate(bano3Model, glm::radians(banoRot3.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano3Model = glm::scale(bano3Model, banoScale3);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano3Model));
-      if (shouldRender(banoPos3.x, banoPos3.z, 3.0f)) bano3GLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Bano 7 (Mujeres 3)
-      glm::mat4 bano7Model = glm::mat4(1.0f);
-      bano7Model = glm::translate(bano7Model, banoPos7);
-      bano7Model = glm::rotate(bano7Model, glm::radians(banoRot7.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano7Model = glm::rotate(bano7Model, glm::radians(banoRot7.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano7Model = glm::rotate(bano7Model, glm::radians(banoRot7.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano7Model = glm::scale(bano7Model, banoScale7);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano7Model));
-      if (shouldRender(banoPos7.x, banoPos7.z, 3.0f)) bano3GLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (bano4GLTF && !bano4GLTF->meshes.empty()) {
-      glm::mat4 bano4Model = glm::mat4(1.0f);
-      bano4Model = glm::translate(bano4Model, banoPos4);
-      bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano4Model = glm::rotate(bano4Model, glm::radians(banoRot4.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano4Model = glm::scale(bano4Model, banoScale4);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano4Model));
-      if (shouldRender(banoPos4.x, banoPos4.z, 3.0f)) bano4GLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Bano 8 (Mujeres 4)
-      glm::mat4 bano8Model = glm::mat4(1.0f);
-      bano8Model = glm::translate(bano8Model, banoPos8);
-      bano8Model = glm::rotate(bano8Model, glm::radians(banoRot8.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      bano8Model = glm::rotate(bano8Model, glm::radians(banoRot8.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      bano8Model = glm::rotate(bano8Model, glm::radians(banoRot8.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      bano8Model = glm::scale(bano8Model, banoScale8);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(bano8Model));
-      if (shouldRender(banoPos8.x, banoPos8.z, 3.0f)) bano4GLTF->Draw(shaderProgram, solidColorLoc);
-    }
 
     if (ligthbathroomGLTF && !ligthbathroomGLTF->meshes.empty()) {
       glm::mat4 ligthbathroomModel = glm::mat4(1.0f);

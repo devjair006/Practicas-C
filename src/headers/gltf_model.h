@@ -174,6 +174,32 @@ public:
             meshes[i].Draw(shaderProgram, solidColorLoc);
     }
 
+    void DrawInstanced(unsigned int shaderProgram, int solidColorLoc, const std::vector<glm::mat4>& instanceModels) {
+        if (instanceModels.empty()) return;
+        
+        int useInstancingLoc = glGetUniformLocation(shaderProgram, "useInstancing");
+        glUniform1i(useInstancingLoc, 1);
+        
+        int baseLoc = glGetUniformLocation(shaderProgram, "instanceModels");
+        glUniformMatrix4fv(baseLoc, instanceModels.size(), GL_FALSE, glm::value_ptr(instanceModels[0]));
+
+        for(unsigned int i = 0; i < meshes.size(); i++) {
+            if (meshes[i].textures.size() > 0) {
+                glUniform1i(solidColorLoc, 0);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, meshes[i].textures[0].id);
+            } else {
+                glUniform1i(solidColorLoc, 1);
+            }
+            
+            glBindVertexArray(meshes[i].VAO);
+            glDrawElementsInstanced(GL_TRIANGLES, meshes[i].indices.size(), GL_UNSIGNED_INT, 0, instanceModels.size());
+            glBindVertexArray(0);
+        }
+        
+        glUniform1i(useInstancingLoc, 0);
+    }
+
     int GetAnimationCount() const {
         if (!m_Scene || !m_Scene->HasAnimations()) return 0;
         return (int)m_Scene->mNumAnimations;

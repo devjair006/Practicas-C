@@ -12,6 +12,8 @@ out vec2 TexCoord;
 out vec3 ObjColor;
 
 uniform mat4 model;
+uniform mat4 instanceModels[100];
+uniform int useInstancing;
 uniform mat4 view;
 uniform mat4 projection;
 
@@ -50,8 +52,10 @@ void main() {
         finalPos.y += cos(time * 30.0 + totalPosition.z) * 0.02;
     }
 
-    FragPos = vec3(model * vec4(finalPos, 1.0));
-    Normal = mat3(transpose(inverse(model))) * totalNormal;
+    mat4 currentModel = (useInstancing == 1) ? instanceModels[gl_InstanceID] : model;
+
+    FragPos = vec3(currentModel * vec4(finalPos, 1.0));
+    Normal = mat3(transpose(inverse(currentModel))) * totalNormal;
     TexCoord = aTexCoord;
     ObjColor = aObjColor;
     gl_Position = projection * view * vec4(FragPos, 1.0);
