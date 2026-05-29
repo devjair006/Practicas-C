@@ -272,9 +272,21 @@ glm::vec3 reactorControlPos(40.613f, -0.500f, 17.770f);
 glm::vec3 reactorControlRot(-90.000f, 0.000f, -147.500f);
 glm::vec3 reactorControlScale(0.890f, 0.730f, 0.280f);
 
-glm::vec3 lamparaReactorPos(48.350f, -0.500f, 18.450f);
-glm::vec3 lamparaReactorRot(-90.000f, 0.000f, 0.000f);
+glm::vec3 lamparaReactorPos(44.000f, 0.350f, 18.607f);
+glm::vec3 lamparaReactorRot(-1.000f, 48.500f, -19.500f);
 glm::vec3 lamparaReactorScale(1.000f, 1.000f, 1.000f);
+
+glm::vec3 lamparaReactorPos2(43.900f, 0.400f, 20.267f);
+glm::vec3 lamparaReactorRot2(0.000f, -50.000f, 0.000f);
+glm::vec3 lamparaReactorScale2(1.000f, 1.000f, 1.000f);
+
+glm::vec3 lamparaReactorPos3(42.585f, 0.350f, 19.796f);
+glm::vec3 lamparaReactorRot3(0.000f, -154.000f, 0.000f);
+glm::vec3 lamparaReactorScale3(1.000f, 1.000f, 1.000f);
+
+glm::vec3 lamparaReactorPos4(42.594f, 0.300f, 18.620f);
+glm::vec3 lamparaReactorRot4(0.000f, 149.500f, 0.000f);
+glm::vec3 lamparaReactorScale4(1.000f, 1.000f, 1.000f);
 
 glm::vec3 esquinerosPos(48.133f, 0.200f, 12.601f);
 glm::vec3 esquinerosRot(-0.500f, -63.000f, -1.000f);

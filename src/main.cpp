@@ -139,9 +139,6 @@ static const char *getDoorDebugLabel(int blockType) {
     return "Puerta Nv2 abierta";
   default:
     return "Sin puerta";
-  }
-}
-
 int main() {
   std::cout << "--- PRUEBA DE ASSIMP (GNOME) ---" << std::endl;
   std::string diagnosticPath = "assets/gnome.glb";
@@ -440,6 +437,23 @@ int main() {
     pointLightPosLoc[i] = glGetUniformLocation(shaderProgram, posStr.c_str());
     pointLightColLoc[i] = glGetUniformLocation(shaderProgram, colStr.c_str());
     pointLightRadLoc[i] = glGetUniformLocation(shaderProgram, radStr.c_str());
+  }
+
+  int numSpotLightsLoc = glGetUniformLocation(shaderProgram, "numSpotLights");
+  int spotLightPosLoc[4];
+  int spotLightDirLoc[4];
+  int spotLightColLoc[4];
+  int spotLightCutOffLoc[4];
+  int spotLightOuterCutOffLoc[4];
+  int spotLightRadLoc[4];
+  for (int i = 0; i < 4; i++) {
+    std::string base = "spotLights[" + std::to_string(i) + "]";
+    spotLightPosLoc[i] = glGetUniformLocation(shaderProgram, (base + ".position").c_str());
+    spotLightDirLoc[i] = glGetUniformLocation(shaderProgram, (base + ".direction").c_str());
+    spotLightColLoc[i] = glGetUniformLocation(shaderProgram, (base + ".color").c_str());
+    spotLightCutOffLoc[i] = glGetUniformLocation(shaderProgram, (base + ".cutOff").c_str());
+    spotLightOuterCutOffLoc[i] = glGetUniformLocation(shaderProgram, (base + ".outerCutOff").c_str());
+    spotLightRadLoc[i] = glGetUniformLocation(shaderProgram, (base + ".radius").c_str());
   }
 
   int emissiveStrengthLoc =
@@ -802,10 +816,29 @@ int main() {
     // Usamos 12 si la tesla esta activa, o el currentLightIdx si no
     glUniform1i(numPointLightsLoc, 12);
 
-    // Limpiar las luces restantes por si acaso (entre currentLightIdx y 11)
     for (int i = currentLightIdx; i < 11; i++) {
       glUniform3f(pointLightColLoc[i], 0.0f, 0.0f, 0.0f);
       glUniform1f(pointLightRadLoc[i], 0.0f);
+    }
+
+    // --- SPOTLIGHTS PARA LÁMPARAS DE REACTOR ---
+    glUniform1i(numSpotLightsLoc, 4);
+    glm::vec3 lp[4] = { lamparaReactorPos, lamparaReactorPos2, lamparaReactorPos3, lamparaReactorPos4 };
+    glm::vec3 lr[4] = { lamparaReactorRot, lamparaReactorRot2, lamparaReactorRot3, lamparaReactorRot4 };
+    for (int i = 0; i < 4; i++) {
+      glUniform3fv(spotLightPosLoc[i], 1, glm::value_ptr(lp[i]));
+      
+      glm::mat4 rotMat = glm::mat4(1.0f);
+      rotMat = glm::rotate(rotMat, glm::radians(lr[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+      rotMat = glm::rotate(rotMat, glm::radians(lr[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+      rotMat = glm::rotate(rotMat, glm::radians(lr[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+      glm::vec3 dir = glm::normalize(glm::vec3(rotMat * glm::vec4(0.0f, -1.0f, 0.0f, 0.0f)));
+      
+      glUniform3fv(spotLightDirLoc[i], 1, glm::value_ptr(dir));
+      glUniform3f(spotLightColLoc[i], 1.0f, 0.9f, 0.6f); // Warm yellow
+      glUniform1f(spotLightCutOffLoc[i], glm::cos(glm::radians(25.0f)));
+      glUniform1f(spotLightOuterCutOffLoc[i], glm::cos(glm::radians(35.0f)));
+      glUniform1f(spotLightRadLoc[i], 20.0f);
     }
 
     // --- CULLING HELPER ---
@@ -1873,6 +1906,42 @@ int main() {
       lrModel = glm::scale(lrModel, lamparaReactorScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel));
       if (shouldRender(lamparaReactorPos.x, lamparaReactorPos.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+
+      glm::mat4 lrModel2 = glm::mat4(1.0f);
+      lrModel2 = glm::translate(lrModel2, lamparaReactorPos2);
+      lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.x),
+                            glm::vec3(1.0f, 0.0f, 0.0f));
+      lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.y),
+                            glm::vec3(0.0f, 1.0f, 0.0f));
+      lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.z),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
+      lrModel2 = glm::scale(lrModel2, lamparaReactorScale2);
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel2));
+      if (shouldRender(lamparaReactorPos2.x, lamparaReactorPos2.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+
+      glm::mat4 lrModel3 = glm::mat4(1.0f);
+      lrModel3 = glm::translate(lrModel3, lamparaReactorPos3);
+      lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.x),
+                            glm::vec3(1.0f, 0.0f, 0.0f));
+      lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.y),
+                            glm::vec3(0.0f, 1.0f, 0.0f));
+      lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.z),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
+      lrModel3 = glm::scale(lrModel3, lamparaReactorScale3);
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel3));
+      if (shouldRender(lamparaReactorPos3.x, lamparaReactorPos3.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+
+      glm::mat4 lrModel4 = glm::mat4(1.0f);
+      lrModel4 = glm::translate(lrModel4, lamparaReactorPos4);
+      lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.x),
+                            glm::vec3(1.0f, 0.0f, 0.0f));
+      lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.y),
+                            glm::vec3(0.0f, 1.0f, 0.0f));
+      lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.z),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
+      lrModel4 = glm::scale(lrModel4, lamparaReactorScale4);
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel4));
+      if (shouldRender(lamparaReactorPos4.x, lamparaReactorPos4.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (esquinerosGLTF && !esquinerosGLTF->meshes.empty()) {
@@ -2824,6 +2893,54 @@ int main() {
               reactorControlPos.y = -0.5f;
               reactorControlRot = glm::vec3(0.0f, 0.0f, 0.0f);
               reactorControlScale = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+            ImGui::Separator();
+
+            ImGui::Text("Lampara Reactor Model");
+            ImGui::DragFloat3("LampReactor Pos", &lamparaReactorPos.x, 0.05f);
+            ImGui::DragFloat3("LampReactor Rot", &lamparaReactorRot.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("LampReactor Scale", &lamparaReactorScale.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer Lampara Reactor frente a camara")) {
+              lamparaReactorPos = cameraPos + cameraFront * 2.0f;
+              lamparaReactorPos.y = 2.0f;
+              lamparaReactorRot = glm::vec3(0.0f, 0.0f, 0.0f);
+              lamparaReactorScale = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+            ImGui::Separator();
+
+            ImGui::Text("Lampara Reactor Model 2");
+            ImGui::DragFloat3("LampReactor Pos 2", &lamparaReactorPos2.x, 0.05f);
+            ImGui::DragFloat3("LampReactor Rot 2", &lamparaReactorRot2.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("LampReactor Scale 2", &lamparaReactorScale2.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer Lampara Reactor 2 frente a camara")) {
+              lamparaReactorPos2 = cameraPos + cameraFront * 2.0f;
+              lamparaReactorPos2.y = 2.0f;
+              lamparaReactorRot2 = glm::vec3(0.0f, 0.0f, 0.0f);
+              lamparaReactorScale2 = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+            ImGui::Separator();
+
+            ImGui::Text("Lampara Reactor Model 3");
+            ImGui::DragFloat3("LampReactor Pos 3", &lamparaReactorPos3.x, 0.05f);
+            ImGui::DragFloat3("LampReactor Rot 3", &lamparaReactorRot3.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("LampReactor Scale 3", &lamparaReactorScale3.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer Lampara Reactor 3 frente a camara")) {
+              lamparaReactorPos3 = cameraPos + cameraFront * 2.0f;
+              lamparaReactorPos3.y = 2.0f;
+              lamparaReactorRot3 = glm::vec3(0.0f, 0.0f, 0.0f);
+              lamparaReactorScale3 = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+            ImGui::Separator();
+
+            ImGui::Text("Lampara Reactor Model 4");
+            ImGui::DragFloat3("LampReactor Pos 4", &lamparaReactorPos4.x, 0.05f);
+            ImGui::DragFloat3("LampReactor Rot 4", &lamparaReactorRot4.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("LampReactor Scale 4", &lamparaReactorScale4.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer Lampara Reactor 4 frente a camara")) {
+              lamparaReactorPos4 = cameraPos + cameraFront * 2.0f;
+              lamparaReactorPos4.y = 2.0f;
+              lamparaReactorRot4 = glm::vec3(0.0f, 0.0f, 0.0f);
+              lamparaReactorScale4 = glm::vec3(1.0f, 1.0f, 1.0f);
             }
             ImGui::Separator();
 
