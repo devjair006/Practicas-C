@@ -177,11 +177,26 @@ public:
     void DrawInstanced(unsigned int shaderProgram, int solidColorLoc, const std::vector<glm::mat4>& instanceModels) {
         if (instanceModels.empty()) return;
         
-        int useInstancingLoc = glGetUniformLocation(shaderProgram, "useInstancing");
+        static std::map<unsigned int, int> useInstancingLocCache;
+        static std::map<unsigned int, int> instanceModelsLocCache;
+        auto getCachedLocation = [](std::map<unsigned int, int>& cache,
+                                    unsigned int program,
+                                    const char* name) {
+            auto it = cache.find(program);
+            if (it != cache.end()) return it->second;
+            int location = glGetUniformLocation(program, name);
+            cache[program] = location;
+            return location;
+        };
+
+        int useInstancingLoc =
+            getCachedLocation(useInstancingLocCache, shaderProgram, "useInstancing");
         glUniform1i(useInstancingLoc, 1);
         
-        int baseLoc = glGetUniformLocation(shaderProgram, "instanceModels");
-        glUniformMatrix4fv(baseLoc, instanceModels.size(), GL_FALSE, glm::value_ptr(instanceModels[0]));
+        int baseLoc =
+            getCachedLocation(instanceModelsLocCache, shaderProgram, "instanceModels");
+        glUniformMatrix4fv(baseLoc, static_cast<GLsizei>(instanceModels.size()),
+                           GL_FALSE, glm::value_ptr(instanceModels[0]));
 
         for(unsigned int i = 0; i < meshes.size(); i++) {
             if (meshes[i].textures.size() > 0) {
@@ -193,7 +208,10 @@ public:
             }
             
             glBindVertexArray(meshes[i].VAO);
-            glDrawElementsInstanced(GL_TRIANGLES, meshes[i].indices.size(), GL_UNSIGNED_INT, 0, instanceModels.size());
+            glDrawElementsInstanced(
+                GL_TRIANGLES, static_cast<GLsizei>(meshes[i].indices.size()),
+                GL_UNSIGNED_INT, 0,
+                static_cast<GLsizei>(instanceModels.size()));
             glBindVertexArray(0);
         }
         

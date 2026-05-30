@@ -186,6 +186,7 @@ bool dimensionAlterna = false;
 bool portalActivado = false;
 int currentZone = 1;
 bool showDebugGUI = true;
+int selectedHotbarSlot = 0;
 
 GLTFModel *banoGLTF = nullptr;
 GLTFModel *lavamanosGLTF = nullptr;
@@ -268,7 +269,7 @@ glm::vec3 panelControlPos(48.350f, -0.500f, 17.450f);
 glm::vec3 panelControlRot(-91.000f, 0.000f, -180.000f);
 glm::vec3 panelControlScale(0.450f, 0.490f, 0.180f);
 
-glm::vec3 reactorControlPos(40.613f, -0.500f, 17.770f);
+glm::vec3 reactorControlPos(40.613f, -0.200, 17.770f);
 glm::vec3 reactorControlRot(-90.000f, 0.000f, -147.500f);
 glm::vec3 reactorControlScale(0.890f, 0.730f, 0.280f);
 
