@@ -200,6 +200,7 @@ int main() {
   glfwMakeContextCurrent(window);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glfwSetCursorPosCallback(window, mouse_callback);
+  glfwSetScrollCallback(window, scroll_callback);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -2961,24 +2962,24 @@ int main() {
             ImGui::SameLine(0.0f, slotPadding);
           };
 
-          // Slot 1: Linterna (siempre la tiene)
+          // Slot 0: Linterna (siempre la tiene)
           drawSlot(isFlashlightOn ? "[F] ON" : "[F] OFF",
-                   (ImTextureID)(intptr_t)clueTexture, true, isFlashlightOn);
+                   (ImTextureID)(intptr_t)clueTexture, true, selectedHotbarSlot == 0);
 
-          // Slot 2: Tarjeta Lvl1
+          // Slot 1: Tarjeta Lvl1
           drawSlot("Llave 1",
-                   (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl1, false);
+                   (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl1, selectedHotbarSlot == 1);
 
-          // Slot 3: Tarjeta Lvl2
+          // Slot 2: Tarjeta Lvl2
           drawSlot("Llave 2",
-                   (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl2, false);
+                   (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl2, selectedHotbarSlot == 2);
 
-          // Slots 4-6: Baterías
+          // Slots 3-5: Baterías
           for (int i = 0; i < 3; i++) {
             char batLabel[16];
             snprintf(batLabel, sizeof(batLabel), "Bat %d", i + 1);
             drawSlot(batLabel,
-                     (ImTextureID)(intptr_t)batteryTex, bateriasRecolectadas > i, false);
+                     (ImTextureID)(intptr_t)batteryTex, bateriasRecolectadas > i, selectedHotbarSlot == (3 + i));
           }
 
           ImGui::End();
