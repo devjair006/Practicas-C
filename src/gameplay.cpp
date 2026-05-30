@@ -450,6 +450,14 @@ void processInput(GLFWwindow* window) {
         f1KeyWasPressed = false;
     }
 
+    // --- Seleccion de slot en la hotbar (teclas 1-6) ---
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) selectedHotbarSlot = 0;
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) selectedHotbarSlot = 1;
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) selectedHotbarSlot = 2;
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) selectedHotbarSlot = 3;
+    if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) selectedHotbarSlot = 4;
+    if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) selectedHotbarSlot = 5;
+
     if (!isCursorLocked) return;
 
     float cameraSpeed = 3.5f;
@@ -658,6 +666,19 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     (void)window;
     glViewport(0, 0, width, height);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    (void)window;
+    (void)xoffset;
+    if (gameState != PLAYING) return;
+    if (yoffset > 0) {
+        selectedHotbarSlot--;
+        if (selectedHotbarSlot < 0) selectedHotbarSlot = 5;
+    } else if (yoffset < 0) {
+        selectedHotbarSlot++;
+        if (selectedHotbarSlot > 5) selectedHotbarSlot = 0;
+    }
 }
 
 void printNodeHierarchy(const aiNode* node, int depth) {

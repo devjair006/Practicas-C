@@ -349,8 +349,10 @@ int main() {
             << std::endl;
 
   unsigned int wallTex1 = loadTexture("assets/paredesH.png");
-  unsigned int wallTex2 = loadTexture("assets/paredes.png");
+  unsigned int wallTex2 = loadTexture("assets/paredbanosT.png");
   unsigned int wallTex3 = loadTexture("assets/wall.png");
+  unsigned int wallTex4 = loadTexture("assets/paredbanosGT.png");
+  unsigned int wallTex5 = loadTexture("assets/pisosBanos.png");
 
   // Texturas de área de contención
   unsigned int wallContencionTex =
@@ -517,13 +519,13 @@ int main() {
   // cameraPos.z en el editor para encontrar las coordenadas exactas del área
   // que quieres cubrir.
   //
-  unsigned int wallTex4 = 0;
-  unsigned int wallTex5 = 0;
+  // (Las texturas wallTex4 y wallTex5 ahora se cargan arriba con loadTexture)
 
   struct RoomZone {
     int x1, z1, x2, z2;
     unsigned int wallTex;
     unsigned int floorTex;
+    unsigned int ceilTex;
     glm::vec3 ceilColor;
     bool overrideWall;
     bool overrideFloor;
@@ -539,6 +541,7 @@ int main() {
        8,
        wallTex2,
        wallTex5,
+       floorTexture,
        {0.15f, 0.15f, 0.2f},
        true,
        true,
@@ -549,10 +552,13 @@ int main() {
        8,
        wallTex4,
        wallTex5,
+       floorTexture,
        {0.15f, 0.15f, 0.2f},
        true,
        true,
        false}, // banos de girls
+       
+      {34, 12, 49, 21, wallContencionTex, floorContencionTex, roofContencionTex, {1.0f, 1.0f, 1.0f}, false, true, true}, // Area contencion
 
       {}, // pisos
   };
@@ -608,6 +614,7 @@ int main() {
         for (int z = 0; z < MAP_HEIGHT; z++) {
             for (int x = 0; x < MAP_WIDTH; x++) {
                 int blockType = worldMap[z][x];
+                const RoomZone *zone = getZone(x, z);
                 
                 // Paredes
                 if (blockType > 0 && blockType < 8) {
@@ -630,22 +637,30 @@ int main() {
                     else if (blockType == 3) tex = wallTex3;
                     else if (blockType == 4) tex = wallContencionTex;
                     
+                    if (zone && zone->overrideWall) tex = zone->wallTex;
+                    
                     addCubeToBatch(getBatch(tex, glm::vec3(1.0f, 1.0f, 1.0f)), model);
                 }
 
                 // Piso y Techo
-                bool isContencionCell = (blockType == 4) || (x >= 34 && x <= 49 && z >= 12 && z <= 21 && blockType == 0);
                 
                 // Piso
-                unsigned int fTex = isContencionCell ? floorContencionTex : floorTexture;
-                glm::vec3 fCol = isContencionCell ? glm::vec3(1.0f, 1.0f, 1.0f) : glm::vec3(0.5f, 0.5f, 0.5f);
+                unsigned int fTex = floorTexture;
+                if (zone && zone->overrideFloor) fTex = zone->floorTex;
+
+                glm::vec3 fCol = glm::vec3(0.5f, 0.5f, 0.5f);
                 glm::mat4 floorModel = glm::mat4(1.0f);
                 floorModel = glm::translate(floorModel, glm::vec3((float)x, -1.0f, (float)z));
                 addCubeToBatch(getBatch(fTex, fCol), floorModel);
 
                 // Techo
-                unsigned int cTex = isContencionCell ? roofContencionTex : floorTexture;
-                glm::vec3 cCol = isContencionCell ? glm::vec3(1.0f, 1.0f, 1.0f) : glm::vec3(0.3f, 0.3f, 0.3f);
+                unsigned int cTex = floorTexture;
+                glm::vec3 cCol = glm::vec3(0.3f, 0.3f, 0.3f);
+                if (zone && zone->overrideCeil) {
+                    cCol = zone->ceilColor;
+                    cTex = zone->ceilTex;
+                }
+
                 glm::mat4 roofModel = glm::mat4(1.0f);
                 roofModel = glm::translate(roofModel, glm::vec3((float)x, wallHeight, (float)z));
                 addCubeToBatch(getBatch(cTex, cCol), roofModel);
@@ -1008,85 +1023,7 @@ int main() {
 
             glUniform1i(solidColorLoc, 0);
             glBindVertexArray(VAO);
-          } else if (blockType > 0) {
-            // Bloques normales (paredes)
-            if (blockType == 1)
-              glBindTexture(GL_TEXTURE_2D, wallTex1);
-            else if (blockType == 2)
-              glBindTexture(GL_TEXTURE_2D, wallTex2);
-            else if (blockType == 3)
-              glBindTexture(GL_TEXTURE_2D, wallTex3);
-            else if (blockType == 4)
-              glBindTexture(GL_TEXTURE_2D, wallContencionTex);
-            glBindVertexArray(VAO);
-
-            // Escalar paredes inteligentemente según vecinos
-            float scaleX = wallWidth;
-            float scaleZ = wallWidth;
-            bool hasLeft = (x > 0 && worldMap[z][x - 1] > 0);
-            bool hasRight = (x < MAP_WIDTH - 1 && worldMap[z][x + 1] > 0);
-            bool hasUp = (z > 0 && worldMap[z - 1][x] > 0);
-            bool hasDown = (z < MAP_HEIGHT - 1 && worldMap[z + 1][x] > 0);
-            if (hasLeft || hasRight)
-              scaleX = 1.0f;
-            if (hasUp || hasDown)
-              scaleZ = 1.0f;
-
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(
-                model,
-                glm::vec3((float)x, (wallHeight - 1.0f) * 0.5f, (float)z));
-            model = glm::scale(model, glm::vec3(scaleX, wallHeight, scaleZ));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
           }
-        }
-
-        // Determinar si esta celda pertenece al area de contencion:
-        // - Celdas de pared tipo 4 (perimetro)
-        // - Celdas interiores vacias dentro del rectangulo x=[34..49],
-        // z=[12..21]
-        bool isContencionCell =
-            (blockType == 4) ||
-            (x >= 34 && x <= 49 && z >= 12 && z <= 21 && blockType == 0);
-
-        if (isContencionCell) {
-          glBindTexture(GL_TEXTURE_2D, floorContencionTex);
-        } else {
-          glBindTexture(GL_TEXTURE_2D, floorTexture);
-        }
-
-        glm::mat4 floorModel = glm::mat4(1.0f);
-        floorModel =
-            glm::translate(floorModel, glm::vec3((float)x, -1.0f, (float)z));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(floorModel));
-
-        if (dimensionAlterna)
-          glUniform3f(colorLoc, 0.4f, 0.1f, 0.1f);
-        else {
-          if (isContencionCell)
-            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Bright texture
-          else
-            glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
-        }
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        { // Techo en TODAS las celdas (incluidas las de pared, para cubrir
-          // huecos de paredes delgadas)
-          glm::mat4 roofModel = glm::mat4(1.0f);
-          roofModel = glm::translate(roofModel,
-                                     glm::vec3((float)x, wallHeight, (float)z));
-          glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(roofModel));
-          if (isContencionCell) {
-            glBindTexture(GL_TEXTURE_2D, roofContencionTex);
-            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-          } else {
-            glBindTexture(GL_TEXTURE_2D, floorTexture);
-            glUniform3f(colorLoc, 0.3f, 0.3f, 0.3f);
-          }
-          glDrawArrays(GL_TRIANGLES, 0, 36);
         }
       }
     }
@@ -2968,6 +2905,86 @@ int main() {
                              "E o ESC para cerrar");
           ImGui::End();
         }
+        // --- HOTBAR INVENTARIO (estilo Minecraft) ---
+        if (gameState == PLAYING) {
+          const float slotSize = 52.0f;
+          const float slotPadding = 4.0f;
+          const float iconPadding = 4.0f;
+          const int maxSlots = 6; // Linterna, Llave1, Llave2, Bat1, Bat2, Bat3
+          float hotbarWidth = maxSlots * (slotSize + slotPadding) + slotPadding;
+          float hotbarHeight = slotSize + slotPadding * 2.0f + 16.0f; // extra para label
+          float hotbarX = (currentWidth - hotbarWidth) * 0.5f;
+          float hotbarY = currentHeight - hotbarHeight - 12.0f;
+
+          ImGui::SetNextWindowPos(ImVec2(hotbarX, hotbarY));
+          ImGui::SetNextWindowSize(ImVec2(hotbarWidth, hotbarHeight));
+          ImGui::SetNextWindowBgAlpha(0.55f);
+          ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 8.0f);
+          ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(slotPadding, slotPadding));
+          ImGui::Begin("Hotbar", NULL,
+                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                           ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+                           ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav);
+
+          // Helper lambda para dibujar un slot
+          auto drawSlot = [&](const char* label, ImTextureID texID, bool hasItem, bool isActive) {
+            ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+            ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+            // Fondo del slot
+            ImU32 bgColor = hasItem
+              ? (isActive ? IM_COL32(80, 200, 80, 180) : IM_COL32(60, 60, 60, 200))
+              : IM_COL32(30, 30, 30, 140);
+            ImU32 borderColor = isActive ? IM_COL32(255, 255, 100, 255) : IM_COL32(100, 100, 100, 180);
+
+            drawList->AddRectFilled(cursorPos,
+              ImVec2(cursorPos.x + slotSize, cursorPos.y + slotSize),
+              bgColor, 4.0f);
+            drawList->AddRect(cursorPos,
+              ImVec2(cursorPos.x + slotSize, cursorPos.y + slotSize),
+              borderColor, 4.0f, 0, isActive ? 2.5f : 1.0f);
+
+            // Icono de textura
+            if (hasItem && texID != 0) {
+              drawList->AddImage(texID,
+                ImVec2(cursorPos.x + iconPadding, cursorPos.y + iconPadding),
+                ImVec2(cursorPos.x + slotSize - iconPadding, cursorPos.y + slotSize - iconPadding));
+            }
+
+            // Label debajo
+            ImVec2 textSize = ImGui::CalcTextSize(label);
+            float textX = cursorPos.x + (slotSize - textSize.x) * 0.5f;
+            drawList->AddText(ImVec2(textX, cursorPos.y + slotSize + 1.0f),
+              hasItem ? IM_COL32(255, 255, 255, 255) : IM_COL32(100, 100, 100, 150), label);
+
+            ImGui::Dummy(ImVec2(slotSize, slotSize));
+            ImGui::SameLine(0.0f, slotPadding);
+          };
+
+          // Slot 1: Linterna (siempre la tiene)
+          drawSlot(isFlashlightOn ? "[F] ON" : "[F] OFF",
+                   (ImTextureID)(intptr_t)clueTexture, true, isFlashlightOn);
+
+          // Slot 2: Tarjeta Lvl1
+          drawSlot("Llave 1",
+                   (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl1, false);
+
+          // Slot 3: Tarjeta Lvl2
+          drawSlot("Llave 2",
+                   (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl2, false);
+
+          // Slots 4-6: Baterías
+          for (int i = 0; i < 3; i++) {
+            char batLabel[16];
+            snprintf(batLabel, sizeof(batLabel), "Bat %d", i + 1);
+            drawSlot(batLabel,
+                     (ImTextureID)(intptr_t)batteryTex, bateriasRecolectadas > i, false);
+          }
+
+          ImGui::End();
+          ImGui::PopStyleVar(2);
+        }
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

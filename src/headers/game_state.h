@@ -180,6 +180,7 @@ extern bool dimensionAlterna;
 extern bool portalActivado;
 extern int currentZone;
 extern bool showDebugGUI;
+extern int selectedHotbarSlot;
 
 class GLTFModel;
 extern GLTFModel *banoGLTF;
