@@ -312,8 +312,8 @@ int main() {
   GLTFModel *azulejoGLTF = new GLTFModel("assets/azule.glb");
   GLTFModel *mirrorGLTF = new GLTFModel("assets/mirror.glb");
   GLTFModel *mirrorBGGLTF = new GLTFModel("assets/mirrorBG.glb");
-  GLTFModel *ligthbathroom2GLTF = new GLTFModel("assets/ligthbathroom.glb");
   GLTFModel *ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
+  GLTFModel *ligthbathroom2GLTF = ligthbathroomGLTF;
   mensBGLTF = new GLTFModel("assets/mensB.glb");
   girlBGLTF = new GLTFModel("assets/girlB.glb");
   banoGLTF = new GLTFModel("assets/Bano.glb");
@@ -330,7 +330,7 @@ int main() {
   generadorGLTF = new GLTFModel("assets/contencion/generador.glb");
   lamparaContencionGLTF = new GLTFModel("assets/contencion/lampara.glb");
   lampara2GLTF = new GLTFModel("assets/contencion/lampara2.glb");
-  lampara3GLTF = new GLTFModel("assets/contencion/lampara2.glb");
+  lampara3GLTF = lampara2GLTF;
   emergencyGLTF = new GLTFModel("assets/contencion/emergency.glb");
   reactorGLTF = new GLTFModel("assets/contencion/reactor.glb");
   panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
@@ -419,6 +419,7 @@ int main() {
   int timeLoc = glGetUniformLocation(shaderProgram, "time");
   int resLoc = glGetUniformLocation(shaderProgram, "resolution");
   int solidColorLoc = glGetUniformLocation(shaderProgram, "useSolidColor");
+  int texture1Loc = glGetUniformLocation(shaderProgram, "texture1");
   int isAnimatedLoc = glGetUniformLocation(shaderProgram, "isAnimated");
   int finalBonesLoc =
       glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
@@ -470,6 +471,33 @@ int main() {
   bool gnomeAnimLoop = true;
   float gnomeAnimPreviewTime = 0.0f;
   bool gnomeForceAnimation = false;
+  const bool gnomeHasSkinningBones =
+      gnomeGLTF && gnomeGLTF->CountBonesInMeshes() > 0;
+  const int gnomeAnimationCount =
+      gnomeGLTF ? gnomeGLTF->GetAnimationCount() : 0;
+  int gnomeIdleAnimIndex =
+      gnomeGLTF ? gnomeGLTF->FindAnimationIndexContains("idle") : -1;
+  if (gnomeIdleAnimIndex < 0) {
+    gnomeIdleAnimIndex = 0;
+  }
+  int gnomeStunAnimIndex =
+      gnomeGLTF ? gnomeGLTF->FindAnimationIndexContains("stun") : -1;
+  if (gnomeStunAnimIndex < 0) {
+    gnomeStunAnimIndex = gnomeIdleAnimIndex;
+  }
+  int gnomeMoveAnimIndex =
+      gnomeGLTF ? gnomeGLTF->FindAnimationIndexContains("move") : -1;
+  if (gnomeMoveAnimIndex < 0) {
+    gnomeMoveAnimIndex =
+        gnomeGLTF ? gnomeGLTF->FindAnimationIndexContains("walk") : -1;
+  }
+  if (gnomeMoveAnimIndex < 0) {
+    gnomeMoveAnimIndex =
+        gnomeGLTF ? gnomeGLTF->FindAnimationIndexContains("run") : -1;
+  }
+  if (gnomeMoveAnimIndex < 0) {
+    gnomeMoveAnimIndex = gnomeIdleAnimIndex;
+  }
 
   glm::vec3 debugSpawnPos = cameraPos;
   float debugSpawnYaw = yaw;
@@ -847,7 +875,8 @@ int main() {
         glm::vec2 objPos(x, z);
         glm::vec2 dir = objPos - glm::vec2(cameraPos.x, cameraPos.z);
         float dist = glm::length(dir);
-        if (dist > 35.0f + radius) return false;
+        constexpr float kPropRenderDistance = 24.0f;
+        if (dist > kPropRenderDistance + radius) return false;
         if (dist > radius + 3.0f) {
             dir /= dist;
             if (glm::dot(camDir2D, dir) < -0.4f) return false;
@@ -1118,7 +1147,7 @@ int main() {
         // 4. RENDERIZADO
         glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
 
-        bool hasSkinningBones = gnomeGLTF->CountBonesInMeshes() > 0;
+        bool hasSkinningBones = gnomeHasSkinningBones;
 
         glm::mat4 gnomeModel = glm::mat4(1.0f);
         gnomeModel = glm::translate(gnomeModel, gnomePos);
@@ -1144,25 +1173,15 @@ int main() {
         glUniform1i(solidColorLoc, gnomeTexture == 0 ? 1 : 0);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, gnomeTexture);
-        glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
+        if (texture1Loc >= 0) {
+          glUniform1i(texture1Loc, 0);
+        }
 
         // Determinar animación a reproducir
-        int animCount = gnomeGLTF->GetAnimationCount();
-        int idleAnimIndex = gnomeGLTF->FindAnimationIndexContains("idle");
-        if (idleAnimIndex < 0)
-          idleAnimIndex = 0;
-
-        int stunAnimIndex = gnomeGLTF->FindAnimationIndexContains("stun");
-        if (stunAnimIndex < 0)
-          stunAnimIndex = idleAnimIndex;
-
-        int moveAnimIndex = gnomeGLTF->FindAnimationIndexContains("move");
-        if (moveAnimIndex < 0)
-          moveAnimIndex = gnomeGLTF->FindAnimationIndexContains("walk");
-        if (moveAnimIndex < 0)
-          moveAnimIndex = gnomeGLTF->FindAnimationIndexContains("run");
-        if (moveAnimIndex < 0)
-          moveAnimIndex = idleAnimIndex;
+        int animCount = gnomeAnimationCount;
+        int idleAnimIndex = gnomeIdleAnimIndex;
+        int stunAnimIndex = gnomeStunAnimIndex;
+        int moveAnimIndex = gnomeMoveAnimIndex;
 
         int currentAnimIndex = idleAnimIndex;
         if (gnomeForceAnimation && animCount > 0) {
