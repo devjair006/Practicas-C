@@ -1,4 +1,7 @@
+// GLAD siempre primero, antes que cualquier header OpenGL
 #include <glad/glad.h>
+// GLFW_INCLUDE_NONE evita que GLFW incluya <GL/gl.h> en Windows
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #include "headers/gameplay.h"
@@ -10,7 +13,7 @@
 #include <glm/glm.hpp>
 
 #include "headers/game_state.h"
-#include "gltf_model.h"
+#include "headers/gltf_model.h"
 
 bool checkSphereAABBCollision(glm::vec3 sphereCenter, float radius, AABB box) {
     float closestX = glm::max(box.min.x, glm::min(sphereCenter.x, box.max.x));
@@ -76,10 +79,10 @@ bool checkCollision(float x, float z) {
     glm::vec3 playerPos(x, cameraPos.y, z);
 
     if (banoGLTF && !banoGLTF->meshes.empty()) {
-        glm::vec3 positions[4] = { banoPos, banoPos2, banoPos3, banoPos4 };
-        glm::vec3 rotations[4] = { banoRot, banoRot2, banoRot3, banoRot4 };
-        glm::vec3 scales[4] = { banoScale, banoScale2, banoScale3, banoScale4 };
-        for (int i = 0; i < 4; i++) {
+        glm::vec3 positions[8] = { banoPos, banoPos2, banoPos3, banoPos4, banoPos5, banoPos6, banoPos7, banoPos8 };
+        glm::vec3 rotations[8] = { banoRot, banoRot2, banoRot3, banoRot4, banoRot5, banoRot6, banoRot7, banoRot8 };
+        glm::vec3 scales[8] = { banoScale, banoScale2, banoScale3, banoScale4, banoScale5, banoScale6, banoScale7, banoScale8 };
+        for (int i = 0; i < 8; i++) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, positions[i]);
             model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -93,11 +96,37 @@ bool checkCollision(float x, float z) {
         }
     }
 
+    if (mensBGLTF && !mensBGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, mensBpos);
+        model = glm::rotate(model, glm::radians(mensBrot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(mensBrot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(mensBrot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, mensBscale);
+        AABB worldBox = mensBGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+            return true;
+        }
+    }
+
+    if (girlBGLTF && !girlBGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, girlBpos);
+        model = glm::rotate(model, glm::radians(girlBrot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(girlBrot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(girlBrot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, girlBscale);
+        AABB worldBox = girlBGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+            return true;
+        }
+    }
+
     if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
-        glm::vec3 positions[4] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4 };
-        glm::vec3 rotations[4] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4 };
-        glm::vec3 scales[4] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4 };
-        for (int i = 0; i < 4; i++) {
+        glm::vec3 positions[8] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4, lavamanosPos5, lavamanosPos6, lavamanosPos7, lavamanosPos8 };
+        glm::vec3 rotations[8] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4, lavamanosRot5, lavamanosRot6, lavamanosRot7, lavamanosRot8 };
+        glm::vec3 scales[8] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4, lavamanosScale5, lavamanosScale6, lavamanosScale7, lavamanosScale8 };
+        for (int i = 0; i < 8; i++) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, positions[i]);
             model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -122,6 +151,153 @@ bool checkCollision(float x, float z) {
         if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
             return true;
         }
+    }
+
+    // --- COLISION CON TESLA GLB ---
+    if (teslaGLTF && !teslaGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, teslaPos);
+        model = glm::rotate(model, glm::radians(teslaRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(teslaRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(teslaRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, teslaScale);
+        AABB worldBox = teslaGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+            return true;
+        }
+    }
+
+    // --- COLISION CON ESQUINEROS ---
+    if (esquinerosGLTF && !esquinerosGLTF->meshes.empty()) {
+        // Esquinero 1
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, esquinerosPos);
+        model = glm::rotate(model, glm::radians(esquinerosRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(esquinerosRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(esquinerosRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, esquinerosScale);
+        AABB worldBox = esquinerosGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+
+        // Esquinero 2
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, esquineros2Pos);
+        model = glm::rotate(model, glm::radians(esquineros2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(esquineros2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(esquineros2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, esquineros2Scale);
+        worldBox = esquinerosGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+
+        // Esquinero 3
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, esquineros3Pos);
+        model = glm::rotate(model, glm::radians(esquineros3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(esquineros3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(esquineros3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, esquineros3Scale);
+        worldBox = esquinerosGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+
+        // Esquinero 4
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, esquineros4Pos);
+        model = glm::rotate(model, glm::radians(esquineros4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(esquineros4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(esquineros4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, esquineros4Scale);
+        worldBox = esquinerosGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+    }
+
+    // --- COLISION CON GENERADOR ---
+    if (generadorGLTF && !generadorGLTF->meshes.empty()) {
+        for (int i = 0; i < 3; ++i) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, generadorPos[i]);
+            model = glm::rotate(model, glm::radians(generadorRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(generadorRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(generadorRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::scale(model, generadorScale[i]);
+            AABB worldBox = generadorGLTF->GetWorldAABB(model);
+            if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+        }
+    }
+
+    // --- COLISION CON PANEL CONTROL ---
+    if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, panelControlPos);
+        model = glm::rotate(model, glm::radians(panelControlRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(panelControlRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(panelControlRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, panelControlScale);
+        AABB worldBox = panelControlGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) {
+            return true;
+        }
+    }
+
+    // --- COLISION CON SARCOFAGO ---
+    if (sarcofagoGLTF && !sarcofagoGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, sarcofagoPos);
+        model = glm::rotate(model, glm::radians(sarcofagoRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(sarcofagoRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(sarcofagoRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, sarcofagoScale);
+        AABB worldBox = sarcofagoGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+    }
+
+    // --- COLISION CON EMERGENCY ---
+    if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
+        for (size_t i = 0; i < emergencyPos.size(); ++i) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, emergencyPos[i]);
+            model = glm::rotate(model, glm::radians(emergencyRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(emergencyRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(emergencyRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::scale(model, emergencyScale[i]);
+            AABB worldBox = emergencyGLTF->GetWorldAABB(model);
+            if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+        }
+    }
+
+    // --- COLISION CON REACTOR ---
+    if (reactorGLTF && !reactorGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, reactorPos);
+        model = glm::rotate(model, glm::radians(reactorRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(reactorRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(reactorRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, reactorScale);
+        AABB worldBox = reactorGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+    }
+
+    // --- COLISION CON REACTOR CONTROL ---
+    if (reactorControlGLTF && !reactorControlGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, reactorControlPos);
+        model = glm::rotate(model, glm::radians(reactorControlRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(reactorControlRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(reactorControlRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, reactorControlScale);
+        AABB worldBox = reactorControlGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
+    }
+
+    // --- COLISION CON WARNING ---
+    if (warningGLTF && !warningGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, warningPos);
+        model = glm::rotate(model, glm::radians(warningRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(warningRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(warningRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, warningScale);
+        AABB worldBox = warningGLTF->GetWorldAABB(model);
+        if (checkSphereAABBCollision(playerPos, playerRadius, worldBox)) return true;
     }
 
     return false;
@@ -249,6 +425,38 @@ void processInput(GLFWwindow* window) {
     } else {
         fKeyWasPressed = false;
     }
+
+    static bool gKeyWasPressed = false;
+    static bool f1KeyWasPressed = false;
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+        if (!gKeyWasPressed) {
+            showDebugGUI = !showDebugGUI;
+            gKeyWasPressed = true;
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            std::cout << "[GUI DEPURACION]: " << (showDebugGUI ? "VISIBLE" : "OCULTO") << std::endl;
+        }
+    } else {
+        gKeyWasPressed = false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+        if (!f1KeyWasPressed) {
+            showDebugGUI = !showDebugGUI;
+            f1KeyWasPressed = true;
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            std::cout << "[GUI DEPURACION]: " << (showDebugGUI ? "VISIBLE" : "OCULTO") << std::endl;
+        }
+    } else {
+        f1KeyWasPressed = false;
+    }
+
+    // --- Seleccion de slot en la hotbar (teclas 1-6) ---
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) selectedHotbarSlot = 0;
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) selectedHotbarSlot = 1;
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) selectedHotbarSlot = 2;
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) selectedHotbarSlot = 3;
+    if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) selectedHotbarSlot = 4;
+    if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) selectedHotbarSlot = 5;
 
     if (!isCursorLocked) return;
 
@@ -458,6 +666,19 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     (void)window;
     glViewport(0, 0, width, height);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    (void)window;
+    (void)xoffset;
+    if (gameState != PLAYING) return;
+    if (yoffset > 0) {
+        selectedHotbarSlot--;
+        if (selectedHotbarSlot < 0) selectedHotbarSlot = 5;
+    } else if (yoffset < 0) {
+        selectedHotbarSlot++;
+        if (selectedHotbarSlot > 5) selectedHotbarSlot = 0;
+    }
 }
 
 void printNodeHierarchy(const aiNode* node, int depth) {

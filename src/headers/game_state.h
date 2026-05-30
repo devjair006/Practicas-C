@@ -14,11 +14,12 @@ inline constexpr int MAP_HEIGHT = 50;
 enum GameState { MENU, PLAYING, GAMEOVER };
 
 struct Entity {
-    glm::vec3 pos;
-    int type; // 0=Log, 1=Bateria, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa, 5=Monitor, 6=Maquina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
-    bool active;
-    std::string text;
-    float seed;
+  glm::vec3 pos;
+  int type; // 0=Log, 1=Bateria, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa,
+            // 5=Monitor, 6=Maquina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
+  bool active;
+  std::string text;
+  float seed;
 };
 
 extern std::string currentHUDMessage;
@@ -26,6 +27,17 @@ extern float hudMessageTimer;
 extern bool isReadingDocument;
 extern std::string currentDocumentTitle;
 extern std::string currentDocumentBody;
+
+extern glm::vec3 mensBpos;
+extern glm::vec3 mensBrot;
+extern glm::vec3 mensBscale;
+
+extern glm::vec3 girlBpos;
+extern glm::vec3 girlBrot;
+extern glm::vec3 girlBscale;
+extern glm::vec3 mirrorBGpos;
+extern glm::vec3 mirrorBGRot;
+extern glm::vec3 mirrorBGScale;
 
 extern glm::vec3 azulejoPos;
 extern glm::vec3 azulejoRot;
@@ -68,6 +80,22 @@ extern glm::vec3 banoScale3;
 extern glm::vec3 banoPos4;
 extern glm::vec3 banoRot4;
 extern glm::vec3 banoScale4;
+
+extern glm::vec3 banoPos5;
+extern glm::vec3 banoRot5;
+extern glm::vec3 banoScale5;
+
+extern glm::vec3 banoPos6;
+extern glm::vec3 banoRot6;
+extern glm::vec3 banoScale6;
+
+extern glm::vec3 banoPos7;
+extern glm::vec3 banoRot7;
+extern glm::vec3 banoScale7;
+
+extern glm::vec3 banoPos8;
+extern glm::vec3 banoRot8;
+extern glm::vec3 banoScale8;
 extern glm::vec3 lavamanosPos;
 extern glm::vec3 lavamanosRot;
 extern glm::vec3 lavamanosScale;
@@ -80,9 +108,46 @@ extern glm::vec3 lavamanosScale3;
 extern glm::vec3 lavamanosPos4;
 extern glm::vec3 lavamanosRot4;
 extern glm::vec3 lavamanosScale4;
+
+extern glm::vec3 lavamanosPos5;
+extern glm::vec3 lavamanosRot5;
+extern glm::vec3 lavamanosScale5;
+
+extern glm::vec3 lavamanosPos6;
+extern glm::vec3 lavamanosRot6;
+extern glm::vec3 lavamanosScale6;
+
+extern glm::vec3 lavamanosPos7;
+extern glm::vec3 lavamanosRot7;
+extern glm::vec3 lavamanosScale7;
+
+extern glm::vec3 lavamanosPos8;
+extern glm::vec3 lavamanosRot8;
+extern glm::vec3 lavamanosScale8;
 extern glm::vec3 urinarioPos;
 extern glm::vec3 urinarioRot;
 extern glm::vec3 urinarioScale;
+extern glm::vec3 sillasPos;
+extern glm::vec3 sillasRot;
+extern glm::vec3 sillasScale;
+extern glm::vec3 sofaPos;
+extern glm::vec3 sofaRot;
+extern glm::vec3 sofaScale;
+extern glm::vec3 sillas2Pos;
+extern glm::vec3 sillas2Rot;
+extern glm::vec3 sillas2Scale; 
+extern glm::vec3 sillas3Pos; 
+extern glm::vec3 sillas3Rot; 
+extern glm::vec3 sillas3Scale;
+extern glm::vec3 sillas4Pos; 
+extern glm::vec3 sillas4Rot; 
+extern glm::vec3 sillas4Scale;
+extern glm::vec3 sillas5Pos;
+extern glm::vec3 sillas5Rot;
+extern glm::vec3 sillas5Scale;
+extern glm::vec3 monitorPos;
+extern glm::vec3 monitorRot;
+extern glm::vec3 monitorScale;
 
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
@@ -114,11 +179,126 @@ extern bool hasKeycardLvl2;
 extern bool dimensionAlterna;
 extern bool portalActivado;
 extern int currentZone;
+extern bool showDebugGUI;
+extern int selectedHotbarSlot;
 
 class GLTFModel;
-extern GLTFModel* banoGLTF;
-extern GLTFModel* lavamanosGLTF;
-extern GLTFModel* urinarioGLTF;
+extern GLTFModel *banoGLTF;
+extern GLTFModel *lavamanosGLTF;
+extern GLTFModel *urinarioGLTF;
+extern GLTFModel *mensBGLTF;
+extern GLTFModel *girlBGLTF;
+// area de contencion
+extern GLTFModel *teslaGLTF;
+extern glm::vec3 teslaPos;
+extern glm::vec3 teslaRot;
+extern glm::vec3 teslaScale;
+
+extern GLTFModel *lamparaContencionGLTF;
+extern glm::vec3 lamparaContencionPos;
+extern glm::vec3 lamparaContencionRot;
+extern glm::vec3 lamparaContencionScale;
+
+extern GLTFModel *sarcofagoGLTF;
+extern glm::vec3 sarcofagoPos;
+extern glm::vec3 sarcofagoRot;
+extern glm::vec3 sarcofagoScale;
+
+extern GLTFModel *cablePisoGLTF;
+extern std::vector<glm::vec3> cablePisoPos;
+extern std::vector<glm::vec3> cablePisoRot;
+extern std::vector<glm::vec3> cablePisoScale;
+
+extern GLTFModel *cableTechoGLTF;
+extern std::vector<glm::vec3> cableTechoPos;
+extern std::vector<glm::vec3> cableTechoRot;
+extern std::vector<glm::vec3> cableTechoScale;
+
+extern GLTFModel *warningGLTF;
+extern glm::vec3 warningPos;
+extern glm::vec3 warningRot;
+extern glm::vec3 warningScale;
+
+extern GLTFModel *lampara2GLTF;
+extern glm::vec3 lampara2Pos;
+extern glm::vec3 lampara2Rot;
+extern glm::vec3 lampara2Scale;
+
+extern GLTFModel *lampara3GLTF;
+extern glm::vec3 lampara3Pos;
+extern glm::vec3 lampara3Rot;
+extern glm::vec3 lampara3Scale;
+
+extern GLTFModel *emergencyGLTF;
+extern std::vector<glm::vec3> emergencyPos;
+extern std::vector<glm::vec3> emergencyRot;
+extern std::vector<glm::vec3> emergencyScale;
+
+extern GLTFModel *reactorGLTF;
+extern glm::vec3 reactorPos;
+extern glm::vec3 reactorRot;
+extern glm::vec3 reactorScale;
+
+extern GLTFModel *panelControlGLTF;
+extern glm::vec3 panelControlPos;
+extern glm::vec3 panelControlRot;
+extern glm::vec3 panelControlScale;
+
+extern GLTFModel *reactorControlGLTF;
+extern glm::vec3 reactorControlPos;
+extern glm::vec3 reactorControlRot;
+extern glm::vec3 reactorControlScale;
+
+extern GLTFModel *lamparaReactorGLTF;
+extern glm::vec3 lamparaReactorPos;
+extern glm::vec3 lamparaReactorRot;
+extern glm::vec3 lamparaReactorScale;
+
+extern glm::vec3 lamparaReactorPos2;
+extern glm::vec3 lamparaReactorRot2;
+extern glm::vec3 lamparaReactorScale2;
+
+extern glm::vec3 lamparaReactorPos3;
+extern glm::vec3 lamparaReactorRot3;
+extern glm::vec3 lamparaReactorScale3;
+
+extern glm::vec3 lamparaReactorPos4;
+extern glm::vec3 lamparaReactorRot4;
+extern glm::vec3 lamparaReactorScale4;
+
+extern GLTFModel *esquinerosGLTF;
+extern glm::vec3 esquinerosPos;
+extern glm::vec3 esquinerosRot;
+extern glm::vec3 esquinerosScale;
+
+extern GLTFModel *generadorGLTF;
+extern glm::vec3 generadorPos[3];
+extern glm::vec3 generadorRot[3];
+extern glm::vec3 generadorScale[3];
+
+extern glm::vec3 esquineros2Pos;
+extern glm::vec3 esquineros2Rot;
+extern glm::vec3 esquineros2Scale;
+
+extern glm::vec3 esquineros3Pos;
+extern glm::vec3 esquineros3Rot;
+extern glm::vec3 esquineros3Scale;
+
+extern glm::vec3 esquineros4Pos;
+extern glm::vec3 esquineros4Rot;
+extern glm::vec3 esquineros4Scale;
+
+// area principal (escenario grande)
+extern GLTFModel *machineLabGLTF;
+extern glm::vec3 machineLabPos[3];
+extern glm::vec3 machineLabRot[3];
+extern glm::vec3 machineLabScale[3];
+
+extern GLTFModel *metalDeskGLTF;
+extern glm::vec3 metalDeskPos[8];
+extern glm::vec3 metalDeskRot[8];
+extern glm::vec3 metalDeskScale[8];
+
 
 extern std::vector<Entity> gameEntities;
 

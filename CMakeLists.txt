@@ -5,6 +5,8 @@ project(PracticasOpenGL VERSION 1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_compile_definitions(NOMINMAX)
+
 # Directorios de inclusión
 include_directories(include include/imgui include/imgui/backends vcpkg/installed/x64-windows/include)
 
@@ -29,11 +31,16 @@ if(WIN32)
 else()
     find_package(glfw3 CONFIG REQUIRED)
     set(GLFW_LIBRARIES glfw)
-    
-    # Buscar GLUT para macOS/Linux
-    find_package(GLUT REQUIRED)
-    include_directories(${GLUT_INCLUDE_DIRS})
-    set(GLUT_LIBRARIES ${GLUT_LIBRARIES})
+
+    # Buscar ASSIMP para macOS/Linux (brew install assimp)
+    find_package(assimp REQUIRED)
+    # brew exporta assimp como target moderno; ASSIMP_INCLUDE_DIRS no se setea automáticamente
+    get_target_property(ASSIMP_INC_DIR assimp::assimp INTERFACE_INCLUDE_DIRECTORIES)
+    include_directories(BEFORE ${ASSIMP_INC_DIR})
+    set(ASSIMP_LIBRARIES assimp::assimp)
+
+    # GLUT no se usa en el código; en macOS usamos los frameworks del sistema
+    set(GLUT_LIBRARIES "")
 endif()
 
 # Fuentes
@@ -69,18 +76,20 @@ if(WIN32)
         "${CMAKE_CURRENT_SOURCE_DIR}/glfw3.dll"
         $<TARGET_FILE_DIR:app>
     )
-    add_custom_command(TARGET app POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-windows/bin/assimp-vc143-mt.dll"
-        $<TARGET_FILE_DIR:app>
-    )
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-windows/bin/assimp-vc143-mt.dll")
+        add_custom_command(TARGET app POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-windows/bin/assimp-vc143-mt.dll"
+            $<TARGET_FILE_DIR:app>
+        )
+    endif()
 else()
-    target_link_libraries(app ${GLFW_LIBRARIES} ${GLUT_LIBRARIES})
+    target_link_libraries(app ${GLFW_LIBRARIES} ${ASSIMP_LIBRARIES})
 endif()
 
 # Configuración específica para macOS
 if(APPLE)
-    target_link_libraries(app "-framework OpenGL" "-framework Cocoa" "-framework IOKit" "-framework CoreVideo" "-framework GLUT")
+    target_link_libraries(app "-framework OpenGL" "-framework Cocoa" "-framework IOKit" "-framework CoreVideo")
 endif()
 
 # Configuración específica para Windows (MSVC)

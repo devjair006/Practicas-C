@@ -10,6 +10,7 @@ build_win/
 
 app
 app.dSYM/
+imgui.ini
 
 # VS y CMake generados locales
 .vs/
@@ -22,3 +23,4 @@ Makefile
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+vcpkg/*

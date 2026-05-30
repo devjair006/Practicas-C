@@ -6,6 +6,9 @@
 
 #include <iostream>
 
+// Desactivar las macros molestas de Windows para que std::max y std::min funcionen bien
+#define NOMINMAX
+
 inline unsigned int loadTexture(char const * path) {
     int width, height, nrComponents;
     stbi_set_flip_vertically_on_load(true);
@@ -35,4 +38,4 @@ inline unsigned int loadTextureWithFallback(char const * path, unsigned int fall
     return tex == 0 ? fallback : tex;
 }
 
-#endif
+#endif // TEXTURE_H
