@@ -327,7 +327,7 @@ int main() {
   cablePisoGLTF = new GLTFModel("assets/contencion/cables_piso.glb");
   cableTechoGLTF = new GLTFModel("assets/contencion/cables_techo.glb");
 
-  esquinerosGLTF = new GLTFModel("assets/contencion/esquineros.glb");
+  esquinerosGLTF = new GLTFModel("assets/contencion/esquineros.glb", true);
   generadorGLTF = new GLTFModel("assets/contencion/generador.glb");
   lamparaContencionGLTF = new GLTFModel("assets/contencion/lampara.glb");
   lampara2GLTF = new GLTFModel("assets/contencion/lampara2.glb");

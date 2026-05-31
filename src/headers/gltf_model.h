@@ -215,8 +215,8 @@ public:
         return false;
     }
 
-    GLTFModel(std::string path) {
-        loadModel(path);
+    GLTFModel(std::string path, bool applyNodeTransforms = false) {
+        loadModel(path, applyNodeTransforms);
     }
 
     void Draw(unsigned int shaderProgram, int solidColorLoc) {
@@ -444,12 +444,17 @@ private:
     }
     glm::mat4 m_FinalTransforms[MAX_BONES];
 
-    void loadModel(std::string path) {
-        const aiScene* scene = m_Importer.ReadFile(path, 
-            aiProcess_Triangulate | 
+    void loadModel(std::string path, bool applyNodeTransforms = false) {
+        unsigned int flags = aiProcess_Triangulate | 
             aiProcess_FlipUVs | 
             aiProcess_PopulateArmatureData |
-            aiProcess_LimitBoneWeights);
+            aiProcess_LimitBoneWeights;
+
+        if (applyNodeTransforms) {
+            flags |= aiProcess_PreTransformVertices;
+        }
+
+        const aiScene* scene = m_Importer.ReadFile(path, flags);
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             std::cout << "ERROR::ASSIMP::" << m_Importer.GetErrorString() << std::endl;
             return;
