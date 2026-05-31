@@ -338,6 +338,23 @@ int main() {
   lamparaReactorGLTF = new GLTFModel("assets/contencion/lampara-reactor.glb");
   warningGLTF = new GLTFModel("assets/contencion/warning.glb");
   cajonesOFGLTF = new GLTFModel("assets/oficinas/cajonesOF.glb");
+  reactorControlGLTF = new GLTFModel("assets/contencion/reactor-control.glb");
+
+  // Registrar en modelRegistry
+  modelRegistry["cajonesOF"] = cajonesOFGLTF;
+  modelRegistry["sarcofago"] = sarcofagoGLTF;
+  modelRegistry["tesla"] = teslaGLTF;
+  modelRegistry["reactor"] = reactorGLTF;
+  modelRegistry["reactorControl"] = reactorControlGLTF;
+  modelRegistry["panelControl"] = panelControlGLTF;
+  modelRegistry["warning"] = warningGLTF;
+  modelRegistry["esquineros"] = esquinerosGLTF;
+  modelRegistry["esquineros2"] = esquinerosGLTF;
+  modelRegistry["esquineros3"] = esquinerosGLTF;
+  modelRegistry["esquineros4"] = esquinerosGLTF;
+
+  // Cargar propiedades desde archivo
+  loadLevelProps("assets/config_posiciones.txt");
   std::cout << "[SISTEMA] Props oficinas cargados: CajonesOF(" << cajonesOFGLTF->meshes.size() << ")" << std::endl;
   std::cout << "[SISTEMA] Props baño cargados: "
             << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
@@ -1452,36 +1469,24 @@ int main() {
       if (shouldRender(urinarioPos.x, urinarioPos.z, 3.0f)) urinarioGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
-    if (teslaGLTF && !teslaGLTF->meshes.empty()) {
-      glm::mat4 teslaModel = glm::mat4(1.0f);
-      teslaModel = glm::translate(teslaModel, teslaPos);
-      teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      teslaModel = glm::scale(teslaModel, teslaScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(teslaModel));
+    // --- BUCLE DINAMICO DE RENDERING DE PROPS ---
+    for (const auto& prop : placedProps) {
+      GLTFModel* model = modelRegistry[prop.modelName];
+      if (!model || model->meshes.empty()) continue;
 
-      if (shouldRender(teslaPos.x, teslaPos.z, 3.0f)) teslaGLTF->Draw(shaderProgram, solidColorLoc);
+      glm::mat4 pModel = glm::mat4(1.0f);
+      pModel = glm::translate(pModel, prop.pos);
+      pModel = glm::rotate(pModel, glm::radians(prop.rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+      pModel = glm::rotate(pModel, glm::radians(prop.rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+      pModel = glm::rotate(pModel, glm::radians(prop.rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+      pModel = glm::scale(pModel, prop.scale);
+
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
+      if (shouldRender(prop.pos.x, prop.pos.z, 3.0f)) {
+        model->Draw(shaderProgram, solidColorLoc);
+      }
     }
-
-    if (sarcofagoGLTF && !sarcofagoGLTF->meshes.empty()) {
-      glm::mat4 sModel = glm::mat4(1.0f);
-      sModel = glm::translate(sModel, sarcofagoPos);
-      sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.x),
-                           glm::vec3(1.0f, 0.0f, 0.0f));
-      sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.y),
-                           glm::vec3(0.0f, 1.0f, 0.0f));
-      sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.z),
-                           glm::vec3(0.0f, 0.0f, 1.0f));
-      sModel = glm::scale(sModel, sarcofagoScale);
-
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sModel));
-      if (shouldRender(sarcofagoPos.x, sarcofagoPos.z, 3.0f)) sarcofagoGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
+//*------------------
     if (cablePisoGLTF && !cablePisoGLTF->meshes.empty()) {
       for (size_t i = 0; i < cablePisoPos.size(); i++) {
         glm::mat4 cpModel = glm::mat4(1.0f);
@@ -1516,35 +1521,6 @@ int main() {
       }
     }
 
-    if (warningGLTF && !warningGLTF->meshes.empty()) {
-      glm::mat4 wModel = glm::mat4(1.0f);
-      wModel = glm::translate(wModel, warningPos);
-      wModel = glm::rotate(wModel, glm::radians(warningRot.x),
-                           glm::vec3(1.0f, 0.0f, 0.0f));
-      wModel = glm::rotate(wModel, glm::radians(warningRot.y),
-                           glm::vec3(0.0f, 1.0f, 0.0f));
-      wModel = glm::rotate(wModel, glm::radians(warningRot.z),
-                           glm::vec3(0.0f, 0.0f, 1.0f));
-      wModel = glm::scale(wModel, warningScale);
-
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(wModel));
-      if (shouldRender(warningPos.x, warningPos.z, 3.0f)) warningGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (cajonesOFGLTF && !cajonesOFGLTF->meshes.empty()) {
-      glm::mat4 cModel = glm::mat4(1.0f);
-      cModel = glm::translate(cModel, cajonesOFPos);
-      cModel = glm::rotate(cModel, glm::radians(cajonesOFRot.x),
-                           glm::vec3(1.0f, 0.0f, 0.0f));
-      cModel = glm::rotate(cModel, glm::radians(cajonesOFRot.y),
-                           glm::vec3(0.0f, 1.0f, 0.0f));
-      cModel = glm::rotate(cModel, glm::radians(cajonesOFRot.z),
-                           glm::vec3(0.0f, 0.0f, 1.0f));
-      cModel = glm::scale(cModel, cajonesOFScale);
-
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cModel));
-      if (shouldRender(cajonesOFPos.x, cajonesOFPos.z, 3.0f)) cajonesOFGLTF->Draw(shaderProgram, solidColorLoc);
-    }
 
     if (lamparaContencionGLTF && !lamparaContencionGLTF->meshes.empty()) {
       glm::mat4 lampModel = glm::mat4(1.0f);
@@ -1616,48 +1592,7 @@ int main() {
       }
     }
 
-    if (reactorGLTF && !reactorGLTF->meshes.empty()) {
-      glm::mat4 reactorModel = glm::mat4(1.0f);
-      reactorModel = glm::translate(reactorModel, reactorPos);
-      reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.x),
-                                 glm::vec3(1.0f, 0.0f, 0.0f));
-      reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.y),
-                                 glm::vec3(0.0f, 1.0f, 0.0f));
-      reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.z),
-                                 glm::vec3(0.0f, 0.0f, 1.0f));
-      reactorModel = glm::scale(reactorModel, reactorScale);
 
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(reactorModel));
-      if (shouldRender(reactorPos.x, reactorPos.z, 3.0f)) reactorGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
-      glm::mat4 panelModel = glm::mat4(1.0f);
-      panelModel = glm::translate(panelModel, panelControlPos);
-      panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      panelModel = glm::scale(panelModel, panelControlScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(panelModel));
-      if (shouldRender(panelControlPos.x, panelControlPos.z, 3.0f)) panelControlGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (reactorControlGLTF && !reactorControlGLTF->meshes.empty()) {
-      glm::mat4 rcModel = glm::mat4(1.0f);
-      rcModel = glm::translate(rcModel, reactorControlPos);
-      rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.x),
-                            glm::vec3(1.0f, 0.0f, 0.0f));
-      rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.y),
-                            glm::vec3(0.0f, 1.0f, 0.0f));
-      rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.z),
-                            glm::vec3(0.0f, 0.0f, 1.0f));
-      rcModel = glm::scale(rcModel, reactorControlScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(rcModel));
-      if (shouldRender(reactorControlPos.x, reactorControlPos.z, 3.0f)) reactorControlGLTF->Draw(shaderProgram, solidColorLoc);
-    }
 
     if (lamparaReactorGLTF && !lamparaReactorGLTF->meshes.empty()) {
       glm::mat4 lrModel = glm::mat4(1.0f);
@@ -1709,75 +1644,7 @@ int main() {
       if (shouldRender(lamparaReactorPos4.x, lamparaReactorPos4.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
-    if (esquinerosGLTF && !esquinerosGLTF->meshes.empty()) {
-      // Esquinero 1
-      glm::mat4 esquinerosModel = glm::mat4(1.0f);
-      esquinerosModel = glm::translate(esquinerosModel, esquinerosPos);
-      esquinerosModel =
-          glm::rotate(esquinerosModel, glm::radians(esquinerosRot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel =
-          glm::rotate(esquinerosModel, glm::radians(esquinerosRot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel =
-          glm::rotate(esquinerosModel, glm::radians(esquinerosRot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel = glm::scale(esquinerosModel, esquinerosScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel));
-      if (shouldRender(esquinerosPos.x, esquinerosPos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
 
-      // Esquinero 2
-      glm::mat4 esquinerosModel2 = glm::mat4(1.0f);
-      esquinerosModel2 = glm::translate(esquinerosModel2, esquineros2Pos);
-      esquinerosModel2 =
-          glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel2 =
-          glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel2 =
-          glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel2 = glm::scale(esquinerosModel2, esquineros2Scale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel2));
-      if (shouldRender(esquineros2Pos.x, esquineros2Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Esquinero 3
-      glm::mat4 esquinerosModel3 = glm::mat4(1.0f);
-      esquinerosModel3 = glm::translate(esquinerosModel3, esquineros3Pos);
-      esquinerosModel3 =
-          glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel3 =
-          glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel3 =
-          glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel3 = glm::scale(esquinerosModel3, esquineros3Scale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel3));
-      if (shouldRender(esquineros3Pos.x, esquineros3Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Esquinero 4
-      glm::mat4 esquinerosModel4 = glm::mat4(1.0f);
-      esquinerosModel4 = glm::translate(esquinerosModel4, esquineros4Pos);
-      esquinerosModel4 =
-          glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel4 =
-          glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel4 =
-          glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel4 = glm::scale(esquinerosModel4, esquineros4Scale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel4));
-      if (shouldRender(esquineros4Pos.x, esquineros4Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
-    }
 
     if (generadorGLTF && !generadorGLTF->meshes.empty()) {
       for (int i = 0; i < 3; i++) { // Dibujamos los 3 ejemplares
@@ -1999,7 +1866,7 @@ int main() {
               }
 
               // 2. Helper lambda: dibuja las mismas cajas por submesh que usa la colision real.
-              auto drawModelHitbox = [&](GLTFModel* model, const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scl) {
+              auto drawModelHitbox = [&](GLTFModel* model, const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scl, glm::vec3 hitboxColor = glm::vec3(0.1f, 0.75f, 1.0f)) {
                 if (!model || model->meshes.empty()) return;
                 if (glm::length(glm::vec2(pos.x - cameraPos.x, pos.z - cameraPos.z)) > collisionViewerRadius)
                   return;
@@ -2020,7 +1887,7 @@ int main() {
                   debugModel = glm::scale(debugModel, localSize);
 
                   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
-                  glUniform3f(colorLoc, 0.1f, 0.75f, 1.0f); // Celeste/cian para props GLTF
+                  glUniform3f(colorLoc, hitboxColor.r, hitboxColor.g, hitboxColor.b); // Color personalizado para props GLTF
                   glDrawArrays(GL_TRIANGLES, 0, 36);
                 }
               };
@@ -2058,28 +1925,22 @@ int main() {
               drawModelHitbox(mensBGLTF, mensBpos, mensBrot, mensBscale);
               drawModelHitbox(girlBGLTF, girlBpos, girlBrot, girlBscale);
 
-              // --- Props de Contención ---
-              drawModelHitbox(teslaGLTF, teslaPos, teslaRot, teslaScale);
-
-              drawModelHitbox(esquinerosGLTF, esquinerosPos, esquinerosRot, esquinerosScale);
-              drawModelHitbox(esquinerosGLTF, esquineros2Pos, esquineros2Rot, esquineros2Scale);
-              drawModelHitbox(esquinerosGLTF, esquineros3Pos, esquineros3Rot, esquineros3Scale);
-              drawModelHitbox(esquinerosGLTF, esquineros4Pos, esquineros4Rot, esquineros4Scale);
+              // --- Props Dinámicos (placedProps) ---
+              for (const auto& prop : placedProps) {
+                GLTFModel* model = modelRegistry[prop.modelName];
+                if (model) {
+                  glm::vec3 color = prop.collisionActive ? glm::vec3(0.1f, 0.75f, 1.0f) : glm::vec3(1.0f, 0.25f, 0.25f);
+                  drawModelHitbox(model, prop.pos, prop.rot, prop.scale, color);
+                }
+              }
 
               for (int i = 0; i < 3; i++) {
                 drawModelHitbox(generadorGLTF, generadorPos[i], generadorRot[i], generadorScale[i]);
               }
 
-              drawModelHitbox(panelControlGLTF, panelControlPos, panelControlRot, panelControlScale);
-              drawModelHitbox(sarcofagoGLTF, sarcofagoPos, sarcofagoRot, sarcofagoScale);
-
               for (size_t i = 0; i < emergencyPos.size(); i++) {
                 drawModelHitbox(emergencyGLTF, emergencyPos[i], emergencyRot[i], emergencyScale[i]);
               }
-
-              drawModelHitbox(reactorGLTF, reactorPos, reactorRot, reactorScale);
-              drawModelHitbox(warningGLTF, warningPos, warningRot, warningScale);
-              drawModelHitbox(cajonesOFGLTF, cajonesOFPos, cajonesOFRot, cajonesOFScale);
             }
 
             glLineWidth(1.0f);
@@ -2908,48 +2769,105 @@ int main() {
             }
             ImGui::Separator();
 
-            ImGui::Text("Esquineros Model (4 Instancias)");
-            static int selectedEsquinero = 0;
-            const char *esquineroItems[] = {"Esquinero 1", "Esquinero 2",
-                                            "Esquinero 3", "Esquinero 4"};
-            ImGui::Combo("Seleccionar Esquinero", &selectedEsquinero,
-                         esquineroItems, IM_ARRAYSIZE(esquineroItems));
+            ImGui::End(); // End 'Editor Contencion'
 
-            glm::vec3 *targetPos = nullptr;
-            glm::vec3 *targetRot = nullptr;
-            glm::vec3 *targetScale = nullptr;
+            // --- UNIFIED LEVEL EDITOR ---
+            ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 700.0f, 10.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(340.0f, 480.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.85f);
+            ImGui::Begin("Editor de Niveles 🛠️", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            
+            ImGui::TextColored(ImVec4(0.2f, 0.75f, 1.0f, 1.0f), "Editor de Mapa 3D");
+            ImGui::Separator();
 
-            if (selectedEsquinero == 0) {
-              targetPos = &esquinerosPos;
-              targetRot = &esquinerosRot;
-              targetScale = &esquinerosScale;
-            } else if (selectedEsquinero == 1) {
-              targetPos = &esquineros2Pos;
-              targetRot = &esquineros2Rot;
-              targetScale = &esquineros2Scale;
-            } else if (selectedEsquinero == 2) {
-              targetPos = &esquineros3Pos;
-              targetRot = &esquineros3Rot;
-              targetScale = &esquineros3Scale;
-            } else if (selectedEsquinero == 3) {
-              targetPos = &esquineros4Pos;
-              targetRot = &esquineros4Rot;
-              targetScale = &esquineros4Scale;
+            static int selectedPropIdx = -1;
+            if (placedProps.empty()) {
+                selectedPropIdx = -1;
+            } else if (selectedPropIdx < 0 || selectedPropIdx >= (int)placedProps.size()) {
+                selectedPropIdx = 0;
             }
 
-            if (targetPos) {
-              ImGui::DragFloat3("Pos", &targetPos->x, 0.05f);
-              ImGui::DragFloat3("Rot", &targetRot->x, 0.5f, -180.0f, 180.0f);
-              ImGui::DragFloat3("Scale", &targetScale->x, 0.01f, 0.01f, 10.0f);
-              if (ImGui::Button("Traer frente a camara")) {
-                *targetPos = cameraPos + cameraFront * 2.0f;
-                targetPos->y = -0.5f;
-                *targetRot = glm::vec3(0.0f, 0.0f, 0.0f);
-                *targetScale =
-                    esquinerosScale; // Usar la escala del primero como base
-              }
+            // List of placed props
+            if (ImGui::TreeNode("Objetos en Escena")) {
+                for (int i = 0; i < (int)placedProps.size(); ++i) {
+                    std::string label = std::to_string(i) + ": " + placedProps[i].modelName;
+                    if (ImGui::Selectable(label.c_str(), selectedPropIdx == i)) {
+                        selectedPropIdx = i;
+                    }
+                }
+                ImGui::TreePop();
             }
+            ImGui::Separator();
 
+            if (selectedPropIdx >= 0 && selectedPropIdx < (int)placedProps.size()) {
+                auto& prop = placedProps[selectedPropIdx];
+                ImGui::TextColored(ImVec4(0.9f, 0.8f, 0.1f, 1.0f), "Prop Seleccionado: %s", prop.modelName.c_str());
+                
+                ImGui::DragFloat3("Posición", &prop.pos.x, 0.05f);
+                ImGui::DragFloat3("Rotación", &prop.rot.x, 0.5f, -180.0f, 180.0f);
+                ImGui::DragFloat3("Escala", &prop.scale.x, 0.01f, 0.01f, 10.0f);
+                ImGui::Checkbox("Activar Física/Colisión", &prop.collisionActive);
+
+                if (ImGui::Button("Traer frente a camara")) {
+                    prop.pos = cameraPos + cameraFront * 2.0f;
+                    prop.pos.y = -0.5f;
+                    prop.rot = glm::vec3(0.0f, 0.0f, 0.0f);
+                    prop.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+                }
+
+                ImGui::Spacing();
+                
+                if (ImGui::Button("📑 Duplicar Objeto", ImVec2(-1, 0))) {
+                    PlacedProp dup = prop;
+                    dup.pos += glm::vec3(0.5f, 0.0f, 0.5f); // Un pequeño offset para ver que se duplicó
+                    placedProps.push_back(dup);
+                    selectedPropIdx = (int)placedProps.size() - 1;
+                }
+
+                if (ImGui::Button("❌ Eliminar Objeto", ImVec2(-1, 0))) {
+                    placedProps.erase(placedProps.begin() + selectedPropIdx);
+                    if (selectedPropIdx >= (int)placedProps.size()) {
+                        selectedPropIdx = (int)placedProps.size() - 1;
+                    }
+                }
+            } else {
+                ImGui::Text("Ningún objeto seleccionado");
+            }
+            ImGui::Separator();
+
+            // Adding a new prop
+            ImGui::TextColored(ImVec4(0.1f, 0.9f, 0.2f, 1.0f), "Agregar Nuevo Objeto:");
+            static const char* availableModels[] = { 
+                "cajonesOF", "sarcofago", "tesla", "reactor", "reactorControl", "panelControl", "warning", "esquineros" 
+            };
+            static int selectedModelToAddIdx = 0;
+            ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels, IM_ARRAYSIZE(availableModels));
+
+            if (ImGui::Button("➕ Agregar a Escena", ImVec2(-1, 0))) {
+                PlacedProp newProp;
+                newProp.modelName = availableModels[selectedModelToAddIdx];
+                newProp.pos = cameraPos + cameraFront * 2.0f;
+                newProp.pos.y = -0.5f;
+                newProp.rot = glm::vec3(0.0f, 0.0f, 0.0f);
+                
+                // Escalas base/por defecto para cada uno
+                if (newProp.modelName == "tesla") newProp.scale = glm::vec3(0.150f, 0.120f, 0.090f);
+                else if (newProp.modelName == "sarcofago") newProp.scale = glm::vec3(1.260f, 1.060f, 0.930f);
+                else if (newProp.modelName == "warning") newProp.scale = glm::vec3(1.410f, 0.950f, 1.570f);
+                else if (newProp.modelName == "reactorControl") newProp.scale = glm::vec3(0.890f, 0.730f, 0.280f);
+                else if (newProp.modelName == "panelControl") newProp.scale = glm::vec3(0.450f, 0.490f, 0.180f);
+                else if (newProp.modelName == "esquineros") newProp.scale = glm::vec3(0.890f, 0.750f, 0.810f);
+                else newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
+                placedProps.push_back(newProp);
+                selectedPropIdx = (int)placedProps.size() - 1;
+            }
+            ImGui::Separator();
+
+            // Permanent Save Button!
+            if (ImGui::Button("💾 GUARDAR CAMBIOS MAPA", ImVec2(-1, 40))) {
+                saveLevelProps("assets/config_posiciones.txt");
+            }
             ImGui::End();
 
             static int selectedEntityIndex = 0;

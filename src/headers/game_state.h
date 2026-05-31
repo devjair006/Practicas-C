@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <miniaudio.h>
@@ -310,6 +311,20 @@ extern glm::vec3 metalDeskScale[8];
 
 
 extern std::vector<Entity> gameEntities;
+
+struct PlacedProp {
+    std::string modelName;
+    glm::vec3 pos;
+    glm::vec3 rot;
+    glm::vec3 scale;
+    bool collisionActive = true;
+};
+
+extern std::vector<PlacedProp> placedProps;
+extern std::map<std::string, GLTFModel*> modelRegistry;
+
+void saveLevelProps(const std::string& path);
+void loadLevelProps(const std::string& path);
 
 extern float wallWidth;
 extern float wallHeight;

@@ -1,4 +1,7 @@
 #include "headers/game_state.h"
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
 std::string currentHUDMessage = "";
 float hudMessageTimer = 0.0f;
@@ -494,3 +497,64 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+
+std::vector<PlacedProp> placedProps;
+std::map<std::string, GLTFModel*> modelRegistry;
+
+void saveLevelProps(const std::string& path) {
+    std::ofstream outFile(path);
+    if (!outFile.is_open()) {
+        std::cerr << "Error al abrir el archivo para guardar: " << path << std::endl;
+        return;
+    }
+    for (const auto& prop : placedProps) {
+        outFile << prop.modelName << " "
+                << prop.pos.x << " " << prop.pos.y << " " << prop.pos.z << " "
+                << prop.rot.x << " " << prop.rot.y << " " << prop.rot.z << " "
+                << prop.scale.x << " " << prop.scale.y << " " << prop.scale.z << " "
+                << (prop.collisionActive ? 1 : 0) << "\n";
+    }
+    outFile.close();
+    std::cout << "Mapa guardado exitosamente en: " << path << std::endl;
+}
+
+void loadLevelProps(const std::string& path) {
+    placedProps.clear();
+    std::ifstream inFile(path);
+    if (inFile.is_open()) {
+        std::string line;
+        while (std::getline(inFile, line)) {
+            if (line.empty() || line[0] == '#') continue;
+            std::stringstream ss(line);
+            PlacedProp prop;
+            prop.collisionActive = true;
+            if (ss >> prop.modelName 
+                   >> prop.pos.x >> prop.pos.y >> prop.pos.z 
+                   >> prop.rot.x >> prop.rot.y >> prop.rot.z 
+                   >> prop.scale.x >> prop.scale.y >> prop.scale.z) {
+                int activeVal = 1;
+                if (ss >> activeVal) {
+                    prop.collisionActive = (activeVal != 0);
+                }
+                placedProps.push_back(prop);
+            }
+        }
+        inFile.close();
+        std::cout << "Cargados " << placedProps.size() << " props desde: " << path << std::endl;
+    } else {
+        std::cout << "Archivo de posiciones no encontrado, cargando valores por defecto..." << std::endl;
+        placedProps.push_back({"cajonesOF", glm::vec3(8.0f, -0.5f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)});
+        placedProps.push_back({"sarcofago", glm::vec3(43.235f, -0.100f, 12.691f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.260f, 1.060f, 0.930f)});
+        placedProps.push_back({"warning", glm::vec3(39.993f, 0.200f, 20.866f), glm::vec3(-89.000f, -180.000f, -0.500f), glm::vec3(1.410f, 0.950f, 1.570f)});
+        placedProps.push_back({"tesla", glm::vec3(47.950f, -0.500f, 14.400f), glm::vec3(-88.000f, 0.0f, 0.0f), glm::vec3(0.150f, 0.120f, 0.090f)});
+        placedProps.push_back({"reactor", glm::vec3(43.163f, -0.550f, 19.211f), glm::vec3(0.000f, 0.000f, 0.000f), glm::vec3(1.00f, 1.000f, 1.000f)});
+        placedProps.push_back({"panelControl", glm::vec3(48.350f, -0.500f, 17.450f), glm::vec3(-91.000f, 0.000f, -180.000f), glm::vec3(0.450f, 0.490f, 0.180f)});
+        placedProps.push_back({"reactorControl", glm::vec3(40.613f, -0.200, 17.770f), glm::vec3(-90.000f, 0.000f, -147.500f), glm::vec3(0.890f, 0.730f, 0.280f)});
+        placedProps.push_back({"esquineros", glm::vec3(48.521f, -0.500f, 12.504f), glm::vec3(0.000f, -52.000f, 0.000f), glm::vec3(0.890f, 0.750f, 0.810f)});
+        placedProps.push_back({"esquineros2", glm::vec3(48.283f, -0.500f, 20.301f), glm::vec3(-2.500f, -144.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
+        placedProps.push_back({"esquineros3", glm::vec3(34.683f, -0.500f, 12.581f), glm::vec3(-0.500f, 56.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.860f)});
+        placedProps.push_back({"esquineros4", glm::vec3(34.833f, -0.550f, 20.451f), glm::vec3(0.500f, 120.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
+        
+        saveLevelProps(path);
+    }
+}
