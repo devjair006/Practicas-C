@@ -208,6 +208,11 @@ extern glm::vec3 sarcofagoPos;
 extern glm::vec3 sarcofagoRot;
 extern glm::vec3 sarcofagoScale;
 
+extern GLTFModel *cajonesOFGLTF;
+extern glm::vec3 cajonesOFPos;
+extern glm::vec3 cajonesOFRot;
+extern glm::vec3 cajonesOFScale;
+
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;
 extern std::vector<glm::vec3> cablePisoRot;

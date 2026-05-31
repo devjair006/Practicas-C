@@ -337,6 +337,8 @@ int main() {
   panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
   lamparaReactorGLTF = new GLTFModel("assets/contencion/lampara-reactor.glb");
   warningGLTF = new GLTFModel("assets/contencion/warning.glb");
+  cajonesOFGLTF = new GLTFModel("assets/oficinas/cajonesOF.glb");
+  std::cout << "[SISTEMA] Props oficinas cargados: CajonesOF(" << cajonesOFGLTF->meshes.size() << ")" << std::endl;
   std::cout << "[SISTEMA] Props baño cargados: "
             << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
             << "Bano(" << banoGLTF->meshes.size() << "), "
@@ -1059,7 +1061,7 @@ int main() {
             std::cout << "[SISTEMA]: Gnomo ahuyentado por la luz   ."
                       << std::endl;
           }
-        } else {
+        } else if (gameState == PLAYING) {
           gnomeStunTimer =
               (std::max)(0.0f,
                          gnomeStunTimer -
@@ -1527,6 +1529,21 @@ int main() {
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(wModel));
       if (shouldRender(warningPos.x, warningPos.z, 3.0f)) warningGLTF->Draw(shaderProgram, solidColorLoc);
+    }
+
+    if (cajonesOFGLTF && !cajonesOFGLTF->meshes.empty()) {
+      glm::mat4 cModel = glm::mat4(1.0f);
+      cModel = glm::translate(cModel, cajonesOFPos);
+      cModel = glm::rotate(cModel, glm::radians(cajonesOFRot.x),
+                           glm::vec3(1.0f, 0.0f, 0.0f));
+      cModel = glm::rotate(cModel, glm::radians(cajonesOFRot.y),
+                           glm::vec3(0.0f, 1.0f, 0.0f));
+      cModel = glm::rotate(cModel, glm::radians(cajonesOFRot.z),
+                           glm::vec3(0.0f, 0.0f, 1.0f));
+      cModel = glm::scale(cModel, cajonesOFScale);
+
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cModel));
+      if (shouldRender(cajonesOFPos.x, cajonesOFPos.z, 3.0f)) cajonesOFGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (lamparaContencionGLTF && !lamparaContencionGLTF->meshes.empty()) {
@@ -2062,6 +2079,7 @@ int main() {
 
               drawModelHitbox(reactorGLTF, reactorPos, reactorRot, reactorScale);
               drawModelHitbox(warningGLTF, warningPos, warningRot, warningScale);
+              drawModelHitbox(cajonesOFGLTF, cajonesOFPos, cajonesOFRot, cajonesOFScale);
             }
 
             glLineWidth(1.0f);
@@ -2131,32 +2149,6 @@ int main() {
           }
 
           if (gameState == MENU) {
-            glDisable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            glBindTexture(GL_TEXTURE_2D, logoTexture);
-            glBindVertexArray(quadVAO);
-
-            float aspect = (float)currentWidth / (float)currentHeight;
-            glm::mat4 orthoProj =
-                glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
-            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(orthoProj));
-
-            glm::mat4 orthoView = glm::mat4(1.0f);
-            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(orthoView));
-
-            glm::mat4 orthoModel = glm::mat4(1.0f);
-            float scale = 0.8f + sin(glfwGetTime() * 3.0f) * 0.05f;
-            orthoModel = glm::scale(orthoModel, glm::vec3(scale, scale, 1.0f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                               glm::value_ptr(orthoModel));
-
-            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-
-            glDisable(GL_BLEND);
-            glEnable(GL_DEPTH_TEST);
           } else if (gameState == PLAYING) {
             // --- DIBUJAR CROSSHAIR (HUD) ---
             glDisable(GL_DEPTH_TEST);
@@ -2190,7 +2182,113 @@ int main() {
           }
 
           // --- RENDER IMGUI HUD ---
-          if (showDebugGUI) {
+          if (gameState == MENU) {
+            auto startGameFromMenu = [&]() {
+              gameState = PLAYING;
+              isCursorLocked = true;
+              glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+              firstMouse = true;
+              ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
+              printTypewriter("ESCENA 1: PASILLO DE ACCESO");
+            };
+
+            ImDrawList* drawList = ImGui::GetBackgroundDrawList();
+            ImVec2 screenMin(0.0f, 0.0f);
+            ImVec2 screenMax((float)currentWidth, (float)currentHeight);
+            float t = (float)glfwGetTime();
+
+            drawList->AddRectFilledMultiColor(
+                screenMin, screenMax,
+                IM_COL32(3, 7, 11, 238), IM_COL32(8, 16, 22, 238),
+                IM_COL32(1, 2, 5, 248), IM_COL32(2, 4, 7, 248));
+            drawList->AddCircleFilled(
+                ImVec2(currentWidth * 0.5f, currentHeight * 0.05f),
+                currentWidth * 0.32f, IM_COL32(170, 215, 230, 20), 96);
+            drawList->AddRectFilledMultiColor(
+                ImVec2(0, 0), ImVec2((float)currentWidth, currentHeight * 0.34f),
+                IM_COL32(190, 220, 230, 28), IM_COL32(90, 140, 160, 10),
+                IM_COL32(0, 0, 0, 0), IM_COL32(0, 0, 0, 0));
+            for (int i = 0; i < 42; ++i) {
+              float seed = (float)i * 37.13f;
+              float x = fmodf(seed * 19.7f, (float)currentWidth);
+              float y = fmodf(seed * 11.3f + t * (6.0f + (i % 5)), (float)currentHeight);
+              float a = 20.0f + (float)(i % 4) * 12.0f;
+              drawList->AddCircleFilled(ImVec2(x, y), 1.0f + (i % 3) * 0.35f,
+                                        IM_COL32(210, 230, 235, (int)a), 8);
+            }
+
+            ImGui::SetNextWindowPos(screenMin);
+            ImGui::SetNextWindowSize(screenMax);
+            ImGui::SetNextWindowBgAlpha(0.0f);
+            ImGui::Begin("MainMenu", NULL,
+                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+                             ImGuiWindowFlags_NoSavedSettings);
+
+            float titleY = currentHeight * 0.16f;
+            const char* title = "PROYECTO CONFIDENCIAL";
+            const char* subtitle = "LABORATORIO DE CONTENCION";
+            ImGui::SetWindowFontScale(3.0f);
+            ImVec2 titleSize = ImGui::CalcTextSize(title);
+            ImGui::SetCursorPos(ImVec2((currentWidth - titleSize.x) * 0.5f, titleY));
+            ImGui::TextColored(ImVec4(0.88f, 0.97f, 1.0f, 1.0f), "%s", title);
+
+            ImGui::SetWindowFontScale(1.0f);
+            ImVec2 titleCenter(currentWidth * 0.5f, titleY + titleSize.y + 10.0f);
+            drawList->AddLine(ImVec2(titleCenter.x - 230.0f, titleCenter.y),
+                              ImVec2(titleCenter.x - 45.0f, titleCenter.y),
+                              IM_COL32(220, 245, 255, 180), 1.5f);
+            drawList->AddLine(ImVec2(titleCenter.x + 45.0f, titleCenter.y),
+                              ImVec2(titleCenter.x + 230.0f, titleCenter.y),
+                              IM_COL32(220, 245, 255, 180), 1.5f);
+            drawList->AddCircle(titleCenter, 17.0f, IM_COL32(220, 245, 255, 180), 32, 1.3f);
+
+            ImVec2 subSize = ImGui::CalcTextSize(subtitle);
+            ImGui::SetCursorPos(ImVec2((currentWidth - subSize.x) * 0.5f, titleCenter.y + 24.0f));
+            ImGui::TextColored(ImVec4(0.62f, 0.78f, 0.84f, 1.0f), "%s", subtitle);
+
+            float menuWidth = 260.0f;
+            float menuX = (currentWidth - menuWidth) * 0.5f;
+            float menuY = currentHeight * 0.48f;
+            ImGui::SetCursorPos(ImVec2(menuX, menuY));
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 9.0f));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.02f, 0.05f, 0.07f, 0.28f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.55f, 0.75f, 0.82f, 0.22f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.75f, 0.92f, 1.0f, 0.35f));
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.88f, 0.96f, 1.0f, 1.0f));
+
+            auto menuButton = [&](const char* label) {
+              ImGui::SetCursorPosX(menuX);
+              bool pressed = ImGui::Button(label, ImVec2(menuWidth, 34.0f));
+              ImVec2 min = ImGui::GetItemRectMin();
+              ImVec2 max = ImGui::GetItemRectMax();
+              if (ImGui::IsItemHovered()) {
+                drawList->AddLine(ImVec2(min.x + 34.0f, max.y + 2.0f),
+                                  ImVec2(max.x - 34.0f, max.y + 2.0f),
+                                  IM_COL32(220, 245, 255, 180), 1.0f);
+              }
+              return pressed;
+            };
+
+            if (menuButton("INICIAR JUEGO")) startGameFromMenu();
+            menuButton("OPCIONES");
+            menuButton("ARCHIVOS");
+            menuButton("CREDITOS");
+            if (menuButton("SALIR")) glfwSetWindowShouldClose(window, true);
+
+            ImGui::PopStyleColor(4);
+            ImGui::PopStyleVar(2);
+
+            ImGui::SetWindowFontScale(0.85f);
+            const char* hint = "ENTER / ESPACIO tambien inicia";
+            ImVec2 hintSize = ImGui::CalcTextSize(hint);
+            ImGui::SetCursorPos(ImVec2((currentWidth - hintSize.x) * 0.5f,
+                                       currentHeight * 0.86f));
+            ImGui::TextColored(ImVec4(0.5f, 0.65f, 0.7f, 0.85f), "%s", hint);
+            ImGui::SetWindowFontScale(1.0f);
+            ImGui::End();
+          } else if (showDebugGUI) {
             // Display coordinates top-left
             ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
             ImGui::SetNextWindowSize(ImVec2(180.0f, 120.0f));
@@ -2564,6 +2662,18 @@ int main() {
               warningPos.y = -0.5f;
               warningRot = glm::vec3(0.0f, 0.0f, 0.0f);
               warningScale = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+            ImGui::Separator();
+
+            ImGui::Text("Cajones Oficina (cajonesOF) Model");
+            ImGui::DragFloat3("CajonesOF Pos", &cajonesOFPos.x, 0.05f);
+            ImGui::DragFloat3("CajonesOF Rot", &cajonesOFRot.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("CajonesOF Scale", &cajonesOFScale.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer frente a camara##cajonesOF")) {
+              cajonesOFPos = cameraPos + cameraFront * 2.0f;
+              cajonesOFPos.y = -0.5f;
+              cajonesOFRot = glm::vec3(0.0f, 0.0f, 0.0f);
+              cajonesOFScale = glm::vec3(1.0f, 1.0f, 1.0f);
             }
             ImGui::Separator();
 

@@ -214,6 +214,7 @@ GLTFModel *panelControlGLTF = nullptr;
 GLTFModel *reactorControlGLTF = nullptr;
 GLTFModel *lamparaReactorGLTF = nullptr;
 GLTFModel *sarcofagoGLTF = nullptr;
+GLTFModel *cajonesOFGLTF = nullptr;
 GLTFModel *cablePisoGLTF = nullptr;
 GLTFModel *cableTechoGLTF = nullptr;
 GLTFModel *warningGLTF = nullptr;
@@ -221,6 +222,10 @@ GLTFModel *warningGLTF = nullptr;
 glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
 glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);
 glm::vec3 sarcofagoScale(1.260f, 1.060f, 0.930f);
+
+glm::vec3 cajonesOFPos(8.0f, -0.5f, 5.0f);
+glm::vec3 cajonesOFRot(0.0f, 0.0f, 0.0f);
+glm::vec3 cajonesOFScale(1.0f, 1.0f, 1.0f);
 
 std::vector<glm::vec3> cablePisoPos = {glm::vec3(43.235f, -0.100f, 12.691f)};
 std::vector<glm::vec3> cablePisoRot = {glm::vec3(0.0f, 0.0f, 0.0f)};
