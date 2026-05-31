@@ -335,7 +335,6 @@ int main() {
   emergencyGLTF = new GLTFModel("assets/contencion/emergency.glb");
   reactorGLTF = new GLTFModel("assets/contencion/reactor.glb");
   panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
-  reactorControlGLTF = new GLTFModel("assets/contencion/reactor-control.glb");
   lamparaReactorGLTF = new GLTFModel("assets/contencion/lampara-reactor.glb");
   warningGLTF = new GLTFModel("assets/contencion/warning.glb");
   std::cout << "[SISTEMA] Props baño cargados: "
@@ -345,10 +344,9 @@ int main() {
             << "Urinario(" << urinarioGLTF->meshes.size() << ")" << std::endl;
   std::cout << "[SISTEMA] Props contención cargados: "
             << "Tesla(" << teslaGLTF->meshes.size() << "), "
-            << "ControlReactor(" << reactorControlGLTF->meshes.size() << "), "
+            << "Reactor(" << reactorGLTF->meshes.size() << "), "
             << "Esquineros(" << esquinerosGLTF->meshes.size() << ")"
             << std::endl;
-
   unsigned int wallTex1 = loadTexture("assets/paredesH.png");
   unsigned int wallTex2 = loadTexture("assets/paredbanosT.png");
   unsigned int wallTex3 = loadTexture("assets/wall.png");
@@ -505,13 +503,9 @@ int main() {
   glm::vec3 debugSpawnPos = cameraPos;
   float debugSpawnYaw = yaw;
   float debugSpawnPitch = pitch;
-  bool showCollisionViewer = false;
   bool showInteractionDebugger = true;
   bool showAnimationTester = true;
   bool showSpawnInspector = true;
-  bool collisionShowWalls = true;
-  bool collisionShowProps = true;
-  float collisionViewerRadius = 8.0f;
 
   // --- ZONAS DE HABITACION ---
   // Cada zona define un rectángulo del worldMap con texturas propias para
@@ -736,7 +730,7 @@ int main() {
       cameraFront = glm::normalize(front);
     }
     //------------------------------------------------------------------------------------------------------------------------------------------------------------
-//prueba de commints en main
+
     //-----------------------------------------------------------BACK FACE
     // CULLING----------------------------------------------------------------------------
 
@@ -757,7 +751,7 @@ int main() {
     glUniform3fv(lightDirLoc, 1, glm::value_ptr(cameraFront));
     glUniform1f(cutOffLoc, glm::cos(glm::radians(15.5f)));
     glUniform1f(outerCutOffLoc, glm::cos(glm::radians(22.5f)));
-    glUniform1i(flashlightOnLoc, isFlashlightOn ? 1 : 0);
+    glUniform1i(flashlightOnLoc, (isFlashlightOn && selectedHotbarSlot == 0) ? 1 : 0);
 
     glUniform1i(dimAlternaLoc, dimensionAlterna ? 1 : 0);
     glUniform1i(zoneLoc, currentZone);
@@ -1048,7 +1042,7 @@ int main() {
 
         // 1. DETECTAR SI LA LINTERNA LO APUNTA DIRECTAMENTE
         bool beingLookedAt = false;
-        if (isFlashlightOn) {
+        if (isFlashlightOn && selectedHotbarSlot == 0) {
           float angle = glm::dot(cameraFront, dirToGnome);
           // 0.98 significa que lo miras casi al centro (un cono muy cerrado)
           if (angle > 0.98f && distToPlayer < 10.0f) {
@@ -1962,6 +1956,7 @@ int main() {
             }
 
             if (collisionShowProps) {
+              // 1. Dibujar entidades estándar (Mesas y Máquinas) en amarillo
               for (const auto &entity : gameEntities) {
                 if (!entity.active)
                   continue;
@@ -1982,9 +1977,91 @@ int main() {
                 debugModel = glm::scale(debugModel, scale);
                 glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                                    glm::value_ptr(debugModel));
-                glUniform3f(colorLoc, 1.0f, 0.9f, 0.2f);
+                glUniform3f(colorLoc, 1.0f, 0.9f, 0.2f); // Amarillo para entidades
                 glDrawArrays(GL_TRIANGLES, 0, 36);
               }
+
+              // 2. Helper lambda: dibuja las mismas cajas por submesh que usa la colision real.
+              auto drawModelHitbox = [&](GLTFModel* model, const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scl) {
+                if (!model || model->meshes.empty()) return;
+                if (glm::length(glm::vec2(pos.x - cameraPos.x, pos.z - cameraPos.z)) > collisionViewerRadius)
+                  return;
+
+                glm::mat4 mat = glm::mat4(1.0f);
+                mat = glm::translate(mat, pos);
+                mat = glm::rotate(mat, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+                mat = glm::rotate(mat, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+                mat = glm::rotate(mat, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+                mat = glm::scale(mat, scl);
+
+                // Dibujar como OBB: trasladamos y escalamos la matriz del modelo usando el centro y tamaño local AABB!
+                for (const auto& mesh : model->meshes) {
+                  glm::vec3 localCenter = (mesh.localAABB.min + mesh.localAABB.max) * 0.5f;
+                  glm::vec3 localSize = mesh.localAABB.max - mesh.localAABB.min;
+
+                  glm::mat4 debugModel = glm::translate(mat, localCenter);
+                  debugModel = glm::scale(debugModel, localSize);
+
+                  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
+                  glUniform3f(colorLoc, 0.1f, 0.75f, 1.0f); // Celeste/cian para props GLTF
+                  glDrawArrays(GL_TRIANGLES, 0, 36);
+                }
+              };
+
+              auto drawManualOBBHitbox = [&](const glm::vec3& pos, float yawDegrees, const glm::vec3& halfSize) {
+                if (glm::length(glm::vec2(pos.x - cameraPos.x, pos.z - cameraPos.z)) > collisionViewerRadius)
+                  return;
+
+                glm::mat4 debugModel = glm::mat4(1.0f);
+                debugModel = glm::translate(debugModel, pos);
+                debugModel = glm::rotate(debugModel, glm::radians(yawDegrees), glm::vec3(0.0f, 1.0f, 0.0f));
+                debugModel = glm::scale(debugModel, halfSize * 2.0f);
+
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
+                glUniform3f(colorLoc, 1.0f, 0.55f, 0.05f);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+              };
+
+              // --- Props del Baño ---
+              glm::vec3 banoPositions[8] = { banoPos, banoPos2, banoPos3, banoPos4, banoPos5, banoPos6, banoPos7, banoPos8 };
+              glm::vec3 banoRotations[8] = { banoRot, banoRot2, banoRot3, banoRot4, banoRot5, banoRot6, banoRot7, banoRot8 };
+              glm::vec3 banoScales[8] = { banoScale, banoScale2, banoScale3, banoScale4, banoScale5, banoScale6, banoScale7, banoScale8 };
+              for (int i = 0; i < 8; i++) {
+                drawModelHitbox(banoGLTF, banoPositions[i], banoRotations[i], banoScales[i]);
+              }
+
+              glm::vec3 lavaPositions[8] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4, lavamanosPos5, lavamanosPos6, lavamanosPos7, lavamanosPos8 };
+              glm::vec3 lavaRotations[8] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4, lavamanosRot5, lavamanosRot6, lavamanosRot7, lavamanosRot8 };
+              glm::vec3 lavaScales[8] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4, lavamanosScale5, lavamanosScale6, lavamanosScale7, lavamanosScale8 };
+              for (int i = 0; i < 8; i++) {
+                drawModelHitbox(lavamanosGLTF, lavaPositions[i], lavaRotations[i], lavaScales[i]);
+              }
+
+              drawModelHitbox(urinarioGLTF, urinarioPos, urinarioRot, urinarioScale);
+              drawModelHitbox(mensBGLTF, mensBpos, mensBrot, mensBscale);
+              drawModelHitbox(girlBGLTF, girlBpos, girlBrot, girlBscale);
+
+              // --- Props de Contención ---
+              drawModelHitbox(teslaGLTF, teslaPos, teslaRot, teslaScale);
+
+              drawModelHitbox(esquinerosGLTF, esquinerosPos, esquinerosRot, esquinerosScale);
+              drawModelHitbox(esquinerosGLTF, esquineros2Pos, esquineros2Rot, esquineros2Scale);
+              drawModelHitbox(esquinerosGLTF, esquineros3Pos, esquineros3Rot, esquineros3Scale);
+              drawModelHitbox(esquinerosGLTF, esquineros4Pos, esquineros4Rot, esquineros4Scale);
+
+              for (int i = 0; i < 3; i++) {
+                drawModelHitbox(generadorGLTF, generadorPos[i], generadorRot[i], generadorScale[i]);
+              }
+
+              drawModelHitbox(panelControlGLTF, panelControlPos, panelControlRot, panelControlScale);
+              drawModelHitbox(sarcofagoGLTF, sarcofagoPos, sarcofagoRot, sarcofagoScale);
+
+              for (size_t i = 0; i < emergencyPos.size(); i++) {
+                drawModelHitbox(emergencyGLTF, emergencyPos[i], emergencyRot[i], emergencyScale[i]);
+              }
+
+              drawModelHitbox(reactorGLTF, reactorPos, reactorRot, reactorScale);
+              drawModelHitbox(warningGLTF, warningPos, warningRot, warningScale);
             }
 
             glLineWidth(1.0f);
@@ -2116,7 +2193,7 @@ int main() {
           if (showDebugGUI) {
             // Display coordinates top-left
             ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
-            ImGui::SetNextWindowSize(ImVec2(180.0f, 85.0f));
+            ImGui::SetNextWindowSize(ImVec2(180.0f, 120.0f));
             ImGui::SetNextWindowBgAlpha(0.6f);
             ImGui::Begin("Coords", NULL,
                          ImGuiWindowFlags_NoTitleBar |
@@ -2125,6 +2202,8 @@ int main() {
             ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f),
                                "POSICION ACTUAL:");
             ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
+            ImGui::Spacing();
+            ImGui::Checkbox("Ver Hitboxes (H)", &showCollisionViewer);
             ImGui::Spacing();
             if (ImGui::Button("Ocultar Editor (G)", ImVec2(-1, 0))) {
               showDebugGUI = false;

@@ -186,6 +186,10 @@ bool dimensionAlterna = false;
 bool portalActivado = false;
 int currentZone = 1;
 bool showDebugGUI = true;
+bool showCollisionViewer = false;
+bool collisionShowWalls = true;
+bool collisionShowProps = true;
+float collisionViewerRadius = 8.0f;
 int selectedHotbarSlot = 0;
 
 GLTFModel *banoGLTF = nullptr;

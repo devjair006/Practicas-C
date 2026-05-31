@@ -181,6 +181,10 @@ extern bool portalActivado;
 extern int currentZone;
 extern bool showDebugGUI;
 extern int selectedHotbarSlot;
+extern bool showCollisionViewer;
+extern bool collisionShowWalls;
+extern bool collisionShowProps;
+extern float collisionViewerRadius;
 
 class GLTFModel;
 extern GLTFModel *banoGLTF;
