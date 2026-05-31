@@ -3,8 +3,12 @@
     "tasks": [
         {
             "label": "Compilar y Correr OpenGL",
-            "type": "shell",
-            "command": "$cmakePath = if (Test-Path 'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe') { 'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe' } elseif (Get-Command cmake -ErrorAction SilentlyContinue) { 'cmake' } else { Write-Error 'No se encontro cmake. Instala Visual Studio 2022 con C++ o CMake global.'; exit 1 }; if (Test-Path build_win) { Remove-Item -Recurse -Force build_win }; & $cmakePath -G 'Visual Studio 17 2022' -A x64 -B build_win -S .; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & $cmakePath --build build_win --config Release; if ($LASTEXITCODE -eq 0) { .\\build_win\\Release\\app.exe }",
+            "type": "process",
+            "command": "cmd.exe",
+            "args": [
+                "/c",
+                "compilar_y_correr.bat"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
