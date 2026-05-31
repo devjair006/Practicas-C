@@ -289,7 +289,7 @@ glm::vec3 lamparaReactorPos4(42.594f, 0.300f, 18.620f);
 glm::vec3 lamparaReactorRot4(0.000f, 149.500f, 0.000f);
 glm::vec3 lamparaReactorScale4(1.000f, 1.000f, 1.000f);
 
-glm::vec3 esquinerosPos(40.271f, -0.500f, 12.554f);
+glm::vec3 esquinerosPos(48.521f, -0.500f, 12.504f);
 glm::vec3 esquinerosRot(0.000f, -52.000f, 0.000f);
 glm::vec3 esquinerosScale(0.890f, 0.750f, 0.810f);
 
