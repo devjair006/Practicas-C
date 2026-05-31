@@ -289,9 +289,9 @@ glm::vec3 lamparaReactorPos4(42.594f, 0.300f, 18.620f);
 glm::vec3 lamparaReactorRot4(0.000f, 149.500f, 0.000f);
 glm::vec3 lamparaReactorScale4(1.000f, 1.000f, 1.000f);
 
-glm::vec3 esquinerosPos(48.133f, 0.200f, 12.601f);
-glm::vec3 esquinerosRot(-0.500f, -63.000f, -1.000f);
-glm::vec3 esquinerosScale(0.890f, 0.390f, 0.750f);
+glm::vec3 esquinerosPos(40.271f, -0.500f, 12.554f);
+glm::vec3 esquinerosRot(0.000f, -52.000f, 0.000f);
+glm::vec3 esquinerosScale(0.890f, 0.750f, 0.810f);
 
 glm::vec3 generadorPos[3] = {glm::vec3(36.234f, -0.600f, 15.550f),
                              glm::vec3(36.266f, -0.600f, 17.254f),
@@ -303,17 +303,17 @@ glm::vec3 generadorScale[3] = {glm::vec3(1.0f, 1.0f, 1.0f),
                                glm::vec3(1.0f, 1.0f, 1.0f),
                                glm::vec3(1.0f, 1.0f, 1.0f)};
 
-glm::vec3 esquineros2Pos(48.383f, 0.200f, 20.301f);
+glm::vec3 esquineros2Pos(48.283f, -0.500f, 20.301f);
 glm::vec3 esquineros2Rot(-2.500f, -144.000f, -0.500f);
-glm::vec3 esquineros2Scale(0.850f, 0.370f, 0.830f);
+glm::vec3 esquineros2Scale(0.890f, 0.760f, 0.610f);
 
-glm::vec3 esquineros3Pos(34.583f, 0.450f, 12.851f);
-glm::vec3 esquineros3Rot(-0.500f, 28.000f, -0.500f);
-glm::vec3 esquineros3Scale(0.930f, 0.520f, 0.840f);
+glm::vec3 esquineros3Pos(34.683f, -0.500f, 12.581f);
+glm::vec3 esquineros3Rot(-0.500f, 56.000f, -0.500f);
+glm::vec3 esquineros3Scale(0.890f, 0.760f, 0.860f);
 
-glm::vec3 esquineros4Pos(34.833f, 0.200f, 20.451f);
+glm::vec3 esquineros4Pos(34.833f, -0.550f, 20.451f);
 glm::vec3 esquineros4Rot(0.500f, 120.000f, -0.500f);
-glm::vec3 esquineros4Scale(1.000f, 0.400f, 0.620f);
+glm::vec3 esquineros4Scale(0.890f, 0.760f, 0.610f);
 
 // area principal (escenario grande)
 GLTFModel *machineLabGLTF = nullptr;
