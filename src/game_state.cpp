@@ -124,23 +124,23 @@ glm::vec3 urinarioPos(36.8f, -0.54f, 5.2f);
 glm::vec3 urinarioRot(-90.5f, -2.5f, -90.0f);
 glm::vec3 urinarioScale(0.4f, 0.4f, 0.4f);
 
-glm::vec3 sillasPos = glm::vec3(19.5f, -0.35f, 8.6f); 
-glm::vec3 sillasRot = glm::vec3(0.0f, 90.0f, 0.0f); 
+glm::vec3 sillasPos = glm::vec3(30.3f, -0.35f, 8.6f);
+glm::vec3 sillasRot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillasScale = glm::vec3(0.65f, 0.65f, 0.65f);
 
 glm::vec3 sillas2Pos = glm::vec3(26.7f, -0.35f, 8.6f);
-glm::vec3 sillas2Rot = glm::vec3(0.0f, 90.0f, 0.0f);   
+glm::vec3 sillas2Rot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillas2Scale = glm::vec3(0.65f, 0.65f, 0.65f);
 
-glm::vec3 sillas3Pos = glm::vec3(31.8f, -0.35f, 8.6f); 
+glm::vec3 sillas3Pos = glm::vec3(31.8f, -0.35f, 8.6f);
 glm::vec3 sillas3Rot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillas3Scale = glm::vec3(0.65f, 0.65f, 0.65f);
 
-glm::vec3 sillas4Pos = glm::vec3(24.0f, -0.35f, 8.6f); 
+glm::vec3 sillas4Pos = glm::vec3(24.0f, -0.35f, 8.6f);
 glm::vec3 sillas4Rot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillas4Scale = glm::vec3(0.65f, 0.65f, 0.65f);
 
-glm::vec3 sillas5Pos = glm::vec3(21.3f, -0.35f, 8.6f); 
+glm::vec3 sillas5Pos = glm::vec3(21.3f, -0.35f, 8.6f);
 glm::vec3 sillas5Rot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillas5Scale = glm::vec3(0.65f, 0.65f, 0.65f);
 
@@ -149,7 +149,7 @@ glm::vec3 sofaRot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sofaScale = glm::vec3(0.8f, 0.8f, 0.8f);
 
 
-glm::vec3 monitorPos = glm::vec3(30.75f, 0.0f, 5.2f);    
+glm::vec3 monitorPos = glm::vec3(32.75f, 0.0f, 5.2f);    
 glm::vec3 monitorRot = glm::vec3(0.0f, -180.0f, 0.0f); 
 glm::vec3 monitorScale = glm::vec3(1.5f, 1.5f, 1.5f); 
 
@@ -275,12 +275,18 @@ bool dimensionAlterna = false;
 bool portalActivado = false;
 int currentZone = 1;
 bool showDebugGUI = true;
+bool showCollisionViewer = false;
+bool collisionShowWalls = true;
+bool collisionShowProps = true;
+float collisionViewerRadius = 8.0f;
+int selectedHotbarSlot = 0;
 
 GLTFModel *banoGLTF = nullptr;
 GLTFModel *lavamanosGLTF = nullptr;
 GLTFModel *urinarioGLTF = nullptr;
 GLTFModel *mensBGLTF = nullptr;
 GLTFModel *girlBGLTF = nullptr;
+
 // area de contencion
 GLTFModel *teslaGLTF = nullptr;
 GLTFModel *paredesGLTF = nullptr;
@@ -289,57 +295,150 @@ GLTFModel* lockerGLTF = nullptr;
 GLTFModel* maquinaGLTF = nullptr;
 GLTFModel *esquinerosGLTF = nullptr;
 GLTFModel* deskGLTF = nullptr;
+GLTFModel *generadorGLTF = nullptr;
 
-glm::vec3 teslaPos(44.800f, -0.500f, 14.200f);
+GLTFModel *lamparaContencionGLTF = nullptr;
+GLTFModel *lampara2GLTF = nullptr;
+GLTFModel *lampara3GLTF = nullptr;
+GLTFModel *emergencyGLTF = nullptr;
+GLTFModel *reactorGLTF = nullptr;
+GLTFModel *panelControlGLTF = nullptr;
+GLTFModel *reactorControlGLTF = nullptr;
+GLTFModel *lamparaReactorGLTF = nullptr;
+GLTFModel *sarcofagoGLTF = nullptr;
+GLTFModel *cablePisoGLTF = nullptr;
+GLTFModel *cableTechoGLTF = nullptr;
+GLTFModel *warningGLTF = nullptr;
+
+glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
+glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);
+glm::vec3 sarcofagoScale(1.260f, 1.060f, 0.930f);
+
+std::vector<glm::vec3> cablePisoPos = {glm::vec3(43.235f, -0.100f, 12.691f)};
+std::vector<glm::vec3> cablePisoRot = {glm::vec3(0.0f, 0.0f, 0.0f)};
+std::vector<glm::vec3> cablePisoScale = {
+    glm::vec3(0.01918f, 0.01918f, 0.01918f)};
+
+std::vector<glm::vec3> cableTechoPos = {glm::vec3(43.235f, -0.100f, 12.691f)};
+std::vector<glm::vec3> cableTechoRot = {glm::vec3(0.0f, 0.0f, 0.0f)};
+std::vector<glm::vec3> cableTechoScale = {
+    glm::vec3(-0.001557f, -0.001557f, -0.001557f)};
+
+glm::vec3 warningPos(39.993f, 0.200f, 20.866f);
+glm::vec3 warningRot(-89.000f, -180.000f, -0.500f);
+glm::vec3 warningScale(1.410f, 0.950f, 1.570f);
+
+glm::vec3 teslaPos(47.950f, -0.500f, 14.400f);
 glm::vec3 teslaRot(-88.000f, 0.0f, 0.0f);
 glm::vec3 teslaScale(0.150f, 0.120f, 0.090f);
 
-glm::vec3 esquinerosPos(48.133f, 0.200f, 12.601f);
-glm::vec3 esquinerosRot(-0.500f, -63.000f, -1.000f);
-glm::vec3 esquinerosScale(0.890f, 0.390f, 0.750f);
+glm::vec3 lamparaContencionPos(47.800f, 1.050f, 15.450f);
+glm::vec3 lamparaContencionRot(-88.000f, 0.0f, 89.000f);
+glm::vec3 lamparaContencionScale(0.570f, 0.720f, 0.900f);
 
-glm::vec3 esquineros2Pos(48.383f, 0.250f, 20.251f);
+glm::vec3 lampara2Pos(36.155f, 0.450f, 18.042f);
+glm::vec3 lampara2Rot(-89.000f, 0.000f, 89.000f);
+glm::vec3 lampara2Scale(1.010f, 8.980f, 1.070f);
+
+std::vector<glm::vec3> emergencyPos = {
+    glm::vec3(39.693f, 0.400f, 20.935f),
+    glm::vec3(39.597f, 0.274f, 11.987f),
+};
+std::vector<glm::vec3> emergencyRot = {
+    glm::vec3(-93.500f, 0.000f, 0.000f),
+    glm::vec3(93.500f, 2.500f, 88.000f),
+};
+std::vector<glm::vec3> emergencyScale = {
+    glm::vec3(1.0f, 1.0f, 1.0f),
+    glm::vec3(0.990f, 0.980f, 1.0f),
+};
+
+glm::vec3 reactorPos(43.163f, -0.550f, 19.211f);
+glm::vec3 reactorRot(0.000f, 0.000f, 0.000f);
+glm::vec3 reactorScale(1.00f, 1.000f, 1.000f);
+
+glm::vec3 lampara3Pos(36.155f, 0.450f, 16.392f);
+glm::vec3 lampara3Rot(-89.000f, 0.000f, 89.000f);
+glm::vec3 lampara3Scale(1.010f, 8.980f, 1.070f);
+
+glm::vec3 panelControlPos(48.350f, -0.500f, 17.450f);
+glm::vec3 panelControlRot(-91.000f, 0.000f, -180.000f);
+glm::vec3 panelControlScale(0.450f, 0.490f, 0.180f);
+
+glm::vec3 reactorControlPos(40.613f, -0.200, 17.770f);
+glm::vec3 reactorControlRot(-90.000f, 0.000f, -147.500f);
+glm::vec3 reactorControlScale(0.890f, 0.730f, 0.280f);
+
+glm::vec3 lamparaReactorPos(44.000f, 0.350f, 18.607f);
+glm::vec3 lamparaReactorRot(-1.000f, 48.500f, -19.500f);
+glm::vec3 lamparaReactorScale(1.000f, 1.000f, 1.000f);
+
+glm::vec3 lamparaReactorPos2(43.900f, 0.400f, 20.267f);
+glm::vec3 lamparaReactorRot2(0.000f, -50.000f, 0.000f);
+glm::vec3 lamparaReactorScale2(1.000f, 1.000f, 1.000f);
+
+glm::vec3 lamparaReactorPos3(42.585f, 0.350f, 19.796f);
+glm::vec3 lamparaReactorRot3(0.000f, -154.000f, 0.000f);
+glm::vec3 lamparaReactorScale3(1.000f, 1.000f, 1.000f);
+
+glm::vec3 lamparaReactorPos4(42.594f, 0.300f, 18.620f);
+glm::vec3 lamparaReactorRot4(0.000f, 149.500f, 0.000f);
+glm::vec3 lamparaReactorScale4(1.000f, 1.000f, 1.000f);
+
+glm::vec3 esquinerosPos(48.521f, -0.500f, 12.504f);
+glm::vec3 esquinerosRot(0.000f, -52.000f, 0.000f);
+glm::vec3 esquinerosScale(0.890f, 0.750f, 0.810f);
+
+glm::vec3 generadorPos[3] = {glm::vec3(36.234f, -0.600f, 15.550f),
+                             glm::vec3(36.266f, -0.600f, 17.254f),
+                             glm::vec3(36.261f, -0.600f, 18.923f)};
+glm::vec3 generadorRot[3] = {glm::vec3(-1.500f, 92.500f, -0.500f),
+                             glm::vec3(0.000f, 92.500f, 1.500f),
+                             glm::vec3(0.000f, 95.500f, 0.000f)};
+glm::vec3 generadorScale[3] = {glm::vec3(1.0f, 1.0f, 1.0f),
+                               glm::vec3(1.0f, 1.0f, 1.0f),
+                               glm::vec3(1.0f, 1.0f, 1.0f)};
+
+glm::vec3 esquineros2Pos(48.283f, -0.500f, 20.301f);
 glm::vec3 esquineros2Rot(-2.500f, -144.000f, -0.500f);
-glm::vec3 esquineros2Scale(1.070f, 0.410f, 0.830f);
+glm::vec3 esquineros2Scale(0.890f, 0.760f, 0.610f);
 
-glm::vec3 esquineros3Pos(34.583f, 0.450f, 12.851f);
-glm::vec3 esquineros3Rot(-0.500f, 28.000f, -0.500f);
-glm::vec3 esquineros3Scale(0.930f, 0.520f, 0.840f);
+glm::vec3 esquineros3Pos(34.683f, -0.500f, 12.581f);
+glm::vec3 esquineros3Rot(-0.500f, 56.000f, -0.500f);
+glm::vec3 esquineros3Scale(0.890f, 0.760f, 0.860f);
 
-glm::vec3 esquineros4Pos(34.833f, 0.200f, 20.451f);
+glm::vec3 esquineros4Pos(34.833f, -0.550f, 20.451f);
 glm::vec3 esquineros4Rot(0.500f, 120.000f, -0.500f);
-glm::vec3 esquineros4Scale(1.000f, 0.400f, 0.620f);
+glm::vec3 esquineros4Scale(0.890f, 0.760f, 0.610f);
 
-// paredes rojas
-std::vector<WallDef> paredesList = {
-    {glm::vec3(48.750000f, -0.500000f, 14.350000f),
-     glm::vec3(-90.000000f, 1.000000f, -88.500000f),
-     glm::vec3(1.010000f, 0.730000f, 0.410000f)},
-    {glm::vec3(48.799999f, -0.500000f, 18.450001f),
-     glm::vec3(-90.000000f, 1.000000f, -88.500000f),
-     glm::vec3(1.040000f, 0.520000f, 0.410000f)},
-    {glm::vec3(34.150002f, -0.550000f, 14.600000f),
-     glm::vec3(-90.000000f, 1.000000f, 91.500000f),
-     glm::vec3(1.040000f, 0.730000f, 0.420000f)},
-    {glm::vec3(34.200001f, -0.500000f, 18.600000f),
-     glm::vec3(-90.000000f, 1.000000f, 91.500000f),
-     glm::vec3(0.970000f, 1.350000f, 0.400000f)},
-    {glm::vec3(35.849998f, -0.500000f, 12.150000f),
-     glm::vec3(-90.000000f, 0.000000f, 0.000000f),
-     glm::vec3(0.680000f, 1.940000f, 0.400000f)},
-    {glm::vec3(46.500000f, -0.500000f, 12.200000f),
-     glm::vec3(-90.000000f, 0.000000f, 0.000000f),
-     glm::vec3(1.010000f, 1.000000f, 0.400000f)},
-    {glm::vec3(42.417999f, -0.500000f, 12.185000f),
-     glm::vec3(-91.500000f, 0.000000f, 0.000000f),
-     glm::vec3(1.100000f, 1.000000f, 0.400000f)},
-    // Panel 7 was 35.997... (REMOVED)
-    {glm::vec3(46.250000f, -0.500000f, 20.750000f),
-     glm::vec3(-90.000000f, 0.000000f, 180.000000f),
-     glm::vec3(1.120000f, 0.060000f, 0.380000f)},
-    {glm::vec3(42.049999f, -0.500000f, 20.799999f),
-     glm::vec3(-90.000000f, 0.000000f, 180.000000f),
-     glm::vec3(0.990000f, 0.610000f, 0.390000f)}};
+// area principal (escenario grande)
+GLTFModel *machineLabGLTF = nullptr;
+glm::vec3 machineLabPos[3] = {glm::vec3(17.213f, -0.300f, 2.773f),
+                              glm::vec3(26.963f, -0.300f, 2.773f),
+                              glm::vec3(22.463f, -0.300f, 4.523f)};
+glm::vec3 machineLabRot[3] = {glm::vec3(0.000f, 0.000f, 0.000f),
+                              glm::vec3(0.000f, 0.000f, 0.000f),
+                              glm::vec3(0.000f, 0.000f, 0.000f)};
+glm::vec3 machineLabScale[3] = {glm::vec3(1.000f, 1.000f, 1.000f),
+                                glm::vec3(1.000f, 1.000f, 1.000f),
+                                glm::vec3(1.000f, 1.000f, 1.000f)};
+
+GLTFModel *metalDeskGLTF = nullptr;
+glm::vec3 metalDeskPos[8] = {
+    glm::vec3(16.500f, -0.300f, 6.000f), glm::vec3(18.000f, -0.300f, 6.000f),
+    glm::vec3(19.500f, -0.300f, 6.000f), glm::vec3(21.000f, -0.300f, 6.000f),
+    glm::vec3(22.500f, -0.300f, 6.000f), glm::vec3(24.000f, -0.300f, 6.000f),
+    glm::vec3(25.500f, -0.300f, 6.000f), glm::vec3(27.000f, -0.300f, 6.000f)};
+glm::vec3 metalDeskRot[8] = {
+    glm::vec3(0.000f, 0.000f, 0.000f), glm::vec3(0.000f, 0.000f, 0.000f),
+    glm::vec3(0.000f, 0.000f, 0.000f), glm::vec3(0.000f, 0.000f, 0.000f),
+    glm::vec3(0.000f, 0.000f, 0.000f), glm::vec3(0.000f, 0.000f, 0.000f),
+    glm::vec3(0.000f, 0.000f, 0.000f), glm::vec3(0.000f, 0.000f, 0.000f)};
+glm::vec3 metalDeskScale[8] = {
+    glm::vec3(0.880f, 0.460f, 1.000f), glm::vec3(0.880f, 0.460f, 1.000f),
+    glm::vec3(0.880f, 0.460f, 1.000f), glm::vec3(0.880f, 0.460f, 1.000f),
+    glm::vec3(0.880f, 0.460f, 1.000f), glm::vec3(0.880f, 0.460f, 1.000f),
+    glm::vec3(0.880f, 0.460f, 1.000f), glm::vec3(0.880f, 0.460f, 1.000f)};
 
 std::vector<Entity> gameEntities = {
     {glm::vec3(8.0f, -0.4f, 4.0f), 3, true,
@@ -406,25 +505,25 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 8, 8, 1, 1, 1, 1, 1, 1, 1,
-     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

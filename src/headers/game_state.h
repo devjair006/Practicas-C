@@ -259,6 +259,11 @@ extern bool dimensionAlterna;
 extern bool portalActivado;
 extern int currentZone;
 extern bool showDebugGUI;
+extern int selectedHotbarSlot;
+extern bool showCollisionViewer;
+extern bool collisionShowWalls;
+extern bool collisionShowProps;
+extern float collisionViewerRadius;
 
 class GLTFModel;
 extern GLTFModel *banoGLTF;
@@ -272,10 +277,87 @@ extern glm::vec3 teslaPos;
 extern glm::vec3 teslaRot;
 extern glm::vec3 teslaScale;
 
+extern GLTFModel *lamparaContencionGLTF;
+extern glm::vec3 lamparaContencionPos;
+extern glm::vec3 lamparaContencionRot;
+extern glm::vec3 lamparaContencionScale;
+
+extern GLTFModel *sarcofagoGLTF;
+extern glm::vec3 sarcofagoPos;
+extern glm::vec3 sarcofagoRot;
+extern glm::vec3 sarcofagoScale;
+
+extern GLTFModel *cablePisoGLTF;
+extern std::vector<glm::vec3> cablePisoPos;
+extern std::vector<glm::vec3> cablePisoRot;
+extern std::vector<glm::vec3> cablePisoScale;
+
+extern GLTFModel *cableTechoGLTF;
+extern std::vector<glm::vec3> cableTechoPos;
+extern std::vector<glm::vec3> cableTechoRot;
+extern std::vector<glm::vec3> cableTechoScale;
+
+extern GLTFModel *warningGLTF;
+extern glm::vec3 warningPos;
+extern glm::vec3 warningRot;
+extern glm::vec3 warningScale;
+
+extern GLTFModel *lampara2GLTF;
+extern glm::vec3 lampara2Pos;
+extern glm::vec3 lampara2Rot;
+extern glm::vec3 lampara2Scale;
+
+extern GLTFModel *lampara3GLTF;
+extern glm::vec3 lampara3Pos;
+extern glm::vec3 lampara3Rot;
+extern glm::vec3 lampara3Scale;
+
+extern GLTFModel *emergencyGLTF;
+extern std::vector<glm::vec3> emergencyPos;
+extern std::vector<glm::vec3> emergencyRot;
+extern std::vector<glm::vec3> emergencyScale;
+
+extern GLTFModel *reactorGLTF;
+extern glm::vec3 reactorPos;
+extern glm::vec3 reactorRot;
+extern glm::vec3 reactorScale;
+
+extern GLTFModel *panelControlGLTF;
+extern glm::vec3 panelControlPos;
+extern glm::vec3 panelControlRot;
+extern glm::vec3 panelControlScale;
+
+extern GLTFModel *reactorControlGLTF;
+extern glm::vec3 reactorControlPos;
+extern glm::vec3 reactorControlRot;
+extern glm::vec3 reactorControlScale;
+
+extern GLTFModel *lamparaReactorGLTF;
+extern glm::vec3 lamparaReactorPos;
+extern glm::vec3 lamparaReactorRot;
+extern glm::vec3 lamparaReactorScale;
+
+extern glm::vec3 lamparaReactorPos2;
+extern glm::vec3 lamparaReactorRot2;
+extern glm::vec3 lamparaReactorScale2;
+
+extern glm::vec3 lamparaReactorPos3;
+extern glm::vec3 lamparaReactorRot3;
+extern glm::vec3 lamparaReactorScale3;
+
+extern glm::vec3 lamparaReactorPos4;
+extern glm::vec3 lamparaReactorRot4;
+extern glm::vec3 lamparaReactorScale4;
+
 extern GLTFModel *esquinerosGLTF;
 extern glm::vec3 esquinerosPos;
 extern glm::vec3 esquinerosRot;
 extern glm::vec3 esquinerosScale;
+
+extern GLTFModel *generadorGLTF;
+extern glm::vec3 generadorPos[3];
+extern glm::vec3 generadorRot[3];
+extern glm::vec3 generadorScale[3];
 
 extern glm::vec3 esquineros2Pos;
 extern glm::vec3 esquineros2Rot;
@@ -295,22 +377,17 @@ struct WallDef {
   glm::vec3 rot;
   glm::vec3 scale;
 };
+// area principal (escenario grande)
+extern GLTFModel *machineLabGLTF;
+extern glm::vec3 machineLabPos[3];
+extern glm::vec3 machineLabRot[3];
+extern glm::vec3 machineLabScale[3];
 
-// Una zona rectangular del mapa con texturas propias.
-// Las coords son celdas del worldMap (mismo sistema de coordenadas que el
-// mundo).
-struct RoomZone {
-  int x1, z1, x2, z2;
-  unsigned int wallTex = 0;  // 0 = usa blockType por defecto
-  unsigned int floorTex = 0; // 0 = usa floorTexture por defecto
-  glm::vec3 ceilColor = {0.3f, 0.3f, 0.3f};
-  bool overrideWall = false;
-  bool overrideFloor = false;
-  bool overrideCeil = false;
-};
+extern GLTFModel *metalDeskGLTF;
+extern glm::vec3 metalDeskPos[8];
+extern glm::vec3 metalDeskRot[8];
+extern glm::vec3 metalDeskScale[8];
 
-extern GLTFModel *paredesGLTF;
-extern std::vector<WallDef> paredesList;
 
 extern std::vector<Entity> gameEntities;
 
