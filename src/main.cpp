@@ -366,7 +366,7 @@ int main() {
             << "Reactor(" << reactorGLTF->meshes.size() << "), "
             << "Esquineros(" << esquinerosGLTF->meshes.size() << ")"
             << std::endl;
-  unsigned int wallTex1 = loadTexture("assets/paredesH.png");
+  unsigned int wallTex1 = loadTexture("assets/paredesLAB.png");
   unsigned int wallTex2 = loadTexture("assets/paredbanosT.png");
   unsigned int wallTex3 = loadTexture("assets/wall.png");
   unsigned int wallTex4 = loadTexture("assets/paredbanosGT.png");
