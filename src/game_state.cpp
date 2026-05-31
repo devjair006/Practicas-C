@@ -543,7 +543,7 @@ void loadLevelProps(const std::string& path) {
         std::cout << "Cargados " << placedProps.size() << " props desde: " << path << std::endl;
     } else {
         std::cout << "Archivo de posiciones no encontrado, cargando valores por defecto..." << std::endl;
-        placedProps.push_back({"cajonesOF", glm::vec3(8.0f, -0.5f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)});
+        placedProps.push_back({"cajonesOF", glm::vec3(8.0f, -0.5f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), false});
         placedProps.push_back({"sarcofago", glm::vec3(43.235f, -0.100f, 12.691f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.260f, 1.060f, 0.930f)});
         placedProps.push_back({"warning", glm::vec3(39.993f, 0.200f, 20.866f), glm::vec3(-89.000f, -180.000f, -0.500f), glm::vec3(1.410f, 0.950f, 1.570f)});
         placedProps.push_back({"tesla", glm::vec3(47.950f, -0.500f, 14.400f), glm::vec3(-88.000f, 0.0f, 0.0f), glm::vec3(0.150f, 0.120f, 0.090f)});

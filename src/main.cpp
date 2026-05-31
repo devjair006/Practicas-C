@@ -2150,10 +2150,48 @@ int main() {
             ImGui::SetWindowFontScale(1.0f);
             ImGui::End();
           } else if (showDebugGUI) {
+            static int activeEditorPanel = 1;
+            const float sideTabW = 36.0f;
+            const float leftPanelX = sideTabW + 12.0f;
+            const float panelTopY = 54.0f;
+            const float panelGap = 8.0f;
+            const float leftPanelW = 360.0f;
+            const float availablePanelH = (float)currentHeight - panelTopY - 14.0f;
+            const float leftStatusH = 126.0f;
+            const float leftLevelY = panelTopY + leftStatusH + panelGap;
+            const float leftLevelH = availablePanelH * 0.62f;
+            const float leftSpawnY = leftLevelY + leftLevelH + panelGap;
+            const float leftSpawnH = (glm::max)(120.0f, availablePanelH - leftStatusH - leftLevelH - panelGap * 2.0f);
+
+            ImGui::SetNextWindowPos(ImVec2(0.0f, panelTopY), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(sideTabW, 238.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.78f);
+            ImGui::Begin("EditorDockTabs", NULL,
+                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+            auto sideTab = [&](const char* label, int panel) {
+              if (activeEditorPanel == panel) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.20f, 0.38f, 0.58f, 1.0f));
+              }
+              bool clicked = ImGui::Button(label, ImVec2(-1.0f, 58.0f));
+              if (activeEditorPanel == panel) {
+                ImGui::PopStyleColor();
+              }
+              if (clicked) activeEditorPanel = panel;
+            };
+            sideTab("I", 0);
+            sideTab("M", 1);
+            sideTab("S", 2);
+            if (ImGui::Button("<", ImVec2(-1.0f, 34.0f))) {
+              showDebugGUI = false;
+            }
+            ImGui::End();
+
             // Display coordinates top-left
-            ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
-            ImGui::SetNextWindowSize(ImVec2(180.0f, 120.0f));
-            ImGui::SetNextWindowBgAlpha(0.6f);
+            if (activeEditorPanel == 0) {
+            ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(leftPanelW, 182.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.78f);
             ImGui::Begin("Coords", NULL,
                          ImGuiWindowFlags_NoTitleBar |
                              ImGuiWindowFlags_NoResize |
@@ -2168,13 +2206,12 @@ int main() {
               showDebugGUI = false;
             }
             ImGui::End();
+            }
 
-            ImGui::SetNextWindowPos(
-                ImVec2((float)currentWidth - 350.0f, 10.0f));
-            ImGui::SetNextWindowSize(ImVec2(340.0f, 340.0f));
-            ImGui::SetNextWindowBgAlpha(0.75f);
-            ImGui::Begin("Editor Bano", NULL,
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            if (false) {
+            ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+            ImGui::Begin("Editor Bano", NULL);
             ImGui::Text("Ajuste en tiempo real (sin recompilar)");
             ImGui::Separator();
             ImGui::Text("Bano");
@@ -2417,13 +2454,12 @@ int main() {
             ImGui::Separator();
 
             ImGui::End();
+            }
 
-            ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 700.0f, 10.0f),
-                                    ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(340.0f, 450.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.75f);
-            ImGui::Begin("Editor Contencion", NULL,
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            if (false) {
+            ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+            ImGui::Begin("Editor Contencion", NULL);
             ImGui::Text("Tesla Model");
             ImGui::DragFloat3("Tesla Pos", &teslaPos.x, 0.05f);
             ImGui::DragFloat3("Tesla Rot", &teslaRot.x, 0.5f, -180.0f, 180.0f);
@@ -2761,7 +2797,7 @@ int main() {
                               0.5f, -180.0f, 180.0f);
             ImGui::DragFloat3("Gen Scale", &generadorScale[selectedGenerador].x,
                               0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer Generador frente a camara")) {
+            if (ImGui::Button("Traer Generador frente a la camara")) {
               generadorPos[selectedGenerador] = cameraPos + cameraFront * 2.0f;
               generadorPos[selectedGenerador].y = -0.5f;
               generadorRot[selectedGenerador] = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -2770,11 +2806,13 @@ int main() {
             ImGui::Separator();
 
             ImGui::End(); // End 'Editor Contencion'
+            }
 
             // --- UNIFIED LEVEL EDITOR ---
-            ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 700.0f, 10.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(340.0f, 480.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.85f);
+            if (activeEditorPanel == 1) {
+            ImGui::SetNextWindowPos(ImVec2(leftPanelX, leftLevelY), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.84f);
             ImGui::Begin("Editor de Niveles 🛠️", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
             
             ImGui::TextColored(ImVec4(0.2f, 0.75f, 1.0f, 1.0f), "Editor de Mapa 3D");
@@ -2869,7 +2907,9 @@ int main() {
                 saveLevelProps("assets/config_posiciones.txt");
             }
             ImGui::End();
+            }
 
+            if (activeEditorPanel == 2) {
             static int selectedEntityIndex = 0;
             static bool entityOnlyCollectibles = false;
             if (!gameEntities.empty()) {
@@ -2879,10 +2919,11 @@ int main() {
                 selectedEntityIndex = (int)gameEntities.size() - 1;
             }
 
-            ImGui::SetNextWindowPos(
-                ImVec2((float)currentWidth - 350.0f, 360.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(340.0f, 330.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.78f);
+            ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY),
+                                    ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH),
+                                     ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.82f);
             ImGui::Begin("Spawn Inspector", NULL,
                          ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
             ImGui::Text("Spawn guardado");
@@ -2945,11 +2986,13 @@ int main() {
               teleportNear(gameEntities[selectedEntityIndex].pos);
             }
             ImGui::End();
+            }
 
           if (showCollisionViewer) {
-            ImGui::SetNextWindowPos(ImVec2(10.0f, 515.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(290.0f, 120.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.72f);
+            ImGui::SetNextWindowPos(ImVec2(leftPanelX + leftPanelW + panelGap,
+                                           panelTopY), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(260.0f, 118.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.80f);
             ImGui::Begin("Collision Viewer", NULL,
                          ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
             ImGui::Checkbox("Paredes", &collisionShowWalls);
@@ -2959,13 +3002,14 @@ int main() {
             ImGui::End();
           }
         } else {
-          ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
-          ImGui::SetNextWindowSize(ImVec2(180.0f, 35.0f));
-          ImGui::SetNextWindowBgAlpha(0.4f);
+          ImGui::SetNextWindowPos(ImVec2(0.0f, currentHeight * 0.42f),
+                                  ImGuiCond_Always);
+          ImGui::SetNextWindowSize(ImVec2(34.0f, 148.0f), ImGuiCond_Always);
+          ImGui::SetNextWindowBgAlpha(0.72f);
           ImGui::Begin("ShowEditorBtn", NULL,
                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
                            ImGuiWindowFlags_NoMove);
-          if (ImGui::Button("Mostrar Editor (G)", ImVec2(-1, 0))) {
+          if (ImGui::Button(">\nE\nD\nI\nT\nO\nR", ImVec2(-1, -1))) {
             showDebugGUI = true;
           }
           ImGui::End();
