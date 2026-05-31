@@ -144,14 +144,18 @@ glm::vec3 sillas5Pos = glm::vec3(21.3f, -0.35f, 8.6f);
 glm::vec3 sillas5Rot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sillas5Scale = glm::vec3(0.65f, 0.65f, 0.65f);
 
-glm::vec3 sofaPos = glm::vec3(13.7f, -0.40f, 1.7f);
-glm::vec3 sofaRot = glm::vec3(90.0f, 180.0f, 0.0f);
-glm::vec3 sofaScale = glm::vec3(0.5f, 0.5f, 0.5f);
+glm::vec3 sofaPos = glm::vec3(15.0f, -0.30f, 8.6f);
+glm::vec3 sofaRot = glm::vec3(0.0f, 90.0f, 0.0f);
+glm::vec3 sofaScale = glm::vec3(0.8f, 0.8f, 0.8f);
 
 
 glm::vec3 monitorPos = glm::vec3(30.75f, 0.0f, 5.2f);    
 glm::vec3 monitorRot = glm::vec3(0.0f, -180.0f, 0.0f); 
 glm::vec3 monitorScale = glm::vec3(1.5f, 1.5f, 1.5f); 
+
+glm::vec3 monitor2Pos = glm::vec3(13.4f, 0.0f, 5.2f); 
+glm::vec3 monitor2Rot = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 monitor2Scale = glm::vec3(1.5f, 1.5f, 1.5f);
 
 glm::vec3 lockerPos = glm::vec3(25.3f, -0.35f, 8.5f); 
 glm::vec3 lockerRot = glm::vec3(0.0f, 90.0f, 0.0f);    
@@ -220,6 +224,22 @@ glm::vec3 silla5Scale(0.600f, 0.600f, 0.600f);
 glm::vec3 silla6Pos(19.400f, -0.300f, 4.800f); 
 glm::vec3 silla6Rot(0.0f, -90.0f, 0.0f);            
 glm::vec3 silla6Scale(0.600f, 0.600f, 0.600f);
+
+glm::vec3 estantePos = glm::vec3(15.4f, -0.35f, 1.7f); 
+glm::vec3 estanteRot = glm::vec3(0.0f, -90.0f, 0.0f);   
+glm::vec3 estanteScale = glm::vec3(0.8f, 0.8f, 0.8f);
+
+glm::vec3 estante2Pos = glm::vec3(17.4f, -0.35f, 1.7f); 
+glm::vec3 estante2Rot = glm::vec3(0.0f, -90.0f, 0.0f);   
+glm::vec3 estante2Scale = glm::vec3(0.8f, 0.8f, 0.8f);
+
+glm::vec3 estante3Pos   = glm::vec3(19.5f, -0.35f, 1.7f);
+glm::vec3 estante3Rot   = glm::vec3(0.0f, -90.0f, 0.0f);
+glm::vec3 estante3Scale = glm::vec3(0.8f, 0.8f, 0.8f);
+
+glm::vec3 monitorsciPos = glm::vec3(27.9f, -0.35f, 5.2f); 
+glm::vec3 monitorsciRot = glm::vec3(0.0f, -90.0f, 0.0f);   
+glm::vec3 monitorsciScale = glm::vec3(0.6f, 0.6f, 0.6f);
 
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);

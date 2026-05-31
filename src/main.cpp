@@ -520,6 +520,8 @@ int main() {
     GLTFModel* maquinaGLTF = new GLTFModel("assets/maquina.glb");
     GLTFModel* deskGLTF = new GLTFModel("assets/desk.glb");
     GLTFModel* sillaGLTF = new GLTFModel("assets/silla.glb");
+    GLTFModel* estanteGLTF = new GLTFModel("assets/estante.glb");
+    GLTFModel* monitorsciGLTF = new GLTFModel("assets/monitorsci.glb");
 
 
    
@@ -1531,6 +1533,17 @@ int main() {
         monitorGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
+    if (monitorGLTF && !monitorGLTF->meshes.empty()) {
+    glm::mat4 monitor2Model = glm::mat4(1.0f);
+    monitor2Model = glm::translate(monitor2Model, monitor2Pos);
+    monitor2Model = glm::rotate(monitor2Model, glm::radians(monitor2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    monitor2Model = glm::rotate(monitor2Model, glm::radians(monitor2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    monitor2Model = glm::rotate(monitor2Model, glm::radians(monitor2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    monitor2Model = glm::scale(monitor2Model, monitor2Scale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(monitor2Model));
+    monitorGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
     if (lockerGLTF && !lockerGLTF->meshes.empty()) {
         glm::mat4 locker2Model = glm::mat4(1.0f);
         
@@ -1721,6 +1734,52 @@ if (sillaGLTF && !sillaGLTF->meshes.empty()) {
     silla6Model = glm::scale(silla6Model, silla6Scale);
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla6Model));
     sillaGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (estanteGLTF && !estanteGLTF->meshes.empty()) {
+    glm::mat4 estanteModel = glm::mat4(1.0f);
+    estanteModel = glm::translate(estanteModel, estantePos);
+    estanteModel = glm::rotate(estanteModel, glm::radians(estanteRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    estanteModel = glm::rotate(estanteModel, glm::radians(estanteRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    estanteModel = glm::rotate(estanteModel, glm::radians(estanteRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    estanteModel = glm::scale(estanteModel, estanteScale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(estanteModel));
+    estanteGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (estanteGLTF && !estanteGLTF->meshes.empty()) {
+    glm::mat4 estante2Model = glm::mat4(1.0f);
+    estante2Model = glm::translate(estante2Model, estante2Pos);
+    estante2Model = glm::rotate(estante2Model, glm::radians(estante2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    estante2Model = glm::rotate(estante2Model, glm::radians(estante2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    estante2Model = glm::rotate(estante2Model, glm::radians(estante2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    estante2Model = glm::scale(estante2Model, estante2Scale);
+    
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(estante2Model));
+    estanteGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (estanteGLTF && !estanteGLTF->meshes.empty()) {
+    glm::mat4 estante3Model = glm::mat4(1.0f);
+    estante3Model = glm::translate(estante3Model, estante3Pos);
+    estante3Model = glm::rotate(estante3Model, glm::radians(estante3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    estante3Model = glm::rotate(estante3Model, glm::radians(estante3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    estante3Model = glm::rotate(estante3Model, glm::radians(estante3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    estante3Model = glm::scale(estante3Model, estante3Scale);
+    
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(estante3Model));
+    estanteGLTF->Draw(shaderProgram, solidColorLoc);
+}
+
+if (monitorsciGLTF && !monitorsciGLTF->meshes.empty()) {
+    glm::mat4 monitorsciModel = glm::mat4(1.0f);
+    monitorsciModel = glm::translate(monitorsciModel, monitorsciPos);
+    monitorsciModel = glm::rotate(monitorsciModel, glm::radians(monitorsciRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    monitorsciModel = glm::rotate(monitorsciModel, glm::radians(monitorsciRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    monitorsciModel = glm::rotate(monitorsciModel, glm::radians(monitorsciRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    monitorsciModel = glm::scale(monitorsciModel, monitorsciScale);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(monitorsciModel));
+    monitorsciGLTF->Draw(shaderProgram, solidColorLoc);
 }
 
     if (sofaGLTF && !sofaGLTF->meshes.empty()) {
@@ -2193,6 +2252,12 @@ if (sillaGLTF && !sillaGLTF->meshes.empty()) {
         ImGui::DragFloat3("Monitor Scale", &monitorScale.x, 0.01f, 0.001f, 3.0f);
         ImGui::Separator();
 
+        ImGui::Text("Monitor 2 (Reutilizado)");
+ImGui::DragFloat3("Monitor 2 Pos", &monitor2Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Monitor 2 Rot (X, Y, Z)", &monitor2Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Monitor 2 Scale", &monitor2Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
         ImGui::Text("Mueble - Locker Lab");
         ImGui::DragFloat3("Locker Pos", &lockerPos.x, 0.05f, -100.0f, 100.0f);
         ImGui::DragFloat3("Locker Rot", &lockerRot.x, 0.5f, -180.0f, 180.0f);
@@ -2299,6 +2364,30 @@ ImGui::Text("Silla 6 Laboratorio");
 ImGui::DragFloat3("Silla 6 Pos", &silla6Pos.x, 0.05f, -100.0f, 100.0f);
 ImGui::DragFloat3("Silla 6 Rot (X, Y, Z)", &silla6Rot.x, 0.5f, -180.0f, 180.0f);
 ImGui::DragFloat3("Silla 6 Scale", &silla6Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+ImGui::Text("Estante Laboratorio");
+ImGui::DragFloat3("Estante Pos", &estantePos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Estante Rot (X, Y, Z)", &estanteRot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Estante Scale", &estanteScale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+ImGui::Text("Estante 2 Laboratorio");
+ImGui::DragFloat3("Estante 2 Pos", &estante2Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Estante 2 Rot (X, Y, Z)", &estante2Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Estante 2 Scale", &estante2Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+ImGui::Text("Estante 3 Laboratorio");
+ImGui::DragFloat3("Estante 3 Pos", &estante3Pos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Estante 3 Rot (X, Y, Z)", &estante3Rot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Estante 3 Scale", &estante3Scale.x, 0.005f, 0.001f, 10.0f);
+ImGui::Separator();
+
+ImGui::Text("Monitor Cientifico Lab");
+ImGui::DragFloat3("Monitor Sci Pos", &monitorsciPos.x, 0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Monitor Sci Rot (X, Y, Z)", &monitorsciRot.x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Monitor Sci Scale", &monitorsciScale.x, 0.005f, 0.001f, 10.0f);
 ImGui::Separator();
     
 

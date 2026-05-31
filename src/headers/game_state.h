@@ -148,6 +148,9 @@ extern glm::vec3 sillas5Scale;
 extern glm::vec3 monitorPos;
 extern glm::vec3 monitorRot;
 extern glm::vec3 monitorScale;
+extern glm::vec3 monitor2Pos;
+extern glm::vec3 monitor2Rot;
+extern glm::vec3 monitor2Scale;
 extern glm::vec3 lockerPos;
 extern glm::vec3 lockerRot;
 extern glm::vec3 lockerScale;
@@ -209,6 +212,22 @@ extern glm::vec3 silla6Pos;
 extern glm::vec3 silla6Rot;
 extern glm::vec3 silla6Scale;
 
+extern glm::vec3 estantePos;
+extern glm::vec3 estanteRot;
+extern glm::vec3 estanteScale;
+
+extern glm::vec3 estante2Pos;
+extern glm::vec3 estante2Rot;
+extern glm::vec3 estante2Scale;
+
+extern glm::vec3 estante3Pos;
+extern glm::vec3 estante3Rot;
+extern glm::vec3 estante3Scale;
+
+extern glm::vec3 monitorsciPos;
+extern glm::vec3 monitorsciRot;
+extern glm::vec3 monitorsciScale;
+
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
 extern glm::vec3 cameraUp;
@@ -269,6 +288,7 @@ extern glm::vec3 esquineros3Scale;
 extern glm::vec3 esquineros4Pos;
 extern glm::vec3 esquineros4Rot;
 extern glm::vec3 esquineros4Scale;
+
 
 struct WallDef {
   glm::vec3 pos;
