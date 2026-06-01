@@ -352,6 +352,8 @@ int main() {
   modelRegistry["esquineros2"] = esquinerosGLTF;
   modelRegistry["esquineros3"] = esquinerosGLTF;
   modelRegistry["esquineros4"] = esquinerosGLTF;
+  modelRegistry["cables_piso"] = cablePisoGLTF;
+  modelRegistry["cables_techo"] = cableTechoGLTF;
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
@@ -2876,7 +2878,7 @@ int main() {
             // Adding a new prop
             ImGui::TextColored(ImVec4(0.1f, 0.9f, 0.2f, 1.0f), "Agregar Nuevo Objeto:");
             static const char* availableModels[] = { 
-                "cajonesOF", "sarcofago", "tesla", "reactor", "reactorControl", "panelControl", "warning", "esquineros" 
+                "cajonesOF", "sarcofago", "tesla", "reactor", "reactorControl", "panelControl", "warning", "esquineros", "cables_piso", "cables_techo"
             };
             static int selectedModelToAddIdx = 0;
             ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels, IM_ARRAYSIZE(availableModels));
@@ -2895,6 +2897,8 @@ int main() {
                 else if (newProp.modelName == "reactorControl") newProp.scale = glm::vec3(0.890f, 0.730f, 0.280f);
                 else if (newProp.modelName == "panelControl") newProp.scale = glm::vec3(0.450f, 0.490f, 0.180f);
                 else if (newProp.modelName == "esquineros") newProp.scale = glm::vec3(0.890f, 0.750f, 0.810f);
+                else if (newProp.modelName == "cables_piso") newProp.scale = glm::vec3(0.01918f, 0.01918f, 0.01918f);
+                else if (newProp.modelName == "cables_techo") newProp.scale = glm::vec3(-0.001557f, -0.001557f, -0.001557f);
                 else newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
                 placedProps.push_back(newProp);
