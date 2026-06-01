@@ -339,11 +339,15 @@ int main() {
   warningGLTF = new GLTFModel("assets/contencion/warning.glb");
   cajonesOFGLTF = new GLTFModel("assets/oficinas/cajonesOF.glb");
   barraGLTF = new GLTFModel("assets/contencion/barra.glb");
+  logoGLTF = new GLTFModel("assets/contencion/logo.glb");
+  logo2GLTF = new GLTFModel("assets/contencion/logo2.glb");
   reactorControlGLTF = new GLTFModel("assets/contencion/reactor-control.glb");
 
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
   modelRegistry["barra"] = barraGLTF;
+  modelRegistry["logo"] = logoGLTF;
+  modelRegistry["logo2"] = logo2GLTF;
   modelRegistry["sarcofago"] = sarcofagoGLTF;
   modelRegistry["tesla"] = teslaGLTF;
   modelRegistry["reactor"] = reactorGLTF;
@@ -2880,7 +2884,7 @@ int main() {
             // Adding a new prop
             ImGui::TextColored(ImVec4(0.1f, 0.9f, 0.2f, 1.0f), "Agregar Nuevo Objeto:");
             static const char* availableModels[] = { 
-                "cajonesOF", "sarcofago", "tesla", "reactor", "reactorControl", "panelControl", "warning", "esquineros", "cables_piso", "cables_techo", "barra"
+                "cajonesOF", "sarcofago", "tesla", "reactor", "reactorControl", "panelControl", "warning", "esquineros", "cables_piso", "cables_techo", "barra", "logo", "logo2"
             };
             static int selectedModelToAddIdx = 0;
             ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels, IM_ARRAYSIZE(availableModels));
