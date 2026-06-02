@@ -257,10 +257,10 @@ extern glm::vec3 panelControlPos;
 extern glm::vec3 panelControlRot;
 extern glm::vec3 panelControlScale;
 
-extern GLTFModel *reactorControlGLTF;
-extern glm::vec3 reactorControlPos;
-extern glm::vec3 reactorControlRot;
-extern glm::vec3 reactorControlScale;
+extern GLTFModel *consolaGLTF;
+extern glm::vec3 consolaPos;
+extern glm::vec3 consolaRot;
+extern glm::vec3 consolaScale;
 
 extern GLTFModel *lamparaReactorGLTF;
 extern glm::vec3 lamparaReactorPos;

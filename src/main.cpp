@@ -341,7 +341,7 @@ int main() {
   barraGLTF = new GLTFModel("assets/contencion/barra.glb");
   logoGLTF = new GLTFModel("assets/contencion/logo.glb");
   logo2GLTF = new GLTFModel("assets/contencion/logo2.glb");
-  reactorControlGLTF = new GLTFModel("assets/contencion/reactor-control.glb");
+  consolaGLTF = new GLTFModel("assets/contencion/consola.glb");
 
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
@@ -351,7 +351,7 @@ int main() {
   modelRegistry["sarcofago"] = sarcofagoGLTF;
   modelRegistry["tesla"] = teslaGLTF;
   modelRegistry["reactor"] = reactorGLTF;
-  modelRegistry["reactorControl"] = reactorControlGLTF;
+  modelRegistry["consola"] = consolaGLTF;
   modelRegistry["panelControl"] = panelControlGLTF;
   modelRegistry["warning"] = warningGLTF;
   modelRegistry["esquineros"] = esquinerosGLTF;
@@ -2730,17 +2730,17 @@ int main() {
             }
             ImGui::Separator();
 
-            ImGui::Text("Reactor Control");
-            ImGui::DragFloat3("ReactorCtrl Pos", &reactorControlPos.x, 0.05f);
-            ImGui::DragFloat3("ReactorCtrl Rot", &reactorControlRot.x, 0.5f,
+            ImGui::Text("Consola");
+            ImGui::DragFloat3("Consola Pos", &consolaPos.x, 0.05f);
+            ImGui::DragFloat3("Consola Rot", &consolaRot.x, 0.5f,
                               -180.0f, 180.0f);
-            ImGui::DragFloat3("ReactorCtrl Scale", &reactorControlScale.x,
+            ImGui::DragFloat3("Consola Scale", &consolaScale.x,
                               0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer Reactor Ctrl frente a camara")) {
-              reactorControlPos = cameraPos + cameraFront * 2.0f;
-              reactorControlPos.y = -0.5f;
-              reactorControlRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              reactorControlScale = glm::vec3(1.0f, 1.0f, 1.0f);
+            if (ImGui::Button("Traer Consola frente a camara")) {
+              consolaPos = cameraPos + cameraFront * 2.0f;
+              consolaPos.y = -0.5f;
+              consolaRot = glm::vec3(0.0f, 0.0f, 0.0f);
+              consolaScale = glm::vec3(1.0f, 1.0f, 1.0f);
             }
             ImGui::Separator();
 
@@ -2884,7 +2884,7 @@ int main() {
             // Adding a new prop
             ImGui::TextColored(ImVec4(0.1f, 0.9f, 0.2f, 1.0f), "Agregar Nuevo Objeto:");
             static const char* availableModels[] = { 
-                "cajonesOF", "sarcofago", "tesla", "reactor", "reactorControl", "panelControl", "warning", "esquineros", "cables_piso", "cables_techo", "barra", "logo", "logo2"
+                "cajonesOF", "sarcofago", "tesla", "reactor", "consola", "panelControl", "warning", "esquineros", "cables_piso", "cables_techo", "barra", "logo", "logo2"
             };
             static int selectedModelToAddIdx = 0;
             ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels, IM_ARRAYSIZE(availableModels));
@@ -2900,7 +2900,7 @@ int main() {
                 if (newProp.modelName == "tesla") newProp.scale = glm::vec3(0.150f, 0.120f, 0.090f);
                 else if (newProp.modelName == "sarcofago") newProp.scale = glm::vec3(1.260f, 1.060f, 0.930f);
                 else if (newProp.modelName == "warning") newProp.scale = glm::vec3(1.410f, 0.950f, 1.570f);
-                else if (newProp.modelName == "reactorControl") newProp.scale = glm::vec3(0.890f, 0.730f, 0.280f);
+                else if (newProp.modelName == "consola") newProp.scale = glm::vec3(0.890f, 0.730f, 0.280f);
                 else if (newProp.modelName == "panelControl") newProp.scale = glm::vec3(0.450f, 0.490f, 0.180f);
                 else if (newProp.modelName == "esquineros") newProp.scale = glm::vec3(0.890f, 0.750f, 0.810f);
                 else if (newProp.modelName == "cables_piso") newProp.scale = glm::vec3(0.01918f, 0.01918f, 0.01918f);

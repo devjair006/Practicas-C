@@ -182,7 +182,7 @@ bool checkCollision(float x, float z) {
         GLTFModel* model = modelRegistry[prop.modelName];
         if (!model) continue;
 
-        if (prop.modelName == "reactorControl") {
+        if (prop.modelName == "consola") {
             // Mesa/panel diagonal - OBB tight
             glm::vec3 colliderCenter = prop.pos + glm::vec3(0.0f, 0.35f, 0.0f);
             glm::vec3 colliderHalfSize(2.65f, 0.95f, 0.42f);
