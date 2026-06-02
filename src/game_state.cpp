@@ -214,7 +214,7 @@ GLTFModel *lampara3GLTF = nullptr;
 GLTFModel *emergencyGLTF = nullptr;
 GLTFModel *reactorGLTF = nullptr;
 GLTFModel *panelControlGLTF = nullptr;
-GLTFModel *reactorControlGLTF = nullptr;
+GLTFModel *consolaGLTF = nullptr;
 GLTFModel *lamparaReactorGLTF = nullptr;
 GLTFModel *sarcofagoGLTF = nullptr;
 GLTFModel *cajonesOFGLTF = nullptr;
@@ -284,9 +284,9 @@ glm::vec3 panelControlPos(48.350f, -0.500f, 17.450f);
 glm::vec3 panelControlRot(-91.000f, 0.000f, -180.000f);
 glm::vec3 panelControlScale(0.450f, 0.490f, 0.180f);
 
-glm::vec3 reactorControlPos(40.613f, -0.200, 17.770f);
-glm::vec3 reactorControlRot(-90.000f, 0.000f, -147.500f);
-glm::vec3 reactorControlScale(0.890f, 0.730f, 0.280f);
+glm::vec3 consolaPos(40.613f, -0.200, 17.770f);
+glm::vec3 consolaRot(-90.000f, 0.000f, -147.500f);
+glm::vec3 consolaScale(0.890f, 0.730f, 0.280f);
 
 glm::vec3 lamparaReactorPos(44.000f, 0.350f, 18.607f);
 glm::vec3 lamparaReactorRot(-1.000f, 48.500f, -19.500f);
@@ -552,7 +552,7 @@ void loadLevelProps(const std::string& path) {
         placedProps.push_back({"tesla", glm::vec3(47.950f, -0.500f, 14.400f), glm::vec3(-88.000f, 0.0f, 0.0f), glm::vec3(0.150f, 0.120f, 0.090f)});
         placedProps.push_back({"reactor", glm::vec3(43.163f, -0.550f, 19.211f), glm::vec3(0.000f, 0.000f, 0.000f), glm::vec3(1.00f, 1.000f, 1.000f)});
         placedProps.push_back({"panelControl", glm::vec3(48.350f, -0.500f, 17.450f), glm::vec3(-91.000f, 0.000f, -180.000f), glm::vec3(0.450f, 0.490f, 0.180f)});
-        placedProps.push_back({"reactorControl", glm::vec3(40.613f, -0.200, 17.770f), glm::vec3(-90.000f, 0.000f, -147.500f), glm::vec3(0.890f, 0.730f, 0.280f)});
+        placedProps.push_back({"consola", glm::vec3(40.613f, -0.200, 17.770f), glm::vec3(-90.000f, 0.000f, -147.500f), glm::vec3(0.890f, 0.730f, 0.280f)});
         placedProps.push_back({"esquineros", glm::vec3(48.521f, -0.500f, 12.504f), glm::vec3(0.000f, -52.000f, 0.000f), glm::vec3(0.890f, 0.750f, 0.810f)});
         placedProps.push_back({"esquineros2", glm::vec3(48.283f, -0.500f, 20.301f), glm::vec3(-2.500f, -144.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
         placedProps.push_back({"esquineros3", glm::vec3(34.683f, -0.500f, 12.581f), glm::vec3(-0.500f, 56.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.860f)});
