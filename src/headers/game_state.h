@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <miniaudio.h>
@@ -181,6 +182,10 @@ extern bool portalActivado;
 extern int currentZone;
 extern bool showDebugGUI;
 extern int selectedHotbarSlot;
+extern bool showCollisionViewer;
+extern bool collisionShowWalls;
+extern bool collisionShowProps;
+extern float collisionViewerRadius;
 
 class GLTFModel;
 extern GLTFModel *banoGLTF;
@@ -203,6 +208,14 @@ extern GLTFModel *sarcofagoGLTF;
 extern glm::vec3 sarcofagoPos;
 extern glm::vec3 sarcofagoRot;
 extern glm::vec3 sarcofagoScale;
+
+extern GLTFModel *cajonesOFGLTF;
+extern GLTFModel *barraGLTF;
+extern GLTFModel *logoGLTF;
+extern GLTFModel *logo2GLTF;
+extern glm::vec3 cajonesOFPos;
+extern glm::vec3 cajonesOFRot;
+extern glm::vec3 cajonesOFScale;
 
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;
@@ -301,6 +314,20 @@ extern glm::vec3 metalDeskScale[8];
 
 
 extern std::vector<Entity> gameEntities;
+
+struct PlacedProp {
+    std::string modelName;
+    glm::vec3 pos;
+    glm::vec3 rot;
+    glm::vec3 scale;
+    bool collisionActive = true;
+};
+
+extern std::vector<PlacedProp> placedProps;
+extern std::map<std::string, GLTFModel*> modelRegistry;
+
+void saveLevelProps(const std::string& path);
+void loadLevelProps(const std::string& path);
 
 extern float wallWidth;
 extern float wallHeight;

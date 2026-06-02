@@ -1,4 +1,7 @@
 #include "headers/game_state.h"
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
 std::string currentHUDMessage = "";
 float hudMessageTimer = 0.0f;
@@ -186,6 +189,10 @@ bool dimensionAlterna = false;
 bool portalActivado = false;
 int currentZone = 1;
 bool showDebugGUI = true;
+bool showCollisionViewer = false;
+bool collisionShowWalls = true;
+bool collisionShowProps = true;
+float collisionViewerRadius = 8.0f;
 int selectedHotbarSlot = 0;
 
 GLTFModel *banoGLTF = nullptr;
@@ -210,6 +217,10 @@ GLTFModel *panelControlGLTF = nullptr;
 GLTFModel *reactorControlGLTF = nullptr;
 GLTFModel *lamparaReactorGLTF = nullptr;
 GLTFModel *sarcofagoGLTF = nullptr;
+GLTFModel *cajonesOFGLTF = nullptr;
+GLTFModel *barraGLTF = nullptr;
+GLTFModel *logoGLTF = nullptr;
+GLTFModel *logo2GLTF = nullptr;
 GLTFModel *cablePisoGLTF = nullptr;
 GLTFModel *cableTechoGLTF = nullptr;
 GLTFModel *warningGLTF = nullptr;
@@ -217,6 +228,10 @@ GLTFModel *warningGLTF = nullptr;
 glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
 glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);
 glm::vec3 sarcofagoScale(1.260f, 1.060f, 0.930f);
+
+glm::vec3 cajonesOFPos(8.0f, -0.5f, 5.0f);
+glm::vec3 cajonesOFRot(0.0f, 0.0f, 0.0f);
+glm::vec3 cajonesOFScale(1.0f, 1.0f, 1.0f);
 
 std::vector<glm::vec3> cablePisoPos = {glm::vec3(43.235f, -0.100f, 12.691f)};
 std::vector<glm::vec3> cablePisoRot = {glm::vec3(0.0f, 0.0f, 0.0f)};
@@ -289,9 +304,9 @@ glm::vec3 lamparaReactorPos4(42.594f, 0.300f, 18.620f);
 glm::vec3 lamparaReactorRot4(0.000f, 149.500f, 0.000f);
 glm::vec3 lamparaReactorScale4(1.000f, 1.000f, 1.000f);
 
-glm::vec3 esquinerosPos(48.133f, 0.200f, 12.601f);
-glm::vec3 esquinerosRot(-0.500f, -63.000f, -1.000f);
-glm::vec3 esquinerosScale(0.890f, 0.390f, 0.750f);
+glm::vec3 esquinerosPos(48.521f, -0.500f, 12.504f);
+glm::vec3 esquinerosRot(0.000f, -52.000f, 0.000f);
+glm::vec3 esquinerosScale(0.890f, 0.750f, 0.810f);
 
 glm::vec3 generadorPos[3] = {glm::vec3(36.234f, -0.600f, 15.550f),
                              glm::vec3(36.266f, -0.600f, 17.254f),
@@ -303,17 +318,17 @@ glm::vec3 generadorScale[3] = {glm::vec3(1.0f, 1.0f, 1.0f),
                                glm::vec3(1.0f, 1.0f, 1.0f),
                                glm::vec3(1.0f, 1.0f, 1.0f)};
 
-glm::vec3 esquineros2Pos(48.383f, 0.200f, 20.301f);
+glm::vec3 esquineros2Pos(48.283f, -0.500f, 20.301f);
 glm::vec3 esquineros2Rot(-2.500f, -144.000f, -0.500f);
-glm::vec3 esquineros2Scale(0.850f, 0.370f, 0.830f);
+glm::vec3 esquineros2Scale(0.890f, 0.760f, 0.610f);
 
-glm::vec3 esquineros3Pos(34.583f, 0.450f, 12.851f);
-glm::vec3 esquineros3Rot(-0.500f, 28.000f, -0.500f);
-glm::vec3 esquineros3Scale(0.930f, 0.520f, 0.840f);
+glm::vec3 esquineros3Pos(34.683f, -0.500f, 12.581f);
+glm::vec3 esquineros3Rot(-0.500f, 56.000f, -0.500f);
+glm::vec3 esquineros3Scale(0.890f, 0.760f, 0.860f);
 
-glm::vec3 esquineros4Pos(34.833f, 0.200f, 20.451f);
+glm::vec3 esquineros4Pos(34.833f, -0.550f, 20.451f);
 glm::vec3 esquineros4Rot(0.500f, 120.000f, -0.500f);
-glm::vec3 esquineros4Scale(1.000f, 0.400f, 0.620f);
+glm::vec3 esquineros4Scale(0.890f, 0.760f, 0.610f);
 
 // area principal (escenario grande)
 GLTFModel *machineLabGLTF = nullptr;
@@ -485,3 +500,64 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+
+std::vector<PlacedProp> placedProps;
+std::map<std::string, GLTFModel*> modelRegistry;
+
+void saveLevelProps(const std::string& path) {
+    std::ofstream outFile(path);
+    if (!outFile.is_open()) {
+        std::cerr << "Error al abrir el archivo para guardar: " << path << std::endl;
+        return;
+    }
+    for (const auto& prop : placedProps) {
+        outFile << prop.modelName << " "
+                << prop.pos.x << " " << prop.pos.y << " " << prop.pos.z << " "
+                << prop.rot.x << " " << prop.rot.y << " " << prop.rot.z << " "
+                << prop.scale.x << " " << prop.scale.y << " " << prop.scale.z << " "
+                << (prop.collisionActive ? 1 : 0) << "\n";
+    }
+    outFile.close();
+    std::cout << "Mapa guardado exitosamente en: " << path << std::endl;
+}
+
+void loadLevelProps(const std::string& path) {
+    placedProps.clear();
+    std::ifstream inFile(path);
+    if (inFile.is_open()) {
+        std::string line;
+        while (std::getline(inFile, line)) {
+            if (line.empty() || line[0] == '#') continue;
+            std::stringstream ss(line);
+            PlacedProp prop;
+            prop.collisionActive = true;
+            if (ss >> prop.modelName 
+                   >> prop.pos.x >> prop.pos.y >> prop.pos.z 
+                   >> prop.rot.x >> prop.rot.y >> prop.rot.z 
+                   >> prop.scale.x >> prop.scale.y >> prop.scale.z) {
+                int activeVal = 1;
+                if (ss >> activeVal) {
+                    prop.collisionActive = (activeVal != 0);
+                }
+                placedProps.push_back(prop);
+            }
+        }
+        inFile.close();
+        std::cout << "Cargados " << placedProps.size() << " props desde: " << path << std::endl;
+    } else {
+        std::cout << "Archivo de posiciones no encontrado, cargando valores por defecto..." << std::endl;
+        placedProps.push_back({"cajonesOF", glm::vec3(8.0f, -0.5f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), false});
+        placedProps.push_back({"sarcofago", glm::vec3(43.235f, -0.100f, 12.691f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.260f, 1.060f, 0.930f)});
+        placedProps.push_back({"warning", glm::vec3(39.993f, 0.200f, 20.866f), glm::vec3(-89.000f, -180.000f, -0.500f), glm::vec3(1.410f, 0.950f, 1.570f)});
+        placedProps.push_back({"tesla", glm::vec3(47.950f, -0.500f, 14.400f), glm::vec3(-88.000f, 0.0f, 0.0f), glm::vec3(0.150f, 0.120f, 0.090f)});
+        placedProps.push_back({"reactor", glm::vec3(43.163f, -0.550f, 19.211f), glm::vec3(0.000f, 0.000f, 0.000f), glm::vec3(1.00f, 1.000f, 1.000f)});
+        placedProps.push_back({"panelControl", glm::vec3(48.350f, -0.500f, 17.450f), glm::vec3(-91.000f, 0.000f, -180.000f), glm::vec3(0.450f, 0.490f, 0.180f)});
+        placedProps.push_back({"reactorControl", glm::vec3(40.613f, -0.200, 17.770f), glm::vec3(-90.000f, 0.000f, -147.500f), glm::vec3(0.890f, 0.730f, 0.280f)});
+        placedProps.push_back({"esquineros", glm::vec3(48.521f, -0.500f, 12.504f), glm::vec3(0.000f, -52.000f, 0.000f), glm::vec3(0.890f, 0.750f, 0.810f)});
+        placedProps.push_back({"esquineros2", glm::vec3(48.283f, -0.500f, 20.301f), glm::vec3(-2.500f, -144.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
+        placedProps.push_back({"esquineros3", glm::vec3(34.683f, -0.500f, 12.581f), glm::vec3(-0.500f, 56.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.860f)});
+        placedProps.push_back({"esquineros4", glm::vec3(34.833f, -0.550f, 20.451f), glm::vec3(0.500f, 120.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
+        
+        saveLevelProps(path);
+    }
+}

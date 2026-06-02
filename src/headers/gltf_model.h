@@ -64,11 +64,13 @@ public:
     std::vector<unsigned int> indices;
     std::vector<GLTFTexture> textures;
     unsigned int VAO;
+    AABB localAABB;
     
     GLTFMesh(std::vector<GLTFVertex> vertices, std::vector<unsigned int> indices, std::vector<GLTFTexture> textures) {
         this->vertices = vertices;
         this->indices = indices;
         this->textures = textures;
+        calculateLocalAABB();
         setupMesh();
     }
 
@@ -82,11 +84,30 @@ public:
         }
         
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()),
+                       GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
 private:
     unsigned int VBO, EBO;
+
+    void calculateLocalAABB() {
+        if (vertices.empty()) {
+            localAABB.min = glm::vec3(0.0f);
+            localAABB.max = glm::vec3(0.0f);
+            return;
+        }
+
+        glm::vec3 minPoint(1e9f);
+        glm::vec3 maxPoint(-1e9f);
+        for (const auto& vertex : vertices) {
+            minPoint = (glm::min)(minPoint, vertex.Position);
+            maxPoint = (glm::max)(maxPoint, vertex.Position);
+        }
+        localAABB.min = minPoint;
+        localAABB.max = maxPoint;
+    }
+
     void setupMesh() {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
@@ -142,6 +163,11 @@ public:
         localAABB.max = maxPoint;
     }
 
+    void OverrideLocalAABB(glm::vec3 min, glm::vec3 max) {
+        localAABB.min = min;
+        localAABB.max = max;
+    }
+
     AABB GetWorldAABB(const glm::mat4& modelMatrix) const {
         glm::vec3 min = localAABB.min;
         glm::vec3 max = localAABB.max;
@@ -165,8 +191,32 @@ public:
         return { worldMin, worldMax };
     }
 
-    GLTFModel(std::string path) {
-        loadModel(path);
+    bool CheckSphereCollision(const glm::vec3& worldCenter, float worldRadius,
+                              const glm::mat4& modelMatrix) const {
+        if (meshes.empty()) return false;
+
+        constexpr float playerMinOffsetY = -0.85f;
+        constexpr float playerMaxOffsetY = 0.45f;
+        AABB worldModelBox = TransformAABB(localAABB, modelMatrix);
+        if (!CylinderIntersectsWorldAABB(worldCenter, worldRadius,
+                                         playerMinOffsetY, playerMaxOffsetY,
+                                         worldModelBox)) {
+            return false;
+        }
+
+        for (const auto& mesh : meshes) {
+            AABB worldMeshBox = TransformAABB(mesh.localAABB, modelMatrix);
+            if (CylinderIntersectsWorldAABB(worldCenter, worldRadius,
+                                            playerMinOffsetY, playerMaxOffsetY,
+                                            worldMeshBox)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    GLTFModel(std::string path, bool applyNodeTransforms = false) {
+        loadModel(path, applyNodeTransforms);
     }
 
     void Draw(unsigned int shaderProgram, int solidColorLoc) {
@@ -300,6 +350,47 @@ public:
     }
 
 private:
+    static AABB TransformAABB(const AABB& localBox,
+                              const glm::mat4& transform) {
+        glm::vec3 corners[8] = {
+            glm::vec3(localBox.min.x, localBox.min.y, localBox.min.z),
+            glm::vec3(localBox.min.x, localBox.min.y, localBox.max.z),
+            glm::vec3(localBox.min.x, localBox.max.y, localBox.min.z),
+            glm::vec3(localBox.min.x, localBox.max.y, localBox.max.z),
+            glm::vec3(localBox.max.x, localBox.min.y, localBox.min.z),
+            glm::vec3(localBox.max.x, localBox.min.y, localBox.max.z),
+            glm::vec3(localBox.max.x, localBox.max.y, localBox.min.z),
+            glm::vec3(localBox.max.x, localBox.max.y, localBox.max.z)
+        };
+
+        glm::vec3 worldMin(1e9f);
+        glm::vec3 worldMax(-1e9f);
+        for (int i = 0; i < 8; i++) {
+            glm::vec3 point = glm::vec3(transform * glm::vec4(corners[i], 1.0f));
+            worldMin = (glm::min)(worldMin, point);
+            worldMax = (glm::max)(worldMax, point);
+        }
+        return { worldMin, worldMax };
+    }
+
+    static bool CylinderIntersectsWorldAABB(const glm::vec3& center,
+                                            float radius,
+                                            float minOffsetY,
+                                            float maxOffsetY,
+                                            const AABB& box) {
+        float playerMinY = center.y + minOffsetY;
+        float playerMaxY = center.y + maxOffsetY;
+        if (playerMaxY < box.min.y || playerMinY > box.max.y) {
+            return false;
+        }
+
+        float closestX = glm::clamp(center.x, box.min.x, box.max.x);
+        float closestZ = glm::clamp(center.z, box.min.z, box.max.z);
+        float dx = center.x - closestX;
+        float dz = center.z - closestZ;
+        return (dx * dx + dz * dz) <= radius * radius;
+    }
+
     static std::string ToLower(const std::string& text) {
         std::string result = text;
         std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) {
@@ -353,12 +444,17 @@ private:
     }
     glm::mat4 m_FinalTransforms[MAX_BONES];
 
-    void loadModel(std::string path) {
-        const aiScene* scene = m_Importer.ReadFile(path, 
-            aiProcess_Triangulate | 
+    void loadModel(std::string path, bool applyNodeTransforms = false) {
+        unsigned int flags = aiProcess_Triangulate | 
             aiProcess_FlipUVs | 
             aiProcess_PopulateArmatureData |
-            aiProcess_LimitBoneWeights);
+            aiProcess_LimitBoneWeights;
+
+        if (applyNodeTransforms) {
+            flags |= aiProcess_PreTransformVertices;
+        }
+
+        const aiScene* scene = m_Importer.ReadFile(path, flags);
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             std::cout << "ERROR::ASSIMP::" << m_Importer.GetErrorString() << std::endl;
             return;

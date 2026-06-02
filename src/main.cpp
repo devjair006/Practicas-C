@@ -327,7 +327,7 @@ int main() {
   cablePisoGLTF = new GLTFModel("assets/contencion/cables_piso.glb");
   cableTechoGLTF = new GLTFModel("assets/contencion/cables_techo.glb");
 
-  esquinerosGLTF = new GLTFModel("assets/contencion/esquineros.glb");
+  esquinerosGLTF = new GLTFModel("assets/contencion/esquineros.glb", true);
   generadorGLTF = new GLTFModel("assets/contencion/generador.glb");
   lamparaContencionGLTF = new GLTFModel("assets/contencion/lampara.glb");
   lampara2GLTF = new GLTFModel("assets/contencion/lampara2.glb");
@@ -335,9 +335,35 @@ int main() {
   emergencyGLTF = new GLTFModel("assets/contencion/emergency.glb");
   reactorGLTF = new GLTFModel("assets/contencion/reactor.glb");
   panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
-  reactorControlGLTF = new GLTFModel("assets/contencion/reactor-control.glb");
   lamparaReactorGLTF = new GLTFModel("assets/contencion/lampara-reactor.glb");
   warningGLTF = new GLTFModel("assets/contencion/warning.glb");
+  cajonesOFGLTF = new GLTFModel("assets/oficinas/cajonesOF.glb");
+  barraGLTF = new GLTFModel("assets/contencion/barra.glb");
+  logoGLTF = new GLTFModel("assets/contencion/logo.glb");
+  logo2GLTF = new GLTFModel("assets/contencion/logo2.glb");
+  reactorControlGLTF = new GLTFModel("assets/contencion/reactor-control.glb");
+
+  // Registrar en modelRegistry
+  modelRegistry["cajonesOF"] = cajonesOFGLTF;
+  modelRegistry["barra"] = barraGLTF;
+  modelRegistry["logo"] = logoGLTF;
+  modelRegistry["logo2"] = logo2GLTF;
+  modelRegistry["sarcofago"] = sarcofagoGLTF;
+  modelRegistry["tesla"] = teslaGLTF;
+  modelRegistry["reactor"] = reactorGLTF;
+  modelRegistry["reactorControl"] = reactorControlGLTF;
+  modelRegistry["panelControl"] = panelControlGLTF;
+  modelRegistry["warning"] = warningGLTF;
+  modelRegistry["esquineros"] = esquinerosGLTF;
+  modelRegistry["esquineros2"] = esquinerosGLTF;
+  modelRegistry["esquineros3"] = esquinerosGLTF;
+  modelRegistry["esquineros4"] = esquinerosGLTF;
+  modelRegistry["cables_piso"] = cablePisoGLTF;
+  modelRegistry["cables_techo"] = cableTechoGLTF;
+
+  // Cargar propiedades desde archivo
+  loadLevelProps("assets/config_posiciones.txt");
+  std::cout << "[SISTEMA] Props oficinas cargados: CajonesOF(" << cajonesOFGLTF->meshes.size() << ")" << std::endl;
   std::cout << "[SISTEMA] Props baño cargados: "
             << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
             << "Bano(" << banoGLTF->meshes.size() << "), "
@@ -345,11 +371,10 @@ int main() {
             << "Urinario(" << urinarioGLTF->meshes.size() << ")" << std::endl;
   std::cout << "[SISTEMA] Props contención cargados: "
             << "Tesla(" << teslaGLTF->meshes.size() << "), "
-            << "ControlReactor(" << reactorControlGLTF->meshes.size() << "), "
+            << "Reactor(" << reactorGLTF->meshes.size() << "), "
             << "Esquineros(" << esquinerosGLTF->meshes.size() << ")"
             << std::endl;
-
-  unsigned int wallTex1 = loadTexture("assets/paredesH.png");
+  unsigned int wallTex1 = loadTexture("assets/paredesLAB.png");
   unsigned int wallTex2 = loadTexture("assets/paredbanosT.png");
   unsigned int wallTex3 = loadTexture("assets/wall.png");
   unsigned int wallTex4 = loadTexture("assets/paredbanosGT.png");
@@ -505,13 +530,9 @@ int main() {
   glm::vec3 debugSpawnPos = cameraPos;
   float debugSpawnYaw = yaw;
   float debugSpawnPitch = pitch;
-  bool showCollisionViewer = false;
   bool showInteractionDebugger = true;
   bool showAnimationTester = true;
   bool showSpawnInspector = true;
-  bool collisionShowWalls = true;
-  bool collisionShowProps = true;
-  float collisionViewerRadius = 8.0f;
 
   // --- ZONAS DE HABITACION ---
   // Cada zona define un rectángulo del worldMap con texturas propias para
@@ -757,7 +778,7 @@ int main() {
     glUniform3fv(lightDirLoc, 1, glm::value_ptr(cameraFront));
     glUniform1f(cutOffLoc, glm::cos(glm::radians(15.5f)));
     glUniform1f(outerCutOffLoc, glm::cos(glm::radians(22.5f)));
-    glUniform1i(flashlightOnLoc, isFlashlightOn ? 1 : 0);
+    glUniform1i(flashlightOnLoc, (isFlashlightOn && selectedHotbarSlot == 0) ? 1 : 0);
 
     glUniform1i(dimAlternaLoc, dimensionAlterna ? 1 : 0);
     glUniform1i(zoneLoc, currentZone);
@@ -1048,7 +1069,7 @@ int main() {
 
         // 1. DETECTAR SI LA LINTERNA LO APUNTA DIRECTAMENTE
         bool beingLookedAt = false;
-        if (isFlashlightOn) {
+        if (isFlashlightOn && selectedHotbarSlot == 0) {
           float angle = glm::dot(cameraFront, dirToGnome);
           // 0.98 significa que lo miras casi al centro (un cono muy cerrado)
           if (angle > 0.98f && distToPlayer < 10.0f) {
@@ -1065,7 +1086,7 @@ int main() {
             std::cout << "[SISTEMA]: Gnomo ahuyentado por la luz   ."
                       << std::endl;
           }
-        } else {
+        } else if (gameState == PLAYING) {
           gnomeStunTimer =
               (std::max)(0.0f,
                          gnomeStunTimer -
@@ -1456,36 +1477,24 @@ int main() {
       if (shouldRender(urinarioPos.x, urinarioPos.z, 3.0f)) urinarioGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
-    if (teslaGLTF && !teslaGLTF->meshes.empty()) {
-      glm::mat4 teslaModel = glm::mat4(1.0f);
-      teslaModel = glm::translate(teslaModel, teslaPos);
-      teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      teslaModel = glm::scale(teslaModel, teslaScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(teslaModel));
+    // --- BUCLE DINAMICO DE RENDERING DE PROPS ---
+    for (const auto& prop : placedProps) {
+      GLTFModel* model = modelRegistry[prop.modelName];
+      if (!model || model->meshes.empty()) continue;
 
-      if (shouldRender(teslaPos.x, teslaPos.z, 3.0f)) teslaGLTF->Draw(shaderProgram, solidColorLoc);
+      glm::mat4 pModel = glm::mat4(1.0f);
+      pModel = glm::translate(pModel, prop.pos);
+      pModel = glm::rotate(pModel, glm::radians(prop.rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+      pModel = glm::rotate(pModel, glm::radians(prop.rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+      pModel = glm::rotate(pModel, glm::radians(prop.rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+      pModel = glm::scale(pModel, prop.scale);
+
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
+      if (shouldRender(prop.pos.x, prop.pos.z, 3.0f)) {
+        model->Draw(shaderProgram, solidColorLoc);
+      }
     }
-
-    if (sarcofagoGLTF && !sarcofagoGLTF->meshes.empty()) {
-      glm::mat4 sModel = glm::mat4(1.0f);
-      sModel = glm::translate(sModel, sarcofagoPos);
-      sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.x),
-                           glm::vec3(1.0f, 0.0f, 0.0f));
-      sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.y),
-                           glm::vec3(0.0f, 1.0f, 0.0f));
-      sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.z),
-                           glm::vec3(0.0f, 0.0f, 1.0f));
-      sModel = glm::scale(sModel, sarcofagoScale);
-
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sModel));
-      if (shouldRender(sarcofagoPos.x, sarcofagoPos.z, 3.0f)) sarcofagoGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
+//*------------------
     if (cablePisoGLTF && !cablePisoGLTF->meshes.empty()) {
       for (size_t i = 0; i < cablePisoPos.size(); i++) {
         glm::mat4 cpModel = glm::mat4(1.0f);
@@ -1520,20 +1529,6 @@ int main() {
       }
     }
 
-    if (warningGLTF && !warningGLTF->meshes.empty()) {
-      glm::mat4 wModel = glm::mat4(1.0f);
-      wModel = glm::translate(wModel, warningPos);
-      wModel = glm::rotate(wModel, glm::radians(warningRot.x),
-                           glm::vec3(1.0f, 0.0f, 0.0f));
-      wModel = glm::rotate(wModel, glm::radians(warningRot.y),
-                           glm::vec3(0.0f, 1.0f, 0.0f));
-      wModel = glm::rotate(wModel, glm::radians(warningRot.z),
-                           glm::vec3(0.0f, 0.0f, 1.0f));
-      wModel = glm::scale(wModel, warningScale);
-
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(wModel));
-      if (shouldRender(warningPos.x, warningPos.z, 3.0f)) warningGLTF->Draw(shaderProgram, solidColorLoc);
-    }
 
     if (lamparaContencionGLTF && !lamparaContencionGLTF->meshes.empty()) {
       glm::mat4 lampModel = glm::mat4(1.0f);
@@ -1605,48 +1600,7 @@ int main() {
       }
     }
 
-    if (reactorGLTF && !reactorGLTF->meshes.empty()) {
-      glm::mat4 reactorModel = glm::mat4(1.0f);
-      reactorModel = glm::translate(reactorModel, reactorPos);
-      reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.x),
-                                 glm::vec3(1.0f, 0.0f, 0.0f));
-      reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.y),
-                                 glm::vec3(0.0f, 1.0f, 0.0f));
-      reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.z),
-                                 glm::vec3(0.0f, 0.0f, 1.0f));
-      reactorModel = glm::scale(reactorModel, reactorScale);
 
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(reactorModel));
-      if (shouldRender(reactorPos.x, reactorPos.z, 3.0f)) reactorGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
-      glm::mat4 panelModel = glm::mat4(1.0f);
-      panelModel = glm::translate(panelModel, panelControlPos);
-      panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      panelModel = glm::scale(panelModel, panelControlScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(panelModel));
-      if (shouldRender(panelControlPos.x, panelControlPos.z, 3.0f)) panelControlGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (reactorControlGLTF && !reactorControlGLTF->meshes.empty()) {
-      glm::mat4 rcModel = glm::mat4(1.0f);
-      rcModel = glm::translate(rcModel, reactorControlPos);
-      rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.x),
-                            glm::vec3(1.0f, 0.0f, 0.0f));
-      rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.y),
-                            glm::vec3(0.0f, 1.0f, 0.0f));
-      rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.z),
-                            glm::vec3(0.0f, 0.0f, 1.0f));
-      rcModel = glm::scale(rcModel, reactorControlScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(rcModel));
-      if (shouldRender(reactorControlPos.x, reactorControlPos.z, 3.0f)) reactorControlGLTF->Draw(shaderProgram, solidColorLoc);
-    }
 
     if (lamparaReactorGLTF && !lamparaReactorGLTF->meshes.empty()) {
       glm::mat4 lrModel = glm::mat4(1.0f);
@@ -1698,75 +1652,7 @@ int main() {
       if (shouldRender(lamparaReactorPos4.x, lamparaReactorPos4.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
-    if (esquinerosGLTF && !esquinerosGLTF->meshes.empty()) {
-      // Esquinero 1
-      glm::mat4 esquinerosModel = glm::mat4(1.0f);
-      esquinerosModel = glm::translate(esquinerosModel, esquinerosPos);
-      esquinerosModel =
-          glm::rotate(esquinerosModel, glm::radians(esquinerosRot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel =
-          glm::rotate(esquinerosModel, glm::radians(esquinerosRot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel =
-          glm::rotate(esquinerosModel, glm::radians(esquinerosRot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel = glm::scale(esquinerosModel, esquinerosScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel));
-      if (shouldRender(esquinerosPos.x, esquinerosPos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
 
-      // Esquinero 2
-      glm::mat4 esquinerosModel2 = glm::mat4(1.0f);
-      esquinerosModel2 = glm::translate(esquinerosModel2, esquineros2Pos);
-      esquinerosModel2 =
-          glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel2 =
-          glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel2 =
-          glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel2 = glm::scale(esquinerosModel2, esquineros2Scale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel2));
-      if (shouldRender(esquineros2Pos.x, esquineros2Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Esquinero 3
-      glm::mat4 esquinerosModel3 = glm::mat4(1.0f);
-      esquinerosModel3 = glm::translate(esquinerosModel3, esquineros3Pos);
-      esquinerosModel3 =
-          glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel3 =
-          glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel3 =
-          glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel3 = glm::scale(esquinerosModel3, esquineros3Scale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel3));
-      if (shouldRender(esquineros3Pos.x, esquineros3Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Esquinero 4
-      glm::mat4 esquinerosModel4 = glm::mat4(1.0f);
-      esquinerosModel4 = glm::translate(esquinerosModel4, esquineros4Pos);
-      esquinerosModel4 =
-          glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel4 =
-          glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel4 =
-          glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel4 = glm::scale(esquinerosModel4, esquineros4Scale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel4));
-      if (shouldRender(esquineros4Pos.x, esquineros4Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
-    }
 
     if (generadorGLTF && !generadorGLTF->meshes.empty()) {
       for (int i = 0; i < 3; i++) { // Dibujamos los 3 ejemplares
@@ -1962,6 +1848,7 @@ int main() {
             }
 
             if (collisionShowProps) {
+              // 1. Dibujar entidades estándar (Mesas y Máquinas) en amarillo
               for (const auto &entity : gameEntities) {
                 if (!entity.active)
                   continue;
@@ -1982,8 +1869,85 @@ int main() {
                 debugModel = glm::scale(debugModel, scale);
                 glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                                    glm::value_ptr(debugModel));
-                glUniform3f(colorLoc, 1.0f, 0.9f, 0.2f);
+                glUniform3f(colorLoc, 1.0f, 0.9f, 0.2f); // Amarillo para entidades
                 glDrawArrays(GL_TRIANGLES, 0, 36);
+              }
+
+              // 2. Helper lambda: dibuja las mismas cajas por submesh que usa la colision real.
+              auto drawModelHitbox = [&](GLTFModel* model, const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scl, glm::vec3 hitboxColor = glm::vec3(0.1f, 0.75f, 1.0f)) {
+                if (!model || model->meshes.empty()) return;
+                if (glm::length(glm::vec2(pos.x - cameraPos.x, pos.z - cameraPos.z)) > collisionViewerRadius)
+                  return;
+
+                glm::mat4 mat = glm::mat4(1.0f);
+                mat = glm::translate(mat, pos);
+                mat = glm::rotate(mat, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+                mat = glm::rotate(mat, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+                mat = glm::rotate(mat, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+                mat = glm::scale(mat, scl);
+
+                // Dibujar como OBB: trasladamos y escalamos la matriz del modelo usando el centro y tamaño local AABB!
+                for (const auto& mesh : model->meshes) {
+                  glm::vec3 localCenter = (mesh.localAABB.min + mesh.localAABB.max) * 0.5f;
+                  glm::vec3 localSize = mesh.localAABB.max - mesh.localAABB.min;
+
+                  glm::mat4 debugModel = glm::translate(mat, localCenter);
+                  debugModel = glm::scale(debugModel, localSize);
+
+                  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
+                  glUniform3f(colorLoc, hitboxColor.r, hitboxColor.g, hitboxColor.b); // Color personalizado para props GLTF
+                  glDrawArrays(GL_TRIANGLES, 0, 36);
+                }
+              };
+
+              auto drawManualOBBHitbox = [&](const glm::vec3& pos, float yawDegrees, const glm::vec3& halfSize) {
+                if (glm::length(glm::vec2(pos.x - cameraPos.x, pos.z - cameraPos.z)) > collisionViewerRadius)
+                  return;
+
+                glm::mat4 debugModel = glm::mat4(1.0f);
+                debugModel = glm::translate(debugModel, pos);
+                debugModel = glm::rotate(debugModel, glm::radians(yawDegrees), glm::vec3(0.0f, 1.0f, 0.0f));
+                debugModel = glm::scale(debugModel, halfSize * 2.0f);
+
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
+                glUniform3f(colorLoc, 1.0f, 0.55f, 0.05f);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+              };
+
+              // --- Props del Baño ---
+              glm::vec3 banoPositions[8] = { banoPos, banoPos2, banoPos3, banoPos4, banoPos5, banoPos6, banoPos7, banoPos8 };
+              glm::vec3 banoRotations[8] = { banoRot, banoRot2, banoRot3, banoRot4, banoRot5, banoRot6, banoRot7, banoRot8 };
+              glm::vec3 banoScales[8] = { banoScale, banoScale2, banoScale3, banoScale4, banoScale5, banoScale6, banoScale7, banoScale8 };
+              for (int i = 0; i < 8; i++) {
+                drawModelHitbox(banoGLTF, banoPositions[i], banoRotations[i], banoScales[i]);
+              }
+
+              glm::vec3 lavaPositions[8] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4, lavamanosPos5, lavamanosPos6, lavamanosPos7, lavamanosPos8 };
+              glm::vec3 lavaRotations[8] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4, lavamanosRot5, lavamanosRot6, lavamanosRot7, lavamanosRot8 };
+              glm::vec3 lavaScales[8] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4, lavamanosScale5, lavamanosScale6, lavamanosScale7, lavamanosScale8 };
+              for (int i = 0; i < 8; i++) {
+                drawModelHitbox(lavamanosGLTF, lavaPositions[i], lavaRotations[i], lavaScales[i]);
+              }
+
+              drawModelHitbox(urinarioGLTF, urinarioPos, urinarioRot, urinarioScale);
+              drawModelHitbox(mensBGLTF, mensBpos, mensBrot, mensBscale);
+              drawModelHitbox(girlBGLTF, girlBpos, girlBrot, girlBscale);
+
+              // --- Props Dinámicos (placedProps) ---
+              for (const auto& prop : placedProps) {
+                GLTFModel* model = modelRegistry[prop.modelName];
+                if (model) {
+                  glm::vec3 color = prop.collisionActive ? glm::vec3(0.1f, 0.75f, 1.0f) : glm::vec3(1.0f, 0.25f, 0.25f);
+                  drawModelHitbox(model, prop.pos, prop.rot, prop.scale, color);
+                }
+              }
+
+              for (int i = 0; i < 3; i++) {
+                drawModelHitbox(generadorGLTF, generadorPos[i], generadorRot[i], generadorScale[i]);
+              }
+
+              for (size_t i = 0; i < emergencyPos.size(); i++) {
+                drawModelHitbox(emergencyGLTF, emergencyPos[i], emergencyRot[i], emergencyScale[i]);
               }
             }
 
@@ -2054,32 +2018,6 @@ int main() {
           }
 
           if (gameState == MENU) {
-            glDisable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            glBindTexture(GL_TEXTURE_2D, logoTexture);
-            glBindVertexArray(quadVAO);
-
-            float aspect = (float)currentWidth / (float)currentHeight;
-            glm::mat4 orthoProj =
-                glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
-            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(orthoProj));
-
-            glm::mat4 orthoView = glm::mat4(1.0f);
-            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(orthoView));
-
-            glm::mat4 orthoModel = glm::mat4(1.0f);
-            float scale = 0.8f + sin(glfwGetTime() * 3.0f) * 0.05f;
-            orthoModel = glm::scale(orthoModel, glm::vec3(scale, scale, 1.0f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                               glm::value_ptr(orthoModel));
-
-            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-
-            glDisable(GL_BLEND);
-            glEnable(GL_DEPTH_TEST);
           } else if (gameState == PLAYING) {
             // --- DIBUJAR CROSSHAIR (HUD) ---
             glDisable(GL_DEPTH_TEST);
@@ -2113,11 +2051,155 @@ int main() {
           }
 
           // --- RENDER IMGUI HUD ---
-          if (showDebugGUI) {
+          if (gameState == MENU) {
+            auto startGameFromMenu = [&]() {
+              gameState = PLAYING;
+              isCursorLocked = true;
+              glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+              firstMouse = true;
+              ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
+              printTypewriter("ESCENA 1: PASILLO DE ACCESO");
+            };
+
+            ImDrawList* drawList = ImGui::GetBackgroundDrawList();
+            ImVec2 screenMin(0.0f, 0.0f);
+            ImVec2 screenMax((float)currentWidth, (float)currentHeight);
+            float t = (float)glfwGetTime();
+
+            drawList->AddRectFilledMultiColor(
+                screenMin, screenMax,
+                IM_COL32(3, 7, 11, 238), IM_COL32(8, 16, 22, 238),
+                IM_COL32(1, 2, 5, 248), IM_COL32(2, 4, 7, 248));
+            drawList->AddCircleFilled(
+                ImVec2(currentWidth * 0.5f, currentHeight * 0.05f),
+                currentWidth * 0.32f, IM_COL32(170, 215, 230, 20), 96);
+            drawList->AddRectFilledMultiColor(
+                ImVec2(0, 0), ImVec2((float)currentWidth, currentHeight * 0.34f),
+                IM_COL32(190, 220, 230, 28), IM_COL32(90, 140, 160, 10),
+                IM_COL32(0, 0, 0, 0), IM_COL32(0, 0, 0, 0));
+            for (int i = 0; i < 42; ++i) {
+              float seed = (float)i * 37.13f;
+              float x = fmodf(seed * 19.7f, (float)currentWidth);
+              float y = fmodf(seed * 11.3f + t * (6.0f + (i % 5)), (float)currentHeight);
+              float a = 20.0f + (float)(i % 4) * 12.0f;
+              drawList->AddCircleFilled(ImVec2(x, y), 1.0f + (i % 3) * 0.35f,
+                                        IM_COL32(210, 230, 235, (int)a), 8);
+            }
+
+            ImGui::SetNextWindowPos(screenMin);
+            ImGui::SetNextWindowSize(screenMax);
+            ImGui::SetNextWindowBgAlpha(0.0f);
+            ImGui::Begin("MainMenu", NULL,
+                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+                             ImGuiWindowFlags_NoSavedSettings);
+
+            float titleY = currentHeight * 0.16f;
+            const char* title = "PROYECTO CONFIDENCIAL";
+            const char* subtitle = "LABORATORIO DE CONTENCION";
+            ImGui::SetWindowFontScale(3.0f);
+            ImVec2 titleSize = ImGui::CalcTextSize(title);
+            ImGui::SetCursorPos(ImVec2((currentWidth - titleSize.x) * 0.5f, titleY));
+            ImGui::TextColored(ImVec4(0.88f, 0.97f, 1.0f, 1.0f), "%s", title);
+
+            ImGui::SetWindowFontScale(1.0f);
+            ImVec2 titleCenter(currentWidth * 0.5f, titleY + titleSize.y + 10.0f);
+            drawList->AddLine(ImVec2(titleCenter.x - 230.0f, titleCenter.y),
+                              ImVec2(titleCenter.x - 45.0f, titleCenter.y),
+                              IM_COL32(220, 245, 255, 180), 1.5f);
+            drawList->AddLine(ImVec2(titleCenter.x + 45.0f, titleCenter.y),
+                              ImVec2(titleCenter.x + 230.0f, titleCenter.y),
+                              IM_COL32(220, 245, 255, 180), 1.5f);
+            drawList->AddCircle(titleCenter, 17.0f, IM_COL32(220, 245, 255, 180), 32, 1.3f);
+
+            ImVec2 subSize = ImGui::CalcTextSize(subtitle);
+            ImGui::SetCursorPos(ImVec2((currentWidth - subSize.x) * 0.5f, titleCenter.y + 24.0f));
+            ImGui::TextColored(ImVec4(0.62f, 0.78f, 0.84f, 1.0f), "%s", subtitle);
+
+            float menuWidth = 260.0f;
+            float menuX = (currentWidth - menuWidth) * 0.5f;
+            float menuY = currentHeight * 0.48f;
+            ImGui::SetCursorPos(ImVec2(menuX, menuY));
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 9.0f));
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.02f, 0.05f, 0.07f, 0.28f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.55f, 0.75f, 0.82f, 0.22f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.75f, 0.92f, 1.0f, 0.35f));
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.88f, 0.96f, 1.0f, 1.0f));
+
+            auto menuButton = [&](const char* label) {
+              ImGui::SetCursorPosX(menuX);
+              bool pressed = ImGui::Button(label, ImVec2(menuWidth, 34.0f));
+              ImVec2 min = ImGui::GetItemRectMin();
+              ImVec2 max = ImGui::GetItemRectMax();
+              if (ImGui::IsItemHovered()) {
+                drawList->AddLine(ImVec2(min.x + 34.0f, max.y + 2.0f),
+                                  ImVec2(max.x - 34.0f, max.y + 2.0f),
+                                  IM_COL32(220, 245, 255, 180), 1.0f);
+              }
+              return pressed;
+            };
+
+            if (menuButton("INICIAR JUEGO")) startGameFromMenu();
+            menuButton("OPCIONES");
+            menuButton("ARCHIVOS");
+            menuButton("CREDITOS");
+            if (menuButton("SALIR")) glfwSetWindowShouldClose(window, true);
+
+            ImGui::PopStyleColor(4);
+            ImGui::PopStyleVar(2);
+
+            ImGui::SetWindowFontScale(0.85f);
+            const char* hint = "ENTER / ESPACIO tambien inicia";
+            ImVec2 hintSize = ImGui::CalcTextSize(hint);
+            ImGui::SetCursorPos(ImVec2((currentWidth - hintSize.x) * 0.5f,
+                                       currentHeight * 0.86f));
+            ImGui::TextColored(ImVec4(0.5f, 0.65f, 0.7f, 0.85f), "%s", hint);
+            ImGui::SetWindowFontScale(1.0f);
+            ImGui::End();
+          } else if (showDebugGUI) {
+            static int activeEditorPanel = 1;
+            const float sideTabW = 36.0f;
+            const float leftPanelX = sideTabW + 12.0f;
+            const float panelTopY = 54.0f;
+            const float panelGap = 8.0f;
+            const float leftPanelW = 360.0f;
+            const float availablePanelH = (float)currentHeight - panelTopY - 14.0f;
+            const float leftStatusH = 126.0f;
+            const float leftLevelY = panelTopY + leftStatusH + panelGap;
+            const float leftLevelH = availablePanelH * 0.62f;
+            const float leftSpawnY = leftLevelY + leftLevelH + panelGap;
+            const float leftSpawnH = (glm::max)(120.0f, availablePanelH - leftStatusH - leftLevelH - panelGap * 2.0f);
+
+            ImGui::SetNextWindowPos(ImVec2(0.0f, panelTopY), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(sideTabW, 238.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.78f);
+            ImGui::Begin("EditorDockTabs", NULL,
+                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+            auto sideTab = [&](const char* label, int panel) {
+              if (activeEditorPanel == panel) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.20f, 0.38f, 0.58f, 1.0f));
+              }
+              bool clicked = ImGui::Button(label, ImVec2(-1.0f, 58.0f));
+              if (activeEditorPanel == panel) {
+                ImGui::PopStyleColor();
+              }
+              if (clicked) activeEditorPanel = panel;
+            };
+            sideTab("I", 0);
+            sideTab("M", 1);
+            sideTab("S", 2);
+            if (ImGui::Button("<", ImVec2(-1.0f, 34.0f))) {
+              showDebugGUI = false;
+            }
+            ImGui::End();
+
             // Display coordinates top-left
-            ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
-            ImGui::SetNextWindowSize(ImVec2(180.0f, 85.0f));
-            ImGui::SetNextWindowBgAlpha(0.6f);
+            if (activeEditorPanel == 0) {
+            ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(leftPanelW, 182.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.78f);
             ImGui::Begin("Coords", NULL,
                          ImGuiWindowFlags_NoTitleBar |
                              ImGuiWindowFlags_NoResize |
@@ -2126,17 +2208,18 @@ int main() {
                                "POSICION ACTUAL:");
             ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
             ImGui::Spacing();
+            ImGui::Checkbox("Ver Hitboxes (H)", &showCollisionViewer);
+            ImGui::Spacing();
             if (ImGui::Button("Ocultar Editor (G)", ImVec2(-1, 0))) {
               showDebugGUI = false;
             }
             ImGui::End();
+            }
 
-            ImGui::SetNextWindowPos(
-                ImVec2((float)currentWidth - 350.0f, 10.0f));
-            ImGui::SetNextWindowSize(ImVec2(340.0f, 340.0f));
-            ImGui::SetNextWindowBgAlpha(0.75f);
-            ImGui::Begin("Editor Bano", NULL,
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            if (false) {
+            ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+            ImGui::Begin("Editor Bano", NULL);
             ImGui::Text("Ajuste en tiempo real (sin recompilar)");
             ImGui::Separator();
             ImGui::Text("Bano");
@@ -2379,13 +2462,12 @@ int main() {
             ImGui::Separator();
 
             ImGui::End();
+            }
 
-            ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 700.0f, 10.0f),
-                                    ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(340.0f, 450.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.75f);
-            ImGui::Begin("Editor Contencion", NULL,
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            if (false) {
+            ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+            ImGui::Begin("Editor Contencion", NULL);
             ImGui::Text("Tesla Model");
             ImGui::DragFloat3("Tesla Pos", &teslaPos.x, 0.05f);
             ImGui::DragFloat3("Tesla Rot", &teslaRot.x, 0.5f, -180.0f, 180.0f);
@@ -2485,6 +2567,18 @@ int main() {
               warningPos.y = -0.5f;
               warningRot = glm::vec3(0.0f, 0.0f, 0.0f);
               warningScale = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
+            ImGui::Separator();
+
+            ImGui::Text("Cajones Oficina (cajonesOF) Model");
+            ImGui::DragFloat3("CajonesOF Pos", &cajonesOFPos.x, 0.05f);
+            ImGui::DragFloat3("CajonesOF Rot", &cajonesOFRot.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("CajonesOF Scale", &cajonesOFScale.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer frente a camara##cajonesOF")) {
+              cajonesOFPos = cameraPos + cameraFront * 2.0f;
+              cajonesOFPos.y = -0.5f;
+              cajonesOFRot = glm::vec3(0.0f, 0.0f, 0.0f);
+              cajonesOFScale = glm::vec3(1.0f, 1.0f, 1.0f);
             }
             ImGui::Separator();
 
@@ -2711,7 +2805,7 @@ int main() {
                               0.5f, -180.0f, 180.0f);
             ImGui::DragFloat3("Gen Scale", &generadorScale[selectedGenerador].x,
                               0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer Generador frente a camara")) {
+            if (ImGui::Button("Traer Generador frente a la camara")) {
               generadorPos[selectedGenerador] = cameraPos + cameraFront * 2.0f;
               generadorPos[selectedGenerador].y = -0.5f;
               generadorRot[selectedGenerador] = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -2719,50 +2813,113 @@ int main() {
             }
             ImGui::Separator();
 
-            ImGui::Text("Esquineros Model (4 Instancias)");
-            static int selectedEsquinero = 0;
-            const char *esquineroItems[] = {"Esquinero 1", "Esquinero 2",
-                                            "Esquinero 3", "Esquinero 4"};
-            ImGui::Combo("Seleccionar Esquinero", &selectedEsquinero,
-                         esquineroItems, IM_ARRAYSIZE(esquineroItems));
-
-            glm::vec3 *targetPos = nullptr;
-            glm::vec3 *targetRot = nullptr;
-            glm::vec3 *targetScale = nullptr;
-
-            if (selectedEsquinero == 0) {
-              targetPos = &esquinerosPos;
-              targetRot = &esquinerosRot;
-              targetScale = &esquinerosScale;
-            } else if (selectedEsquinero == 1) {
-              targetPos = &esquineros2Pos;
-              targetRot = &esquineros2Rot;
-              targetScale = &esquineros2Scale;
-            } else if (selectedEsquinero == 2) {
-              targetPos = &esquineros3Pos;
-              targetRot = &esquineros3Rot;
-              targetScale = &esquineros3Scale;
-            } else if (selectedEsquinero == 3) {
-              targetPos = &esquineros4Pos;
-              targetRot = &esquineros4Rot;
-              targetScale = &esquineros4Scale;
+            ImGui::End(); // End 'Editor Contencion'
             }
 
-            if (targetPos) {
-              ImGui::DragFloat3("Pos", &targetPos->x, 0.05f);
-              ImGui::DragFloat3("Rot", &targetRot->x, 0.5f, -180.0f, 180.0f);
-              ImGui::DragFloat3("Scale", &targetScale->x, 0.01f, 0.01f, 10.0f);
-              if (ImGui::Button("Traer frente a camara")) {
-                *targetPos = cameraPos + cameraFront * 2.0f;
-                targetPos->y = -0.5f;
-                *targetRot = glm::vec3(0.0f, 0.0f, 0.0f);
-                *targetScale =
-                    esquinerosScale; // Usar la escala del primero como base
-              }
+            // --- UNIFIED LEVEL EDITOR ---
+            if (activeEditorPanel == 1) {
+            ImGui::SetNextWindowPos(ImVec2(leftPanelX, leftLevelY), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.84f);
+            ImGui::Begin("Editor de Niveles 🛠️", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+            
+            ImGui::TextColored(ImVec4(0.2f, 0.75f, 1.0f, 1.0f), "Editor de Mapa 3D");
+            ImGui::Separator();
+
+            static int selectedPropIdx = -1;
+            if (placedProps.empty()) {
+                selectedPropIdx = -1;
+            } else if (selectedPropIdx < 0 || selectedPropIdx >= (int)placedProps.size()) {
+                selectedPropIdx = 0;
             }
 
+            // List of placed props
+            if (ImGui::TreeNode("Objetos en Escena")) {
+                for (int i = 0; i < (int)placedProps.size(); ++i) {
+                    std::string label = std::to_string(i) + ": " + placedProps[i].modelName;
+                    if (ImGui::Selectable(label.c_str(), selectedPropIdx == i)) {
+                        selectedPropIdx = i;
+                    }
+                }
+                ImGui::TreePop();
+            }
+            ImGui::Separator();
+
+            if (selectedPropIdx >= 0 && selectedPropIdx < (int)placedProps.size()) {
+                auto& prop = placedProps[selectedPropIdx];
+                ImGui::TextColored(ImVec4(0.9f, 0.8f, 0.1f, 1.0f), "Prop Seleccionado: %s", prop.modelName.c_str());
+                
+                ImGui::DragFloat3("Posición", &prop.pos.x, 0.05f);
+                ImGui::DragFloat3("Rotación", &prop.rot.x, 0.5f, -180.0f, 180.0f);
+                ImGui::DragFloat3("Escala", &prop.scale.x, 0.01f, 0.01f, 10.0f);
+                ImGui::Checkbox("Activar Física/Colisión", &prop.collisionActive);
+
+                if (ImGui::Button("Traer frente a camara")) {
+                    prop.pos = cameraPos + cameraFront * 2.0f;
+                    prop.pos.y = -0.5f;
+                    prop.rot = glm::vec3(0.0f, 0.0f, 0.0f);
+                    prop.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+                }
+
+                ImGui::Spacing();
+                
+                if (ImGui::Button("📑 Duplicar Objeto", ImVec2(-1, 0))) {
+                    PlacedProp dup = prop;
+                    dup.pos += glm::vec3(0.5f, 0.0f, 0.5f); // Un pequeño offset para ver que se duplicó
+                    placedProps.push_back(dup);
+                    selectedPropIdx = (int)placedProps.size() - 1;
+                }
+
+                if (ImGui::Button("❌ Eliminar Objeto", ImVec2(-1, 0))) {
+                    placedProps.erase(placedProps.begin() + selectedPropIdx);
+                    if (selectedPropIdx >= (int)placedProps.size()) {
+                        selectedPropIdx = (int)placedProps.size() - 1;
+                    }
+                }
+            } else {
+                ImGui::Text("Ningún objeto seleccionado");
+            }
+            ImGui::Separator();
+
+            // Adding a new prop
+            ImGui::TextColored(ImVec4(0.1f, 0.9f, 0.2f, 1.0f), "Agregar Nuevo Objeto:");
+            static const char* availableModels[] = { 
+                "cajonesOF", "sarcofago", "tesla", "reactor", "reactorControl", "panelControl", "warning", "esquineros", "cables_piso", "cables_techo", "barra", "logo", "logo2"
+            };
+            static int selectedModelToAddIdx = 0;
+            ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels, IM_ARRAYSIZE(availableModels));
+
+            if (ImGui::Button("➕ Agregar a Escena", ImVec2(-1, 0))) {
+                PlacedProp newProp;
+                newProp.modelName = availableModels[selectedModelToAddIdx];
+                newProp.pos = cameraPos + cameraFront * 2.0f;
+                newProp.pos.y = -0.5f;
+                newProp.rot = glm::vec3(0.0f, 0.0f, 0.0f);
+                
+                // Escalas base/por defecto para cada uno
+                if (newProp.modelName == "tesla") newProp.scale = glm::vec3(0.150f, 0.120f, 0.090f);
+                else if (newProp.modelName == "sarcofago") newProp.scale = glm::vec3(1.260f, 1.060f, 0.930f);
+                else if (newProp.modelName == "warning") newProp.scale = glm::vec3(1.410f, 0.950f, 1.570f);
+                else if (newProp.modelName == "reactorControl") newProp.scale = glm::vec3(0.890f, 0.730f, 0.280f);
+                else if (newProp.modelName == "panelControl") newProp.scale = glm::vec3(0.450f, 0.490f, 0.180f);
+                else if (newProp.modelName == "esquineros") newProp.scale = glm::vec3(0.890f, 0.750f, 0.810f);
+                else if (newProp.modelName == "cables_piso") newProp.scale = glm::vec3(0.01918f, 0.01918f, 0.01918f);
+                else if (newProp.modelName == "cables_techo") newProp.scale = glm::vec3(-0.001557f, -0.001557f, -0.001557f);
+                else newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
+                placedProps.push_back(newProp);
+                selectedPropIdx = (int)placedProps.size() - 1;
+            }
+            ImGui::Separator();
+
+            // Permanent Save Button!
+            if (ImGui::Button("💾 GUARDAR CAMBIOS MAPA", ImVec2(-1, 40))) {
+                saveLevelProps("assets/config_posiciones.txt");
+            }
             ImGui::End();
+            }
 
+            if (activeEditorPanel == 2) {
             static int selectedEntityIndex = 0;
             static bool entityOnlyCollectibles = false;
             if (!gameEntities.empty()) {
@@ -2772,10 +2929,11 @@ int main() {
                 selectedEntityIndex = (int)gameEntities.size() - 1;
             }
 
-            ImGui::SetNextWindowPos(
-                ImVec2((float)currentWidth - 350.0f, 360.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(340.0f, 330.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.78f);
+            ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY),
+                                    ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH),
+                                     ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.82f);
             ImGui::Begin("Spawn Inspector", NULL,
                          ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
             ImGui::Text("Spawn guardado");
@@ -2838,11 +2996,13 @@ int main() {
               teleportNear(gameEntities[selectedEntityIndex].pos);
             }
             ImGui::End();
+            }
 
           if (showCollisionViewer) {
-            ImGui::SetNextWindowPos(ImVec2(10.0f, 515.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(290.0f, 120.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.72f);
+            ImGui::SetNextWindowPos(ImVec2(leftPanelX + leftPanelW + panelGap,
+                                           panelTopY), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(260.0f, 118.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowBgAlpha(0.80f);
             ImGui::Begin("Collision Viewer", NULL,
                          ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
             ImGui::Checkbox("Paredes", &collisionShowWalls);
@@ -2852,13 +3012,14 @@ int main() {
             ImGui::End();
           }
         } else {
-          ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
-          ImGui::SetNextWindowSize(ImVec2(180.0f, 35.0f));
-          ImGui::SetNextWindowBgAlpha(0.4f);
+          ImGui::SetNextWindowPos(ImVec2(0.0f, currentHeight * 0.42f),
+                                  ImGuiCond_Always);
+          ImGui::SetNextWindowSize(ImVec2(34.0f, 148.0f), ImGuiCond_Always);
+          ImGui::SetNextWindowBgAlpha(0.72f);
           ImGui::Begin("ShowEditorBtn", NULL,
                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
                            ImGuiWindowFlags_NoMove);
-          if (ImGui::Button("Mostrar Editor (G)", ImVec2(-1, 0))) {
+          if (ImGui::Button(">\nE\nD\nI\nT\nO\nR", ImVec2(-1, -1))) {
             showDebugGUI = true;
           }
           ImGui::End();

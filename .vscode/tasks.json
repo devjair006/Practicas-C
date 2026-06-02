@@ -9,6 +9,11 @@
                 "kind": "build",
                 "isDefault": true
             },
+            "options": {
+                "shell": {
+                    "executable": "powershell.exe"
+                }
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
