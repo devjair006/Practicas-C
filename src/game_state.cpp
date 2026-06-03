@@ -262,14 +262,20 @@ glm::vec3 lampara2Scale(1.010f, 8.980f, 1.070f);
 std::vector<glm::vec3> emergencyPos = {
     glm::vec3(39.693f, 0.400f, 20.935f),
     glm::vec3(39.597f, 0.274f, 11.987f),
+    glm::vec3(3.0f, 2.5f, 3.0f),  // esquina noroeste sala descanso
+    glm::vec3(10.0f, 2.5f, 3.0f), // esquina noreste sala descanso
 };
 std::vector<glm::vec3> emergencyRot = {
     glm::vec3(-93.500f, 0.000f, 0.000f),
     glm::vec3(93.500f, 2.500f, 88.000f),
+    glm::vec3(0.000f, 0.000f, 0.000f), // ajustar con editor in-game
+    glm::vec3(0.000f, 0.000f, 0.000f), // ajustar con editor in-game
 };
 std::vector<glm::vec3> emergencyScale = {
     glm::vec3(1.0f, 1.0f, 1.0f),
     glm::vec3(0.990f, 0.980f, 1.0f),
+    glm::vec3(1.0f, 1.0f, 1.0f),
+    glm::vec3(1.0f, 1.0f, 1.0f),
 };
 
 glm::vec3 reactorPos(43.163f, -0.550f, 19.211f);
