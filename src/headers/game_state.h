@@ -210,6 +210,7 @@ extern glm::vec3 sarcofagoRot;
 extern glm::vec3 sarcofagoScale;
 
 extern GLTFModel *cajonesOFGLTF;
+extern GLTFModel *gabineteGLTF;
 extern GLTFModel *barraGLTF;
 extern GLTFModel *logoGLTF;
 extern GLTFModel *logo2GLTF;
