@@ -1,5 +1,0 @@
-{
-    "cmake.configureOnOpen": false,
-    "cmake.automaticReconfigure": false,
-    "cmake.setBuildTypeOnMultiConfig": false
-}

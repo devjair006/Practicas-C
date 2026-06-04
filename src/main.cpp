@@ -343,6 +343,21 @@ int main() {
   logo2GLTF = new GLTFModel("assets/contencion/logo2.glb");
   consolaGLTF = new GLTFModel("assets/contencion/consola.glb");
 
+  // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
+  GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
+  GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
+  metalDeskGLTF = new GLTFModel("assets/metal_desk.glb"); // global declarado en game_state
+
+  // --- SALA DE DESCANSO: modelos nuevos (assets/descanso/) ---
+  GLTFModel *literaGLTF =
+      new GLTFModel("assets/descanso/litera.glb"); // archivo pendiente de agregar
+  GLTFModel *lockerGLTF =
+      new GLTFModel("assets/descanso/locker.glb"); // archivo pendiente de agregar
+  GLTFModel *extintorGLTF =
+      new GLTFModel("assets/descanso/extintor.glb"); // archivo pendiente de agregar
+  GLTFModel *botiquinGLTF =
+      new GLTFModel("assets/descanso/botiquin.glb"); // archivo pendiente de agregar
+
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
   modelRegistry["barra"] = barraGLTF;
@@ -360,6 +375,15 @@ int main() {
   modelRegistry["esquineros4"] = esquinerosGLTF;
   modelRegistry["cables_piso"] = cablePisoGLTF;
   modelRegistry["cables_techo"] = cableTechoGLTF;
+
+  // Sala de Descanso
+  modelRegistry["sillas"] = sillasGLTF;
+  modelRegistry["metal_desk"] = metalDeskGLTF;
+  modelRegistry["sofa"] = sofaGLTF;
+  modelRegistry["litera"] = literaGLTF;
+  modelRegistry["locker"] = lockerGLTF;
+  modelRegistry["extintor"] = extintorGLTF;
+  modelRegistry["botiquin"] = botiquinGLTF;
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
