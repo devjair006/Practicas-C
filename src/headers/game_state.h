@@ -242,6 +242,14 @@ extern glm::vec3 lampara3Pos;
 extern glm::vec3 lampara3Rot;
 extern glm::vec3 lampara3Scale;
 
+// Luces parpadeantes (estilo baño) para la sala de descanso / sofas
+extern glm::vec3 luzDescanso1Pos;
+extern glm::vec3 luzDescanso1Rot;
+extern glm::vec3 luzDescanso1Scale;
+extern glm::vec3 luzDescanso2Pos;
+extern glm::vec3 luzDescanso2Rot;
+extern glm::vec3 luzDescanso2Scale;
+
 extern GLTFModel *emergencyGLTF;
 extern std::vector<glm::vec3> emergencyPos;
 extern std::vector<glm::vec3> emergencyRot;
