@@ -2,9 +2,7 @@
 build/
 build_win/
 .cache/
-# .vscode: compartir solo tasks.json (build del equipo); ignorar config personal
-.vscode/*
-!.vscode/tasks.json
+# .vscode/ -- NO ignorar, contiene configuración de compilación para el equipo
 
 # Ejecutables y binarios
 *.exe
@@ -25,4 +23,3 @@ Makefile
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
-vcpkg/
