@@ -218,6 +218,7 @@ GLTFModel *consolaGLTF = nullptr;
 GLTFModel *lamparaReactorGLTF = nullptr;
 GLTFModel *sarcofagoGLTF = nullptr;
 GLTFModel *cajonesOFGLTF = nullptr;
+GLTFModel *gabineteGLTF = nullptr;
 GLTFModel *barraGLTF = nullptr;
 GLTFModel *logoGLTF = nullptr;
 GLTFModel *logo2GLTF = nullptr;
