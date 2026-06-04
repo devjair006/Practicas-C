@@ -352,11 +352,24 @@ int main() {
   GLTFModel *literaGLTF =
       new GLTFModel("assets/descanso/litera.glb"); // archivo pendiente de agregar
   GLTFModel *lockerGLTF =
-      new GLTFModel("assets/descanso/locker.glb"); // archivo pendiente de agregar
+      new GLTFModel("assets/descanso/locker.glb"); 
   GLTFModel *extintorGLTF =
       new GLTFModel("assets/descanso/extintor.glb"); // archivo pendiente de agregar
   GLTFModel *botiquinGLTF =
       new GLTFModel("assets/descanso/botiquin.glb"); // archivo pendiente de agregar
+  GLTFModel *bunkBedGLTF =
+      new GLTFModel("assets/descanso/bunk_bed.glb"); // litera para la sala de descanso
+  GLTFModel *kirzaBootsGLTF =
+      new GLTFModel("assets/descanso/kirza_boots.glb");
+  GLTFModel *lockersGLTF =
+      new GLTFModel("assets/descanso/lockers.glb");
+  GLTFModel *fireExtinguisherGLTF =
+      new GLTFModel("assets/descanso/old_fire_extinguisher.glb");
+  GLTFModel *taxophoneGLTF =
+      new GLTFModel("assets/descanso/old_soviet_taxophone.glb");
+ 
+  GLTFModel *newspaperGLTF =
+      new GLTFModel("assets/descanso/vintage_newspaper.glb");
 
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
@@ -384,6 +397,14 @@ int main() {
   modelRegistry["locker"] = lockerGLTF;
   modelRegistry["extintor"] = extintorGLTF;
   modelRegistry["botiquin"] = botiquinGLTF;
+  modelRegistry["bunk_bed"] = bunkBedGLTF;
+  modelRegistry["kirza_boots"] = kirzaBootsGLTF;
+  modelRegistry["lockers"] = lockersGLTF;
+  modelRegistry["old_fire_extinguisher"] = fireExtinguisherGLTF;
+  modelRegistry["old_soviet_taxophone"] = taxophoneGLTF;
+  modelRegistry["vintage_newspaper"] = newspaperGLTF;
+  // Modelo de luz (lampara estilo baño) disponible en el editor de niveles
+  modelRegistry["ligthbathroom"] = ligthbathroomGLTF;
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
@@ -477,10 +498,10 @@ int main() {
       glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
 
   int numPointLightsLoc = glGetUniformLocation(shaderProgram, "numPointLights");
-  int pointLightPosLoc[12];
-  int pointLightColLoc[12];
-  int pointLightRadLoc[12];
-  for (int i = 0; i < 12; i++) {
+  int pointLightPosLoc[20];
+  int pointLightColLoc[20];
+  int pointLightRadLoc[20];
+  for (int i = 0; i < 20; i++) {
     std::string posStr = "pointLights[" + std::to_string(i) + "]";
     posStr += ".position";
     std::string colStr = "pointLights[" + std::to_string(i) + "]";
@@ -901,9 +922,42 @@ int main() {
     glUniform3f(pointLightColLoc[11], 0.2f * teslaPulse, 0.4f * teslaPulse, 1.0f * teslaPulse);
     glUniform1f(pointLightRadLoc[11], 5.0f);
 
+    // --- LUCES PARPADEANTES SALA DE DESCANSO (estilo baño, indices 12 y 13) ---
+    float flickerDescanso1 = getFlicker(currentFrame, 7.3f);
+    float flickerDescanso2 = getFlicker(currentFrame, 33.9f);
+
+    glUniform3fv(pointLightPosLoc[12], 1, glm::value_ptr(luzDescanso1Pos));
+    glUniform3f(pointLightColLoc[12], 0.8f * flickerDescanso1,
+                0.6f * flickerDescanso1, 0.2f * flickerDescanso1);
+    glUniform1f(pointLightRadLoc[12], 4.0f);
+
+    glUniform3fv(pointLightPosLoc[13], 1, glm::value_ptr(luzDescanso2Pos));
+    glUniform3f(pointLightColLoc[13], 0.8f * flickerDescanso2,
+                0.6f * flickerDescanso2, 0.2f * flickerDescanso2);
+    glUniform1f(pointLightRadLoc[13], 4.0f);
+
+    // --- LUCES PUNTUALES DINAMICAS PARA LAMPARAS COLOCADAS EN EL EDITOR ---
+    // Cada modelo "ligthbathroom" agregado desde el Editor de Niveles emite su
+    // propia luz parpadeante, para que la iluminacion salga de la lampara.
+    constexpr int kEditorLightBaseIdx = 14;
+    int editorLightIdx = kEditorLightBaseIdx;
+    for (const auto &prop : placedProps) {
+      if (editorLightIdx >= 20)
+        break; // Tope del arreglo (MAX_POINT_LIGHTS)
+      if (prop.modelName != "ligthbathroom")
+        continue;
+      float f = getFlicker(currentFrame, editorLightIdx * 7.13f);
+      glUniform3fv(pointLightPosLoc[editorLightIdx], 1,
+                   glm::value_ptr(prop.pos));
+      glUniform3f(pointLightColLoc[editorLightIdx], 0.8f * f, 0.6f * f,
+                  0.2f * f);
+      glUniform1f(pointLightRadLoc[editorLightIdx], 4.0f);
+      editorLightIdx++;
+    }
+
     // Informar al shader cuantas luces reales estamos usando
-    // Usamos 12 si la tesla esta activa, o el currentLightIdx si no
-    glUniform1i(numPointLightsLoc, 12);
+    // 14 fijas (bano/contencion/emergencia/tesla/descanso) + las del editor
+    glUniform1i(numPointLightsLoc, editorLightIdx);
 
     for (int i = currentLightIdx; i < 11; i++) {
       glUniform3f(pointLightColLoc[i], 0.0f, 0.0f, 0.0f);
@@ -1443,6 +1497,48 @@ int main() {
                   1.5f * flicker4); // Hacer que brille la lampara
       if (shouldRender(lamp4Pos.x, lamp4Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+
+      // Luz de descanso 1 (sala de sofas)
+      glm::mat4 luzDescanso1Model = glm::mat4(1.0f);
+      luzDescanso1Model = glm::translate(luzDescanso1Model, luzDescanso1Pos);
+      luzDescanso1Model =
+          glm::rotate(luzDescanso1Model, glm::radians(luzDescanso1Rot.x),
+                      glm::vec3(1.0f, 0.0f, 0.0f));
+      luzDescanso1Model =
+          glm::rotate(luzDescanso1Model, glm::radians(luzDescanso1Rot.y),
+                      glm::vec3(0.0f, 1.0f, 0.0f));
+      luzDescanso1Model =
+          glm::rotate(luzDescanso1Model, glm::radians(luzDescanso1Rot.z),
+                      glm::vec3(0.0f, 0.0f, 1.0f));
+      luzDescanso1Model = glm::scale(luzDescanso1Model, luzDescanso1Scale);
+      luzDescanso1Model = glm::translate(
+          luzDescanso1Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
+                         glm::value_ptr(luzDescanso1Model));
+      glUniform1f(emissiveStrengthLoc, 1.5f * flickerDescanso1);
+      if (shouldRender(luzDescanso1Pos.x, luzDescanso1Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+      glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+
+      // Luz de descanso 2 (sala de sofas)
+      glm::mat4 luzDescanso2Model = glm::mat4(1.0f);
+      luzDescanso2Model = glm::translate(luzDescanso2Model, luzDescanso2Pos);
+      luzDescanso2Model =
+          glm::rotate(luzDescanso2Model, glm::radians(luzDescanso2Rot.x),
+                      glm::vec3(1.0f, 0.0f, 0.0f));
+      luzDescanso2Model =
+          glm::rotate(luzDescanso2Model, glm::radians(luzDescanso2Rot.y),
+                      glm::vec3(0.0f, 1.0f, 0.0f));
+      luzDescanso2Model =
+          glm::rotate(luzDescanso2Model, glm::radians(luzDescanso2Rot.z),
+                      glm::vec3(0.0f, 0.0f, 1.0f));
+      luzDescanso2Model = glm::scale(luzDescanso2Model, luzDescanso2Scale);
+      luzDescanso2Model = glm::translate(
+          luzDescanso2Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
+                         glm::value_ptr(luzDescanso2Model));
+      glUniform1f(emissiveStrengthLoc, 1.5f * flickerDescanso2);
+      if (shouldRender(luzDescanso2Pos.x, luzDescanso2Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+      glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
 
     if (ligthbathroom2GLTF && !ligthbathroom2GLTF->meshes.empty()) {
@@ -1502,6 +1598,7 @@ int main() {
     }
 
     // --- BUCLE DINAMICO DE RENDERING DE PROPS ---
+    int editorLampDrawIdx = kEditorLightBaseIdx; // sincroniza glow con su luz
     for (const auto& prop : placedProps) {
       GLTFModel* model = modelRegistry[prop.modelName];
       if (!model || model->meshes.empty()) continue;
@@ -1513,10 +1610,24 @@ int main() {
       pModel = glm::rotate(pModel, glm::radians(prop.rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
       pModel = glm::scale(pModel, prop.scale);
 
+      // El modelo de luz (lampara baño) trae un offset de pivote de Blender y
+      // debe brillar con el parpadeo, igual que las lamparas fijas.
+      bool esLuzBano = (prop.modelName == "ligthbathroom");
+      float lampGlow = 0.0f;
+      if (esLuzBano) {
+        pModel = glm::translate(pModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
+        // Mismo parpadeo que la luz puntual asociada (mismo offset por indice)
+        if (editorLampDrawIdx < 20)
+          lampGlow = getFlicker(currentFrame, editorLampDrawIdx * 7.13f);
+        editorLampDrawIdx++;
+      }
+
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
+      if (esLuzBano) glUniform1f(emissiveStrengthLoc, 1.5f * lampGlow);
       if (shouldRender(prop.pos.x, prop.pos.z, 3.0f)) {
         model->Draw(shaderProgram, solidColorLoc);
       }
+      if (esLuzBano) glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
 //*------------------
     if (cablePisoGLTF && !cablePisoGLTF->meshes.empty()) {
@@ -2648,6 +2759,34 @@ int main() {
             }
 
             ImGui::Separator();
+            ImGui::Text("Luz Descanso 1 (ligthbathroom)");
+            ImGui::DragFloat3("LuzDesc1 Pos", &luzDescanso1Pos.x, 0.05f);
+            ImGui::DragFloat3("LuzDesc1 Rot", &luzDescanso1Rot.x, 0.5f, -180.0f,
+                              180.0f);
+            ImGui::DragFloat3("LuzDesc1 Scale", &luzDescanso1Scale.x, 0.01f,
+                              0.01f, 10.0f);
+            if (ImGui::Button("Traer frente a camara##luzDescanso1")) {
+              luzDescanso1Pos = cameraPos + cameraFront * 2.0f;
+              luzDescanso1Pos.y = 2.5f;
+              luzDescanso1Rot = glm::vec3(0.0f, -180.0f, 0.0f);
+              luzDescanso1Scale = glm::vec3(0.520f, 0.490f, 1.0f);
+            }
+
+            ImGui::Separator();
+            ImGui::Text("Luz Descanso 2 (ligthbathroom)");
+            ImGui::DragFloat3("LuzDesc2 Pos", &luzDescanso2Pos.x, 0.05f);
+            ImGui::DragFloat3("LuzDesc2 Rot", &luzDescanso2Rot.x, 0.5f, -180.0f,
+                              180.0f);
+            ImGui::DragFloat3("LuzDesc2 Scale", &luzDescanso2Scale.x, 0.01f,
+                              0.01f, 10.0f);
+            if (ImGui::Button("Traer frente a camara##luzDescanso2")) {
+              luzDescanso2Pos = cameraPos + cameraFront * 2.0f;
+              luzDescanso2Pos.y = 2.5f;
+              luzDescanso2Rot = glm::vec3(0.0f, -180.0f, 0.0f);
+              luzDescanso2Scale = glm::vec3(0.520f, 0.490f, 1.0f);
+            }
+
+            ImGui::Separator();
             ImGui::Text("Emergency Lights");
             if (ImGui::Button("Agregar Luz de Emergencia")) {
               emergencyPos.push_back(cameraPos + cameraFront * 2.0f);
@@ -2907,8 +3046,8 @@ int main() {
 
             // Adding a new prop
             ImGui::TextColored(ImVec4(0.1f, 0.9f, 0.2f, 1.0f), "Agregar Nuevo Objeto:");
-            static const char* availableModels[] = { 
-                "cajonesOF", "sarcofago", "tesla", "reactor", "consola", "panelControl", "warning", "esquineros", "cables_piso", "cables_techo", "barra", "logo", "logo2"
+            static const char* availableModels[] = {
+                "cajonesOF", "sarcofago", "tesla", "reactor", "consola", "panelControl", "warning", "esquineros", "cables_piso", "cables_techo", "barra", "logo", "logo2", "ligthbathroom", "bunk_bed", "metal_desk", "kirza_boots", "lockers", "old_fire_extinguisher", "old_soviet_taxophone", "old_style_radiator", "vintage_newspaper"
             };
             static int selectedModelToAddIdx = 0;
             ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels, IM_ARRAYSIZE(availableModels));
@@ -2929,6 +3068,7 @@ int main() {
                 else if (newProp.modelName == "esquineros") newProp.scale = glm::vec3(0.890f, 0.750f, 0.810f);
                 else if (newProp.modelName == "cables_piso") newProp.scale = glm::vec3(0.01918f, 0.01918f, 0.01918f);
                 else if (newProp.modelName == "cables_techo") newProp.scale = glm::vec3(-0.001557f, -0.001557f, -0.001557f);
+                else if (newProp.modelName == "ligthbathroom") newProp.scale = glm::vec3(0.520f, 0.490f, 1.0f);
                 else newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
                 placedProps.push_back(newProp);

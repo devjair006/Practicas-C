@@ -286,6 +286,14 @@ glm::vec3 lampara3Pos(36.155f, 0.450f, 16.392f);
 glm::vec3 lampara3Rot(-89.000f, 0.000f, 89.000f);
 glm::vec3 lampara3Scale(1.010f, 8.980f, 1.070f);
 
+// Luces parpadeantes (estilo baño) para la sala de descanso / sofas
+glm::vec3 luzDescanso1Pos(5.000f, 2.500f, 2.000f);
+glm::vec3 luzDescanso1Rot(0.0f, -180.0f, 0.0f);
+glm::vec3 luzDescanso1Scale(0.520f, 0.490f, 1.0f);
+glm::vec3 luzDescanso2Pos(12.000f, 2.500f, 2.000f);
+glm::vec3 luzDescanso2Rot(0.0f, -180.0f, 0.0f);
+glm::vec3 luzDescanso2Scale(0.520f, 0.490f, 1.0f);
+
 glm::vec3 panelControlPos(48.350f, -0.500f, 17.450f);
 glm::vec3 panelControlRot(-91.000f, 0.000f, -180.000f);
 glm::vec3 panelControlScale(0.450f, 0.490f, 0.180f);
