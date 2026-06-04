@@ -359,6 +359,17 @@ int main() {
       new GLTFModel("assets/descanso/botiquin.glb"); // archivo pendiente de agregar
   GLTFModel *bunkBedGLTF =
       new GLTFModel("assets/descanso/bunk_bed.glb"); // litera para la sala de descanso
+  GLTFModel *kirzaBootsGLTF =
+      new GLTFModel("assets/descanso/kirza_boots.glb");
+  GLTFModel *lockersGLTF =
+      new GLTFModel("assets/descanso/lockers.glb");
+  GLTFModel *fireExtinguisherGLTF =
+      new GLTFModel("assets/descanso/old_fire_extinguisher.glb");
+  GLTFModel *taxophoneGLTF =
+      new GLTFModel("assets/descanso/old_soviet_taxophone.glb");
+ 
+  GLTFModel *newspaperGLTF =
+      new GLTFModel("assets/descanso/vintage_newspaper.glb");
 
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
@@ -387,6 +398,11 @@ int main() {
   modelRegistry["extintor"] = extintorGLTF;
   modelRegistry["botiquin"] = botiquinGLTF;
   modelRegistry["bunk_bed"] = bunkBedGLTF;
+  modelRegistry["kirza_boots"] = kirzaBootsGLTF;
+  modelRegistry["lockers"] = lockersGLTF;
+  modelRegistry["old_fire_extinguisher"] = fireExtinguisherGLTF;
+  modelRegistry["old_soviet_taxophone"] = taxophoneGLTF;
+  modelRegistry["vintage_newspaper"] = newspaperGLTF;
   // Modelo de luz (lampara estilo baño) disponible en el editor de niveles
   modelRegistry["ligthbathroom"] = ligthbathroomGLTF;
 
@@ -3031,7 +3047,7 @@ int main() {
             // Adding a new prop
             ImGui::TextColored(ImVec4(0.1f, 0.9f, 0.2f, 1.0f), "Agregar Nuevo Objeto:");
             static const char* availableModels[] = {
-                "cajonesOF", "sarcofago", "tesla", "reactor", "consola", "panelControl", "warning", "esquineros", "cables_piso", "cables_techo", "barra", "logo", "logo2", "ligthbathroom", "bunk_bed"
+                "cajonesOF", "sarcofago", "tesla", "reactor", "consola", "panelControl", "warning", "esquineros", "cables_piso", "cables_techo", "barra", "logo", "logo2", "ligthbathroom", "bunk_bed", "metal_desk", "kirza_boots", "lockers", "old_fire_extinguisher", "old_soviet_taxophone", "old_style_radiator", "vintage_newspaper"
             };
             static int selectedModelToAddIdx = 0;
             ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels, IM_ARRAYSIZE(availableModels));
