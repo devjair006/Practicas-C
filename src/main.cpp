@@ -1,5 +1,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
-// GLAD debe incluirse SIEMPRE antes que GLFW (y antes de cualquier header OpenGL)
+// GLAD debe incluirse SIEMPRE antes que GLFW (y antes de cualquier header
+// OpenGL)
 #include <glad/glad.h>
 // GLFW_INCLUDE_NONE evita que GLFW incluya <GL/gl.h> por su cuenta en Windows
 #define GLFW_INCLUDE_NONE
@@ -334,24 +335,107 @@ int main() {
   lampara3GLTF = lampara2GLTF;
   emergencyGLTF = new GLTFModel("assets/contencion/emergency.glb");
   reactorGLTF = new GLTFModel("assets/contencion/reactor.glb");
-    GLTFModel* lockerGLTF = new GLTFModel("assets/locker.glb");
-    GLTFModel* maquinaGLTF = new GLTFModel("assets/maquina.glb");
-    GLTFModel* deskGLTF = new GLTFModel("assets/desk.glb");
-    GLTFModel* sillaGLTF = new GLTFModel("assets/silla.glb");
-    GLTFModel* estanteGLTF = new GLTFModel("assets/estante.glb");
-    GLTFModel* monitorsciGLTF = new GLTFModel("assets/monitorsci.glb");
-    GLTFModel* monitorGLTF = new GLTFModel("assets/monitor.glb");
-        GLTFModel* sillasGLTF = new GLTFModel("assets/sillas.glb");
-
-
-   
-    
-
   panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
   lamparaReactorGLTF = new GLTFModel("assets/contencion/lampara-reactor.glb");
   warningGLTF = new GLTFModel("assets/contencion/warning.glb");
   cajonesOFGLTF = new GLTFModel("assets/oficinas/cajonesOF.glb");
-  std::cout << "[SISTEMA] Props oficinas cargados: CajonesOF(" << cajonesOFGLTF->meshes.size() << ")" << std::endl;
+  barraGLTF = new GLTFModel("assets/contencion/barra.glb");
+  logoGLTF = new GLTFModel("assets/contencion/logo.glb");
+  logo2GLTF = new GLTFModel("assets/contencion/logo2.glb");
+  consolaGLTF = new GLTFModel("assets/contencion/consola.glb");
+  // Modelos de archivo restringido
+  gabineteGLTF = new GLTFModel("assets/archivo/gabinete.glb");
+  camaraGLTF = new GLTFModel("assets/archivo/camara.glb");
+  serversGLTF = new GLTFModel("assets/archivo/servers.glb");
+  terminalGLTF = new GLTFModel("assets/archivo/terminal.glb");
+  boxCloseGLTF = new GLTFModel("assets/archivo/box-close.glb");
+  boxOpenGLTF = new GLTFModel("assets/archivo/box-open.glb");
+  vaultDoorGLTF = new GLTFModel("assets/archivo/vault-door.glb");
+  escritorioGLTF = new GLTFModel("assets/archivo/escritorio.glb");
+  mesaGLTF = new GLTFModel("assets/archivo/mesa.glb");
+  miniLamparaGLTF = new GLTFModel("assets/archivo/mini-lampara.glb");
+  computerGLTF = new GLTFModel("assets/archivo/computer.glb");
+  sillaGLTF = new GLTFModel("assets/archivo/silla.glb");
+  // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
+  GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
+  GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
+  metalDeskGLTF =
+      new GLTFModel("assets/metal_desk.glb"); // global declarado en game_state
+
+  // --- SALA DE DESCANSO: modelos nuevos (assets/descanso/) ---
+  GLTFModel *literaGLTF =
+      new GLTFModel("assets/descanso/litera.glb"); // archivo pendiente de agregar
+  GLTFModel *lockerGLTF =
+      new GLTFModel("assets/descanso/locker.glb"); 
+  GLTFModel *extintorGLTF =
+      new GLTFModel("assets/descanso/extintor.glb"); // archivo pendiente de agregar
+  GLTFModel *botiquinGLTF =
+      new GLTFModel("assets/descanso/botiquin.glb"); // archivo pendiente de agregar
+  GLTFModel *bunkBedGLTF =
+      new GLTFModel("assets/descanso/bunk_bed.glb"); // litera para la sala de descanso
+  GLTFModel *kirzaBootsGLTF =
+      new GLTFModel("assets/descanso/kirza_boots.glb");
+  GLTFModel *lockersGLTF =
+      new GLTFModel("assets/descanso/lockers.glb");
+  GLTFModel *fireExtinguisherGLTF =
+      new GLTFModel("assets/descanso/old_fire_extinguisher.glb");
+  GLTFModel *taxophoneGLTF =
+      new GLTFModel("assets/descanso/old_soviet_taxophone.glb");
+ 
+  GLTFModel *newspaperGLTF =
+      new GLTFModel("assets/descanso/vintage_newspaper.glb");
+
+  // Registrar en modelRegistry
+  modelRegistry["cajonesOF"] = cajonesOFGLTF;
+  modelRegistry["gabinete"] = gabineteGLTF;
+  modelRegistry["camara"] = camaraGLTF;
+  modelRegistry["servers"] = serversGLTF;
+  modelRegistry["terminal"] = terminalGLTF;
+  modelRegistry["box-close"] = boxCloseGLTF;
+  modelRegistry["box-open"] = boxOpenGLTF;
+  modelRegistry["vault-door"] = vaultDoorGLTF;
+  modelRegistry["escritorio"] = escritorioGLTF;
+  modelRegistry["mesa"] = mesaGLTF;
+  modelRegistry["mini-lampara"] = miniLamparaGLTF;
+  modelRegistry["computer"] = computerGLTF;
+  modelRegistry["silla"] = sillaGLTF;
+  modelRegistry["barra"] = barraGLTF;
+  modelRegistry["logo"] = logoGLTF;
+  modelRegistry["logo2"] = logo2GLTF;
+  modelRegistry["sarcofago"] = sarcofagoGLTF;
+  modelRegistry["tesla"] = teslaGLTF;
+  modelRegistry["reactor"] = reactorGLTF;
+  modelRegistry["consola"] = consolaGLTF;
+  modelRegistry["panelControl"] = panelControlGLTF;
+  modelRegistry["warning"] = warningGLTF;
+  modelRegistry["esquineros"] = esquinerosGLTF;
+  modelRegistry["esquineros2"] = esquinerosGLTF;
+  modelRegistry["esquineros3"] = esquinerosGLTF;
+  modelRegistry["esquineros4"] = esquinerosGLTF;
+  modelRegistry["cables_piso"] = cablePisoGLTF;
+  modelRegistry["cables_techo"] = cableTechoGLTF;
+
+  // Sala de Descanso
+  modelRegistry["sillas"] = sillasGLTF;
+  modelRegistry["metal_desk"] = metalDeskGLTF;
+  modelRegistry["sofa"] = sofaGLTF;
+  modelRegistry["litera"] = literaGLTF;
+  modelRegistry["locker"] = lockerGLTF;
+  modelRegistry["extintor"] = extintorGLTF;
+  modelRegistry["botiquin"] = botiquinGLTF;
+  modelRegistry["bunk_bed"] = bunkBedGLTF;
+  modelRegistry["kirza_boots"] = kirzaBootsGLTF;
+  modelRegistry["lockers"] = lockersGLTF;
+  modelRegistry["old_fire_extinguisher"] = fireExtinguisherGLTF;
+  modelRegistry["old_soviet_taxophone"] = taxophoneGLTF;
+  modelRegistry["vintage_newspaper"] = newspaperGLTF;
+  // Modelo de luz (lampara estilo baño) disponible en el editor de niveles
+  modelRegistry["ligthbathroom"] = ligthbathroomGLTF;
+
+  // Cargar propiedades desde archivo
+  loadLevelProps("assets/config_posiciones.txt");
+  std::cout << "[SISTEMA] Props oficinas cargados: CajonesOF("
+            << cajonesOFGLTF->meshes.size() << ")" << std::endl;
   std::cout << "[SISTEMA] Props baño cargados: "
             << "Lampara(" << ligthbathroomGLTF->meshes.size() << "), "
             << "Bano(" << banoGLTF->meshes.size() << "), "
@@ -362,7 +446,7 @@ int main() {
             << "Reactor(" << reactorGLTF->meshes.size() << "), "
             << "Esquineros(" << esquinerosGLTF->meshes.size() << ")"
             << std::endl;
-  unsigned int wallTex1 = loadTexture("assets/paredesH.png");
+  unsigned int wallTex1 = loadTexture("assets/paredesLAB.png");
   unsigned int wallTex2 = loadTexture("assets/paredbanosT.png");
   unsigned int wallTex3 = loadTexture("assets/wall.png");
   unsigned int wallTex4 = loadTexture("assets/paredbanosGT.png");
@@ -375,6 +459,11 @@ int main() {
       loadTexture("assets/contencion/piso-contencion.png");
   unsigned int roofContencionTex =
       loadTexture("assets/contencion/techo-contencion.png");
+
+  // Texturas del Archivo Restringido
+  unsigned int wallArchivoTex = loadTexture("assets/archivo/paredes.png");
+  unsigned int floorArchivoTex = loadTexture("assets/archivo/piso.png");
+  unsigned int roofArchivoTex = loadTexture("assets/archivo/techo.png");
 
   // Textura de metal generada para las puertas
   unsigned int doorTex = loadTextureWithFallback("assets/puerta_metal.png", 0);
@@ -441,10 +530,10 @@ int main() {
       glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
 
   int numPointLightsLoc = glGetUniformLocation(shaderProgram, "numPointLights");
-  int pointLightPosLoc[12];
-  int pointLightColLoc[12];
-  int pointLightRadLoc[12];
-  for (int i = 0; i < 12; i++) {
+  int pointLightPosLoc[20];
+  int pointLightColLoc[20];
+  int pointLightRadLoc[20];
+  for (int i = 0; i < 20; i++) {
     std::string posStr = "pointLights[" + std::to_string(i) + "]";
     posStr += ".position";
     std::string colStr = "pointLights[" + std::to_string(i) + "]";
@@ -465,12 +554,18 @@ int main() {
   int spotLightRadLoc[4];
   for (int i = 0; i < 4; i++) {
     std::string base = "spotLights[" + std::to_string(i) + "]";
-    spotLightPosLoc[i] = glGetUniformLocation(shaderProgram, (base + ".position").c_str());
-    spotLightDirLoc[i] = glGetUniformLocation(shaderProgram, (base + ".direction").c_str());
-    spotLightColLoc[i] = glGetUniformLocation(shaderProgram, (base + ".color").c_str());
-    spotLightCutOffLoc[i] = glGetUniformLocation(shaderProgram, (base + ".cutOff").c_str());
-    spotLightOuterCutOffLoc[i] = glGetUniformLocation(shaderProgram, (base + ".outerCutOff").c_str());
-    spotLightRadLoc[i] = glGetUniformLocation(shaderProgram, (base + ".radius").c_str());
+    spotLightPosLoc[i] =
+        glGetUniformLocation(shaderProgram, (base + ".position").c_str());
+    spotLightDirLoc[i] =
+        glGetUniformLocation(shaderProgram, (base + ".direction").c_str());
+    spotLightColLoc[i] =
+        glGetUniformLocation(shaderProgram, (base + ".color").c_str());
+    spotLightCutOffLoc[i] =
+        glGetUniformLocation(shaderProgram, (base + ".cutOff").c_str());
+    spotLightOuterCutOffLoc[i] =
+        glGetUniformLocation(shaderProgram, (base + ".outerCutOff").c_str());
+    spotLightRadLoc[i] =
+        glGetUniformLocation(shaderProgram, (base + ".radius").c_str());
   }
 
   int emissiveStrengthLoc =
@@ -547,7 +642,7 @@ int main() {
   std::vector<RoomZone> roomZones = {
       {33,
        0,
-       37,
+       36,
        8,
        wallTex2,
        wallTex5,
@@ -556,9 +651,9 @@ int main() {
        true,
        true,
        false}, // Baños (cambia a tu textura de azulejo)
-      {38,
+      {37,
        0,
-       41,
+       40,
        8,
        wallTex4,
        wallTex5,
@@ -567,8 +662,30 @@ int main() {
        true,
        true,
        false}, // banos de girls
-       
-      {34, 12, 49, 21, wallContencionTex, floorContencionTex, roofContencionTex, {1.0f, 1.0f, 1.0f}, false, true, true}, // Area contencion
+
+      {34,
+       12,
+       49,
+       21,
+       wallContencionTex,
+       floorContencionTex,
+       roofContencionTex,
+       {1.0f, 1.0f, 1.0f},
+       false,
+       true,
+       true}, // Area contencion
+
+      {41,
+       0,
+       49,
+       8,
+       wallArchivoTex,
+       floorArchivoTex,
+       roofArchivoTex,
+       {0.8f, 0.8f, 0.8f},
+       true,
+       true,
+       true}, // Archivo Restringido
 
       {}, // pisos
   };
@@ -580,120 +697,174 @@ int main() {
     return nullptr;
   };
 
+  // --- STATIC MAP BATCHING ---
+  struct MapBatch {
+    unsigned int textureID;
+    glm::vec3 baseColor;
+    std::vector<float> vertices;
+    unsigned int VAO, VBO;
+  };
+  std::vector<MapBatch> mapBatches;
 
-    // --- STATIC MAP BATCHING ---
-    struct MapBatch {
-        unsigned int textureID;
-        glm::vec3 baseColor;
-        std::vector<float> vertices;
-        unsigned int VAO, VBO;
-    };
-    std::vector<MapBatch> mapBatches;
+  auto getBatch = [&](unsigned int tex, glm::vec3 color) -> MapBatch & {
+    for (auto &b : mapBatches) {
+      if (b.textureID == tex && abs(b.baseColor.x - color.x) < 0.01f &&
+          abs(b.baseColor.y - color.y) < 0.01f &&
+          abs(b.baseColor.z - color.z) < 0.01f) {
+        return b;
+      }
+    }
+    mapBatches.push_back({tex, color, {}, 0, 0});
+    return mapBatches.back();
+  };
 
-    auto getBatch = [&](unsigned int tex, glm::vec3 color) -> MapBatch& {
-        for (auto& b : mapBatches) {
-            if (b.textureID == tex && abs(b.baseColor.x - color.x) < 0.01f && abs(b.baseColor.y - color.y) < 0.01f && abs(b.baseColor.z - color.z) < 0.01f) {
-                return b;
-            }
-        }
-        mapBatches.push_back({tex, color, {}, 0, 0});
-        return mapBatches.back();
-    };
+  auto addFaceToBatch = [&](int faceIndex, unsigned int tex, glm::vec3 color,
+                            glm::mat4 model) {
+    MapBatch &batch = getBatch(tex, color);
+    for (int i = 0; i < 6; i++) {
+      int vIdx = faceIndex * 6 + i;
+      glm::vec4 pos(vertices[vIdx * 8 + 0], vertices[vIdx * 8 + 1],
+                    vertices[vIdx * 8 + 2], 1.0f);
+      pos = model * pos;
 
-    auto addCubeToBatch = [&](MapBatch& batch, glm::mat4 model) {
-        for (int i = 0; i < 36; i++) {
-            glm::vec4 pos(vertices[i*8+0], vertices[i*8+1], vertices[i*8+2], 1.0f);
-            pos = model * pos;
-            
-            glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
-            glm::vec3 normal(vertices[i*8+3], vertices[i*8+4], vertices[i*8+5]);
-            normal = glm::normalize(normalMatrix * normal);
+      glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
+      glm::vec3 normal(vertices[vIdx * 8 + 3], vertices[vIdx * 8 + 4],
+                       vertices[vIdx * 8 + 5]);
+      normal = glm::normalize(normalMatrix * normal);
 
-            batch.vertices.push_back(pos.x);
-            batch.vertices.push_back(pos.y);
-            batch.vertices.push_back(pos.z);
-            batch.vertices.push_back(normal.x);
-            batch.vertices.push_back(normal.y);
-            batch.vertices.push_back(normal.z);
-            batch.vertices.push_back(vertices[i*8+6]); // u
-            batch.vertices.push_back(vertices[i*8+7]); // v
-        }
-    };
+      batch.vertices.push_back(pos.x);
+      batch.vertices.push_back(pos.y);
+      batch.vertices.push_back(pos.z);
+      batch.vertices.push_back(normal.x);
+      batch.vertices.push_back(normal.y);
+      batch.vertices.push_back(normal.z);
+      batch.vertices.push_back(vertices[vIdx * 8 + 6]); // u
+      batch.vertices.push_back(vertices[vIdx * 8 + 7]); // v
+    }
+  };
 
-    auto buildStaticMapBatches = [&]() {
-        for (int z = 0; z < MAP_HEIGHT; z++) {
-            for (int x = 0; x < MAP_WIDTH; x++) {
-                int blockType = worldMap[z][x];
-                const RoomZone *zone = getZone(x, z);
-                
-                // Paredes
-                if (blockType > 0 && blockType < 8) {
-                    float scaleX = wallWidth;
-                    float scaleZ = wallWidth;
-                    bool hasLeft = (x > 0 && worldMap[z][x - 1] > 0);
-                    bool hasRight = (x < MAP_WIDTH - 1 && worldMap[z][x + 1] > 0);
-                    bool hasUp = (z > 0 && worldMap[z - 1][x] > 0);
-                    bool hasDown = (z < MAP_HEIGHT - 1 && worldMap[z + 1][x] > 0);
-                    if (hasLeft || hasRight) scaleX = 1.0f;
-                    if (hasUp || hasDown) scaleZ = 1.0f;
+  auto buildStaticMapBatches = [&]() {
+    for (int z = 0; z < MAP_HEIGHT; z++) {
+      for (int x = 0; x < MAP_WIDTH; x++) {
+        int blockType = worldMap[z][x];
+        const RoomZone *zone = getZone(x, z);
 
-                    glm::mat4 model = glm::mat4(1.0f);
-                    model = glm::translate(model, glm::vec3((float)x, (wallHeight - 1.0f) * 0.5f, (float)z));
-                    model = glm::scale(model, glm::vec3(scaleX, wallHeight, scaleZ));
+        // Paredes
+        if (blockType > 0 && blockType < 8) {
+          float scaleX = wallWidth;
+          float scaleZ = wallWidth;
+          bool hasLeft = (x > 0 && worldMap[z][x - 1] > 0);
+          bool hasRight = (x < MAP_WIDTH - 1 && worldMap[z][x + 1] > 0);
+          bool hasUp = (z > 0 && worldMap[z - 1][x] > 0);
+          bool hasDown = (z < MAP_HEIGHT - 1 && worldMap[z + 1][x] > 0);
+          if (hasLeft || hasRight)
+            scaleX = 1.0f;
+          if (hasUp || hasDown)
+            scaleZ = 1.0f;
 
-                    unsigned int tex = wallTex1;
-                    if (blockType == 1) tex = wallTex1;
-                    else if (blockType == 2) tex = wallTex2;
-                    else if (blockType == 3) tex = wallTex3;
-                    else if (blockType == 4) tex = wallContencionTex;
-                    
-                    if (zone && zone->overrideWall) tex = zone->wallTex;
-                    
-                    addCubeToBatch(getBatch(tex, glm::vec3(1.0f, 1.0f, 1.0f)), model);
+          glm::mat4 model = glm::mat4(1.0f);
+          model = glm::translate(
+              model, glm::vec3((float)x, (wallHeight - 1.0f) * 0.5f, (float)z));
+          model = glm::scale(model, glm::vec3(scaleX, wallHeight, scaleZ));
+
+          unsigned int baseTex = wallTex1;
+          if (blockType == 1)
+            baseTex = wallTex1;
+          else if (blockType == 2)
+            baseTex = wallTex2;
+          else if (blockType == 3)
+            baseTex = wallTex3;
+          else if (blockType == 4)
+            baseTex = wallContencionTex;
+
+          if (zone && zone->overrideWall)
+            baseTex = zone->wallTex;
+
+          // Dibujar cada cara individualmente para permitir texturas mixtas en
+          // paredes compartidas
+          for (int f = 0; f < 6; f++) {
+            unsigned int faceTex = baseTex;
+
+            // Si es una cara lateral, preguntar al vecino qué textura quiere
+            // "ver"
+            if (f < 4) {
+              int nx = x, nz = z;
+              if (f == 0)
+                nz--; // Back (-Z)
+              else if (f == 1)
+                nz++; // Front (+Z)
+              else if (f == 2)
+                nx--; // Left (-X)
+              else if (f == 3)
+                nx++; // Right (+X)
+
+              if (nx >= 0 && nx < MAP_WIDTH && nz >= 0 && nz < MAP_HEIGHT) {
+                // Solo cambiamos la textura si el vecino es aire (espacio
+                // visible)
+                if (worldMap[nz][nx] <= 0) {
+                  const RoomZone *neighborZone = getZone(nx, nz);
+                  if (neighborZone && neighborZone->overrideWall) {
+                    faceTex = neighborZone->wallTex;
+                  }
                 }
-
-                // Piso y Techo
-                
-                // Piso
-                unsigned int fTex = floorTexture;
-                if (zone && zone->overrideFloor) fTex = zone->floorTex;
-
-                glm::vec3 fCol = glm::vec3(0.5f, 0.5f, 0.5f);
-                glm::mat4 floorModel = glm::mat4(1.0f);
-                floorModel = glm::translate(floorModel, glm::vec3((float)x, -1.0f, (float)z));
-                addCubeToBatch(getBatch(fTex, fCol), floorModel);
-
-                // Techo
-                unsigned int cTex = floorTexture;
-                glm::vec3 cCol = glm::vec3(0.3f, 0.3f, 0.3f);
-                if (zone && zone->overrideCeil) {
-                    cCol = zone->ceilColor;
-                    cTex = zone->ceilTex;
-                }
-
-                glm::mat4 roofModel = glm::mat4(1.0f);
-                roofModel = glm::translate(roofModel, glm::vec3((float)x, wallHeight, (float)z));
-                addCubeToBatch(getBatch(cTex, cCol), roofModel);
+              }
             }
+            addFaceToBatch(f, faceTex, glm::vec3(1.0f, 1.0f, 1.0f), model);
+          }
         }
 
-        // Bind batches
-        for (auto& b : mapBatches) {
-            glGenVertexArrays(1, &b.VAO);
-            glGenBuffers(1, &b.VBO);
-            glBindVertexArray(b.VAO);
-            glBindBuffer(GL_ARRAY_BUFFER, b.VBO);
-            glBufferData(GL_ARRAY_BUFFER, b.vertices.size() * sizeof(float), b.vertices.data(), GL_STATIC_DRAW);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-            glEnableVertexAttribArray(1);
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-            glEnableVertexAttribArray(2);
+        // Piso y Techo
+
+        // Piso
+        unsigned int fTex = floorTexture;
+        if (zone && zone->overrideFloor)
+          fTex = zone->floorTex;
+
+        glm::vec3 fCol = glm::vec3(0.5f, 0.5f, 0.5f);
+        glm::mat4 floorModel = glm::mat4(1.0f);
+        floorModel =
+            glm::translate(floorModel, glm::vec3((float)x, -1.0f, (float)z));
+        // El piso es la cara superior de un cubo enterrado, o simplemente
+        // usamos addFaceToBatch con f=5
+        addFaceToBatch(5, fTex, fCol, floorModel);
+
+        // Techo
+        unsigned int cTex = floorTexture;
+        glm::vec3 cCol = glm::vec3(0.3f, 0.3f, 0.3f);
+        if (zone && zone->overrideCeil) {
+          cCol = zone->ceilColor;
+          cTex = zone->ceilTex;
         }
-        glBindVertexArray(0);
-    };
-    buildStaticMapBatches();
+
+        glm::mat4 roofModel = glm::mat4(1.0f);
+        roofModel = glm::translate(roofModel,
+                                   glm::vec3((float)x, wallHeight, (float)z));
+        // El techo es la cara inferior (f=4)
+        addFaceToBatch(4, cTex, cCol, roofModel);
+      }
+    }
+
+    // Bind batches
+    for (auto &b : mapBatches) {
+      glGenVertexArrays(1, &b.VAO);
+      glGenBuffers(1, &b.VBO);
+      glBindVertexArray(b.VAO);
+      glBindBuffer(GL_ARRAY_BUFFER, b.VBO);
+      glBufferData(GL_ARRAY_BUFFER, b.vertices.size() * sizeof(float),
+                   b.vertices.data(), GL_STATIC_DRAW);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                            (void *)0);
+      glEnableVertexAttribArray(0);
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                            (void *)(3 * sizeof(float)));
+      glEnableVertexAttribArray(1);
+      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                            (void *)(6 * sizeof(float)));
+      glEnableVertexAttribArray(2);
+    }
+    glBindVertexArray(0);
+  };
+  buildStaticMapBatches();
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
@@ -766,7 +937,8 @@ int main() {
     glUniform3fv(lightDirLoc, 1, glm::value_ptr(cameraFront));
     glUniform1f(cutOffLoc, glm::cos(glm::radians(15.5f)));
     glUniform1f(outerCutOffLoc, glm::cos(glm::radians(22.5f)));
-    glUniform1i(flashlightOnLoc, (isFlashlightOn && selectedHotbarSlot == 0) ? 1 : 0);
+    glUniform1i(flashlightOnLoc,
+                (isFlashlightOn && selectedHotbarSlot == 0) ? 1 : 0);
 
     glUniform1i(dimAlternaLoc, dimensionAlterna ? 1 : 0);
     glUniform1i(zoneLoc, currentZone);
@@ -797,7 +969,6 @@ int main() {
 
     float lampFlicker = 0.8f + 0.2f * sin(currentFrame * 10.0f);
     float emergencyPulse = (sin(currentFrame * 5.0f) * 0.5f) + 0.5f;
-
 
     glUniform1i(numPointLightsLoc, 8);
 
@@ -862,12 +1033,46 @@ int main() {
     // --- LUZ DE LA TESLA (Indice 11) ---
     float teslaPulse = 0.5f + 0.5f * sin(currentFrame * 20.0f);
     glUniform3fv(pointLightPosLoc[11], 1, glm::value_ptr(teslaPos));
-    glUniform3f(pointLightColLoc[11], 0.2f * teslaPulse, 0.4f * teslaPulse, 1.0f * teslaPulse);
+    glUniform3f(pointLightColLoc[11], 0.2f * teslaPulse, 0.4f * teslaPulse,
+                1.0f * teslaPulse);
     glUniform1f(pointLightRadLoc[11], 5.0f);
 
+    // --- LUCES PARPADEANTES SALA DE DESCANSO (estilo baño, indices 12 y 13) ---
+    float flickerDescanso1 = getFlicker(currentFrame, 7.3f);
+    float flickerDescanso2 = getFlicker(currentFrame, 33.9f);
+
+    glUniform3fv(pointLightPosLoc[12], 1, glm::value_ptr(luzDescanso1Pos));
+    glUniform3f(pointLightColLoc[12], 0.8f * flickerDescanso1,
+                0.6f * flickerDescanso1, 0.2f * flickerDescanso1);
+    glUniform1f(pointLightRadLoc[12], 4.0f);
+
+    glUniform3fv(pointLightPosLoc[13], 1, glm::value_ptr(luzDescanso2Pos));
+    glUniform3f(pointLightColLoc[13], 0.8f * flickerDescanso2,
+                0.6f * flickerDescanso2, 0.2f * flickerDescanso2);
+    glUniform1f(pointLightRadLoc[13], 4.0f);
+
+    // --- LUCES PUNTUALES DINAMICAS PARA LAMPARAS COLOCADAS EN EL EDITOR ---
+    // Cada modelo "ligthbathroom" agregado desde el Editor de Niveles emite su
+    // propia luz parpadeante, para que la iluminacion salga de la lampara.
+    constexpr int kEditorLightBaseIdx = 14;
+    int editorLightIdx = kEditorLightBaseIdx;
+    for (const auto &prop : placedProps) {
+      if (editorLightIdx >= 20)
+        break; // Tope del arreglo (MAX_POINT_LIGHTS)
+      if (prop.modelName != "ligthbathroom")
+        continue;
+      float f = getFlicker(currentFrame, editorLightIdx * 7.13f);
+      glUniform3fv(pointLightPosLoc[editorLightIdx], 1,
+                   glm::value_ptr(prop.pos));
+      glUniform3f(pointLightColLoc[editorLightIdx], 0.8f * f, 0.6f * f,
+                  0.2f * f);
+      glUniform1f(pointLightRadLoc[editorLightIdx], 4.0f);
+      editorLightIdx++;
+    }
+
     // Informar al shader cuantas luces reales estamos usando
-    // Usamos 12 si la tesla esta activa, o el currentLightIdx si no
-    glUniform1i(numPointLightsLoc, 12);
+    // 14 fijas (bano/contencion/emergencia/tesla/descanso) + las del editor
+    glUniform1i(numPointLightsLoc, editorLightIdx);
 
     for (int i = currentLightIdx; i < 11; i++) {
       glUniform3f(pointLightColLoc[i], 0.0f, 0.0f, 0.0f);
@@ -876,17 +1081,23 @@ int main() {
 
     // --- SPOTLIGHTS PARA LÁMPARAS DE REACTOR ---
     glUniform1i(numSpotLightsLoc, 4);
-    glm::vec3 lp[4] = { lamparaReactorPos, lamparaReactorPos2, lamparaReactorPos3, lamparaReactorPos4 };
-    glm::vec3 lr[4] = { lamparaReactorRot, lamparaReactorRot2, lamparaReactorRot3, lamparaReactorRot4 };
+    glm::vec3 lp[4] = {lamparaReactorPos, lamparaReactorPos2,
+                       lamparaReactorPos3, lamparaReactorPos4};
+    glm::vec3 lr[4] = {lamparaReactorRot, lamparaReactorRot2,
+                       lamparaReactorRot3, lamparaReactorRot4};
     for (int i = 0; i < 4; i++) {
       glUniform3fv(spotLightPosLoc[i], 1, glm::value_ptr(lp[i]));
-      
+
       glm::mat4 rotMat = glm::mat4(1.0f);
-      rotMat = glm::rotate(rotMat, glm::radians(lr[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
-      rotMat = glm::rotate(rotMat, glm::radians(lr[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
-      rotMat = glm::rotate(rotMat, glm::radians(lr[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
-      glm::vec3 dir = glm::normalize(glm::vec3(rotMat * glm::vec4(0.0f, -1.0f, 0.0f, 0.0f)));
-      
+      rotMat = glm::rotate(rotMat, glm::radians(lr[i].x),
+                           glm::vec3(1.0f, 0.0f, 0.0f));
+      rotMat = glm::rotate(rotMat, glm::radians(lr[i].y),
+                           glm::vec3(0.0f, 1.0f, 0.0f));
+      rotMat = glm::rotate(rotMat, glm::radians(lr[i].z),
+                           glm::vec3(0.0f, 0.0f, 1.0f));
+      glm::vec3 dir = glm::normalize(
+          glm::vec3(rotMat * glm::vec4(0.0f, -1.0f, 0.0f, 0.0f)));
+
       glUniform3fv(spotLightDirLoc[i], 1, glm::value_ptr(dir));
       glUniform3f(spotLightColLoc[i], 1.0f, 0.9f, 0.6f); // Warm yellow
       glUniform1f(spotLightCutOffLoc[i], glm::cos(glm::radians(25.0f)));
@@ -895,42 +1106,51 @@ int main() {
     }
 
     // --- CULLING HELPER ---
-    glm::vec2 camDir2D = glm::length(glm::vec2(cameraFront.x, cameraFront.z)) > 0.001f ? glm::normalize(glm::vec2(cameraFront.x, cameraFront.z)) : glm::vec2(1,0);
+    glm::vec2 camDir2D =
+        glm::length(glm::vec2(cameraFront.x, cameraFront.z)) > 0.001f
+            ? glm::normalize(glm::vec2(cameraFront.x, cameraFront.z))
+            : glm::vec2(1, 0);
     auto shouldRender = [&](float x, float z, float radius = 2.0f) -> bool {
-        glm::vec2 objPos(x, z);
-        glm::vec2 dir = objPos - glm::vec2(cameraPos.x, cameraPos.z);
-        float dist = glm::length(dir);
-        constexpr float kPropRenderDistance = 24.0f;
-        if (dist > kPropRenderDistance + radius) return false;
-        if (dist > radius + 3.0f) {
-            dir /= dist;
-            if (glm::dot(camDir2D, dir) < -0.4f) return false;
-        }
-        return true;
+      glm::vec2 objPos(x, z);
+      glm::vec2 dir = objPos - glm::vec2(cameraPos.x, cameraPos.z);
+      float dist = glm::length(dir);
+      constexpr float kPropRenderDistance = 24.0f;
+      if (dist > kPropRenderDistance + radius)
+        return false;
+      if (dist > radius + 3.0f) {
+        dir /= dist;
+        if (glm::dot(camDir2D, dir) < -0.4f)
+          return false;
+      }
+      return true;
     };
 
     // --- DIBUJAR MAPA BATCHEADO (Optimizado) ---
-    for (auto& b : mapBatches) {
-        glBindVertexArray(b.VAO);
-        glBindTexture(GL_TEXTURE_2D, b.textureID);
-        if (dimensionAlterna)
-            glUniform3f(colorLoc, 0.4f, 0.1f, 0.1f);
-        else
-            glUniform3f(colorLoc, b.baseColor.x, b.baseColor.y, b.baseColor.z);
-        
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)b.vertices.size() / 8);
+    for (auto &b : mapBatches) {
+      glBindVertexArray(b.VAO);
+      glBindTexture(GL_TEXTURE_2D, b.textureID);
+      if (dimensionAlterna)
+        glUniform3f(colorLoc, 0.4f, 0.1f, 0.1f);
+      else
+        glUniform3f(colorLoc, b.baseColor.x, b.baseColor.y, b.baseColor.z);
+
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
+                         glm::value_ptr(glm::mat4(1.0f)));
+      glDrawArrays(GL_TRIANGLES, 0, (GLsizei)b.vertices.size() / 8);
     }
 
     // --- MAPA (Solo objetos dinamicos/puertas) ---
     for (int z = 0; z < MAP_HEIGHT; z++) {
       for (int x = 0; x < MAP_WIDTH; x++) {
-        if (!shouldRender((float)x, (float)z, 1.5f)) continue;
+        if (!shouldRender((float)x, (float)z, 1.5f))
+          continue;
         int blockType = worldMap[z][x];
         const RoomZone *zone = getZone(x, z);
 
         // Solo procesamos puertas en el bucle dinámico
-        if (blockType != 8 && blockType != 9 && blockType != -8 && blockType != -9) continue;
+        if (blockType != 8 && blockType != 9 && blockType != -8 &&
+            blockType != -9)
+          continue;
 
         // Consideramos la puerta visible tanto si esta cerrada (>0) como
         // abierta (<0)
@@ -1177,7 +1397,8 @@ int main() {
           if (hasSkinningBones) {
             // En modelos con skinning, evitar doble transformación (nodos +
             // huesos)
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(gnomeModel));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
+                               glm::value_ptr(gnomeModel));
             gnomeGLTF->Draw(shaderProgram, solidColorLoc);
           } else {
             // Fallback para modelos sin pesos de hueso exportados
@@ -1202,21 +1423,28 @@ int main() {
 
     if (banoGLTF && !banoGLTF->meshes.empty()) {
       std::vector<glm::mat4> instanceModels;
-      glm::vec3 positions[8] = { banoPos, banoPos2, banoPos3, banoPos4, banoPos5, banoPos6, banoPos7, banoPos8 };
-      glm::vec3 rotations[8] = { banoRot, banoRot2, banoRot3, banoRot4, banoRot5, banoRot6, banoRot7, banoRot8 };
-      glm::vec3 scales[8] = { banoScale, banoScale2, banoScale3, banoScale4, banoScale5, banoScale6, banoScale7, banoScale8 };
+      glm::vec3 positions[8] = {banoPos,  banoPos2, banoPos3, banoPos4,
+                                banoPos5, banoPos6, banoPos7, banoPos8};
+      glm::vec3 rotations[8] = {banoRot,  banoRot2, banoRot3, banoRot4,
+                                banoRot5, banoRot6, banoRot7, banoRot8};
+      glm::vec3 scales[8] = {banoScale,  banoScale2, banoScale3, banoScale4,
+                             banoScale5, banoScale6, banoScale7, banoScale8};
       for (int i = 0; i < 8; i++) {
         if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
           glm::mat4 model = glm::mat4(1.0f);
           model = glm::translate(model, positions[i]);
-          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
-          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
-          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].x),
+                              glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y),
+                              glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z),
+                              glm::vec3(0.0f, 0.0f, 1.0f));
           model = glm::scale(model, scales[i]);
           instanceModels.push_back(model);
         }
       }
-      if (!instanceModels.empty()) banoGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
+      if (!instanceModels.empty())
+        banoGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
     }
 
     if (mensBGLTF && !mensBGLTF->meshes.empty()) {
@@ -1230,7 +1458,8 @@ int main() {
                                glm::vec3(0.0f, 0.0f, 1.0f));
       mensBModel = glm::scale(mensBModel, mensBscale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mensBModel));
-      if (shouldRender(mensBpos.x, mensBpos.z, 3.0f)) mensBGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mensBpos.x, mensBpos.z, 3.0f))
+        mensBGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (azulejoGLTF && !azulejoGLTF->meshes.empty()) {
@@ -1244,26 +1473,38 @@ int main() {
                                  glm::vec3(0.0f, 0.0f, 1.0f));
       azulejoModel = glm::scale(azulejoModel, azulejoScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(azulejoModel));
-      if (shouldRender(azulejoPos.x, azulejoPos.z, 3.0f)) azulejoGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(azulejoPos.x, azulejoPos.z, 3.0f))
+        azulejoGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (lavamanosGLTF && !lavamanosGLTF->meshes.empty()) {
       std::vector<glm::mat4> instanceModels;
-      glm::vec3 positions[8] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4, lavamanosPos5, lavamanosPos6, lavamanosPos7, lavamanosPos8 };
-      glm::vec3 rotations[8] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4, lavamanosRot5, lavamanosRot6, lavamanosRot7, lavamanosRot8 };
-      glm::vec3 scales[8] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4, lavamanosScale5, lavamanosScale6, lavamanosScale7, lavamanosScale8 };
+      glm::vec3 positions[8] = {lavamanosPos,  lavamanosPos2, lavamanosPos3,
+                                lavamanosPos4, lavamanosPos5, lavamanosPos6,
+                                lavamanosPos7, lavamanosPos8};
+      glm::vec3 rotations[8] = {lavamanosRot,  lavamanosRot2, lavamanosRot3,
+                                lavamanosRot4, lavamanosRot5, lavamanosRot6,
+                                lavamanosRot7, lavamanosRot8};
+      glm::vec3 scales[8] = {lavamanosScale,  lavamanosScale2, lavamanosScale3,
+                             lavamanosScale4, lavamanosScale5, lavamanosScale6,
+                             lavamanosScale7, lavamanosScale8};
       for (int i = 0; i < 8; i++) {
         if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
           glm::mat4 model = glm::mat4(1.0f);
           model = glm::translate(model, positions[i]);
-          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
-          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
-          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].x),
+                              glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y),
+                              glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z),
+                              glm::vec3(0.0f, 0.0f, 1.0f));
           model = glm::scale(model, scales[i]);
           instanceModels.push_back(model);
         }
       }
-      if (!instanceModels.empty()) lavamanosGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
+      if (!instanceModels.empty())
+        lavamanosGLTF->DrawInstanced(shaderProgram, solidColorLoc,
+                                     instanceModels);
     }
 
     if (mirrorGLTF && !mirrorGLTF->meshes.empty()) {
@@ -1277,7 +1518,8 @@ int main() {
                                 glm::vec3(0.0f, 0.0f, 1.0f));
       mirrorModel = glm::scale(mirrorModel, mirrorScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel));
-      if (shouldRender(mirrorPos.x, mirrorPos.z, 3.0f)) mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mirrorPos.x, mirrorPos.z, 3.0f))
+        mirrorGLTF->Draw(shaderProgram, solidColorLoc);
 
       // Mirror 2
       glm::mat4 mirrorModel2 = glm::mat4(1.0f);
@@ -1290,7 +1532,8 @@ int main() {
                                  glm::vec3(0.0f, 0.0f, 1.0f));
       mirrorModel2 = glm::scale(mirrorModel2, mirrorScale2);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel2));
-      if (shouldRender(mirrorPos2.x, mirrorPos2.z, 3.0f)) mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mirrorPos2.x, mirrorPos2.z, 3.0f))
+        mirrorGLTF->Draw(shaderProgram, solidColorLoc);
 
       // Mirror 3
       glm::mat4 mirrorModel3 = glm::mat4(1.0f);
@@ -1303,7 +1546,8 @@ int main() {
                                  glm::vec3(0.0f, 0.0f, 1.0f));
       mirrorModel3 = glm::scale(mirrorModel3, mirrorScale3);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel3));
-      if (shouldRender(mirrorPos3.x, mirrorPos3.z, 3.0f)) mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mirrorPos3.x, mirrorPos3.z, 3.0f))
+        mirrorGLTF->Draw(shaderProgram, solidColorLoc);
 
       // Mirror 4
       glm::mat4 mirrorModel4 = glm::mat4(1.0f);
@@ -1316,7 +1560,8 @@ int main() {
                                  glm::vec3(0.0f, 0.0f, 1.0f));
       mirrorModel4 = glm::scale(mirrorModel4, mirrorScale4);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorModel4));
-      if (shouldRender(mirrorPos4.x, mirrorPos4.z, 3.0f)) mirrorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mirrorPos4.x, mirrorPos4.z, 3.0f))
+        mirrorGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (girlBGLTF && !girlBGLTF->meshes.empty()) {
@@ -1330,9 +1575,9 @@ int main() {
                                glm::vec3(0.0f, 0.0f, 1.0f));
       girlBModel = glm::scale(girlBModel, girlBscale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(girlBModel));
-      if (shouldRender(girlBpos.x, girlBpos.z, 3.0f)) girlBGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(girlBpos.x, girlBpos.z, 3.0f))
+        girlBGLTF->Draw(shaderProgram, solidColorLoc);
     }
-
 
     if (ligthbathroomGLTF && !ligthbathroomGLTF->meshes.empty()) {
       glm::mat4 ligthbathroomModel = glm::mat4(1.0f);
@@ -1357,7 +1602,8 @@ int main() {
                          glm::value_ptr(ligthbathroomModel));
       glUniform1f(emissiveStrengthLoc,
                   1.5f * flicker1); // Hacer que brille la lampara
-      if (shouldRender(ligthbathroomPos.x, ligthbathroomPos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(ligthbathroomPos.x, ligthbathroomPos.z, 3.0f))
+        ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
 
       glm::mat4 ligthbathroom3Model = glm::mat4(1.0f);
@@ -1381,7 +1627,8 @@ int main() {
                          glm::value_ptr(ligthbathroom3Model));
       glUniform1f(emissiveStrengthLoc,
                   1.5f * flicker3); // Hacer que brille la lampara
-      if (shouldRender(lamp3Pos.x, lamp3Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamp3Pos.x, lamp3Pos.z, 3.0f))
+        ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
 
       glm::mat4 ligthbathroom4Model = glm::mat4(1.0f);
@@ -1405,7 +1652,50 @@ int main() {
                          glm::value_ptr(ligthbathroom4Model));
       glUniform1f(emissiveStrengthLoc,
                   1.5f * flicker4); // Hacer que brille la lampara
-      if (shouldRender(lamp4Pos.x, lamp4Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamp4Pos.x, lamp4Pos.z, 3.0f))
+        ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+      glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+
+      // Luz de descanso 1 (sala de sofas)
+      glm::mat4 luzDescanso1Model = glm::mat4(1.0f);
+      luzDescanso1Model = glm::translate(luzDescanso1Model, luzDescanso1Pos);
+      luzDescanso1Model =
+          glm::rotate(luzDescanso1Model, glm::radians(luzDescanso1Rot.x),
+                      glm::vec3(1.0f, 0.0f, 0.0f));
+      luzDescanso1Model =
+          glm::rotate(luzDescanso1Model, glm::radians(luzDescanso1Rot.y),
+                      glm::vec3(0.0f, 1.0f, 0.0f));
+      luzDescanso1Model =
+          glm::rotate(luzDescanso1Model, glm::radians(luzDescanso1Rot.z),
+                      glm::vec3(0.0f, 0.0f, 1.0f));
+      luzDescanso1Model = glm::scale(luzDescanso1Model, luzDescanso1Scale);
+      luzDescanso1Model = glm::translate(
+          luzDescanso1Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
+                         glm::value_ptr(luzDescanso1Model));
+      glUniform1f(emissiveStrengthLoc, 1.5f * flickerDescanso1);
+      if (shouldRender(luzDescanso1Pos.x, luzDescanso1Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
+      glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+
+      // Luz de descanso 2 (sala de sofas)
+      glm::mat4 luzDescanso2Model = glm::mat4(1.0f);
+      luzDescanso2Model = glm::translate(luzDescanso2Model, luzDescanso2Pos);
+      luzDescanso2Model =
+          glm::rotate(luzDescanso2Model, glm::radians(luzDescanso2Rot.x),
+                      glm::vec3(1.0f, 0.0f, 0.0f));
+      luzDescanso2Model =
+          glm::rotate(luzDescanso2Model, glm::radians(luzDescanso2Rot.y),
+                      glm::vec3(0.0f, 1.0f, 0.0f));
+      luzDescanso2Model =
+          glm::rotate(luzDescanso2Model, glm::radians(luzDescanso2Rot.z),
+                      glm::vec3(0.0f, 0.0f, 1.0f));
+      luzDescanso2Model = glm::scale(luzDescanso2Model, luzDescanso2Scale);
+      luzDescanso2Model = glm::translate(
+          luzDescanso2Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
+                         glm::value_ptr(luzDescanso2Model));
+      glUniform1f(emissiveStrengthLoc, 1.5f * flickerDescanso2);
+      if (shouldRender(luzDescanso2Pos.x, luzDescanso2Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
 
@@ -1433,7 +1723,8 @@ int main() {
                          glm::value_ptr(ligthbathroom2Model));
       glUniform1f(emissiveStrengthLoc,
                   1.5f * flicker2); // Hacer que brille la lampara
-      if (shouldRender(ligthbathroom2Pos.x, ligthbathroom2Pos.z, 3.0f)) ligthbathroom2GLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(ligthbathroom2Pos.x, ligthbathroom2Pos.z, 3.0f))
+        ligthbathroom2GLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
 
@@ -1448,7 +1739,8 @@ int main() {
                                   glm::vec3(0.0f, 0.0f, 1.0f));
       mirrorBGModel = glm::scale(mirrorBGModel, mirrorBGScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(mirrorBGModel));
-      if (shouldRender(mirrorBGpos.x, mirrorBGpos.z, 3.0f)) mirrorBGGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(mirrorBGpos.x, mirrorBGpos.z, 3.0f))
+        mirrorBGGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (urinarioGLTF && !urinarioGLTF->meshes.empty()) {
@@ -1462,39 +1754,46 @@ int main() {
                                   glm::vec3(0.0f, 0.0f, 1.0f));
       urinarioModel = glm::scale(urinarioModel, urinarioScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(urinarioModel));
-      if (shouldRender(urinarioPos.x, urinarioPos.z, 3.0f)) urinarioGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(urinarioPos.x, urinarioPos.z, 3.0f))
+        urinarioGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
-    if (teslaGLTF && !teslaGLTF->meshes.empty()) {
-      glm::mat4 teslaModel = glm::mat4(1.0f);
-      teslaModel = glm::translate(teslaModel, teslaPos);
-      teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      teslaModel = glm::rotate(teslaModel, glm::radians(teslaRot.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      teslaModel = glm::scale(teslaModel, teslaScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(teslaModel));
+    // --- BUCLE DINAMICO DE RENDERING DE PROPS ---
+    int editorLampDrawIdx = kEditorLightBaseIdx; // sincroniza glow con su luz
+    for (const auto& prop : placedProps) {
+      GLTFModel* model = modelRegistry[prop.modelName];
+      if (!model || model->meshes.empty()) continue;
 
-      if (shouldRender(teslaPos.x, teslaPos.z, 3.0f)) teslaGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (sarcofagoGLTF && !sarcofagoGLTF->meshes.empty()) {
-      glm::mat4 sModel = glm::mat4(1.0f);
-      sModel = glm::translate(sModel, sarcofagoPos);
-      sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.x),
+      glm::mat4 pModel = glm::mat4(1.0f);
+      pModel = glm::translate(pModel, prop.pos);
+      pModel = glm::rotate(pModel, glm::radians(prop.rot.x),
                            glm::vec3(1.0f, 0.0f, 0.0f));
-      sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.y),
+      pModel = glm::rotate(pModel, glm::radians(prop.rot.y),
                            glm::vec3(0.0f, 1.0f, 0.0f));
-      sModel = glm::rotate(sModel, glm::radians(sarcofagoRot.z),
+      pModel = glm::rotate(pModel, glm::radians(prop.rot.z),
                            glm::vec3(0.0f, 0.0f, 1.0f));
-      sModel = glm::scale(sModel, sarcofagoScale);
+      pModel = glm::scale(pModel, prop.scale);
 
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sModel));
-      if (shouldRender(sarcofagoPos.x, sarcofagoPos.z, 3.0f)) sarcofagoGLTF->Draw(shaderProgram, solidColorLoc);
+      // El modelo de luz (lampara baño) trae un offset de pivote de Blender y
+      // debe brillar con el parpadeo, igual que las lamparas fijas.
+      bool esLuzBano = (prop.modelName == "ligthbathroom");
+      float lampGlow = 0.0f;
+      if (esLuzBano) {
+        pModel = glm::translate(pModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
+        // Mismo parpadeo que la luz puntual asociada (mismo offset por indice)
+        if (editorLampDrawIdx < 20)
+          lampGlow = getFlicker(currentFrame, editorLampDrawIdx * 7.13f);
+        editorLampDrawIdx++;
+      }
+
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
+      if (esLuzBano) glUniform1f(emissiveStrengthLoc, 1.5f * lampGlow);
+      if (shouldRender(prop.pos.x, prop.pos.z, 3.0f)) {
+        model->Draw(shaderProgram, solidColorLoc);
+      }
+      if (esLuzBano) glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
-
+    //*------------------
     if (cablePisoGLTF && !cablePisoGLTF->meshes.empty()) {
       for (size_t i = 0; i < cablePisoPos.size(); i++) {
         glm::mat4 cpModel = glm::mat4(1.0f);
@@ -1508,7 +1807,8 @@ int main() {
         cpModel = glm::scale(cpModel, cablePisoScale[i]);
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cpModel));
-      if (shouldRender(cablePisoPos[i].x, cablePisoPos[i].z, 3.0f)) cablePisoGLTF->Draw(shaderProgram, solidColorLoc);
+        if (shouldRender(cablePisoPos[i].x, cablePisoPos[i].z, 3.0f))
+          cablePisoGLTF->Draw(shaderProgram, solidColorLoc);
       }
     }
 
@@ -1525,38 +1825,9 @@ int main() {
         ctModel = glm::scale(ctModel, cableTechoScale[i]);
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ctModel));
-      if (shouldRender(cableTechoPos[i].x, cableTechoPos[i].z, 3.0f)) cableTechoGLTF->Draw(shaderProgram, solidColorLoc);
+        if (shouldRender(cableTechoPos[i].x, cableTechoPos[i].z, 3.0f))
+          cableTechoGLTF->Draw(shaderProgram, solidColorLoc);
       }
-    }
-
-    if (warningGLTF && !warningGLTF->meshes.empty()) {
-      glm::mat4 wModel = glm::mat4(1.0f);
-      wModel = glm::translate(wModel, warningPos);
-      wModel = glm::rotate(wModel, glm::radians(warningRot.x),
-                           glm::vec3(1.0f, 0.0f, 0.0f));
-      wModel = glm::rotate(wModel, glm::radians(warningRot.y),
-                           glm::vec3(0.0f, 1.0f, 0.0f));
-      wModel = glm::rotate(wModel, glm::radians(warningRot.z),
-                           glm::vec3(0.0f, 0.0f, 1.0f));
-      wModel = glm::scale(wModel, warningScale);
-
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(wModel));
-      if (shouldRender(warningPos.x, warningPos.z, 3.0f)) warningGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (cajonesOFGLTF && !cajonesOFGLTF->meshes.empty()) {
-      glm::mat4 cModel = glm::mat4(1.0f);
-      cModel = glm::translate(cModel, cajonesOFPos);
-      cModel = glm::rotate(cModel, glm::radians(cajonesOFRot.x),
-                           glm::vec3(1.0f, 0.0f, 0.0f));
-      cModel = glm::rotate(cModel, glm::radians(cajonesOFRot.y),
-                           glm::vec3(0.0f, 1.0f, 0.0f));
-      cModel = glm::rotate(cModel, glm::radians(cajonesOFRot.z),
-                           glm::vec3(0.0f, 0.0f, 1.0f));
-      cModel = glm::scale(cModel, cajonesOFScale);
-
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(cModel));
-      if (shouldRender(cajonesOFPos.x, cajonesOFPos.z, 3.0f)) cajonesOFGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (lamparaContencionGLTF && !lamparaContencionGLTF->meshes.empty()) {
@@ -1572,7 +1843,8 @@ int main() {
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lampModel));
       glUniform1f(emissiveStrengthLoc, 1.5f * lampFlicker);
-      if (shouldRender(lamparaContencionPos.x, lamparaContencionPos.z, 3.0f)) lamparaContencionGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamparaContencionPos.x, lamparaContencionPos.z, 3.0f))
+        lamparaContencionGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f);
     }
 
@@ -1589,7 +1861,8 @@ int main() {
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lamp2Model));
       glUniform1f(emissiveStrengthLoc, 0.8f * lampFlicker);
-      if (shouldRender(lampara2Pos.x, lampara2Pos.z, 3.0f)) lampara2GLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lampara2Pos.x, lampara2Pos.z, 3.0f))
+        lampara2GLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f);
     }
 
@@ -1606,7 +1879,8 @@ int main() {
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lamp3Model));
       glUniform1f(emissiveStrengthLoc, 0.8f * lampFlicker);
-      if (shouldRender(lampara3Pos.x, lampara3Pos.z, 3.0f)) lampara3GLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lampara3Pos.x, lampara3Pos.z, 3.0f))
+        lampara3GLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f);
     }
     if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
@@ -1624,52 +1898,10 @@ int main() {
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(emergModel));
         // Usar el pulso compartido y aumentar intensidad emisiva
         glUniform1f(emissiveStrengthLoc, 4.0f * emergencyPulse);
-      if (shouldRender(emergencyPos[i].x, emergencyPos[i].z, 3.0f)) emergencyGLTF->Draw(shaderProgram, solidColorLoc);
+        if (shouldRender(emergencyPos[i].x, emergencyPos[i].z, 3.0f))
+          emergencyGLTF->Draw(shaderProgram, solidColorLoc);
         glUniform1f(emissiveStrengthLoc, 0.0f);
       }
-    }
-
-    if (reactorGLTF && !reactorGLTF->meshes.empty()) {
-      glm::mat4 reactorModel = glm::mat4(1.0f);
-      reactorModel = glm::translate(reactorModel, reactorPos);
-      reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.x),
-                                 glm::vec3(1.0f, 0.0f, 0.0f));
-      reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.y),
-                                 glm::vec3(0.0f, 1.0f, 0.0f));
-      reactorModel = glm::rotate(reactorModel, glm::radians(reactorRot.z),
-                                 glm::vec3(0.0f, 0.0f, 1.0f));
-      reactorModel = glm::scale(reactorModel, reactorScale);
-
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(reactorModel));
-      if (shouldRender(reactorPos.x, reactorPos.z, 3.0f)) reactorGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
-      glm::mat4 panelModel = glm::mat4(1.0f);
-      panelModel = glm::translate(panelModel, panelControlPos);
-      panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.x),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-      panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.y),
-                               glm::vec3(0.0f, 1.0f, 0.0f));
-      panelModel = glm::rotate(panelModel, glm::radians(panelControlRot.z),
-                               glm::vec3(0.0f, 0.0f, 1.0f));
-      panelModel = glm::scale(panelModel, panelControlScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(panelModel));
-      if (shouldRender(panelControlPos.x, panelControlPos.z, 3.0f)) panelControlGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (reactorControlGLTF && !reactorControlGLTF->meshes.empty()) {
-      glm::mat4 rcModel = glm::mat4(1.0f);
-      rcModel = glm::translate(rcModel, reactorControlPos);
-      rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.x),
-                            glm::vec3(1.0f, 0.0f, 0.0f));
-      rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.y),
-                            glm::vec3(0.0f, 1.0f, 0.0f));
-      rcModel = glm::rotate(rcModel, glm::radians(reactorControlRot.z),
-                            glm::vec3(0.0f, 0.0f, 1.0f));
-      rcModel = glm::scale(rcModel, reactorControlScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(rcModel));
-      if (shouldRender(reactorControlPos.x, reactorControlPos.z, 3.0f)) reactorControlGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (lamparaReactorGLTF && !lamparaReactorGLTF->meshes.empty()) {
@@ -1683,405 +1915,48 @@ int main() {
                             glm::vec3(0.0f, 0.0f, 1.0f));
       lrModel = glm::scale(lrModel, lamparaReactorScale);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel));
-      if (shouldRender(lamparaReactorPos.x, lamparaReactorPos.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamparaReactorPos.x, lamparaReactorPos.z, 3.0f))
+        lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
 
       glm::mat4 lrModel2 = glm::mat4(1.0f);
       lrModel2 = glm::translate(lrModel2, lamparaReactorPos2);
       lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.x),
-                            glm::vec3(1.0f, 0.0f, 0.0f));
+                             glm::vec3(1.0f, 0.0f, 0.0f));
       lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.y),
-                            glm::vec3(0.0f, 1.0f, 0.0f));
+                             glm::vec3(0.0f, 1.0f, 0.0f));
       lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.z),
-                            glm::vec3(0.0f, 0.0f, 1.0f));
+                             glm::vec3(0.0f, 0.0f, 1.0f));
       lrModel2 = glm::scale(lrModel2, lamparaReactorScale2);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel2));
-      if (shouldRender(lamparaReactorPos2.x, lamparaReactorPos2.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamparaReactorPos2.x, lamparaReactorPos2.z, 3.0f))
+        lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
 
       glm::mat4 lrModel3 = glm::mat4(1.0f);
       lrModel3 = glm::translate(lrModel3, lamparaReactorPos3);
       lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.x),
-                            glm::vec3(1.0f, 0.0f, 0.0f));
+                             glm::vec3(1.0f, 0.0f, 0.0f));
       lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.y),
-                            glm::vec3(0.0f, 1.0f, 0.0f));
+                             glm::vec3(0.0f, 1.0f, 0.0f));
       lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.z),
-                            glm::vec3(0.0f, 0.0f, 1.0f));
+                             glm::vec3(0.0f, 0.0f, 1.0f));
       lrModel3 = glm::scale(lrModel3, lamparaReactorScale3);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel3));
-      if (shouldRender(lamparaReactorPos3.x, lamparaReactorPos3.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamparaReactorPos3.x, lamparaReactorPos3.z, 3.0f))
+        lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
 
       glm::mat4 lrModel4 = glm::mat4(1.0f);
       lrModel4 = glm::translate(lrModel4, lamparaReactorPos4);
       lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.x),
-                            glm::vec3(1.0f, 0.0f, 0.0f));
+                             glm::vec3(1.0f, 0.0f, 0.0f));
       lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.y),
-                            glm::vec3(0.0f, 1.0f, 0.0f));
+                             glm::vec3(0.0f, 1.0f, 0.0f));
       lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.z),
-                            glm::vec3(0.0f, 0.0f, 1.0f));
+                             glm::vec3(0.0f, 0.0f, 1.0f));
       lrModel4 = glm::scale(lrModel4, lamparaReactorScale4);
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel4));
-      if (shouldRender(lamparaReactorPos4.x, lamparaReactorPos4.z, 3.0f)) lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
+      if (shouldRender(lamparaReactorPos4.x, lamparaReactorPos4.z, 3.0f))
+        lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
     }
-
-    if (esquinerosGLTF && !esquinerosGLTF->meshes.empty()) {
-      // Esquinero 1
-      glm::mat4 esquinerosModel = glm::mat4(1.0f);
-      esquinerosModel = glm::translate(esquinerosModel, esquinerosPos);
-      esquinerosModel =
-          glm::rotate(esquinerosModel, glm::radians(esquinerosRot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel =
-          glm::rotate(esquinerosModel, glm::radians(esquinerosRot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel =
-          glm::rotate(esquinerosModel, glm::radians(esquinerosRot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel = glm::scale(esquinerosModel, esquinerosScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel));
-      if (shouldRender(esquinerosPos.x, esquinerosPos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Esquinero 2
-      glm::mat4 esquinerosModel2 = glm::mat4(1.0f);
-      esquinerosModel2 = glm::translate(esquinerosModel2, esquineros2Pos);
-      esquinerosModel2 =
-          glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel2 =
-          glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel2 =
-          glm::rotate(esquinerosModel2, glm::radians(esquineros2Rot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel2 = glm::scale(esquinerosModel2, esquineros2Scale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel2));
-      if (shouldRender(esquineros2Pos.x, esquineros2Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Esquinero 3
-      glm::mat4 esquinerosModel3 = glm::mat4(1.0f);
-      esquinerosModel3 = glm::translate(esquinerosModel3, esquineros3Pos);
-      esquinerosModel3 =
-          glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel3 =
-          glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel3 =
-          glm::rotate(esquinerosModel3, glm::radians(esquineros3Rot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel3 = glm::scale(esquinerosModel3, esquineros3Scale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel3));
-      if (shouldRender(esquineros3Pos.x, esquineros3Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
-
-      // Esquinero 4
-      glm::mat4 esquinerosModel4 = glm::mat4(1.0f);
-      esquinerosModel4 = glm::translate(esquinerosModel4, esquineros4Pos);
-      esquinerosModel4 =
-          glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.x),
-                      glm::vec3(1.0f, 0.0f, 0.0f));
-      esquinerosModel4 =
-          glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.y),
-                      glm::vec3(0.0f, 1.0f, 0.0f));
-      esquinerosModel4 =
-          glm::rotate(esquinerosModel4, glm::radians(esquineros4Rot.z),
-                      glm::vec3(0.0f, 0.0f, 1.0f));
-      esquinerosModel4 = glm::scale(esquinerosModel4, esquineros4Scale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                         glm::value_ptr(esquinerosModel4));
-      if (shouldRender(esquineros4Pos.x, esquineros4Pos.z, 3.0f)) esquinerosGLTF->Draw(shaderProgram, solidColorLoc);
-
-
-    if (sillasGLTF && !sillasGLTF->meshes.empty()) {
-        glm::mat4 sillas5Model = glm::mat4(1.0f);
-        sillas5Model = glm::translate(sillas5Model, sillas5Pos);
-        sillas5Model = glm::rotate(sillas5Model, glm::radians(sillas5Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        sillas5Model = glm::rotate(sillas5Model, glm::radians(sillas5Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        sillas5Model = glm::rotate(sillas5Model, glm::radians(sillas5Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        sillas5Model = glm::scale(sillas5Model, sillas5Scale);
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sillas5Model));
-        sillasGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (maquinaGLTF && !maquinaGLTF->meshes.empty()) {
-        glm::mat4 maquinaModel = glm::mat4(1.0f);
-        
-        maquinaModel = glm::translate(maquinaModel, maquinaPos);
-        
-        maquinaModel = glm::rotate(maquinaModel, glm::radians(maquinaRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        maquinaModel = glm::rotate(maquinaModel, glm::radians(maquinaRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        maquinaModel = glm::rotate(maquinaModel, glm::radians(maquinaRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        
-        maquinaModel = glm::scale(maquinaModel, maquinaScale);
-        
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(maquinaModel));
-        maquinaGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (monitorGLTF && !monitorGLTF->meshes.empty()) {
-        glm::mat4 monitorModel = glm::mat4(1.0f);
-        
-        monitorModel = glm::translate(monitorModel, monitorPos);
-        
-        // Comprueba que estas tres líneas estén tal cual para que aplique el giro correctamente
-        monitorModel = glm::rotate(monitorModel, glm::radians(monitorRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        monitorModel = glm::rotate(monitorModel, glm::radians(monitorRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        monitorModel = glm::rotate(monitorModel, glm::radians(monitorRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        
-        monitorModel = glm::scale(monitorModel, monitorScale);
-        
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(monitorModel));
-        monitorGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (monitorGLTF && !monitorGLTF->meshes.empty()) {
-    glm::mat4 monitor2Model = glm::mat4(1.0f);
-    monitor2Model = glm::translate(monitor2Model, monitor2Pos);
-    monitor2Model = glm::rotate(monitor2Model, glm::radians(monitor2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    monitor2Model = glm::rotate(monitor2Model, glm::radians(monitor2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    monitor2Model = glm::rotate(monitor2Model, glm::radians(monitor2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    monitor2Model = glm::scale(monitor2Model, monitor2Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(monitor2Model));
-    monitorGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-    if (lockerGLTF && !lockerGLTF->meshes.empty()) {
-        glm::mat4 locker2Model = glm::mat4(1.0f);
-        
-        locker2Model = glm::translate(locker2Model, locker2Pos);
-        
-        locker2Model = glm::rotate(locker2Model, glm::radians(locker2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        locker2Model = glm::rotate(locker2Model, glm::radians(locker2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        locker2Model = glm::rotate(locker2Model, glm::radians(locker2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        
-        locker2Model = glm::scale(locker2Model, locker2Scale);
-        
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(locker2Model));
-        lockerGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (lockerGLTF && !lockerGLTF->meshes.empty()) {
-        glm::mat4 lockerModel = glm::mat4(1.0f);
-        
-        lockerModel = glm::translate(lockerModel, lockerPos);
-        
-        lockerModel = glm::rotate(lockerModel, glm::radians(lockerRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        lockerModel = glm::rotate(lockerModel, glm::radians(lockerRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        lockerModel = glm::rotate(lockerModel, glm::radians(lockerRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        
-        lockerModel = glm::scale(lockerModel, lockerScale);
-        
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lockerModel));
-        lockerGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (lockerGLTF && !lockerGLTF->meshes.empty()) {
-        glm::mat4 locker3Model = glm::mat4(1.0f);
-        
-        locker3Model = glm::translate(locker3Model, locker3Pos);
-        
-        locker3Model = glm::rotate(locker3Model, glm::radians(locker3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        locker3Model = glm::rotate(locker3Model, glm::radians(locker3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        locker3Model = glm::rotate(locker3Model, glm::radians(locker3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        
-        locker3Model = glm::scale(locker3Model, locker3Scale);
-        
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(locker3Model));
-        lockerGLTF->Draw(shaderProgram, solidColorLoc);
-    }
-
-    if (lockerGLTF && !lockerGLTF->meshes.empty()) {
-    glm::mat4 locker4Model = glm::mat4(1.0f);
-    locker4Model = glm::translate(locker4Model, locker4Pos);
-    locker4Model = glm::rotate(locker4Model, glm::radians(locker4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    locker4Model = glm::rotate(locker4Model, glm::radians(locker4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    locker4Model = glm::rotate(locker4Model, glm::radians(locker4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    locker4Model = glm::scale(locker4Model, locker4Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(locker4Model));
-    lockerGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-    if (deskGLTF && !deskGLTF->meshes.empty()) {
-    glm::mat4 deskModel = glm::mat4(1.0f);
-    
-    deskModel = glm::translate(deskModel, deskPos);
-    
-    deskModel = glm::rotate(deskModel, glm::radians(deskRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    deskModel = glm::rotate(deskModel, glm::radians(deskRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    deskModel = glm::rotate(deskModel, glm::radians(deskRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    
-    deskModel = glm::scale(deskModel, deskScale);
-    
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(deskModel));
-    deskGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (deskGLTF && !deskGLTF->meshes.empty()) {
-    glm::mat4 desk2Model = glm::mat4(1.0f);
-    desk2Model = glm::translate(desk2Model, desk2Pos);
-    desk2Model = glm::rotate(desk2Model, glm::radians(desk2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    desk2Model = glm::rotate(desk2Model, glm::radians(desk2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    desk2Model = glm::rotate(desk2Model, glm::radians(desk2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    desk2Model = glm::scale(desk2Model, desk2Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk2Model));
-    deskGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (deskGLTF && !deskGLTF->meshes.empty()) {
-    glm::mat4 desk3Model = glm::mat4(1.0f);
-    desk3Model = glm::translate(desk3Model, desk3Pos);
-    desk3Model = glm::rotate(desk3Model, glm::radians(desk3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    desk3Model = glm::rotate(desk3Model, glm::radians(desk3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    desk3Model = glm::rotate(desk3Model, glm::radians(desk3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    desk3Model = glm::scale(desk3Model, desk3Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk3Model));
-    deskGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (deskGLTF && !deskGLTF->meshes.empty()) {
-    glm::mat4 desk4Model = glm::mat4(1.0f);
-    desk4Model = glm::translate(desk4Model, desk4Pos);
-    desk4Model = glm::rotate(desk4Model, glm::radians(desk4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    desk4Model = glm::rotate(desk4Model, glm::radians(desk4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    desk4Model = glm::rotate(desk4Model, glm::radians(desk4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    desk4Model = glm::scale(desk4Model, desk4Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk4Model));
-    deskGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (deskGLTF && !deskGLTF->meshes.empty()) {
-    glm::mat4 desk5Model = glm::mat4(1.0f);
-    desk5Model = glm::translate(desk5Model, desk5Pos);
-    desk5Model = glm::rotate(desk5Model, glm::radians(desk5Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    desk5Model = glm::rotate(desk5Model, glm::radians(desk5Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    desk5Model = glm::rotate(desk5Model, glm::radians(desk5Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    desk5Model = glm::scale(desk5Model, desk5Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk5Model));
-    deskGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (deskGLTF && !deskGLTF->meshes.empty()) {
-    glm::mat4 desk6Model = glm::mat4(1.0f);
-    desk6Model = glm::translate(desk6Model, desk6Pos);
-    desk6Model = glm::rotate(desk6Model, glm::radians(desk6Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    desk6Model = glm::rotate(desk6Model, glm::radians(desk6Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    desk6Model = glm::rotate(desk6Model, glm::radians(desk6Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    desk6Model = glm::scale(desk6Model, desk6Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(desk6Model));
-    deskGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (sillaGLTF && !sillaGLTF->meshes.empty()) {
-    glm::mat4 silla1Model = glm::mat4(1.0f);
-    silla1Model = glm::translate(silla1Model, silla1Pos);
-    silla1Model = glm::rotate(silla1Model, glm::radians(silla1Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    silla1Model = glm::rotate(silla1Model, glm::radians(silla1Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    silla1Model = glm::rotate(silla1Model, glm::radians(silla1Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    silla1Model = glm::scale(silla1Model, silla1Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla1Model));
-    sillaGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (sillaGLTF && !sillaGLTF->meshes.empty()) {
-    glm::mat4 silla2Model = glm::mat4(1.0f);
-    silla2Model = glm::translate(silla2Model, silla2Pos);
-    silla2Model = glm::rotate(silla2Model, glm::radians(silla2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    silla2Model = glm::rotate(silla2Model, glm::radians(silla2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    silla2Model = glm::rotate(silla2Model, glm::radians(silla2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    silla2Model = glm::scale(silla2Model, silla2Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla2Model));
-    sillaGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (sillaGLTF && !sillaGLTF->meshes.empty()) {
-    glm::mat4 silla3Model = glm::mat4(1.0f);
-    silla3Model = glm::translate(silla3Model, silla3Pos);
-    silla3Model = glm::rotate(silla3Model, glm::radians(silla3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    silla3Model = glm::rotate(silla3Model, glm::radians(silla3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    silla3Model = glm::rotate(silla3Model, glm::radians(silla3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    silla3Model = glm::scale(silla3Model, silla3Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla3Model));
-    sillaGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (sillaGLTF && !sillaGLTF->meshes.empty()) {
-    glm::mat4 silla4Model = glm::mat4(1.0f);
-    silla4Model = glm::translate(silla4Model, silla4Pos);
-    silla4Model = glm::rotate(silla4Model, glm::radians(silla4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    silla4Model = glm::rotate(silla4Model, glm::radians(silla4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    silla4Model = glm::rotate(silla4Model, glm::radians(silla4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    silla4Model = glm::scale(silla4Model, silla4Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla4Model));
-    sillaGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (sillaGLTF && !sillaGLTF->meshes.empty()) {
-    glm::mat4 silla5Model = glm::mat4(1.0f);
-    silla5Model = glm::translate(silla5Model, silla5Pos);
-    silla5Model = glm::rotate(silla5Model, glm::radians(silla5Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    silla5Model = glm::rotate(silla5Model, glm::radians(silla5Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    silla5Model = glm::rotate(silla5Model, glm::radians(silla5Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    silla5Model = glm::scale(silla5Model, silla5Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla5Model));
-    sillaGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (sillaGLTF && !sillaGLTF->meshes.empty()) {
-    glm::mat4 silla6Model = glm::mat4(1.0f);
-    silla6Model = glm::translate(silla6Model, silla6Pos);
-    silla6Model = glm::rotate(silla6Model, glm::radians(silla6Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    silla6Model = glm::rotate(silla6Model, glm::radians(silla6Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    silla6Model = glm::rotate(silla6Model, glm::radians(silla6Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    silla6Model = glm::scale(silla6Model, silla6Scale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(silla6Model));
-    sillaGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (estanteGLTF && !estanteGLTF->meshes.empty()) {
-    glm::mat4 estanteModel = glm::mat4(1.0f);
-    estanteModel = glm::translate(estanteModel, estantePos);
-    estanteModel = glm::rotate(estanteModel, glm::radians(estanteRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    estanteModel = glm::rotate(estanteModel, glm::radians(estanteRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    estanteModel = glm::rotate(estanteModel, glm::radians(estanteRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    estanteModel = glm::scale(estanteModel, estanteScale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(estanteModel));
-    estanteGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (estanteGLTF && !estanteGLTF->meshes.empty()) {
-    glm::mat4 estante2Model = glm::mat4(1.0f);
-    estante2Model = glm::translate(estante2Model, estante2Pos);
-    estante2Model = glm::rotate(estante2Model, glm::radians(estante2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    estante2Model = glm::rotate(estante2Model, glm::radians(estante2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    estante2Model = glm::rotate(estante2Model, glm::radians(estante2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    estante2Model = glm::scale(estante2Model, estante2Scale);
-    
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(estante2Model));
-    estanteGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (estanteGLTF && !estanteGLTF->meshes.empty()) {
-    glm::mat4 estante3Model = glm::mat4(1.0f);
-    estante3Model = glm::translate(estante3Model, estante3Pos);
-    estante3Model = glm::rotate(estante3Model, glm::radians(estante3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    estante3Model = glm::rotate(estante3Model, glm::radians(estante3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    estante3Model = glm::rotate(estante3Model, glm::radians(estante3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    estante3Model = glm::scale(estante3Model, estante3Scale);
-    
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(estante3Model));
-    estanteGLTF->Draw(shaderProgram, solidColorLoc);
-}
-
-if (monitorsciGLTF && !monitorsciGLTF->meshes.empty()) {
-    glm::mat4 monitorsciModel = glm::mat4(1.0f);
-    monitorsciModel = glm::translate(monitorsciModel, monitorsciPos);
-    monitorsciModel = glm::rotate(monitorsciModel, glm::radians(monitorsciRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    monitorsciModel = glm::rotate(monitorsciModel, glm::radians(monitorsciRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    monitorsciModel = glm::rotate(monitorsciModel, glm::radians(monitorsciRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    monitorsciModel = glm::scale(monitorsciModel, monitorsciScale);
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(monitorsciModel));
-    monitorsciGLTF->Draw(shaderProgram, solidColorLoc);
-}
 
     if (generadorGLTF && !generadorGLTF->meshes.empty()) {
       for (int i = 0; i < 3; i++) { // Dibujamos los 3 ejemplares
@@ -2099,7 +1974,8 @@ if (monitorsciGLTF && !monitorsciGLTF->meshes.empty()) {
         generadorModel = glm::scale(generadorModel, generadorScale[i]);
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                            glm::value_ptr(generadorModel));
-      if (shouldRender(generadorPos[i].x, generadorPos[i].z, 3.0f)) generadorGLTF->Draw(shaderProgram, solidColorLoc);
+        if (shouldRender(generadorPos[i].x, generadorPos[i].z, 3.0f))
+          generadorGLTF->Draw(shaderProgram, solidColorLoc);
       }
     }
 
@@ -2128,1511 +2004,1525 @@ if (monitorsciGLTF && !monitorsciGLTF->meshes.empty()) {
           entityModel,
           glm::vec3(entity.pos.x, entity.pos.y + floatY, entity.pos.z));
 
-            if (entity.type == 0 && cartaVertexCount > 0) { // Carta/Papel 3D
-              glBindVertexArray(cartaVAO);
-              glBindTexture(GL_TEXTURE_2D, clueTexture);
-              glUniform1i(solidColorLoc, 1);
-              entityModel = glm::translate(
-                  entityModel,
-                  glm::vec3(0.0f, -0.06f, 0.0f)); // Subirla para verla
-              entityModel = glm::rotate(entityModel, entity.seed,
-                                        glm::vec3(0.0f, 1.0f, 0.0f));
-              entityModel = glm::scale(
-                  entityModel, glm::vec3(1.0f, 1.0f, 1.0f)); // Agrandarla
-              glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                                 glm::value_ptr(entityModel));
-              glDrawArrays(GL_TRIANGLES, 0, cartaVertexCount);
-              glUniform1i(solidColorLoc, 0);
-              glBindVertexArray(VAO);
-            } else if (entity.type == 3 && cablesVertexCount > 0) { // Cables 3D
-              glBindVertexArray(cablesVAO);
-              glBindTexture(GL_TEXTURE_2D, pcTex);
-              glUniform1i(solidColorLoc, 1);
+      if (entity.type == 0 && cartaVertexCount > 0) { // Carta/Papel 3D
+        glBindVertexArray(cartaVAO);
+        glBindTexture(GL_TEXTURE_2D, clueTexture);
+        glUniform1i(solidColorLoc, 1);
+        entityModel = glm::translate(
+            entityModel, glm::vec3(0.0f, -0.06f, 0.0f)); // Subirla para verla
+        entityModel =
+            glm::rotate(entityModel, entity.seed, glm::vec3(0.0f, 1.0f, 0.0f));
+        entityModel =
+            glm::scale(entityModel, glm::vec3(1.0f, 1.0f, 1.0f)); // Agrandarla
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+        glDrawArrays(GL_TRIANGLES, 0, cartaVertexCount);
+        glUniform1i(solidColorLoc, 0);
+        glBindVertexArray(VAO);
+      } else if (entity.type == 3 && cablesVertexCount > 0) { // Cables 3D
+        glBindVertexArray(cablesVAO);
+        glBindTexture(GL_TEXTURE_2D, pcTex);
+        glUniform1i(solidColorLoc, 1);
 
-              // Ajuste de posiciÃ³n para que toque el suelo
-              entityModel =
-                  glm::translate(entityModel, glm::vec3(-0.99f, -0.12f, 0.0f));
-              entityModel =
-                  glm::scale(entityModel, glm::vec3(0.5f, 0.5f, 0.5f));
+        // Ajuste de posiciÃ³n para que toque el suelo
+        entityModel =
+            glm::translate(entityModel, glm::vec3(-0.99f, -0.12f, 0.0f));
+        entityModel = glm::scale(entityModel, glm::vec3(0.5f, 0.5f, 0.5f));
 
-              glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                                 glm::value_ptr(entityModel));
-              glDrawArrays(GL_TRIANGLES, 0, cablesVertexCount);
-              glUniform1i(solidColorLoc, 0);
-              glBindVertexArray(VAO);
-            } else if (entity.type == 4) { // Mesa
-              glBindVertexArray(VAO);
-              glBindTexture(GL_TEXTURE_2D, wallTex1);
-              entityModel =
-                  glm::scale(entityModel, glm::vec3(1.2f, 0.8f, 0.8f));
-              glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
-              glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                                 glm::value_ptr(entityModel));
-              glDrawArrays(GL_TRIANGLES, 0, 36);
-            } else if (entity.type == 5 && objVertexCount > 0) { // PC 3D
-              glBindVertexArray(objVAO);
-              glBindTexture(GL_TEXTURE_2D, pcTex);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+        glDrawArrays(GL_TRIANGLES, 0, cablesVertexCount);
+        glUniform1i(solidColorLoc, 0);
+        glBindVertexArray(VAO);
+      } else if (entity.type == 4) { // Mesa
+        glBindVertexArray(VAO);
+        glBindTexture(GL_TEXTURE_2D, wallTex1);
+        entityModel = glm::scale(entityModel, glm::vec3(1.2f, 0.8f, 0.8f));
+        glUniform3f(colorLoc, 0.5f, 0.5f, 0.5f);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+      } else if (entity.type == 5 && objVertexCount > 0) { // PC 3D
+        glBindVertexArray(objVAO);
+        glBindTexture(GL_TEXTURE_2D, pcTex);
 
-              glUniform1i(solidColorLoc, 1); // Ignorar la textura cargada
+        glUniform1i(solidColorLoc, 1); // Ignorar la textura cargada
 
-              entityModel = glm::translate(
-                  entityModel, glm::vec3(0.0f, -0.1f, 0.0f)); // Bajar a la mesa
-              entityModel =
-                  glm::rotate(entityModel, glm::radians(0.0f),
-                              glm::vec3(0.0f, 1.0f, 0.0f)); // EstÃ¡tico
-              entityModel =
-                  glm::scale(entityModel, glm::vec3(0.6f, 0.6f, 0.6f));
-              if (dimensionAlterna)
-                glUniform3f(colorLoc, 1.0f, 0.4f, 0.4f);
-              else
-                glUniform3f(colorLoc, 1.0f, 1.0f,
-                            1.0f); // Usar colores 100% reales de Blender
-              glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                                 glm::value_ptr(entityModel));
-              glDrawArrays(GL_TRIANGLES, 0, objVertexCount);
+        entityModel = glm::translate(
+            entityModel, glm::vec3(0.0f, -0.1f, 0.0f)); // Bajar a la mesa
+        entityModel = glm::rotate(entityModel, glm::radians(0.0f),
+                                  glm::vec3(0.0f, 1.0f, 0.0f)); // EstÃ¡tico
+        entityModel = glm::scale(entityModel, glm::vec3(0.6f, 0.6f, 0.6f));
+        if (dimensionAlterna)
+          glUniform3f(colorLoc, 1.0f, 0.4f, 0.4f);
+        else
+          glUniform3f(colorLoc, 1.0f, 1.0f,
+                      1.0f); // Usar colores 100% reales de Blender
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+        glDrawArrays(GL_TRIANGLES, 0, objVertexCount);
 
-              glUniform1i(solidColorLoc, 0); // Restaurar texturas normales
+        glUniform1i(solidColorLoc, 0); // Restaurar texturas normales
 
-              glBindVertexArray(VAO);      // Restaurar VAO
-            } else if (entity.type == 6) { // MÃ¡quina Lab
-              glBindVertexArray(VAO);
-              glBindTexture(GL_TEXTURE_2D, wallTex3);
-              entityModel =
-                  glm::scale(entityModel, glm::vec3(0.8f, 2.0f, 0.8f));
-              glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f);
-              glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                                 glm::value_ptr(entityModel));
-              glDrawArrays(GL_TRIANGLES, 0, 36);
-            } else if (entity.type == 7) { // Portal
-              glBindVertexArray(VAO);
-              glBindTexture(GL_TEXTURE_2D, portalTex);
-              entityModel =
-                  glm::scale(entityModel, glm::vec3(1.5f, 1.5f, 1.5f));
-              if (portalActivado) {
-                entityModel = glm::rotate(entityModel, currentFrame * 2.0f,
-                                          glm::vec3(1.0f, 1.0f, 1.0f));
-                float pulse = 0.8f + 0.2f * sin(currentFrame * 15.0f);
-                glUniform3f(colorLoc, pulse, 0.0f, 0.0f);
-              } else {
-                entityModel = glm::rotate(entityModel, currentFrame * 0.5f,
-                                          glm::vec3(0.0f, 1.0f, 0.0f));
-                glUniform3f(colorLoc, 0.2f, 0.5f, 1.0f);
-              }
-              glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                                 glm::value_ptr(entityModel));
-              glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-          }
+        glBindVertexArray(VAO);      // Restaurar VAO
+      } else if (entity.type == 6) { // MÃ¡quina Lab
+        glBindVertexArray(VAO);
+        glBindTexture(GL_TEXTURE_2D, wallTex3);
+        entityModel = glm::scale(entityModel, glm::vec3(0.8f, 2.0f, 0.8f));
+        glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+      } else if (entity.type == 7) { // Portal
+        glBindVertexArray(VAO);
+        glBindTexture(GL_TEXTURE_2D, portalTex);
+        entityModel = glm::scale(entityModel, glm::vec3(1.5f, 1.5f, 1.5f));
+        if (portalActivado) {
+          entityModel = glm::rotate(entityModel, currentFrame * 2.0f,
+                                    glm::vec3(1.0f, 1.0f, 1.0f));
+          float pulse = 0.8f + 0.2f * sin(currentFrame * 15.0f);
+          glUniform3f(colorLoc, pulse, 0.0f, 0.0f);
+        } else {
+          entityModel = glm::rotate(entityModel, currentFrame * 0.5f,
+                                    glm::vec3(0.0f, 1.0f, 0.0f));
+          glUniform3f(colorLoc, 0.2f, 0.5f, 1.0f);
+        }
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+      }
+    }
 
-          if (showCollisionViewer) {
-            glBindVertexArray(VAO);
-            glBindTexture(GL_TEXTURE_2D, wallTex1);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glDisable(GL_CULL_FACE);
-            glLineWidth(2.0f);
+    if (showCollisionViewer) {
+      glBindVertexArray(VAO);
+      glBindTexture(GL_TEXTURE_2D, wallTex1);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      glDisable(GL_CULL_FACE);
+      glLineWidth(2.0f);
 
-            if (collisionShowWalls) {
-              for (int z = 0; z < MAP_HEIGHT; ++z) {
-                for (int x = 0; x < MAP_WIDTH; ++x) {
-                  int blockType = worldMap[z][x];
-                  if (blockType <= 0)
-                    continue;
-
-                  glm::vec2 cellCenter((float)x, (float)z);
-                  if (glm::length(cellCenter -
-                                  glm::vec2(cameraPos.x, cameraPos.z)) >
-                      collisionViewerRadius)
-                    continue;
-
-                  float scaleX = wallWidth;
-                  float scaleZ = wallWidth;
-                  bool hasLeft = (x > 0 && worldMap[z][x - 1] > 0);
-                  bool hasRight = (x < MAP_WIDTH - 1 && worldMap[z][x + 1] > 0);
-                  bool hasUp = (z > 0 && worldMap[z - 1][x] > 0);
-                  bool hasDown = (z < MAP_HEIGHT - 1 && worldMap[z + 1][x] > 0);
-                  if (hasLeft || hasRight)
-                    scaleX = 1.0f;
-                  if (hasUp || hasDown)
-                    scaleZ = 1.0f;
-
-                  glm::mat4 debugModel = glm::mat4(1.0f);
-                  debugModel = glm::translate(
-                      debugModel,
-                      glm::vec3((float)x, (wallHeight - 1.0f) * 0.5f,
-                                (float)z));
-                  debugModel = glm::scale(
-                      debugModel, glm::vec3(scaleX + 0.02f, wallHeight + 0.02f,
-                                            scaleZ + 0.02f));
-                  glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                                     glm::value_ptr(debugModel));
-
-                  if (blockType == 8 || blockType == 9)
-                    glUniform3f(colorLoc, 1.0f, 0.4f, 0.1f);
-                  else
-                    glUniform3f(colorLoc, 0.1f, 1.0f, 0.2f);
-
-                  glDrawArrays(GL_TRIANGLES, 0, 36);
-                }
-              }
-            }
-
-            if (collisionShowProps) {
-              // 1. Dibujar entidades estándar (Mesas y Máquinas) en amarillo
-              for (const auto &entity : gameEntities) {
-                if (!entity.active)
-                  continue;
-                if (entity.type != 4 && entity.type != 6)
-                  continue;
-                if (glm::length(glm::vec2(entity.pos.x - cameraPos.x,
-                                          entity.pos.z - cameraPos.z)) >
-                    collisionViewerRadius)
-                  continue;
-
-                glm::vec3 scale = (entity.type == 4)
-                                      ? glm::vec3(1.6f, 1.0f, 1.2f)
-                                      : glm::vec3(1.2f, 2.2f, 1.2f);
-                glm::mat4 debugModel = glm::mat4(1.0f);
-                debugModel = glm::translate(
-                    debugModel,
-                    glm::vec3(entity.pos.x, entity.pos.y + 0.2f, entity.pos.z));
-                debugModel = glm::scale(debugModel, scale);
-                glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                                   glm::value_ptr(debugModel));
-                glUniform3f(colorLoc, 1.0f, 0.9f, 0.2f); // Amarillo para entidades
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-              }
-
-              // 2. Helper lambda: dibuja las mismas cajas por submesh que usa la colision real.
-              auto drawModelHitbox = [&](GLTFModel* model, const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scl) {
-                if (!model || model->meshes.empty()) return;
-                if (glm::length(glm::vec2(pos.x - cameraPos.x, pos.z - cameraPos.z)) > collisionViewerRadius)
-                  return;
-
-                glm::mat4 mat = glm::mat4(1.0f);
-                mat = glm::translate(mat, pos);
-                mat = glm::rotate(mat, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-                mat = glm::rotate(mat, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-                mat = glm::rotate(mat, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-                mat = glm::scale(mat, scl);
-
-                // Dibujar como OBB: trasladamos y escalamos la matriz del modelo usando el centro y tamaño local AABB!
-                for (const auto& mesh : model->meshes) {
-                  glm::vec3 localCenter = (mesh.localAABB.min + mesh.localAABB.max) * 0.5f;
-                  glm::vec3 localSize = mesh.localAABB.max - mesh.localAABB.min;
-
-                  glm::mat4 debugModel = glm::translate(mat, localCenter);
-                  debugModel = glm::scale(debugModel, localSize);
-
-                  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
-                  glUniform3f(colorLoc, 0.1f, 0.75f, 1.0f); // Celeste/cian para props GLTF
-                  glDrawArrays(GL_TRIANGLES, 0, 36);
-                }
-              };
-
-              auto drawManualOBBHitbox = [&](const glm::vec3& pos, float yawDegrees, const glm::vec3& halfSize) {
-                if (glm::length(glm::vec2(pos.x - cameraPos.x, pos.z - cameraPos.z)) > collisionViewerRadius)
-                  return;
-
-                glm::mat4 debugModel = glm::mat4(1.0f);
-                debugModel = glm::translate(debugModel, pos);
-                debugModel = glm::rotate(debugModel, glm::radians(yawDegrees), glm::vec3(0.0f, 1.0f, 0.0f));
-                debugModel = glm::scale(debugModel, halfSize * 2.0f);
-
-                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
-                glUniform3f(colorLoc, 1.0f, 0.55f, 0.05f);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-              };
-
-              // --- Props del Baño ---
-              glm::vec3 banoPositions[8] = { banoPos, banoPos2, banoPos3, banoPos4, banoPos5, banoPos6, banoPos7, banoPos8 };
-              glm::vec3 banoRotations[8] = { banoRot, banoRot2, banoRot3, banoRot4, banoRot5, banoRot6, banoRot7, banoRot8 };
-              glm::vec3 banoScales[8] = { banoScale, banoScale2, banoScale3, banoScale4, banoScale5, banoScale6, banoScale7, banoScale8 };
-              for (int i = 0; i < 8; i++) {
-                drawModelHitbox(banoGLTF, banoPositions[i], banoRotations[i], banoScales[i]);
-              }
-
-              glm::vec3 lavaPositions[8] = { lavamanosPos, lavamanosPos2, lavamanosPos3, lavamanosPos4, lavamanosPos5, lavamanosPos6, lavamanosPos7, lavamanosPos8 };
-              glm::vec3 lavaRotations[8] = { lavamanosRot, lavamanosRot2, lavamanosRot3, lavamanosRot4, lavamanosRot5, lavamanosRot6, lavamanosRot7, lavamanosRot8 };
-              glm::vec3 lavaScales[8] = { lavamanosScale, lavamanosScale2, lavamanosScale3, lavamanosScale4, lavamanosScale5, lavamanosScale6, lavamanosScale7, lavamanosScale8 };
-              for (int i = 0; i < 8; i++) {
-                drawModelHitbox(lavamanosGLTF, lavaPositions[i], lavaRotations[i], lavaScales[i]);
-              }
-
-              drawModelHitbox(urinarioGLTF, urinarioPos, urinarioRot, urinarioScale);
-              drawModelHitbox(mensBGLTF, mensBpos, mensBrot, mensBscale);
-              drawModelHitbox(girlBGLTF, girlBpos, girlBrot, girlBscale);
-
-              // --- Props de Contención ---
-              drawModelHitbox(teslaGLTF, teslaPos, teslaRot, teslaScale);
-
-              drawModelHitbox(esquinerosGLTF, esquinerosPos, esquinerosRot, esquinerosScale);
-              drawModelHitbox(esquinerosGLTF, esquineros2Pos, esquineros2Rot, esquineros2Scale);
-              drawModelHitbox(esquinerosGLTF, esquineros3Pos, esquineros3Rot, esquineros3Scale);
-              drawModelHitbox(esquinerosGLTF, esquineros4Pos, esquineros4Rot, esquineros4Scale);
-
-              for (int i = 0; i < 3; i++) {
-                drawModelHitbox(generadorGLTF, generadorPos[i], generadorRot[i], generadorScale[i]);
-              }
-
-              drawModelHitbox(panelControlGLTF, panelControlPos, panelControlRot, panelControlScale);
-              drawModelHitbox(sarcofagoGLTF, sarcofagoPos, sarcofagoRot, sarcofagoScale);
-
-              for (size_t i = 0; i < emergencyPos.size(); i++) {
-                drawModelHitbox(emergencyGLTF, emergencyPos[i], emergencyRot[i], emergencyScale[i]);
-              }
-
-              drawModelHitbox(reactorGLTF, reactorPos, reactorRot, reactorScale);
-              drawModelHitbox(warningGLTF, warningPos, warningRot, warningScale);
-              drawModelHitbox(cajonesOFGLTF, cajonesOFPos, cajonesOFRot, cajonesOFScale);
-            }
-
-            glLineWidth(1.0f);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-          }
-
-          // --- DIBUJAR ENTIDADES 2D ---
-          glBindVertexArray(quadVAO);
-          glDisable(GL_CULL_FACE);
-
-          for (auto &entity : gameEntities) {
-            if (!entity.active ||
-                (entity.type >= 3 && entity.type != 8 && entity.type != 9))
-              continue;
-            if (entity.type == 0 || entity.type == 3)
-              continue; // Ya se dibujaron en 3D
-            if (entity.type == 2 && !portalActivado)
+      if (collisionShowWalls) {
+        for (int z = 0; z < MAP_HEIGHT; ++z) {
+          for (int x = 0; x < MAP_WIDTH; ++x) {
+            int blockType = worldMap[z][x];
+            if (blockType <= 0)
               continue;
 
-            if (entity.type == 1) {
-              glBindTexture(GL_TEXTURE_2D, batteryTex);
-            } else if (entity.type == 8 || entity.type == 9) {
-              glBindTexture(GL_TEXTURE_2D, keycardTex);
-            } else if (entity.type == 0 || entity.type == 3) {
-              glBindTexture(GL_TEXTURE_2D, clueTexture);
-            } else {
-              glBindTexture(GL_TEXTURE_2D, enemyTexture);
-            }
+            glm::vec2 cellCenter((float)x, (float)z);
+            if (glm::length(cellCenter - glm::vec2(cameraPos.x, cameraPos.z)) >
+                collisionViewerRadius)
+              continue;
 
-            glm::mat4 entityModel = glm::mat4(1.0f);
+            float scaleX = wallWidth;
+            float scaleZ = wallWidth;
+            bool hasLeft = (x > 0 && worldMap[z][x - 1] > 0);
+            bool hasRight = (x < MAP_WIDTH - 1 && worldMap[z][x + 1] > 0);
+            bool hasUp = (z > 0 && worldMap[z - 1][x] > 0);
+            bool hasDown = (z < MAP_HEIGHT - 1 && worldMap[z + 1][x] > 0);
+            if (hasLeft || hasRight)
+              scaleX = 1.0f;
+            if (hasUp || hasDown)
+              scaleZ = 1.0f;
 
-            // FlotaciÃ³n sutil de objetos clave para visibilidad---
-            float bounce = 0.0f;
-            if (entity.type == 8 || entity.type == 9)
-              bounce = sin(currentFrame * 3.0f) * 0.1f;
+            glm::mat4 debugModel = glm::mat4(1.0f);
+            debugModel = glm::translate(
+                debugModel,
+                glm::vec3((float)x, (wallHeight - 1.0f) * 0.5f, (float)z));
+            debugModel = glm::scale(
+                debugModel,
+                glm::vec3(scaleX + 0.02f, wallHeight + 0.02f, scaleZ + 0.02f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
+                               glm::value_ptr(debugModel));
 
-            float targetY = entity.pos.y + bounce;
+            if (blockType == 8 || blockType == 9)
+              glUniform3f(colorLoc, 1.0f, 0.4f, 0.1f);
+            else
+              glUniform3f(colorLoc, 0.1f, 1.0f, 0.2f);
 
-            entityModel = glm::translate(
-                entityModel, glm::vec3(entity.pos.x, targetY, entity.pos.z));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+          }
+        }
+      }
 
-            float anguloHaciaCamara =
-                atan2(cameraPos.x - entity.pos.x, cameraPos.z - entity.pos.z);
-            entityModel = glm::rotate(entityModel, anguloHaciaCamara,
-                                      glm::vec3(0.0f, 1.0f, 0.0f));
+      if (collisionShowProps) {
+        // 1. Dibujar entidades estándar (Mesas y Máquinas) en amarillo
+        for (const auto &entity : gameEntities) {
+          if (!entity.active)
+            continue;
+          if (entity.type != 4 && entity.type != 6)
+            continue;
+          if (glm::length(glm::vec2(entity.pos.x - cameraPos.x,
+                                    entity.pos.z - cameraPos.z)) >
+              collisionViewerRadius)
+            continue;
 
-            float escala = (entity.type != 2) ? 0.3f : 0.9f;
+          glm::vec3 scale = (entity.type == 4) ? glm::vec3(1.6f, 1.0f, 1.2f)
+                                               : glm::vec3(1.2f, 2.2f, 1.2f);
+          glm::mat4 debugModel = glm::mat4(1.0f);
+          debugModel = glm::translate(
+              debugModel,
+              glm::vec3(entity.pos.x, entity.pos.y + 0.2f, entity.pos.z));
+          debugModel = glm::scale(debugModel, scale);
+          glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
+          glUniform3f(colorLoc, 1.0f, 0.9f, 0.2f); // Amarillo para entidades
+          glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
-            entityModel =
-                glm::scale(entityModel, glm::vec3(escala, escala, escala));
+        // 2. Helper lambda: dibuja las mismas cajas por submesh que usa la
+        // colision real.
+        auto drawModelHitbox = [&](GLTFModel *model, const glm::vec3 &pos,
+                                   const glm::vec3 &rot, const glm::vec3 &scl,
+                                   glm::vec3 hitboxColor =
+                                       glm::vec3(0.1f, 0.75f, 1.0f)) {
+          if (!model || model->meshes.empty())
+            return;
+          if (glm::length(glm::vec2(pos.x - cameraPos.x, pos.z - cameraPos.z)) >
+              collisionViewerRadius)
+            return;
+
+          glm::mat4 mat = glm::mat4(1.0f);
+          mat = glm::translate(mat, pos);
+          mat = glm::rotate(mat, glm::radians(rot.x),
+                            glm::vec3(1.0f, 0.0f, 0.0f));
+          mat = glm::rotate(mat, glm::radians(rot.y),
+                            glm::vec3(0.0f, 1.0f, 0.0f));
+          mat = glm::rotate(mat, glm::radians(rot.z),
+                            glm::vec3(0.0f, 0.0f, 1.0f));
+          mat = glm::scale(mat, scl);
+
+          // Dibujar como OBB: trasladamos y escalamos la matriz del modelo
+          // usando el centro y tamaño local AABB!
+          for (const auto &mesh : model->meshes) {
+            glm::vec3 localCenter =
+                (mesh.localAABB.min + mesh.localAABB.max) * 0.5f;
+            glm::vec3 localSize = mesh.localAABB.max - mesh.localAABB.min;
+
+            glm::mat4 debugModel = glm::translate(mat, localCenter);
+            debugModel = glm::scale(debugModel, localSize);
 
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                               glm::value_ptr(entityModel));
-
-            if (entity.type == 2 && dimensionAlterna) {
-              float pulse = 0.5f + 0.5f * sin(currentFrame * 10.0f);
-              glUniform3f(colorLoc, pulse, 0.1f, 0.1f);
-            } else if (entity.type == 8) {
-              glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f); // Tarjeta amarilla
-            } else if (entity.type == 9) {
-              glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f); // Tarjeta roja
-            } else {
-              glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-            }
-
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+                               glm::value_ptr(debugModel));
+            glUniform3f(colorLoc, hitboxColor.r, hitboxColor.g,
+                        hitboxColor.b); // Color personalizado para props GLTF
+            glDrawArrays(GL_TRIANGLES, 0, 36);
           }
+        };
 
-          if (gameState == MENU) {
-          } else if (gameState == PLAYING) {
-            // --- DIBUJAR CROSSHAIR (HUD) ---
-            glDisable(GL_DEPTH_TEST);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_ONE_MINUS_DST_COLOR,
-                        GL_ZERO); // Color invertido para que se vea siempre
+        auto drawManualOBBHitbox = [&](const glm::vec3 &pos, float yawDegrees,
+                                       const glm::vec3 &halfSize) {
+          if (glm::length(glm::vec2(pos.x - cameraPos.x, pos.z - cameraPos.z)) >
+              collisionViewerRadius)
+            return;
 
-            glBindVertexArray(quadVAO);
-            float aspect = (float)currentWidth / (float)currentHeight;
-            glm::mat4 orthoProj =
-                glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
-            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(orthoProj));
+          glm::mat4 debugModel = glm::mat4(1.0f);
+          debugModel = glm::translate(debugModel, pos);
+          debugModel = glm::rotate(debugModel, glm::radians(yawDegrees),
+                                   glm::vec3(0.0f, 1.0f, 0.0f));
+          debugModel = glm::scale(debugModel, halfSize * 2.0f);
 
-            glm::mat4 orthoView = glm::mat4(1.0f);
-            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(orthoView));
+          glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(debugModel));
+          glUniform3f(colorLoc, 1.0f, 0.55f, 0.05f);
+          glDrawArrays(GL_TRIANGLES, 0, 36);
+        };
 
-            glm::mat4 orthoModel = glm::mat4(1.0f);
-            orthoModel =
-                glm::scale(orthoModel, glm::vec3(0.015f, 0.015f * aspect,
-                                                 1.0f)); // Puntito en el centro
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                               glm::value_ptr(orthoModel));
+        // --- Props del Baño ---
+        glm::vec3 banoPositions[8] = {banoPos,  banoPos2, banoPos3, banoPos4,
+                                      banoPos5, banoPos6, banoPos7, banoPos8};
+        glm::vec3 banoRotations[8] = {banoRot,  banoRot2, banoRot3, banoRot4,
+                                      banoRot5, banoRot6, banoRot7, banoRot8};
+        glm::vec3 banoScales[8] = {banoScale,  banoScale2, banoScale3,
+                                   banoScale4, banoScale5, banoScale6,
+                                   banoScale7, banoScale8};
+        for (int i = 0; i < 8; i++) {
+          drawModelHitbox(banoGLTF, banoPositions[i], banoRotations[i],
+                          banoScales[i]);
+        }
 
-            glBindTexture(GL_TEXTURE_2D,
-                          clueTexture); // Textura blanca genÃ©rica
-            glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+        glm::vec3 lavaPositions[8] = {
+            lavamanosPos,  lavamanosPos2, lavamanosPos3, lavamanosPos4,
+            lavamanosPos5, lavamanosPos6, lavamanosPos7, lavamanosPos8};
+        glm::vec3 lavaRotations[8] = {
+            lavamanosRot,  lavamanosRot2, lavamanosRot3, lavamanosRot4,
+            lavamanosRot5, lavamanosRot6, lavamanosRot7, lavamanosRot8};
+        glm::vec3 lavaScales[8] = {
+            lavamanosScale,  lavamanosScale2, lavamanosScale3, lavamanosScale4,
+            lavamanosScale5, lavamanosScale6, lavamanosScale7, lavamanosScale8};
+        for (int i = 0; i < 8; i++) {
+          drawModelHitbox(lavamanosGLTF, lavaPositions[i], lavaRotations[i],
+                          lavaScales[i]);
+        }
 
-            glEnable(GL_DEPTH_TEST);
-            glDisable(GL_BLEND);
+        drawModelHitbox(urinarioGLTF, urinarioPos, urinarioRot, urinarioScale);
+        drawModelHitbox(mensBGLTF, mensBpos, mensBrot, mensBscale);
+        drawModelHitbox(girlBGLTF, girlBpos, girlBrot, girlBscale);
+
+        // --- Props Dinámicos (placedProps) ---
+        for (const auto &prop : placedProps) {
+          GLTFModel *model = modelRegistry[prop.modelName];
+          if (model) {
+            glm::vec3 color = prop.collisionActive
+                                  ? glm::vec3(0.1f, 0.75f, 1.0f)
+                                  : glm::vec3(1.0f, 0.25f, 0.25f);
+            drawModelHitbox(model, prop.pos, prop.rot, prop.scale, color);
           }
+        }
 
-          // --- RENDER IMGUI HUD ---
-          if (gameState == MENU) {
-            auto startGameFromMenu = [&]() {
-              gameState = PLAYING;
-              isCursorLocked = true;
-              glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-              firstMouse = true;
-              ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
-              printTypewriter("ESCENA 1: PASILLO DE ACCESO");
-            };
+        for (int i = 0; i < 3; i++) {
+          drawModelHitbox(generadorGLTF, generadorPos[i], generadorRot[i],
+                          generadorScale[i]);
+        }
 
-            ImDrawList* drawList = ImGui::GetBackgroundDrawList();
-            ImVec2 screenMin(0.0f, 0.0f);
-            ImVec2 screenMax((float)currentWidth, (float)currentHeight);
-            float t = (float)glfwGetTime();
+        for (size_t i = 0; i < emergencyPos.size(); i++) {
+          drawModelHitbox(emergencyGLTF, emergencyPos[i], emergencyRot[i],
+                          emergencyScale[i]);
+        }
+      }
 
-            drawList->AddRectFilledMultiColor(
-                screenMin, screenMax,
-                IM_COL32(3, 7, 11, 238), IM_COL32(8, 16, 22, 238),
-                IM_COL32(1, 2, 5, 248), IM_COL32(2, 4, 7, 248));
-            drawList->AddCircleFilled(
-                ImVec2(currentWidth * 0.5f, currentHeight * 0.05f),
-                currentWidth * 0.32f, IM_COL32(170, 215, 230, 20), 96);
-            drawList->AddRectFilledMultiColor(
-                ImVec2(0, 0), ImVec2((float)currentWidth, currentHeight * 0.34f),
-                IM_COL32(190, 220, 230, 28), IM_COL32(90, 140, 160, 10),
-                IM_COL32(0, 0, 0, 0), IM_COL32(0, 0, 0, 0));
-            for (int i = 0; i < 42; ++i) {
-              float seed = (float)i * 37.13f;
-              float x = fmodf(seed * 19.7f, (float)currentWidth);
-              float y = fmodf(seed * 11.3f + t * (6.0f + (i % 5)), (float)currentHeight);
-              float a = 20.0f + (float)(i % 4) * 12.0f;
-              drawList->AddCircleFilled(ImVec2(x, y), 1.0f + (i % 3) * 0.35f,
-                                        IM_COL32(210, 230, 235, (int)a), 8);
-            }
+      glLineWidth(1.0f);
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
-            ImGui::SetNextWindowPos(screenMin);
-            ImGui::SetNextWindowSize(screenMax);
-            ImGui::SetNextWindowBgAlpha(0.0f);
-            ImGui::Begin("MainMenu", NULL,
-                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-                             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
-                             ImGuiWindowFlags_NoSavedSettings);
+    // --- DIBUJAR ENTIDADES 2D ---
+    glBindVertexArray(quadVAO);
+    glDisable(GL_CULL_FACE);
 
-            float titleY = currentHeight * 0.16f;
-            const char* title = "PROYECTO CONFIDENCIAL";
-            const char* subtitle = "LABORATORIO DE CONTENCION";
-            ImGui::SetWindowFontScale(3.0f);
-            ImVec2 titleSize = ImGui::CalcTextSize(title);
-            ImGui::SetCursorPos(ImVec2((currentWidth - titleSize.x) * 0.5f, titleY));
-            ImGui::TextColored(ImVec4(0.88f, 0.97f, 1.0f, 1.0f), "%s", title);
+    for (auto &entity : gameEntities) {
+      if (!entity.active ||
+          (entity.type >= 3 && entity.type != 8 && entity.type != 9))
+        continue;
+      if (entity.type == 0 || entity.type == 3)
+        continue; // Ya se dibujaron en 3D
+      if (entity.type == 2 && !portalActivado)
+        continue;
 
-            ImGui::SetWindowFontScale(1.0f);
-            ImVec2 titleCenter(currentWidth * 0.5f, titleY + titleSize.y + 10.0f);
-            drawList->AddLine(ImVec2(titleCenter.x - 230.0f, titleCenter.y),
-                              ImVec2(titleCenter.x - 45.0f, titleCenter.y),
-                              IM_COL32(220, 245, 255, 180), 1.5f);
-            drawList->AddLine(ImVec2(titleCenter.x + 45.0f, titleCenter.y),
-                              ImVec2(titleCenter.x + 230.0f, titleCenter.y),
-                              IM_COL32(220, 245, 255, 180), 1.5f);
-            drawList->AddCircle(titleCenter, 17.0f, IM_COL32(220, 245, 255, 180), 32, 1.3f);
+      if (entity.type == 1) {
+        glBindTexture(GL_TEXTURE_2D, batteryTex);
+      } else if (entity.type == 8 || entity.type == 9) {
+        glBindTexture(GL_TEXTURE_2D, keycardTex);
+      } else if (entity.type == 0 || entity.type == 3) {
+        glBindTexture(GL_TEXTURE_2D, clueTexture);
+      } else {
+        glBindTexture(GL_TEXTURE_2D, enemyTexture);
+      }
 
-            ImVec2 subSize = ImGui::CalcTextSize(subtitle);
-            ImGui::SetCursorPos(ImVec2((currentWidth - subSize.x) * 0.5f, titleCenter.y + 24.0f));
-            ImGui::TextColored(ImVec4(0.62f, 0.78f, 0.84f, 1.0f), "%s", subtitle);
+      glm::mat4 entityModel = glm::mat4(1.0f);
 
-            float menuWidth = 260.0f;
-            float menuX = (currentWidth - menuWidth) * 0.5f;
-            float menuY = currentHeight * 0.48f;
-            ImGui::SetCursorPos(ImVec2(menuX, menuY));
-            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 9.0f));
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.02f, 0.05f, 0.07f, 0.28f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.55f, 0.75f, 0.82f, 0.22f));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.75f, 0.92f, 1.0f, 0.35f));
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.88f, 0.96f, 1.0f, 1.0f));
+      // FlotaciÃ³n sutil de objetos clave para visibilidad---
+      float bounce = 0.0f;
+      if (entity.type == 8 || entity.type == 9)
+        bounce = sin(currentFrame * 3.0f) * 0.1f;
 
-            auto menuButton = [&](const char* label) {
-              ImGui::SetCursorPosX(menuX);
-              bool pressed = ImGui::Button(label, ImVec2(menuWidth, 34.0f));
-              ImVec2 min = ImGui::GetItemRectMin();
-              ImVec2 max = ImGui::GetItemRectMax();
-              if (ImGui::IsItemHovered()) {
-                drawList->AddLine(ImVec2(min.x + 34.0f, max.y + 2.0f),
-                                  ImVec2(max.x - 34.0f, max.y + 2.0f),
-                                  IM_COL32(220, 245, 255, 180), 1.0f);
-              }
-              return pressed;
-            };
+      float targetY = entity.pos.y + bounce;
 
-            if (menuButton("INICIAR JUEGO")) startGameFromMenu();
-            menuButton("OPCIONES");
-            menuButton("ARCHIVOS");
-            menuButton("CREDITOS");
-            if (menuButton("SALIR")) glfwSetWindowShouldClose(window, true);
+      entityModel = glm::translate(
+          entityModel, glm::vec3(entity.pos.x, targetY, entity.pos.z));
 
-            ImGui::PopStyleColor(4);
-            ImGui::PopStyleVar(2);
+      float anguloHaciaCamara =
+          atan2(cameraPos.x - entity.pos.x, cameraPos.z - entity.pos.z);
+      entityModel = glm::rotate(entityModel, anguloHaciaCamara,
+                                glm::vec3(0.0f, 1.0f, 0.0f));
 
-            ImGui::SetWindowFontScale(0.85f);
-            const char* hint = "ENTER / ESPACIO tambien inicia";
-            ImVec2 hintSize = ImGui::CalcTextSize(hint);
-            ImGui::SetCursorPos(ImVec2((currentWidth - hintSize.x) * 0.5f,
-                                       currentHeight * 0.86f));
-            ImGui::TextColored(ImVec4(0.5f, 0.65f, 0.7f, 0.85f), "%s", hint);
-            ImGui::SetWindowFontScale(1.0f);
-            ImGui::End();
-          } else if (showDebugGUI) {
-            // Display coordinates top-left
-            ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
-            ImGui::SetNextWindowSize(ImVec2(180.0f, 120.0f));
-            ImGui::SetNextWindowBgAlpha(0.6f);
-            ImGui::Begin("Coords", NULL,
-                         ImGuiWindowFlags_NoTitleBar |
-                             ImGuiWindowFlags_NoResize |
-                             ImGuiWindowFlags_NoMove);
-            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f),
-                               "POSICION ACTUAL:");
-            ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
-            ImGui::Spacing();
-            ImGui::Checkbox("Ver Hitboxes (H)", &showCollisionViewer);
-            ImGui::Spacing();
-            if (ImGui::Button("Ocultar Editor (G)", ImVec2(-1, 0))) {
-              showDebugGUI = false;
-            }
-            ImGui::End();
+      float escala = (entity.type != 2) ? 0.3f : 0.9f;
 
-            ImGui::SetNextWindowPos(
-                ImVec2((float)currentWidth - 350.0f, 10.0f));
-            ImGui::SetNextWindowSize(ImVec2(340.0f, 340.0f));
-            ImGui::SetNextWindowBgAlpha(0.75f);
-            ImGui::Begin("Editor Bano", NULL,
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-            ImGui::Text("Ajuste en tiempo real (sin recompilar)");
-            ImGui::Separator();
-            ImGui::Text("Bano");
-            ImGui::DragFloat3("Bano Pos", &banoPos.x, 0.05f, 33.0f, 40.0f);
-            ImGui::DragFloat3("Bano Rot", &banoRot.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Bano Scale", &banoScale.x, 0.01f, 0.05f, 2.0f);
-            ImGui::Separator();
-            ImGui::Text("Lavamanos");
-            ImGui::DragFloat3("Lava Pos", &lavamanosPos.x, 0.05f, 33.0f, 42.0f);
-            ImGui::DragFloat3("Lava Rot", &lavamanosRot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Lava Scale", &lavamanosScale.x, 0.01f, 0.05f,
-                              2.0f);
-            if (ImGui::Button("Traer lavamanos frente a camara")) {
-              lavamanosPos = cameraPos + cameraFront * 0.8f;
-              lavamanosPos.y = cameraPos.y;
-              lavamanosRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              lavamanosScale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
+      entityModel = glm::scale(entityModel, glm::vec3(escala, escala, escala));
 
-            ImGui::Text("Lavamanos 2");
-            ImGui::DragFloat3("Lava 2 Pos", &lavamanosPos2.x, 0.05f, 33.0f,
-                              42.0f);
-            ImGui::DragFloat3("Lava 2 Rot", &lavamanosRot2.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Lava 2 Scale", &lavamanosScale2.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
 
-            ImGui::Text("Lavamanos 3");
-            ImGui::DragFloat3("Lava 3 Pos", &lavamanosPos3.x, 0.05f, 33.0f,
-                              42.0f);
-            ImGui::DragFloat3("Lava 3 Rot", &lavamanosRot3.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Lava 3 Scale", &lavamanosScale3.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+      if (entity.type == 2 && dimensionAlterna) {
+        float pulse = 0.5f + 0.5f * sin(currentFrame * 10.0f);
+        glUniform3f(colorLoc, pulse, 0.1f, 0.1f);
+        glUniform1f(emissiveStrengthLoc, 0.0f);
+      } else if (entity.type == 8) {
+        glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f); // Tarjeta amarilla
+        glUniform1f(emissiveStrengthLoc, 1.2f);  // Hacer que brille
+        glVertexAttrib3f(3, 1.0f, 1.0f, 0.0f);
+      } else if (entity.type == 9) {
+        glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f); // Tarjeta roja
+        glUniform1f(emissiveStrengthLoc, 1.2f);  // Hacer que brille
+        glVertexAttrib3f(3, 1.0f, 0.0f, 0.0f);
+      } else {
+        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+        glUniform1f(emissiveStrengthLoc, 0.0f);
+        glVertexAttrib3f(3, 1.0f, 1.0f, 1.0f);
+      }
 
-            ImGui::Text("Lavamanos 4");
-            ImGui::DragFloat3("Lava 4 Pos", &lavamanosPos4.x, 0.05f, 33.0f,
-                              42.0f);
-            ImGui::DragFloat3("Lava 4 Rot", &lavamanosRot4.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Lava 4 Scale", &lavamanosScale4.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      glUniform1f(emissiveStrengthLoc,
+                  0.0f); // Resetear para siguientes objetos
+    }
 
-            ImGui::Text("Lavamanos 5 (Mujeres 1)");
-            ImGui::DragFloat3("Lava 5 Pos", &lavamanosPos5.x, 0.05f, 33.0f,
-                              42.0f);
-            ImGui::DragFloat3("Lava 5 Rot", &lavamanosRot5.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Lava 5 Scale", &lavamanosScale5.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+    if (gameState == MENU) {
+    } else if (gameState == PLAYING) {
+      // --- DIBUJAR CROSSHAIR (HUD) ---
+      glDisable(GL_DEPTH_TEST);
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_ONE_MINUS_DST_COLOR,
+                  GL_ZERO); // Color invertido para que se vea siempre
 
-            ImGui::Text("Lavamanos 6 (Mujeres 2)");
-            ImGui::DragFloat3("Lava 6 Pos", &lavamanosPos6.x, 0.05f, 33.0f,
-                              42.0f);
-            ImGui::DragFloat3("Lava 6 Rot", &lavamanosRot6.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Lava 6 Scale", &lavamanosScale6.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+      glBindVertexArray(quadVAO);
+      float aspect = (float)currentWidth / (float)currentHeight;
+      glm::mat4 orthoProj =
+          glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+      glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(orthoProj));
 
-            ImGui::Text("Lavamanos 7 (Mujeres 3)");
-            ImGui::DragFloat3("Lava 7 Pos", &lavamanosPos7.x, 0.05f, 33.0f,
-                              42.0f);
-            ImGui::DragFloat3("Lava 7 Rot", &lavamanosRot7.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Lava 7 Scale", &lavamanosScale7.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+      glm::mat4 orthoView = glm::mat4(1.0f);
+      glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(orthoView));
 
-            ImGui::Text("Lavamanos 8 (Mujeres 4)");
-            ImGui::DragFloat3("Lava 8 Pos", &lavamanosPos8.x, 0.05f, 33.0f,
-                              42.0f);
-            ImGui::DragFloat3("Lava 8 Rot", &lavamanosRot8.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Lava 8 Scale", &lavamanosScale8.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
-            ImGui::Text("Urinario");
-            ImGui::DragFloat3("Uri Pos", &urinarioPos.x, 0.05f, 33.0f, 40.0f);
-            ImGui::DragFloat3("Uri Rot", &urinarioRot.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Uri Scale", &urinarioScale.x, 0.01f, 0.05f,
-                              2.0f); // los parametros de dragfloat3 son name,
-                                     // escalas y posicion inicial
-            ImGui::Separator();
-            ImGui::Text("Bano 2");
-            ImGui::DragFloat3("Bano 2 Pos", &banoPos2.x, 0.05f, 33.0f, 40.0f);
-            ImGui::DragFloat3("Bano 2 Rot", &banoRot2.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Bano 2 Scale", &banoScale2.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
-            ImGui::Text("Bano 3");
-            ImGui::DragFloat3("Bano 3 Pos", &banoPos3.x, 0.05f, 33.0f, 40.0f);
-            ImGui::DragFloat3("Bano 3 Rot", &banoRot3.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Bano 3 Scale", &banoScale3.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
-            ImGui::Text("Bano 4");
-            ImGui::DragFloat3("Bano 4 Pos", &banoPos4.x, 0.05f, 33.0f, 40.0f);
-            ImGui::DragFloat3("Bano 4 Rot", &banoRot4.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Bano 4 Scale", &banoScale4.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+      glm::mat4 orthoModel = glm::mat4(1.0f);
+      orthoModel =
+          glm::scale(orthoModel, glm::vec3(0.015f, 0.015f * aspect,
+                                           1.0f)); // Puntito en el centro
+      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(orthoModel));
 
-            ImGui::Text("Bano 5 (Mujeres 1)");
-            ImGui::DragFloat3("Bano 5 Pos", &banoPos5.x, 0.05f, 33.0f, 40.0f);
-            ImGui::DragFloat3("Bano 5 Rot", &banoRot5.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Bano 5 Scale", &banoScale5.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+      glBindTexture(GL_TEXTURE_2D,
+                    clueTexture); // Textura blanca genÃ©rica
+      glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
 
-            ImGui::Text("Bano 6 (Mujeres 2)");
-            ImGui::DragFloat3("Bano 6 Pos", &banoPos6.x, 0.05f, 33.0f, 40.0f);
-            ImGui::DragFloat3("Bano 6 Rot", &banoRot6.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Bano 6 Scale", &banoScale6.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+      glEnable(GL_DEPTH_TEST);
+      glDisable(GL_BLEND);
+    }
 
-            ImGui::Text("Bano 7 (Mujeres 3)");
-            ImGui::DragFloat3("Bano 7 Pos", &banoPos7.x, 0.05f, 33.0f, 40.0f);
-            ImGui::DragFloat3("Bano 7 Rot", &banoRot7.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Bano 7 Scale", &banoScale7.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+    // --- RENDER IMGUI HUD ---
+    if (gameState == MENU) {
+      auto startGameFromMenu = [&]() {
+        gameState = PLAYING;
+        isCursorLocked = true;
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        firstMouse = true;
+        ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
+        printTypewriter("ESCENA 1: PASILLO DE ACCESO");
+      };
 
-            ImGui::Text("Bano 8 (Mujeres 4)");
-            ImGui::DragFloat3("Bano 8 Pos", &banoPos8.x, 0.05f, 33.0f, 40.0f);
-            ImGui::DragFloat3("Bano 8 Rot", &banoRot8.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Bano 8 Scale", &banoScale8.x, 0.01f, 0.05f,
-                              2.0f);
-            ImGui::Separator();
+      ImDrawList *drawList = ImGui::GetBackgroundDrawList();
+      ImVec2 screenMin(0.0f, 0.0f);
+      ImVec2 screenMax((float)currentWidth, (float)currentHeight);
+      float t = (float)glfwGetTime();
 
-            ImGui::Text("Lampara bano");
-            ImGui::DragFloat3("Lampara bano Pos", &ligthbathroomPos.x, 0.05f);
-            ImGui::DragFloat3("Lampara bano Rot", &ligthbathroomRot.x, 0.5f,
-                              -180.0f, 180.0f);
-            ImGui::DragFloat3("Lampara bano Scale", &ligthbathroomScale.x,
-                              0.01f, 0.05f, 2.0f);
-            ImGui::Checkbox("Lampara modo debug visible",
-                            &ligthbathroomDebugVisible);
-            ImGui::Separator();
-            ImGui::Text("mensB");
-            ImGui::DragFloat3("mensB Pos", &mensBpos.x, 0.05f);
-            ImGui::DragFloat3("mensB Rot", &mensBrot.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("mensB Scale", &mensBscale.x, 0.01f, 0.05f, 2.0f);
-            if (ImGui::Button("Traer mensB frente a camara")) {
-              mensBpos = cameraPos + cameraFront * 0.8f;
-              mensBpos.y = cameraPos.y;
-              mensBrot = glm::vec3(0.0f, 0.0f, 0.0f);
-              mensBscale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-            ImGui::Text("girlB");
-            ImGui::DragFloat3("girlB Pos", &girlBpos.x, 0.05f);
-            ImGui::DragFloat3("girlB Rot", &girlBrot.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("girlB Scale", &girlBscale.x, 0.01f, 0.05f, 2.0f);
-            if (ImGui::Button("Traer girlB frente a camara")) {
-              girlBpos = cameraPos + cameraFront * 0.8f;
-              girlBpos.y = cameraPos.y;
-              girlBrot = glm::vec3(0.0f, 0.0f, 0.0f);
-              girlBscale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-            ImGui::Text("mirrorBG");
-            ImGui::DragFloat3("mirrorBG Pos", &mirrorBGpos.x, 0.05f);
-            ImGui::DragFloat3("mirrorBG Rot", &mirrorBGRot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("mirrorBG Scale", &mirrorBGScale.x, 0.01f, 0.05f,
-                              2.0f);
-            if (ImGui::Button("Traer mirrorBG frente a camara")) {
-              mirrorBGpos = cameraPos + cameraFront * 0.8f;
-              mirrorBGpos.y = cameraPos.y;
-              mirrorBGRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              mirrorBGScale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-            ImGui::Text("Sillas");
-            ImGui::DragFloat3("Sillas Pos", &sillasPos.x, 0.05f, -100.0f,
-                              100.0f);
-            ImGui::DragFloat3("Sillas Rot", &sillasRot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Sillas Scale", &sillasScale.x, 0.01f, 0.001f,
-                              3.0f);
-            ImGui::Separator();
+      drawList->AddRectFilledMultiColor(
+          screenMin, screenMax, IM_COL32(3, 7, 11, 238),
+          IM_COL32(8, 16, 22, 238), IM_COL32(1, 2, 5, 248),
+          IM_COL32(2, 4, 7, 248));
+      drawList->AddCircleFilled(
+          ImVec2(currentWidth * 0.5f, currentHeight * 0.05f),
+          currentWidth * 0.32f, IM_COL32(170, 215, 230, 20), 96);
+      drawList->AddRectFilledMultiColor(
+          ImVec2(0, 0), ImVec2((float)currentWidth, currentHeight * 0.34f),
+          IM_COL32(190, 220, 230, 28), IM_COL32(90, 140, 160, 10),
+          IM_COL32(0, 0, 0, 0), IM_COL32(0, 0, 0, 0));
+      for (int i = 0; i < 42; ++i) {
+        float seed = (float)i * 37.13f;
+        float x = fmodf(seed * 19.7f, (float)currentWidth);
+        float y =
+            fmodf(seed * 11.3f + t * (6.0f + (i % 5)), (float)currentHeight);
+        float a = 20.0f + (float)(i % 4) * 12.0f;
+        drawList->AddCircleFilled(ImVec2(x, y), 1.0f + (i % 3) * 0.35f,
+                                  IM_COL32(210, 230, 235, (int)a), 8);
+      }
 
-            ImGui::Text("Sillas - 2");
-            ImGui::DragFloat3("Sillas 2 Pos", &sillas2Pos.x, 0.05f, -100.0f,
-                              100.0f);
-            ImGui::DragFloat3("Sillas 2 Rot", &sillas2Rot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Sillas 2 Scale", &sillas2Scale.x, 0.01f, 0.001f,
-                              3.0f);
-            ImGui::Separator();
+      ImGui::SetNextWindowPos(screenMin);
+      ImGui::SetNextWindowSize(screenMax);
+      ImGui::SetNextWindowBgAlpha(0.0f);
+      ImGui::Begin("MainMenu", NULL,
+                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+                       ImGuiWindowFlags_NoSavedSettings);
 
-            ImGui::Text("Sillas - Fila Ext. Derecha (3)");
-            ImGui::DragFloat3("Sillas 3 Pos", &sillas3Pos.x, 0.05f, -100.0f,
-                              100.0f);
-            ImGui::DragFloat3("Sillas 3 Rot", &sillas3Rot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Sillas 3 Scale", &sillas3Scale.x, 0.01f, 0.001f,
-                              3.0f);
-            ImGui::Separator();
+      float titleY = currentHeight * 0.16f;
+      const char *title = "PROYECTO CONFIDENCIAL";
+      const char *subtitle = "LABORATORIO DE CONTENCION";
+      ImGui::SetWindowFontScale(3.0f);
+      ImVec2 titleSize = ImGui::CalcTextSize(title);
+      ImGui::SetCursorPos(ImVec2((currentWidth - titleSize.x) * 0.5f, titleY));
+      ImGui::TextColored(ImVec4(0.88f, 0.97f, 1.0f, 1.0f), "%s", title);
 
-            ImGui::Text("Sillas - Fila Ext. Izquierda (4)");
-            ImGui::DragFloat3("Sillas 4 Pos", &sillas4Pos.x, 0.05f, -100.0f,
-                              100.0f);
-            ImGui::DragFloat3("Sillas 4 Rot", &sillas4Rot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Sillas 4 Scale", &sillas4Scale.x, 0.01f, 0.001f,
-                              3.0f);
-            ImGui::Separator();
+      ImGui::SetWindowFontScale(1.0f);
+      ImVec2 titleCenter(currentWidth * 0.5f, titleY + titleSize.y + 10.0f);
+      drawList->AddLine(ImVec2(titleCenter.x - 230.0f, titleCenter.y),
+                        ImVec2(titleCenter.x - 45.0f, titleCenter.y),
+                        IM_COL32(220, 245, 255, 180), 1.5f);
+      drawList->AddLine(ImVec2(titleCenter.x + 45.0f, titleCenter.y),
+                        ImVec2(titleCenter.x + 230.0f, titleCenter.y),
+                        IM_COL32(220, 245, 255, 180), 1.5f);
+      drawList->AddCircle(titleCenter, 17.0f, IM_COL32(220, 245, 255, 180), 32,
+                          1.3f);
 
-            ImGui::Text("Sillas - Fila Ext. Izquierda 2 (5)");
-            ImGui::DragFloat3("Sillas 5 Pos", &sillas5Pos.x, 0.05f, -100.0f,
-                              100.0f);
-            ImGui::DragFloat3("Sillas 5 Rot", &sillas5Rot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Sillas 5 Scale", &sillas5Scale.x, 0.01f, 0.001f,
-                              3.0f);
-            ImGui::Separator();
+      ImVec2 subSize = ImGui::CalcTextSize(subtitle);
+      ImGui::SetCursorPos(
+          ImVec2((currentWidth - subSize.x) * 0.5f, titleCenter.y + 24.0f));
+      ImGui::TextColored(ImVec4(0.62f, 0.78f, 0.84f, 1.0f), "%s", subtitle);
 
-            ImGui::Text("Sofa");
-            ImGui::DragFloat3("Sofa Pos", &sofaPos.x, 0.05f, -100.0f, 100.0f);
-            ImGui::DragFloat3("Sofa Rot", &sofaRot.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Sofa Scale", &sofaScale.x, 0.01f, 0.001f, 3.0f);
-            ImGui::Separator();
+      float menuWidth = 260.0f;
+      float menuX = (currentWidth - menuWidth) * 0.5f;
+      float menuY = currentHeight * 0.48f;
+      ImGui::SetCursorPos(ImVec2(menuX, menuY));
+      ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+      ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 9.0f));
+      ImGui::PushStyleColor(ImGuiCol_Button,
+                            ImVec4(0.02f, 0.05f, 0.07f, 0.28f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                            ImVec4(0.55f, 0.75f, 0.82f, 0.22f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                            ImVec4(0.75f, 0.92f, 1.0f, 0.35f));
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.88f, 0.96f, 1.0f, 1.0f));
+
+      auto menuButton = [&](const char *label) {
+        ImGui::SetCursorPosX(menuX);
+        bool pressed = ImGui::Button(label, ImVec2(menuWidth, 34.0f));
+        ImVec2 min = ImGui::GetItemRectMin();
+        ImVec2 max = ImGui::GetItemRectMax();
+        if (ImGui::IsItemHovered()) {
+          drawList->AddLine(ImVec2(min.x + 34.0f, max.y + 2.0f),
+                            ImVec2(max.x - 34.0f, max.y + 2.0f),
+                            IM_COL32(220, 245, 255, 180), 1.0f);
+        }
+        return pressed;
+      };
+
+      if (menuButton("INICIAR JUEGO"))
+        startGameFromMenu();
+      menuButton("OPCIONES");
+      menuButton("ARCHIVOS");
+      menuButton("CREDITOS");
+      if (menuButton("SALIR"))
+        glfwSetWindowShouldClose(window, true);
+
+      ImGui::PopStyleColor(4);
+      ImGui::PopStyleVar(2);
+
+      ImGui::SetWindowFontScale(0.85f);
+      const char *hint = "ENTER / ESPACIO tambien inicia";
+      ImVec2 hintSize = ImGui::CalcTextSize(hint);
+      ImGui::SetCursorPos(
+          ImVec2((currentWidth - hintSize.x) * 0.5f, currentHeight * 0.86f));
+      ImGui::TextColored(ImVec4(0.5f, 0.65f, 0.7f, 0.85f), "%s", hint);
+      ImGui::SetWindowFontScale(1.0f);
+      ImGui::End();
+    } else if (showDebugGUI) {
+      static int activeEditorPanel = 1;
+      const float sideTabW = 36.0f;
+      const float leftPanelX = sideTabW + 12.0f;
+      const float panelTopY = 54.0f;
+      const float panelGap = 8.0f;
+      const float leftPanelW = 360.0f;
+      const float availablePanelH = (float)currentHeight - panelTopY - 14.0f;
+      const float leftStatusH = 126.0f;
+      const float leftLevelY = panelTopY + leftStatusH + panelGap;
+      const float leftLevelH = availablePanelH * 0.62f;
+      const float leftSpawnY = leftLevelY + leftLevelH + panelGap;
+      const float leftSpawnH =
+          (glm::max)(120.0f, availablePanelH - leftStatusH - leftLevelH -
+                                 panelGap * 2.0f);
+
+      ImGui::SetNextWindowPos(ImVec2(0.0f, panelTopY), ImGuiCond_Always);
+      ImGui::SetNextWindowSize(ImVec2(sideTabW, 238.0f), ImGuiCond_Always);
+      ImGui::SetNextWindowBgAlpha(0.78f);
+      ImGui::Begin("EditorDockTabs", NULL,
+                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+      auto sideTab = [&](const char *label, int panel) {
+        if (activeEditorPanel == panel) {
+          ImGui::PushStyleColor(ImGuiCol_Button,
+                                ImVec4(0.20f, 0.38f, 0.58f, 1.0f));
+        }
+        bool clicked = ImGui::Button(label, ImVec2(-1.0f, 58.0f));
+        if (activeEditorPanel == panel) {
+          ImGui::PopStyleColor();
+        }
+        if (clicked)
+          activeEditorPanel = panel;
+      };
+      sideTab("I", 0);
+      sideTab("M", 1);
+      sideTab("S", 2);
+      if (ImGui::Button("<", ImVec2(-1.0f, 34.0f))) {
+        showDebugGUI = false;
+      }
+      ImGui::End();
+
+      // Display coordinates top-left
+      if (activeEditorPanel == 0) {
+        ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY),
+                                ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(leftPanelW, 182.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.78f);
+        ImGui::Begin("Coords", NULL,
+                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                         ImGuiWindowFlags_NoMove);
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "POSICION ACTUAL:");
+        ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
+        ImGui::Spacing();
+        ImGui::Checkbox("Ver Hitboxes (H)", &showCollisionViewer);
+        ImGui::Spacing();
+        if (ImGui::Button("Ocultar Editor (G)", ImVec2(-1, 0))) {
+          showDebugGUI = false;
+        }
+        ImGui::End();
+      }
+
+      if (false) {
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+        ImGui::Begin("Editor Bano", NULL);
+        ImGui::Text("Ajuste en tiempo real (sin recompilar)");
+        ImGui::Separator();
+        ImGui::Text("Bano");
+        ImGui::DragFloat3("Bano Pos", &banoPos.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano Rot", &banoRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano Scale", &banoScale.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Lavamanos");
+        ImGui::DragFloat3("Lava Pos", &lavamanosPos.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava Rot", &lavamanosRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lava Scale", &lavamanosScale.x, 0.01f, 0.05f, 2.0f);
+        if (ImGui::Button("Traer lavamanos frente a camara")) {
+          lavamanosPos = cameraPos + cameraFront * 0.8f;
+          lavamanosPos.y = cameraPos.y;
+          lavamanosRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          lavamanosScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 2");
+        ImGui::DragFloat3("Lava 2 Pos", &lavamanosPos2.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 2 Rot", &lavamanosRot2.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("Lava 2 Scale", &lavamanosScale2.x, 0.01f, 0.05f,
+                          2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 3");
+        ImGui::DragFloat3("Lava 3 Pos", &lavamanosPos3.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 3 Rot", &lavamanosRot3.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("Lava 3 Scale", &lavamanosScale3.x, 0.01f, 0.05f,
+                          2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 4");
+        ImGui::DragFloat3("Lava 4 Pos", &lavamanosPos4.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 4 Rot", &lavamanosRot4.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("Lava 4 Scale", &lavamanosScale4.x, 0.01f, 0.05f,
+                          2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 5 (Mujeres 1)");
+        ImGui::DragFloat3("Lava 5 Pos", &lavamanosPos5.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 5 Rot", &lavamanosRot5.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("Lava 5 Scale", &lavamanosScale5.x, 0.01f, 0.05f,
+                          2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 6 (Mujeres 2)");
+        ImGui::DragFloat3("Lava 6 Pos", &lavamanosPos6.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 6 Rot", &lavamanosRot6.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("Lava 6 Scale", &lavamanosScale6.x, 0.01f, 0.05f,
+                          2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 7 (Mujeres 3)");
+        ImGui::DragFloat3("Lava 7 Pos", &lavamanosPos7.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 7 Rot", &lavamanosRot7.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("Lava 7 Scale", &lavamanosScale7.x, 0.01f, 0.05f,
+                          2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lavamanos 8 (Mujeres 4)");
+        ImGui::DragFloat3("Lava 8 Pos", &lavamanosPos8.x, 0.05f, 33.0f, 42.0f);
+        ImGui::DragFloat3("Lava 8 Rot", &lavamanosRot8.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("Lava 8 Scale", &lavamanosScale8.x, 0.01f, 0.05f,
+                          2.0f);
+        ImGui::Separator();
+        ImGui::Text("Urinario");
+        ImGui::DragFloat3("Uri Pos", &urinarioPos.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Uri Rot", &urinarioRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Uri Scale", &urinarioScale.x, 0.01f, 0.05f,
+                          2.0f); // los parametros de dragfloat3 son name,
+                                 // escalas y posicion inicial
+        ImGui::Separator();
+        ImGui::Text("Bano 2");
+        ImGui::DragFloat3("Bano 2 Pos", &banoPos2.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 2 Rot", &banoRot2.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 2 Scale", &banoScale2.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Bano 3");
+        ImGui::DragFloat3("Bano 3 Pos", &banoPos3.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 3 Rot", &banoRot3.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 3 Scale", &banoScale3.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+        ImGui::Text("Bano 4");
+        ImGui::DragFloat3("Bano 4 Pos", &banoPos4.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 4 Rot", &banoRot4.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 4 Scale", &banoScale4.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Bano 5 (Mujeres 1)");
+        ImGui::DragFloat3("Bano 5 Pos", &banoPos5.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 5 Rot", &banoRot5.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 5 Scale", &banoScale5.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Bano 6 (Mujeres 2)");
+        ImGui::DragFloat3("Bano 6 Pos", &banoPos6.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 6 Rot", &banoRot6.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 6 Scale", &banoScale6.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Bano 7 (Mujeres 3)");
+        ImGui::DragFloat3("Bano 7 Pos", &banoPos7.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 7 Rot", &banoRot7.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 7 Scale", &banoScale7.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Bano 8 (Mujeres 4)");
+        ImGui::DragFloat3("Bano 8 Pos", &banoPos8.x, 0.05f, 33.0f, 40.0f);
+        ImGui::DragFloat3("Bano 8 Rot", &banoRot8.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Bano 8 Scale", &banoScale8.x, 0.01f, 0.05f, 2.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Lampara bano");
+        ImGui::DragFloat3("Lampara bano Pos", &ligthbathroomPos.x, 0.05f);
+        ImGui::DragFloat3("Lampara bano Rot", &ligthbathroomRot.x, 0.5f,
+                          -180.0f, 180.0f);
+        ImGui::DragFloat3("Lampara bano Scale", &ligthbathroomScale.x, 0.01f,
+                          0.05f, 2.0f);
+        ImGui::Checkbox("Lampara modo debug visible",
+                        &ligthbathroomDebugVisible);
+        ImGui::Separator();
+        ImGui::Text("mensB");
+        ImGui::DragFloat3("mensB Pos", &mensBpos.x, 0.05f);
+        ImGui::DragFloat3("mensB Rot", &mensBrot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("mensB Scale", &mensBscale.x, 0.01f, 0.05f, 2.0f);
+        if (ImGui::Button("Traer mensB frente a camara")) {
+          mensBpos = cameraPos + cameraFront * 0.8f;
+          mensBpos.y = cameraPos.y;
+          mensBrot = glm::vec3(0.0f, 0.0f, 0.0f);
+          mensBscale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+        ImGui::Text("girlB");
+        ImGui::DragFloat3("girlB Pos", &girlBpos.x, 0.05f);
+        ImGui::DragFloat3("girlB Rot", &girlBrot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("girlB Scale", &girlBscale.x, 0.01f, 0.05f, 2.0f);
+        if (ImGui::Button("Traer girlB frente a camara")) {
+          girlBpos = cameraPos + cameraFront * 0.8f;
+          girlBpos.y = cameraPos.y;
+          girlBrot = glm::vec3(0.0f, 0.0f, 0.0f);
+          girlBscale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+        ImGui::Text("mirrorBG");
+        ImGui::DragFloat3("mirrorBG Pos", &mirrorBGpos.x, 0.05f);
+        ImGui::DragFloat3("mirrorBG Rot", &mirrorBGRot.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("mirrorBG Scale", &mirrorBGScale.x, 0.01f, 0.05f,
+                          2.0f);
+        if (ImGui::Button("Traer mirrorBG frente a camara")) {
+          mirrorBGpos = cameraPos + cameraFront * 0.8f;
+          mirrorBGpos.y = cameraPos.y;
+          mirrorBGRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          mirrorBGScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+        ImGui::Text("Sillas");
+        ImGui::DragFloat3("Sillas Pos", &sillasPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Sillas Rot", &sillasRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sillas Scale", &sillasScale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Sillas - 2");
+        ImGui::DragFloat3("Sillas 2 Pos", &sillas2Pos.x, 0.05f, -100.0f,
+                          100.0f);
+        ImGui::DragFloat3("Sillas 2 Rot", &sillas2Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sillas 2 Scale", &sillas2Scale.x, 0.01f, 0.001f,
+                          3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Sillas - Fila Ext. Derecha (3)");
+        ImGui::DragFloat3("Sillas 3 Pos", &sillas3Pos.x, 0.05f, -100.0f,
+                          100.0f);
+        ImGui::DragFloat3("Sillas 3 Rot", &sillas3Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sillas 3 Scale", &sillas3Scale.x, 0.01f, 0.001f,
+                          3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Sillas - Fila Ext. Izquierda (4)");
+        ImGui::DragFloat3("Sillas 4 Pos", &sillas4Pos.x, 0.05f, -100.0f,
+                          100.0f);
+        ImGui::DragFloat3("Sillas 4 Rot", &sillas4Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sillas 4 Scale", &sillas4Scale.x, 0.01f, 0.001f,
+                          3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Sillas - Fila Ext. Izquierda 2 (5)");
+        ImGui::DragFloat3("Sillas 5 Pos", &sillas5Pos.x, 0.05f, -100.0f,
+                          100.0f);
+        ImGui::DragFloat3("Sillas 5 Rot", &sillas5Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sillas 5 Scale", &sillas5Scale.x, 0.01f, 0.001f,
+                          3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Sofa");
+        ImGui::DragFloat3("Sofa Pos", &sofaPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Sofa Rot", &sofaRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sofa Scale", &sofaScale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::Separator();
 
         ImGui::Text("Monitor de Pared");
         ImGui::DragFloat3("Monitor Pos", &monitorPos.x, 0.05f, -100.0f, 100.0f);
         ImGui::DragFloat3("Monitor Rot", &monitorRot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Monitor Scale", &monitorScale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::DragFloat3("Monitor Scale", &monitorScale.x, 0.01f, 0.001f,
+                          3.0f);
         ImGui::Separator();
 
-        ImGui::Text("Monitor 2 (Reutilizado)");
-ImGui::DragFloat3("Monitor 2 Pos", &monitor2Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Monitor 2 Rot (X, Y, Z)", &monitor2Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Monitor 2 Scale", &monitor2Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-        ImGui::Text("Mueble - Locker Lab");
-        ImGui::DragFloat3("Locker Pos", &lockerPos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Locker Rot", &lockerRot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Locker Scale", &lockerScale.x, 0.01f, 0.001f, 10.0f);
-        ImGui::Separator();
-
-        ImGui::Text("Mueble 2 - Locker Lab");
-        ImGui::DragFloat3("Locker 2 Pos", &locker2Pos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Locker 2 Rot", &locker2Rot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Locker 2 Scale", &locker2Scale.x, 0.01f, 0.001f, 10.0f);
-        ImGui::Separator();
-
-        ImGui::Text("Mueble 3 - Locker Lab");
-        ImGui::DragFloat3("Locker 3 Pos", &locker3Pos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Locker 3 Rot", &locker3Rot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Locker 3 Scale", &locker3Scale.x, 0.01f, 0.001f, 10.0f);
-        ImGui::Separator();
-
-        ImGui::Text("Locker 4");
-        ImGui::DragFloat3("Locker 4 Pos", &locker4Pos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Locker 4 Rot (X, Y, Z)", &locker4Rot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Locker 4 Scale", &locker4Scale.x, 0.005f, 0.001f, 10.0f);
-        ImGui::Separator();
-
-        ImGui::Text("Mueble - Maquina Lab");
-        ImGui::DragFloat3("Maquina Pos", &maquinaPos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Maquina Rot", &maquinaRot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Maquina Scale", &maquinaScale.x, 0.01f, 0.001f, 10.0f);
-        ImGui::Separator();
-
-        ImGui::Text("Mueble - Desk Lab");
-        ImGui::DragFloat3("Desk Pos", &deskPos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Desk Rot (X, Y, Z)", &deskRot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Desk Scale", &deskScale.x, 0.005f, 0.001f, 10.0f);
-        ImGui::Separator();
-
-        ImGui::Text("Mueble - Desk 2 Lab");
-        ImGui::DragFloat3("Desk 2 Pos", &desk2Pos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Desk 2 Rot (X, Y, Z)", &desk2Rot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Desk 2 Scale", &desk2Scale.x, 0.005f, 0.001f, 10.0f);
-        ImGui::Separator();
-
-        ImGui::Text("Mueble - Desk 3 Lab");
-        ImGui::DragFloat3("Desk 3 Pos", &desk3Pos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Desk 3 Rot (X, Y, Z)", &desk3Rot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Desk 3 Scale", &desk3Scale.x, 0.005f, 0.001f, 10.0f);
-        ImGui::Separator();
-
-        ImGui::Text("Mueble - Desk 4 Lab");
-        ImGui::DragFloat3("Desk 4 Pos", &desk4Pos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Desk 4 Rot (X, Y, Z)", &desk4Rot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Desk 4 Scale", &desk4Scale.x, 0.005f, 0.001f, 10.0f);
-        ImGui::Separator();
-
-ImGui::Text("Mueble - Desk 5 Lab");
-ImGui::DragFloat3("Desk 5 Pos", &desk5Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Desk 5 Rot (X, Y, Z)", &desk5Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Desk 5 Scale", &desk5Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-ImGui::Text("Mueble - Desk 6 Lab");
-ImGui::DragFloat3("Desk 6 Pos", &desk6Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Desk 6 Rot (X, Y, Z)", &desk6Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Desk 6 Scale", &desk6Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-
-ImGui::Text("Silla 1 Laboratorio");
-ImGui::DragFloat3("Silla 1 Pos", &silla1Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Silla 1 Rot (X, Y, Z)", &silla1Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Silla 1 Scale", &silla1Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-
-ImGui::Text("Silla 2 Laboratorio");
-ImGui::DragFloat3("Silla 2 Pos", &silla2Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Silla 2 Rot (X, Y, Z)", &silla2Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Silla 2 Scale", &silla2Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-
-ImGui::Text("Silla 3 Laboratorio");
-ImGui::DragFloat3("Silla 3 Pos", &silla3Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Silla 3 Rot (X, Y, Z)", &silla3Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Silla 3 Scale", &silla3Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-
-ImGui::Text("Silla 4 Laboratorio");
-ImGui::DragFloat3("Silla 4 Pos", &silla4Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Silla 4 Rot (X, Y, Z)", &silla4Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Silla 4 Scale", &silla4Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-
-ImGui::Text("Silla 5 Laboratorio");
-ImGui::DragFloat3("Silla 5 Pos", &silla5Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Silla 5 Rot (X, Y, Z)", &silla5Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Silla 5 Scale", &silla5Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-
-ImGui::Text("Silla 6 Laboratorio");
-ImGui::DragFloat3("Silla 6 Pos", &silla6Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Silla 6 Rot (X, Y, Z)", &silla6Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Silla 6 Scale", &silla6Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-ImGui::Text("Estante Laboratorio");
-ImGui::DragFloat3("Estante Pos", &estantePos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Estante Rot (X, Y, Z)", &estanteRot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Estante Scale", &estanteScale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-ImGui::Text("Estante 2 Laboratorio");
-ImGui::DragFloat3("Estante 2 Pos", &estante2Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Estante 2 Rot (X, Y, Z)", &estante2Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Estante 2 Scale", &estante2Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-ImGui::Text("Estante 3 Laboratorio");
-ImGui::DragFloat3("Estante 3 Pos", &estante3Pos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Estante 3 Rot (X, Y, Z)", &estante3Rot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Estante 3 Scale", &estante3Scale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-
-ImGui::Text("Monitor Cientifico Lab");
-ImGui::DragFloat3("Monitor Sci Pos", &monitorsciPos.x, 0.05f, -100.0f, 100.0f);
-ImGui::DragFloat3("Monitor Sci Rot (X, Y, Z)", &monitorsciRot.x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Monitor Sci Scale", &monitorsciScale.x, 0.005f, 0.001f, 10.0f);
-ImGui::Separator();
-    
-
-            ImGui::End();
-
-            ImGui::SetNextWindowPos(ImVec2((float)currentWidth - 700.0f, 10.0f),
-                                    ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(340.0f, 450.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.75f);
-            ImGui::Begin("Editor Contencion", NULL,
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-            ImGui::Text("Tesla Model");
-            ImGui::DragFloat3("Tesla Pos", &teslaPos.x, 0.05f);
-            ImGui::DragFloat3("Tesla Rot", &teslaRot.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Tesla Scale", &teslaScale.x, 0.01f, 0.01f,
-                              10.0f);
-            if (ImGui::Button("Traer Tesla frente a camara")) {
-              teslaPos = cameraPos + cameraFront * 2.0f;
-              teslaPos.y = -0.5f;
-              teslaRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              teslaScale = glm::vec3(0.15f, 0.15f, 0.15f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Sarcofago Model");
-            ImGui::DragFloat3("Sarcofago Pos", &sarcofagoPos.x, 0.05f);
-            ImGui::DragFloat3("Sarcofago Rot", &sarcofagoRot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Sarcofago Scale", &sarcofagoScale.x, 0.01f,
-                              0.01f, 10.0f);
-            if (ImGui::Button("Traer frente a camara##sarcofago")) {
-              sarcofagoPos = cameraPos + cameraFront * 2.0f;
-              sarcofagoPos.y = -0.5f;
-              sarcofagoRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              sarcofagoScale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Cable Piso Models");
-            if (ImGui::Button("Add Cable Piso")) {
-              cablePisoPos.push_back(cameraPos + cameraFront * 2.0f);
-              cablePisoRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
-              cablePisoScale.push_back(glm::vec3(0.01918f, 0.01918f, 0.01918f));
-            }
-            for (size_t i = 0; i < cablePisoPos.size(); i++) {
-              ImGui::PushID(static_cast<int>(i) + 5000);
-              ImGui::Text("Cable Piso %zu", i);
-              ImGui::DragFloat3("Pos", &cablePisoPos[i].x, 0.05f);
-              ImGui::DragFloat3("Rot", &cablePisoRot[i].x, 0.5f, -180.0f,
-                                180.0f);
-              ImGui::DragFloat3("Scale", &cablePisoScale[i].x, 0.001f, 0.001f,
-                                10.0f);
-              if (ImGui::Button("Traer frente a camara")) {
-                cablePisoPos[i] = cameraPos + cameraFront * 2.0f;
-                cablePisoPos[i].y = -0.5f;
-              }
-              ImGui::SameLine();
-              if (ImGui::Button("Eliminar")) {
-                cablePisoPos.erase(cablePisoPos.begin() + i);
-                cablePisoRot.erase(cablePisoRot.begin() + i);
-                cablePisoScale.erase(cablePisoScale.begin() + i);
-                ImGui::PopID();
-                break;
-              }
-              ImGui::PopID();
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Cable Techo Models");
-            if (ImGui::Button("Add Cable Techo")) {
-              cableTechoPos.push_back(cameraPos + cameraFront * 2.0f);
-              cableTechoRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
-              cableTechoScale.push_back(
-                  glm::vec3(-0.001557f, -0.001557f, -0.001557f));
-            }
-            for (size_t i = 0; i < cableTechoPos.size(); i++) {
-              ImGui::PushID(static_cast<int>(i) + 6000);
-              ImGui::Text("Cable Techo %zu", i);
-              ImGui::DragFloat3("Pos", &cableTechoPos[i].x, 0.05f);
-              ImGui::DragFloat3("Rot", &cableTechoRot[i].x, 0.5f, -180.0f,
-                                180.0f);
-              ImGui::DragFloat3("Scale", &cableTechoScale[i].x, 0.001f, 0.001f,
-                                10.0f);
-              if (ImGui::Button("Traer frente a camara")) {
-                cableTechoPos[i] = cameraPos + cameraFront * 2.0f;
-                cableTechoPos[i].y = -0.5f;
-              }
-              ImGui::SameLine();
-              if (ImGui::Button("Eliminar")) {
-                cableTechoPos.erase(cableTechoPos.begin() + i);
-                cableTechoRot.erase(cableTechoRot.begin() + i);
-                cableTechoScale.erase(cableTechoScale.begin() + i);
-                ImGui::PopID();
-                break;
-              }
-              ImGui::PopID();
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Warning Model");
-            ImGui::DragFloat3("Warning Pos", &warningPos.x, 0.05f);
-            ImGui::DragFloat3("Warning Rot", &warningRot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Warning Scale", &warningScale.x, 0.01f, 0.01f,
-                              10.0f);
-            if (ImGui::Button("Traer frente a camara##warning")) {
-              warningPos = cameraPos + cameraFront * 2.0f;
-              warningPos.y = -0.5f;
-              warningRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              warningScale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Cajones Oficina (cajonesOF) Model");
-            ImGui::DragFloat3("CajonesOF Pos", &cajonesOFPos.x, 0.05f);
-            ImGui::DragFloat3("CajonesOF Rot", &cajonesOFRot.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("CajonesOF Scale", &cajonesOFScale.x, 0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer frente a camara##cajonesOF")) {
-              cajonesOFPos = cameraPos + cameraFront * 2.0f;
-              cajonesOFPos.y = -0.5f;
-              cajonesOFRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              cajonesOFScale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Lampara Contencion Model");
-            ImGui::DragFloat3("Lamp Pos", &lamparaContencionPos.x, 0.05f);
-            ImGui::DragFloat3("Lamp Rot", &lamparaContencionRot.x, 0.5f,
-                              -180.0f, 180.0f);
-            ImGui::DragFloat3("Lamp Scale", &lamparaContencionScale.x, 0.01f,
-                              0.01f, 10.0f);
-            if (ImGui::Button("Traer frente a camara##lampara")) {
-              lamparaContencionPos = cameraPos + cameraFront * 2.0f;
-              lamparaContencionPos.y = 2.0f;
-              lamparaContencionRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              lamparaContencionScale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-
-            ImGui::Separator();
-            ImGui::Text("Lampara 2 Model");
-            ImGui::DragFloat3("Lamp2 Pos", &lampara2Pos.x, 0.05f);
-            ImGui::DragFloat3("Lamp2 Rot", &lampara2Rot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Lamp2 Scale", &lampara2Scale.x, 0.01f, 0.01f,
-                              10.0f);
-            if (ImGui::Button("Traer frente a camara##lampara2")) {
-              lampara2Pos = cameraPos + cameraFront * 2.0f;
-              lampara2Pos.y = 2.0f;
-              lampara2Rot = glm::vec3(0.0f, 0.0f, 0.0f);
-              lampara2Scale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-
-            ImGui::Separator();
-            ImGui::Text("Lampara 3 Model");
-            ImGui::DragFloat3("Lamp3 Pos", &lampara3Pos.x, 0.05f);
-            ImGui::DragFloat3("Lamp3 Rot", &lampara3Rot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Lamp3 Scale", &lampara3Scale.x, 0.01f, 0.01f,
-                              10.0f);
-            if (ImGui::Button("Traer frente a camara##lampara3")) {
-              lampara3Pos = cameraPos + cameraFront * 2.0f;
-              lampara3Pos.y = 2.0f;
-              lampara3Rot = glm::vec3(0.0f, 0.0f, 0.0f);
-              lampara3Scale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-
-            ImGui::Separator();
-            ImGui::Text("Emergency Lights");
-            if (ImGui::Button("Agregar Luz de Emergencia")) {
-              emergencyPos.push_back(cameraPos + cameraFront * 2.0f);
-              emergencyRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
-              emergencyScale.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
-            }
-            for (size_t i = 0; i < emergencyPos.size(); i++) {
-              ImGui::PushID(i);
-              ImGui::Text("Luz %d", (int)i);
-              ImGui::DragFloat3("Pos", &emergencyPos[i].x, 0.05f);
-              ImGui::DragFloat3("Rot", &emergencyRot[i].x, 0.5f, -180.0f,
-                                180.0f);
-              ImGui::DragFloat3("Scale", &emergencyScale[i].x, 0.01f, 0.01f,
-                                10.0f);
-              if (ImGui::Button("Traer frente a camara")) {
-                emergencyPos[i] = cameraPos + cameraFront * 2.0f;
-              }
-              ImGui::SameLine();
-              if (ImGui::Button("Eliminar")) {
-                emergencyPos.erase(emergencyPos.begin() + i);
-                emergencyRot.erase(emergencyRot.begin() + i);
-                emergencyScale.erase(emergencyScale.begin() + i);
-                ImGui::PopID();
-                break; // Break the loop to avoid invalid iterator
-              }
-              ImGui::PopID();
-            }
-
-            ImGui::Separator();
-            ImGui::Text("Reactor Model");
-            ImGui::DragFloat3("Reactor Pos", &reactorPos.x, 0.05f);
-            ImGui::DragFloat3("Reactor Rot", &reactorRot.x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("Reactor Scale", &reactorScale.x, 0.01f, 0.01f,
-                              10.0f);
-            if (ImGui::Button("Traer frente a camara##reactor")) {
-              reactorPos = cameraPos + cameraFront * 2.0f;
-              reactorPos.y = 2.0f;
-              reactorRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              reactorScale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-
-            ImGui::Separator();
-
-            ImGui::Text("Machine Lab Model (Escenario Grande) - 3 Instancias");
-            static int selectedMachineLab = 0;
-            const char *machineLabItems[] = {"Machine Lab 1", "Machine Lab 2",
-                                             "Machine Lab 3"};
-            ImGui::Combo("Seleccionar Machine Lab", &selectedMachineLab,
-                         machineLabItems, IM_ARRAYSIZE(machineLabItems));
-            ImGui::DragFloat3("MachineLab Pos",
-                              &machineLabPos[selectedMachineLab].x, 0.05f);
-            ImGui::DragFloat3("MachineLab Rot",
-                              &machineLabRot[selectedMachineLab].x, 0.5f,
-                              -180.0f, 180.0f);
-            ImGui::DragFloat3("MachineLab Scale",
-                              &machineLabScale[selectedMachineLab].x, 0.01f,
-                              0.01f, 10.0f);
-            if (ImGui::Button("Traer frente a camara##machinelab")) {
-              machineLabPos[selectedMachineLab] =
-                  cameraPos + cameraFront * 2.0f;
-              machineLabPos[selectedMachineLab].y = -0.5f;
-              machineLabRot[selectedMachineLab] = glm::vec3(0.0f, 0.0f, 0.0f);
-              machineLabScale[selectedMachineLab] = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-
-            ImGui::Separator();
-
-            ImGui::Text("Metal Desk Model (Escenario Grande) - 8 Instancias");
-            static int selectedMetalDesk = 0;
-            const char *metalDeskItems[] = {
-                "Metal Desk 1", "Metal Desk 2", "Metal Desk 3", "Metal Desk 4",
-                "Metal Desk 5", "Metal Desk 6", "Metal Desk 7", "Metal Desk 8"};
-            ImGui::Combo("Seleccionar Metal Desk", &selectedMetalDesk,
-                         metalDeskItems, IM_ARRAYSIZE(metalDeskItems));
-            ImGui::DragFloat3("MetalDesk Pos",
-                              &metalDeskPos[selectedMetalDesk].x, 0.05f);
-            ImGui::DragFloat3("MetalDesk Rot",
-                              &metalDeskRot[selectedMetalDesk].x, 0.5f, -180.0f,
-                              180.0f);
-            ImGui::DragFloat3("MetalDesk Scale",
-                              &metalDeskScale[selectedMetalDesk].x, 0.01f,
-                              0.01f, 10.0f);
-            if (ImGui::Button("Traer frente a camara##metaldesk")) {
-              metalDeskPos[selectedMetalDesk] = cameraPos + cameraFront * 2.0f;
-              metalDeskPos[selectedMetalDesk].y = -0.5f;
-              metalDeskRot[selectedMetalDesk] = glm::vec3(0.0f, 0.0f, 0.0f);
-              metalDeskScale[selectedMetalDesk] = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-
-            ImGui::Separator();
-
-            ImGui::Text("Panel de Control");
-            ImGui::DragFloat3("PanelCtrl Pos", &panelControlPos.x, 0.05f);
-            ImGui::DragFloat3("PanelCtrl Rot", &panelControlRot.x, 0.5f,
-                              -180.0f, 180.0f);
-            ImGui::DragFloat3("PanelCtrl Scale", &panelControlScale.x, 0.01f,
-                              0.01f, 10.0f);
-            if (ImGui::Button("Traer Panel Ctrl frente a camara")) {
-              panelControlPos = cameraPos + cameraFront * 2.0f;
-              panelControlPos.y = -0.5f;
-              panelControlRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              panelControlScale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Reactor Control");
-            ImGui::DragFloat3("ReactorCtrl Pos", &reactorControlPos.x, 0.05f);
-            ImGui::DragFloat3("ReactorCtrl Rot", &reactorControlRot.x, 0.5f,
-                              -180.0f, 180.0f);
-            ImGui::DragFloat3("ReactorCtrl Scale", &reactorControlScale.x,
-                              0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer Reactor Ctrl frente a camara")) {
-              reactorControlPos = cameraPos + cameraFront * 2.0f;
-              reactorControlPos.y = -0.5f;
-              reactorControlRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              reactorControlScale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Lampara Reactor Model");
-            ImGui::DragFloat3("LampReactor Pos", &lamparaReactorPos.x, 0.05f);
-            ImGui::DragFloat3("LampReactor Rot", &lamparaReactorRot.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("LampReactor Scale", &lamparaReactorScale.x, 0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer Lampara Reactor frente a camara")) {
-              lamparaReactorPos = cameraPos + cameraFront * 2.0f;
-              lamparaReactorPos.y = 2.0f;
-              lamparaReactorRot = glm::vec3(0.0f, 0.0f, 0.0f);
-              lamparaReactorScale = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Lampara Reactor Model 2");
-            ImGui::DragFloat3("LampReactor Pos 2", &lamparaReactorPos2.x, 0.05f);
-            ImGui::DragFloat3("LampReactor Rot 2", &lamparaReactorRot2.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("LampReactor Scale 2", &lamparaReactorScale2.x, 0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer Lampara Reactor 2 frente a camara")) {
-              lamparaReactorPos2 = cameraPos + cameraFront * 2.0f;
-              lamparaReactorPos2.y = 2.0f;
-              lamparaReactorRot2 = glm::vec3(0.0f, 0.0f, 0.0f);
-              lamparaReactorScale2 = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Lampara Reactor Model 3");
-            ImGui::DragFloat3("LampReactor Pos 3", &lamparaReactorPos3.x, 0.05f);
-            ImGui::DragFloat3("LampReactor Rot 3", &lamparaReactorRot3.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("LampReactor Scale 3", &lamparaReactorScale3.x, 0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer Lampara Reactor 3 frente a camara")) {
-              lamparaReactorPos3 = cameraPos + cameraFront * 2.0f;
-              lamparaReactorPos3.y = 2.0f;
-              lamparaReactorRot3 = glm::vec3(0.0f, 0.0f, 0.0f);
-              lamparaReactorScale3 = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Lampara Reactor Model 4");
-            ImGui::DragFloat3("LampReactor Pos 4", &lamparaReactorPos4.x, 0.05f);
-            ImGui::DragFloat3("LampReactor Rot 4", &lamparaReactorRot4.x, 0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("LampReactor Scale 4", &lamparaReactorScale4.x, 0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer Lampara Reactor 4 frente a camara")) {
-              lamparaReactorPos4 = cameraPos + cameraFront * 2.0f;
-              lamparaReactorPos4.y = 2.0f;
-              lamparaReactorRot4 = glm::vec3(0.0f, 0.0f, 0.0f);
-              lamparaReactorScale4 = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Generador Model (3 Instancias)");
-            static int selectedGenerador = 0;
-            const char *generadorItems[] = {"Generador 1", "Generador 2",
-                                            "Generador 3"};
-            ImGui::Combo("Seleccionar Generador", &selectedGenerador,
-                         generadorItems, IM_ARRAYSIZE(generadorItems));
-
-            ImGui::DragFloat3("Gen Pos", &generadorPos[selectedGenerador].x,
-                              0.05f);
-            ImGui::DragFloat3("Gen Rot", &generadorRot[selectedGenerador].x,
-                              0.5f, -180.0f, 180.0f);
-            ImGui::DragFloat3("Gen Scale", &generadorScale[selectedGenerador].x,
-                              0.01f, 0.01f, 10.0f);
-            if (ImGui::Button("Traer Generador frente a camara")) {
-              generadorPos[selectedGenerador] = cameraPos + cameraFront * 2.0f;
-              generadorPos[selectedGenerador].y = -0.5f;
-              generadorRot[selectedGenerador] = glm::vec3(0.0f, 0.0f, 0.0f);
-              generadorScale[selectedGenerador] = glm::vec3(1.0f, 1.0f, 1.0f);
-            }
-            ImGui::Separator();
-
-            ImGui::Text("Esquineros Model (4 Instancias)");
-            static int selectedEsquinero = 0;
-            const char *esquineroItems[] = {"Esquinero 1", "Esquinero 2",
-                                            "Esquinero 3", "Esquinero 4"};
-            ImGui::Combo("Seleccionar Esquinero", &selectedEsquinero,
-                         esquineroItems, IM_ARRAYSIZE(esquineroItems));
-
-            glm::vec3 *targetPos = nullptr;
-            glm::vec3 *targetRot = nullptr;
-            glm::vec3 *targetScale = nullptr;
-
-            if (selectedEsquinero == 0) {
-              targetPos = &esquinerosPos;
-              targetRot = &esquinerosRot;
-              targetScale = &esquinerosScale;
-            } else if (selectedEsquinero == 1) {
-              targetPos = &esquineros2Pos;
-              targetRot = &esquineros2Rot;
-              targetScale = &esquineros2Scale;
-            } else if (selectedEsquinero == 2) {
-              targetPos = &esquineros3Pos;
-              targetRot = &esquineros3Rot;
-              targetScale = &esquineros3Scale;
-            } else if (selectedEsquinero == 3) {
-              targetPos = &esquineros4Pos;
-              targetRot = &esquineros4Rot;
-              targetScale = &esquineros4Scale;
-            }
-
-            if (targetPos) {
-              ImGui::DragFloat3("Pos", &targetPos->x, 0.05f);
-              ImGui::DragFloat3("Rot", &targetRot->x, 0.5f, -180.0f, 180.0f);
-              ImGui::DragFloat3("Scale", &targetScale->x, 0.01f, 0.01f, 10.0f);
-              if (ImGui::Button("Traer frente a camara")) {
-                *targetPos = cameraPos + cameraFront * 2.0f;
-                targetPos->y = -0.5f;
-                *targetRot = glm::vec3(0.0f, 0.0f, 0.0f);
-                *targetScale =
-                    esquinerosScale; // Usar la escala del primero como base
-              }
-            }
-
-            ImGui::End();
-
-            static int selectedEntityIndex = 0;
-            static bool entityOnlyCollectibles = false;
-            if (!gameEntities.empty()) {
-              if (selectedEntityIndex < 0)
-                selectedEntityIndex = 0;
-              if (selectedEntityIndex >= (int)gameEntities.size())
-                selectedEntityIndex = (int)gameEntities.size() - 1;
-            }
-
-            ImGui::SetNextWindowPos(
-                ImVec2((float)currentWidth - 350.0f, 360.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(340.0f, 330.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.78f);
-            ImGui::Begin("Spawn Inspector", NULL,
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-            ImGui::Text("Spawn guardado");
-            ImGui::Text("Pos: %.1f %.1f %.1f", debugSpawnPos.x, debugSpawnPos.y,
-                        debugSpawnPos.z);
-            ImGui::Text("Yaw/Pitch: %.1f / %.1f", debugSpawnYaw,
-                        debugSpawnPitch);
-            if (ImGui::Button("Guardar actual")) {
-              debugSpawnPos = cameraPos;
-              debugSpawnYaw = yaw;
-              debugSpawnPitch = pitch;
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Ir a guardado")) {
-              cameraPos = debugSpawnPos;
-              yaw = debugSpawnYaw;
-              pitch = debugSpawnPitch;
-              updateZone();
-            }
-
-            ImGui::Separator();
-            if (ImGui::Button("Inicio")) {
-              cameraPos = glm::vec3(6.0f, baseCameraY, 5.0f);
-              yaw = -90.0f;
-              pitch = 0.0f;
-              updateZone();
-            }
-            auto teleportNear = [&](const glm::vec3& target) {
-              cameraPos = target + glm::vec3(1.5f, 0.0f, 1.5f);
-              cameraPos.y = baseCameraY;
-              updateZone();
-            };
-
-            ImGui::SameLine();
-            if (ImGui::Button("Gnomo")) {
-              teleportNear(gnomePos);
-            }
-
-            auto findEntityByType = [&](int type) -> int {
-              for (int i = 0; i < (int)gameEntities.size(); i++) {
-                if (gameEntities[i].type == type) return i;
-              }
-              return -1;
-            };
-            int yellowKeycardIndex = findEntityByType(8);
-            int redKeycardIndex = findEntityByType(9);
-            int portalIndex = findEntityByType(7);
-
-            if (ImGui::Button("Tarjeta amarilla") && yellowKeycardIndex >= 0)
-              teleportNear(gameEntities[yellowKeycardIndex].pos);
-            ImGui::SameLine();
-            if (ImGui::Button("Tarjeta roja") && redKeycardIndex >= 0)
-              teleportNear(gameEntities[redKeycardIndex].pos);
-
-            if (ImGui::Button("Portal") && portalIndex >= 0)
-              teleportNear(gameEntities[portalIndex].pos);
-            ImGui::SameLine();
-            if (!gameEntities.empty() &&
-                ImGui::Button("Entidad seleccionada")) {
-              teleportNear(gameEntities[selectedEntityIndex].pos);
-            }
-            ImGui::End();
-
-          if (showCollisionViewer) {
-            ImGui::SetNextWindowPos(ImVec2(10.0f, 515.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowSize(ImVec2(290.0f, 120.0f), ImGuiCond_Always);
-            ImGui::SetNextWindowBgAlpha(0.72f);
-            ImGui::Begin("Collision Viewer", NULL,
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-            ImGui::Checkbox("Paredes", &collisionShowWalls);
-            ImGui::Checkbox("Props bloqueantes", &collisionShowProps);
-            ImGui::SliderFloat("Radio", &collisionViewerRadius, 2.0f, 20.0f,
-                               "%.1f");
-            ImGui::End();
-          }
-        } else {
-          ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f));
-          ImGui::SetNextWindowSize(ImVec2(180.0f, 35.0f));
-          ImGui::SetNextWindowBgAlpha(0.4f);
-          ImGui::Begin("ShowEditorBtn", NULL,
-                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-                           ImGuiWindowFlags_NoMove);
-          if (ImGui::Button("Mostrar Editor (G)", ImVec2(-1, 0))) {
-            showDebugGUI = true;
-          }
-          ImGui::End();
-        }
-
-        if (hudMessageTimer > 0.0f) {
-          ImGui::SetNextWindowPos(
-              ImVec2(currentWidth * 0.1f, currentHeight * 0.8f));
-          ImGui::SetNextWindowSize(
-              ImVec2(currentWidth * 0.8f, currentHeight * 0.2f));
-          ImGui::SetNextWindowBgAlpha(0.0f); // Transparente
-          ImGui::Begin("HUD", NULL,
-                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-                           ImGuiWindowFlags_NoMove |
-                           ImGuiWindowFlags_NoScrollbar |
-                           ImGuiWindowFlags_NoInputs);
-          ImGui::SetWindowFontScale(1.2f);
-
-          // Centrar el texto
-          float textWidth = ImGui::CalcTextSize(currentHUDMessage.c_str()).x;
-          ImGui::SetCursorPosX((currentWidth * 0.8f - textWidth) * 0.5f);
-          ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "%s",
-                             currentHUDMessage.c_str());
-          ImGui::End();
-        }
-
-        if (isReadingDocument) {
-          ImGui::SetNextWindowPos(
-              ImVec2(currentWidth * 0.18f, currentHeight * 0.16f));
-          ImGui::SetNextWindowSize(
-              ImVec2(currentWidth * 0.64f, currentHeight * 0.5f));
-          ImGui::SetNextWindowBgAlpha(0.94f);
-          ImGui::Begin("Documento", NULL,
-                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-                           ImGuiWindowFlags_NoMove |
-                           ImGuiWindowFlags_NoCollapse);
-          ImGui::SetWindowFontScale(1.15f);
-          ImGui::TextWrapped("%s", currentDocumentTitle.c_str());
-          ImGui::Separator();
-          ImGui::Spacing();
-          ImGui::TextWrapped("%s", currentDocumentBody.c_str());
-          ImGui::Spacing();
-          ImGui::Separator();
-          ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1.0f),
-                             "E o ESC para cerrar");
-          ImGui::End();
-        }
-        // --- HOTBAR INVENTARIO (estilo Minecraft) ---
-        if (gameState == PLAYING) {
-          const float slotSize = 52.0f;
-          const float slotPadding = 4.0f;
-          const float iconPadding = 4.0f;
-          const int maxSlots = 6; // Linterna, Llave1, Llave2, Bat1, Bat2, Bat3
-          float hotbarWidth = maxSlots * (slotSize + slotPadding) + slotPadding;
-          float hotbarHeight = slotSize + slotPadding * 2.0f + 16.0f; // extra para label
-          float hotbarX = (currentWidth - hotbarWidth) * 0.5f;
-          float hotbarY = currentHeight - hotbarHeight - 12.0f;
-
-          ImGui::SetNextWindowPos(ImVec2(hotbarX, hotbarY));
-          ImGui::SetNextWindowSize(ImVec2(hotbarWidth, hotbarHeight));
-          ImGui::SetNextWindowBgAlpha(0.55f);
-          ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 8.0f);
-          ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(slotPadding, slotPadding));
-          ImGui::Begin("Hotbar", NULL,
-                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
-                           ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
-                           ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav);
-
-          // Helper lambda para dibujar un slot
-          auto drawSlot = [&](const char* label, ImTextureID texID, bool hasItem, bool isActive) {
-            ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-            ImDrawList* drawList = ImGui::GetWindowDrawList();
-
-            // Fondo del slot
-            ImU32 bgColor = hasItem
-              ? (isActive ? IM_COL32(80, 200, 80, 180) : IM_COL32(60, 60, 60, 200))
-              : IM_COL32(30, 30, 30, 140);
-            ImU32 borderColor = isActive ? IM_COL32(255, 255, 100, 255) : IM_COL32(100, 100, 100, 180);
-
-            drawList->AddRectFilled(cursorPos,
-              ImVec2(cursorPos.x + slotSize, cursorPos.y + slotSize),
-              bgColor, 4.0f);
-            drawList->AddRect(cursorPos,
-              ImVec2(cursorPos.x + slotSize, cursorPos.y + slotSize),
-              borderColor, 4.0f, 0, isActive ? 2.5f : 1.0f);
-
-            // Icono de textura
-            if (hasItem && texID != 0) {
-              drawList->AddImage(texID,
-                ImVec2(cursorPos.x + iconPadding, cursorPos.y + iconPadding),
-                ImVec2(cursorPos.x + slotSize - iconPadding, cursorPos.y + slotSize - iconPadding));
-            }
-
-            // Label debajo
-            ImVec2 textSize = ImGui::CalcTextSize(label);
-            float textX = cursorPos.x + (slotSize - textSize.x) * 0.5f;
-            drawList->AddText(ImVec2(textX, cursorPos.y + slotSize + 1.0f),
-              hasItem ? IM_COL32(255, 255, 255, 255) : IM_COL32(100, 100, 100, 150), label);
-
-            ImGui::Dummy(ImVec2(slotSize, slotSize));
-            ImGui::SameLine(0.0f, slotPadding);
-          };
-
-          // Slot 0: Linterna (siempre la tiene)
-          drawSlot(isFlashlightOn ? "[F] ON" : "[F] OFF",
-                   (ImTextureID)(intptr_t)clueTexture, true, selectedHotbarSlot == 0);
-
-          // Slot 1: Tarjeta Lvl1
-          drawSlot("Llave 1",
-                   (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl1, selectedHotbarSlot == 1);
-
-          // Slot 2: Tarjeta Lvl2
-          drawSlot("Llave 2",
-                   (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl2, selectedHotbarSlot == 2);
-
-          // Slots 3-5: Baterías
-          for (int i = 0; i < 3; i++) {
-            char batLabel[16];
-            snprintf(batLabel, sizeof(batLabel), "Bat %d", i + 1);
-            drawSlot(batLabel,
-                     (ImTextureID)(intptr_t)batteryTex, bateriasRecolectadas > i, selectedHotbarSlot == (3 + i));
-          }
-
-          ImGui::End();
-          ImGui::PopStyleVar(2);
-        }
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        ImGui::End();
       }
 
-      ImGui_ImplOpenGL3_Shutdown();
-      ImGui_ImplGlfw_Shutdown();
-      ImGui::DestroyContext();
+      if (false) {
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+        ImGui::Begin("Editor Contencion", NULL);
+        ImGui::Text("Tesla Model");
+        ImGui::DragFloat3("Tesla Pos", &teslaPos.x, 0.05f);
+        ImGui::DragFloat3("Tesla Rot", &teslaRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Tesla Scale", &teslaScale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer Tesla frente a camara")) {
+          teslaPos = cameraPos + cameraFront * 2.0f;
+          teslaPos.y = -0.5f;
+          teslaRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          teslaScale = glm::vec3(0.15f, 0.15f, 0.15f);
+        }
+        ImGui::Separator();
 
-      ma_sound_uninit(&bgm);
-      ma_engine_uninit(&audioEngine);
+        ImGui::Text("Sarcofago Model");
+        ImGui::DragFloat3("Sarcofago Pos", &sarcofagoPos.x, 0.05f);
+        ImGui::DragFloat3("Sarcofago Rot", &sarcofagoRot.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("Sarcofago Scale", &sarcofagoScale.x, 0.01f, 0.01f,
+                          10.0f);
+        if (ImGui::Button("Traer frente a camara##sarcofago")) {
+          sarcofagoPos = cameraPos + cameraFront * 2.0f;
+          sarcofagoPos.y = -0.5f;
+          sarcofagoRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          sarcofagoScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
 
-      glDeleteVertexArrays(1, &VAO);
-      glDeleteBuffers(1, &VBO);
+        ImGui::Text("Cable Piso Models");
+        if (ImGui::Button("Add Cable Piso")) {
+          cablePisoPos.push_back(cameraPos + cameraFront * 2.0f);
+          cablePisoRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+          cablePisoScale.push_back(glm::vec3(0.01918f, 0.01918f, 0.01918f));
+        }
+        for (size_t i = 0; i < cablePisoPos.size(); i++) {
+          ImGui::PushID(static_cast<int>(i) + 5000);
+          ImGui::Text("Cable Piso %zu", i);
+          ImGui::DragFloat3("Pos", &cablePisoPos[i].x, 0.05f);
+          ImGui::DragFloat3("Rot", &cablePisoRot[i].x, 0.5f, -180.0f, 180.0f);
+          ImGui::DragFloat3("Scale", &cablePisoScale[i].x, 0.001f, 0.001f,
+                            10.0f);
+          if (ImGui::Button("Traer frente a camara")) {
+            cablePisoPos[i] = cameraPos + cameraFront * 2.0f;
+            cablePisoPos[i].y = -0.5f;
+          }
+          ImGui::SameLine();
+          if (ImGui::Button("Eliminar")) {
+            cablePisoPos.erase(cablePisoPos.begin() + i);
+            cablePisoRot.erase(cablePisoRot.begin() + i);
+            cablePisoScale.erase(cablePisoScale.begin() + i);
+            ImGui::PopID();
+            break;
+          }
+          ImGui::PopID();
+        }
+        ImGui::Separator();
 
-      glfwTerminate();
-      return 0;
+        ImGui::Text("Cable Techo Models");
+        if (ImGui::Button("Add Cable Techo")) {
+          cableTechoPos.push_back(cameraPos + cameraFront * 2.0f);
+          cableTechoRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+          cableTechoScale.push_back(
+              glm::vec3(-0.001557f, -0.001557f, -0.001557f));
+        }
+        for (size_t i = 0; i < cableTechoPos.size(); i++) {
+          ImGui::PushID(static_cast<int>(i) + 6000);
+          ImGui::Text("Cable Techo %zu", i);
+          ImGui::DragFloat3("Pos", &cableTechoPos[i].x, 0.05f);
+          ImGui::DragFloat3("Rot", &cableTechoRot[i].x, 0.5f, -180.0f, 180.0f);
+          ImGui::DragFloat3("Scale", &cableTechoScale[i].x, 0.001f, 0.001f,
+                            10.0f);
+          if (ImGui::Button("Traer frente a camara")) {
+            cableTechoPos[i] = cameraPos + cameraFront * 2.0f;
+            cableTechoPos[i].y = -0.5f;
+          }
+          ImGui::SameLine();
+          if (ImGui::Button("Eliminar")) {
+            cableTechoPos.erase(cableTechoPos.begin() + i);
+            cableTechoRot.erase(cableTechoRot.begin() + i);
+            cableTechoScale.erase(cableTechoScale.begin() + i);
+            ImGui::PopID();
+            break;
+          }
+          ImGui::PopID();
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Warning Model");
+        ImGui::DragFloat3("Warning Pos", &warningPos.x, 0.05f);
+        ImGui::DragFloat3("Warning Rot", &warningRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Warning Scale", &warningScale.x, 0.01f, 0.01f,
+                          10.0f);
+        if (ImGui::Button("Traer frente a camara##warning")) {
+          warningPos = cameraPos + cameraFront * 2.0f;
+          warningPos.y = -0.5f;
+          warningRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          warningScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Cajones Oficina (cajonesOF) Model");
+        ImGui::DragFloat3("CajonesOF Pos", &cajonesOFPos.x, 0.05f);
+        ImGui::DragFloat3("CajonesOF Rot", &cajonesOFRot.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("CajonesOF Scale", &cajonesOFScale.x, 0.01f, 0.01f,
+                          10.0f);
+        if (ImGui::Button("Traer frente a camara##cajonesOF")) {
+          cajonesOFPos = cameraPos + cameraFront * 2.0f;
+          cajonesOFPos.y = -0.5f;
+          cajonesOFRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          cajonesOFScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Lampara Contencion Model");
+        ImGui::DragFloat3("Lamp Pos", &lamparaContencionPos.x, 0.05f);
+        ImGui::DragFloat3("Lamp Rot", &lamparaContencionRot.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("Lamp Scale", &lamparaContencionScale.x, 0.01f, 0.01f,
+                          10.0f);
+        if (ImGui::Button("Traer frente a camara##lampara")) {
+          lamparaContencionPos = cameraPos + cameraFront * 2.0f;
+          lamparaContencionPos.y = 2.0f;
+          lamparaContencionRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          lamparaContencionScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Lampara 2 Model");
+        ImGui::DragFloat3("Lamp2 Pos", &lampara2Pos.x, 0.05f);
+        ImGui::DragFloat3("Lamp2 Rot", &lampara2Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lamp2 Scale", &lampara2Scale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer frente a camara##lampara2")) {
+          lampara2Pos = cameraPos + cameraFront * 2.0f;
+          lampara2Pos.y = 2.0f;
+          lampara2Rot = glm::vec3(0.0f, 0.0f, 0.0f);
+          lampara2Scale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Lampara 3 Model");
+        ImGui::DragFloat3("Lamp3 Pos", &lampara3Pos.x, 0.05f);
+        ImGui::DragFloat3("Lamp3 Rot", &lampara3Rot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Lamp3 Scale", &lampara3Scale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer frente a camara##lampara3")) {
+          lampara3Pos = cameraPos + cameraFront * 2.0f;
+          lampara3Pos.y = 2.0f;
+          lampara3Rot = glm::vec3(0.0f, 0.0f, 0.0f);
+          lampara3Scale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Emergency Lights");
+        if (ImGui::Button("Agregar Luz de Emergencia")) {
+          emergencyPos.push_back(cameraPos + cameraFront * 2.0f);
+          emergencyRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
+          emergencyScale.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
+        }
+        for (size_t i = 0; i < emergencyPos.size(); i++) {
+          ImGui::PushID(i);
+          ImGui::Text("Luz %d", (int)i);
+          ImGui::DragFloat3("Pos", &emergencyPos[i].x, 0.05f);
+          ImGui::DragFloat3("Rot", &emergencyRot[i].x, 0.5f, -180.0f, 180.0f);
+          ImGui::DragFloat3("Scale", &emergencyScale[i].x, 0.01f, 0.01f, 10.0f);
+          if (ImGui::Button("Traer frente a camara")) {
+            emergencyPos[i] = cameraPos + cameraFront * 2.0f;
+          }
+          ImGui::SameLine();
+          if (ImGui::Button("Eliminar")) {
+            emergencyPos.erase(emergencyPos.begin() + i);
+            emergencyRot.erase(emergencyRot.begin() + i);
+            emergencyScale.erase(emergencyScale.begin() + i);
+            ImGui::PopID();
+            break; // Break the loop to avoid invalid iterator
+          }
+          ImGui::PopID();
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Reactor Model");
+        ImGui::DragFloat3("Reactor Pos", &reactorPos.x, 0.05f);
+        ImGui::DragFloat3("Reactor Rot", &reactorRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Reactor Scale", &reactorScale.x, 0.01f, 0.01f,
+                          10.0f);
+        if (ImGui::Button("Traer frente a camara##reactor")) {
+          reactorPos = cameraPos + cameraFront * 2.0f;
+          reactorPos.y = 2.0f;
+          reactorRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          reactorScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+
+        ImGui::Text("Machine Lab Model (Escenario Grande) - 3 Instancias");
+        static int selectedMachineLab = 0;
+        const char *machineLabItems[] = {"Machine Lab 1", "Machine Lab 2",
+                                         "Machine Lab 3"};
+        ImGui::Combo("Seleccionar Machine Lab", &selectedMachineLab,
+                     machineLabItems, IM_ARRAYSIZE(machineLabItems));
+        ImGui::DragFloat3("MachineLab Pos",
+                          &machineLabPos[selectedMachineLab].x, 0.05f);
+        ImGui::DragFloat3("MachineLab Rot",
+                          &machineLabRot[selectedMachineLab].x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("MachineLab Scale",
+                          &machineLabScale[selectedMachineLab].x, 0.01f, 0.01f,
+                          10.0f);
+        if (ImGui::Button("Traer frente a camara##machinelab")) {
+          machineLabPos[selectedMachineLab] = cameraPos + cameraFront * 2.0f;
+          machineLabPos[selectedMachineLab].y = -0.5f;
+          machineLabRot[selectedMachineLab] = glm::vec3(0.0f, 0.0f, 0.0f);
+          machineLabScale[selectedMachineLab] = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+
+        ImGui::Text("Metal Desk Model (Escenario Grande) - 8 Instancias");
+        static int selectedMetalDesk = 0;
+        const char *metalDeskItems[] = {
+            "Metal Desk 1", "Metal Desk 2", "Metal Desk 3", "Metal Desk 4",
+            "Metal Desk 5", "Metal Desk 6", "Metal Desk 7", "Metal Desk 8"};
+        ImGui::Combo("Seleccionar Metal Desk", &selectedMetalDesk,
+                     metalDeskItems, IM_ARRAYSIZE(metalDeskItems));
+        ImGui::DragFloat3("MetalDesk Pos", &metalDeskPos[selectedMetalDesk].x,
+                          0.05f);
+        ImGui::DragFloat3("MetalDesk Rot", &metalDeskRot[selectedMetalDesk].x,
+                          0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("MetalDesk Scale",
+                          &metalDeskScale[selectedMetalDesk].x, 0.01f, 0.01f,
+                          10.0f);
+        if (ImGui::Button("Traer frente a camara##metaldesk")) {
+          metalDeskPos[selectedMetalDesk] = cameraPos + cameraFront * 2.0f;
+          metalDeskPos[selectedMetalDesk].y = -0.5f;
+          metalDeskRot[selectedMetalDesk] = glm::vec3(0.0f, 0.0f, 0.0f);
+          metalDeskScale[selectedMetalDesk] = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        ImGui::Separator();
+
+        ImGui::Text("Panel de Control");
+        ImGui::DragFloat3("PanelCtrl Pos", &panelControlPos.x, 0.05f);
+        ImGui::DragFloat3("PanelCtrl Rot", &panelControlRot.x, 0.5f, -180.0f,
+                          180.0f);
+        ImGui::DragFloat3("PanelCtrl Scale", &panelControlScale.x, 0.01f, 0.01f,
+                          10.0f);
+        if (ImGui::Button("Traer Panel Ctrl frente a camara")) {
+          panelControlPos = cameraPos + cameraFront * 2.0f;
+          panelControlPos.y = -0.5f;
+          panelControlRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          panelControlScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Consola");
+        ImGui::DragFloat3("Consola Pos", &consolaPos.x, 0.05f);
+        ImGui::DragFloat3("Consola Rot", &consolaRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Consola Scale", &consolaScale.x, 0.01f, 0.01f,
+                          10.0f);
+        if (ImGui::Button("Traer Consola frente a camara")) {
+          consolaPos = cameraPos + cameraFront * 2.0f;
+          consolaPos.y = -0.5f;
+          consolaRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          consolaScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Lampara Reactor Model");
+        ImGui::DragFloat3("LampReactor Pos", &lamparaReactorPos.x, 0.05f);
+        ImGui::DragFloat3("LampReactor Rot", &lamparaReactorRot.x, 0.5f,
+                          -180.0f, 180.0f);
+        ImGui::DragFloat3("LampReactor Scale", &lamparaReactorScale.x, 0.01f,
+                          0.01f, 10.0f);
+        if (ImGui::Button("Traer Lampara Reactor frente a camara")) {
+          lamparaReactorPos = cameraPos + cameraFront * 2.0f;
+          lamparaReactorPos.y = 2.0f;
+          lamparaReactorRot = glm::vec3(0.0f, 0.0f, 0.0f);
+          lamparaReactorScale = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Lampara Reactor Model 2");
+        ImGui::DragFloat3("LampReactor Pos 2", &lamparaReactorPos2.x, 0.05f);
+        ImGui::DragFloat3("LampReactor Rot 2", &lamparaReactorRot2.x, 0.5f,
+                          -180.0f, 180.0f);
+        ImGui::DragFloat3("LampReactor Scale 2", &lamparaReactorScale2.x, 0.01f,
+                          0.01f, 10.0f);
+        if (ImGui::Button("Traer Lampara Reactor 2 frente a camara")) {
+          lamparaReactorPos2 = cameraPos + cameraFront * 2.0f;
+          lamparaReactorPos2.y = 2.0f;
+          lamparaReactorRot2 = glm::vec3(0.0f, 0.0f, 0.0f);
+          lamparaReactorScale2 = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Lampara Reactor Model 3");
+        ImGui::DragFloat3("LampReactor Pos 3", &lamparaReactorPos3.x, 0.05f);
+        ImGui::DragFloat3("LampReactor Rot 3", &lamparaReactorRot3.x, 0.5f,
+                          -180.0f, 180.0f);
+        ImGui::DragFloat3("LampReactor Scale 3", &lamparaReactorScale3.x, 0.01f,
+                          0.01f, 10.0f);
+        if (ImGui::Button("Traer Lampara Reactor 3 frente a camara")) {
+          lamparaReactorPos3 = cameraPos + cameraFront * 2.0f;
+          lamparaReactorPos3.y = 2.0f;
+          lamparaReactorRot3 = glm::vec3(0.0f, 0.0f, 0.0f);
+          lamparaReactorScale3 = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Lampara Reactor Model 4");
+        ImGui::DragFloat3("LampReactor Pos 4", &lamparaReactorPos4.x, 0.05f);
+        ImGui::DragFloat3("LampReactor Rot 4", &lamparaReactorRot4.x, 0.5f,
+                          -180.0f, 180.0f);
+        ImGui::DragFloat3("LampReactor Scale 4", &lamparaReactorScale4.x, 0.01f,
+                          0.01f, 10.0f);
+        if (ImGui::Button("Traer Lampara Reactor 4 frente a camara")) {
+          lamparaReactorPos4 = cameraPos + cameraFront * 2.0f;
+          lamparaReactorPos4.y = 2.0f;
+          lamparaReactorRot4 = glm::vec3(0.0f, 0.0f, 0.0f);
+          lamparaReactorScale4 = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Generador Model (3 Instancias)");
+        static int selectedGenerador = 0;
+        const char *generadorItems[] = {"Generador 1", "Generador 2",
+                                        "Generador 3"};
+        ImGui::Combo("Seleccionar Generador", &selectedGenerador,
+                     generadorItems, IM_ARRAYSIZE(generadorItems));
+
+        ImGui::DragFloat3("Gen Pos", &generadorPos[selectedGenerador].x, 0.05f);
+        ImGui::DragFloat3("Gen Rot", &generadorRot[selectedGenerador].x, 0.5f,
+                          -180.0f, 180.0f);
+        ImGui::DragFloat3("Gen Scale", &generadorScale[selectedGenerador].x,
+                          0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer Generador frente a la camara")) {
+          generadorPos[selectedGenerador] = cameraPos + cameraFront * 2.0f;
+          generadorPos[selectedGenerador].y = -0.5f;
+          generadorRot[selectedGenerador] = glm::vec3(0.0f, 0.0f, 0.0f);
+          generadorScale[selectedGenerador] = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+        ImGui::Separator();
+
+        ImGui::End(); // End 'Editor Contencion'
+      }
+
+      // --- UNIFIED LEVEL EDITOR ---
+      if (activeEditorPanel == 1) {
+        ImGui::SetNextWindowPos(ImVec2(leftPanelX, leftLevelY),
+                                ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH),
+                                 ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.84f);
+        ImGui::Begin("Editor de Niveles 🛠️", NULL,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+
+        ImGui::TextColored(ImVec4(0.2f, 0.75f, 1.0f, 1.0f),
+                           "Editor de Mapa 3D");
+        ImGui::Separator();
+
+        static int selectedPropIdx = -1;
+        if (placedProps.empty()) {
+          selectedPropIdx = -1;
+        } else if (selectedPropIdx < 0 ||
+                   selectedPropIdx >= (int)placedProps.size()) {
+          selectedPropIdx = 0;
+        }
+
+        // List of placed props
+        if (ImGui::TreeNode("Objetos en Escena")) {
+          for (int i = 0; i < (int)placedProps.size(); ++i) {
+            std::string label =
+                std::to_string(i) + ": " + placedProps[i].modelName;
+            if (ImGui::Selectable(label.c_str(), selectedPropIdx == i)) {
+              selectedPropIdx = i;
+            }
+          }
+          ImGui::TreePop();
+        }
+        ImGui::Separator();
+
+        if (selectedPropIdx >= 0 && selectedPropIdx < (int)placedProps.size()) {
+          auto &prop = placedProps[selectedPropIdx];
+          ImGui::TextColored(ImVec4(0.9f, 0.8f, 0.1f, 1.0f),
+                             "Prop Seleccionado: %s", prop.modelName.c_str());
+
+          ImGui::DragFloat3("Posición", &prop.pos.x, 0.05f);
+          ImGui::DragFloat3("Rotación", &prop.rot.x, 0.5f, -180.0f, 180.0f);
+          ImGui::DragFloat3("Escala", &prop.scale.x, 0.01f, 0.01f, 10.0f);
+          ImGui::Checkbox("Activar Física/Colisión", &prop.collisionActive);
+
+          if (ImGui::Button("Traer frente a camara")) {
+            prop.pos = cameraPos + cameraFront * 2.0f;
+            prop.pos.y = -0.5f;
+            prop.rot = glm::vec3(0.0f, 0.0f, 0.0f);
+            prop.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          }
+
+          ImGui::Spacing();
+
+          if (ImGui::Button("📑 Duplicar Objeto", ImVec2(-1, 0))) {
+            PlacedProp dup = prop;
+            dup.pos += glm::vec3(
+                0.5f, 0.0f, 0.5f); // Un pequeño offset para ver que se duplicó===
+            placedProps.push_back(dup);
+            selectedPropIdx = (int)placedProps.size() - 1;
+          }
+
+          if (ImGui::Button("❌ Eliminar Objeto", ImVec2(-1, 0))) {
+            placedProps.erase(placedProps.begin() + selectedPropIdx);
+            if (selectedPropIdx >= (int)placedProps.size()) {
+              selectedPropIdx = (int)placedProps.size() - 1;
+            }
+          }
+        } else {
+          ImGui::Text("Ningún objeto seleccionado");
+        }
+        ImGui::Separator();
+
+        // Adding a new prop
+        ImGui::TextColored(ImVec4(0.1f, 0.9f, 0.2f, 1.0f),
+                           "Agregar Nuevo Objeto:");
+        static const char *availableModels[] = {
+            "cajonesOF",   "gabinete",     "sarcofago",    "tesla",   "reactor",
+            "consola",     "panelControl", "warning", "esquineros",
+            "cables_piso", "cables_techo", "barra",   "logo",
+            "logo2", "camara", "servers", "terminal", "box-close", "box-open", "vault-door",
+            "escritorio", "mesa", "mini-lampara", "computer", "silla"};
+        static int selectedModelToAddIdx = 0;
+        ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
+                     IM_ARRAYSIZE(availableModels));
+
+        if (ImGui::Button("➕ Agregar a Escena", ImVec2(-1, 0))) {
+          PlacedProp newProp;
+          newProp.modelName = availableModels[selectedModelToAddIdx];
+          newProp.pos = cameraPos + cameraFront * 2.0f;
+          newProp.pos.y = -0.5f;
+          newProp.rot = glm::vec3(0.0f, 0.0f, 0.0f);
+
+          // Escalas base/por defecto para cada uno
+          if (newProp.modelName == "tesla")
+            newProp.scale = glm::vec3(0.150f, 0.120f, 0.090f);
+          else if (newProp.modelName == "sarcofago")
+            newProp.scale = glm::vec3(1.260f, 1.060f, 0.930f);
+          else if (newProp.modelName == "warning")
+            newProp.scale = glm::vec3(1.410f, 0.950f, 1.570f);
+          else if (newProp.modelName == "consola")
+            newProp.scale = glm::vec3(0.890f, 0.730f, 0.280f);
+          else if (newProp.modelName == "panelControl")
+            newProp.scale = glm::vec3(0.450f, 0.490f, 0.180f);
+          else if (newProp.modelName == "esquineros")
+            newProp.scale = glm::vec3(0.890f, 0.750f, 0.810f);
+          else if (newProp.modelName == "cables_piso")
+            newProp.scale = glm::vec3(0.01918f, 0.01918f, 0.01918f);
+          else if (newProp.modelName == "cables_techo")
+            newProp.scale = glm::vec3(-0.001557f, -0.001557f, -0.001557f);
+          else if (newProp.modelName == "gabinete")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "camara")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "servers")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "terminal")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "box-close")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "box-open")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "vault-door")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "escritorio")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "mesa")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "mini-lampara")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "computer")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "silla")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
+          placedProps.push_back(newProp);
+          selectedPropIdx = (int)placedProps.size() - 1;
+        }
+        ImGui::Separator();
+
+        // Permanent Save Button!
+        if (ImGui::Button("💾 GUARDAR CAMBIOS MAPA", ImVec2(-1, 40))) {
+          saveLevelProps("assets/config_posiciones.txt");
+        }
+        ImGui::End();
+      }
+
+      if (activeEditorPanel == 2) {
+        static int selectedEntityIndex = 0;
+        static bool entityOnlyCollectibles = false;
+        if (!gameEntities.empty()) {
+          if (selectedEntityIndex < 0)
+            selectedEntityIndex = 0;
+          if (selectedEntityIndex >= (int)gameEntities.size())
+            selectedEntityIndex = (int)gameEntities.size() - 1;
+        }
+
+        ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY),
+                                ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH),
+                                 ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.82f);
+        ImGui::Begin("Spawn Inspector", NULL,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Text("Spawn guardado");
+        ImGui::Text("Pos: %.1f %.1f %.1f", debugSpawnPos.x, debugSpawnPos.y,
+                    debugSpawnPos.z);
+        ImGui::Text("Yaw/Pitch: %.1f / %.1f", debugSpawnYaw, debugSpawnPitch);
+        if (ImGui::Button("Guardar actual")) {
+          debugSpawnPos = cameraPos;
+          debugSpawnYaw = yaw;
+          debugSpawnPitch = pitch;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Ir a guardado")) {
+          cameraPos = debugSpawnPos;
+          yaw = debugSpawnYaw;
+          pitch = debugSpawnPitch;
+          updateZone();
+        }
+
+        ImGui::Separator();
+        if (ImGui::Button("Inicio")) {
+          cameraPos = glm::vec3(6.0f, baseCameraY, 5.0f);
+          yaw = -90.0f;
+          pitch = 0.0f;
+          updateZone();
+        }
+        auto teleportNear = [&](const glm::vec3 &target) {
+          cameraPos = target + glm::vec3(1.5f, 0.0f, 1.5f);
+          cameraPos.y = baseCameraY;
+          updateZone();
+        };
+
+        ImGui::SameLine();
+        if (ImGui::Button("Gnomo")) {
+          teleportNear(gnomePos);
+        }
+
+        auto findEntityByType = [&](int type) -> int {
+          for (int i = 0; i < (int)gameEntities.size(); i++) {
+            if (gameEntities[i].type == type)
+              return i;
+          }
+          return -1;
+        };
+        int yellowKeycardIndex = findEntityByType(8);
+        int redKeycardIndex = findEntityByType(9);
+        int portalIndex = findEntityByType(7);
+
+        if (ImGui::Button("Tarjeta amarilla") && yellowKeycardIndex >= 0)
+          teleportNear(gameEntities[yellowKeycardIndex].pos);
+        ImGui::SameLine();
+        if (ImGui::Button("Tarjeta roja") && redKeycardIndex >= 0)
+          teleportNear(gameEntities[redKeycardIndex].pos);
+
+        if (ImGui::Button("Portal") && portalIndex >= 0)
+          teleportNear(gameEntities[portalIndex].pos);
+        ImGui::SameLine();
+        if (!gameEntities.empty() && ImGui::Button("Entidad seleccionada")) {
+          teleportNear(gameEntities[selectedEntityIndex].pos);
+        }
+        ImGui::End();
+      }
+
+      if (showCollisionViewer) {
+        ImGui::SetNextWindowPos(
+            ImVec2(leftPanelX + leftPanelW + panelGap, panelTopY),
+            ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(260.0f, 118.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.80f);
+        ImGui::Begin("Collision Viewer", NULL,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        ImGui::Checkbox("Paredes", &collisionShowWalls);
+        ImGui::Checkbox("Props bloqueantes", &collisionShowProps);
+        ImGui::SliderFloat("Radio", &collisionViewerRadius, 2.0f, 20.0f,
+                           "%.1f");
+        ImGui::End();
+      }
+    } else {
+      ImGui::SetNextWindowPos(ImVec2(0.0f, currentHeight * 0.42f),
+                              ImGuiCond_Always);
+      ImGui::SetNextWindowSize(ImVec2(34.0f, 148.0f), ImGuiCond_Always);
+      ImGui::SetNextWindowBgAlpha(0.72f);
+      ImGui::Begin("ShowEditorBtn", NULL,
+                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                       ImGuiWindowFlags_NoMove);
+      if (ImGui::Button(">\nE\nD\nI\nT\nO\nR", ImVec2(-1, -1))) {
+        showDebugGUI = true;
+      }
+      ImGui::End();
     }
+
+    if (hudMessageTimer > 0.0f) {
+      ImGui::SetNextWindowPos(
+          ImVec2(currentWidth * 0.1f, currentHeight * 0.8f));
+      ImGui::SetNextWindowSize(
+          ImVec2(currentWidth * 0.8f, currentHeight * 0.2f));
+      ImGui::SetNextWindowBgAlpha(0.0f); // Transparente
+      ImGui::Begin("HUD", NULL,
+                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+                       ImGuiWindowFlags_NoInputs);
+      ImGui::SetWindowFontScale(1.2f);
+
+      // Centrar el texto
+      float textWidth = ImGui::CalcTextSize(currentHUDMessage.c_str()).x;
+      ImGui::SetCursorPosX((currentWidth * 0.8f - textWidth) * 0.5f);
+      ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "%s",
+                         currentHUDMessage.c_str());
+      ImGui::End();
+    }
+
+    if (isReadingDocument) {
+      ImGui::SetNextWindowPos(
+          ImVec2(currentWidth * 0.18f, currentHeight * 0.16f));
+      ImGui::SetNextWindowSize(
+          ImVec2(currentWidth * 0.64f, currentHeight * 0.5f));
+      ImGui::SetNextWindowBgAlpha(0.94f);
+      ImGui::Begin("Documento", NULL,
+                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+      ImGui::SetWindowFontScale(1.15f);
+      ImGui::TextWrapped("%s", currentDocumentTitle.c_str());
+      ImGui::Separator();
+      ImGui::Spacing();
+      ImGui::TextWrapped("%s", currentDocumentBody.c_str());
+      ImGui::Spacing();
+      ImGui::Separator();
+      ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "E o ESC para cerrar");
+      ImGui::End();
+    }
+    // --- HOTBAR INVENTARIO (estilo Minecraft) ---
+    if (gameState == PLAYING) {
+      const float slotSize = 52.0f;
+      const float slotPadding = 4.0f;
+      const float iconPadding = 4.0f;
+      const int maxSlots = 6; // Linterna, Llave1, Llave2, Bat1, Bat2, Bat3
+      float hotbarWidth = maxSlots * (slotSize + slotPadding) + slotPadding;
+      float hotbarHeight =
+          slotSize + slotPadding * 2.0f + 16.0f; // extra para label
+      float hotbarX = (currentWidth - hotbarWidth) * 0.5f;
+      float hotbarY = currentHeight - hotbarHeight - 12.0f;
+
+      ImGui::SetNextWindowPos(ImVec2(hotbarX, hotbarY));
+      ImGui::SetNextWindowSize(ImVec2(hotbarWidth, hotbarHeight));
+      ImGui::SetNextWindowBgAlpha(0.55f);
+      ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 8.0f);
+      ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,
+                          ImVec2(slotPadding, slotPadding));
+      ImGui::Begin("Hotbar", NULL,
+                   ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+                       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+                       ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav);
+
+      // Helper lambda para dibujar un slot
+      auto drawSlot = [&](const char *label, ImTextureID texID, bool hasItem,
+                          bool isActive) {
+        ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+        ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+        // Fondo del slot
+        ImU32 bgColor = hasItem ? (isActive ? IM_COL32(80, 200, 80, 180)
+                                            : IM_COL32(60, 60, 60, 200))
+                                : IM_COL32(30, 30, 30, 140);
+        ImU32 borderColor = isActive ? IM_COL32(255, 255, 100, 255)
+                                     : IM_COL32(100, 100, 100, 180);
+
+        drawList->AddRectFilled(
+            cursorPos, ImVec2(cursorPos.x + slotSize, cursorPos.y + slotSize),
+            bgColor, 4.0f);
+        drawList->AddRect(
+            cursorPos, ImVec2(cursorPos.x + slotSize, cursorPos.y + slotSize),
+            borderColor, 4.0f, 0, isActive ? 2.5f : 1.0f);
+
+        // Icono de textura
+        if (hasItem && texID != 0) {
+          drawList->AddImage(
+              texID,
+              ImVec2(cursorPos.x + iconPadding, cursorPos.y + iconPadding),
+              ImVec2(cursorPos.x + slotSize - iconPadding,
+                     cursorPos.y + slotSize - iconPadding));
+        }
+
+        // Label debajo
+        ImVec2 textSize = ImGui::CalcTextSize(label);
+        float textX = cursorPos.x + (slotSize - textSize.x) * 0.5f;
+        drawList->AddText(ImVec2(textX, cursorPos.y + slotSize + 1.0f),
+                          hasItem ? IM_COL32(255, 255, 255, 255)
+                                  : IM_COL32(100, 100, 100, 150),
+                          label);
+
+        ImGui::Dummy(ImVec2(slotSize, slotSize));
+        ImGui::SameLine(0.0f, slotPadding);
+      };
+
+      // Slot 0: Linterna (siempre la tiene)
+      drawSlot(isFlashlightOn ? "[F] ON" : "[F] OFF",
+               (ImTextureID)(intptr_t)clueTexture, true,
+               selectedHotbarSlot == 0);
+
+      // Slot 1: Tarjeta Lvl1
+      drawSlot("Llave 1", (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl1,
+               selectedHotbarSlot == 1);
+
+      // Slot 2: Tarjeta Lvl2
+      drawSlot("Llave 2", (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl2,
+               selectedHotbarSlot == 2);
+
+      // Slots 3-5: Baterías
+      for (int i = 0; i < 3; i++) {
+        char batLabel[16];
+        snprintf(batLabel, sizeof(batLabel), "Bat %d", i + 1);
+        drawSlot(batLabel, (ImTextureID)(intptr_t)batteryTex,
+                 bateriasRecolectadas > i, selectedHotbarSlot == (3 + i));
+      }
+
+      ImGui::End();
+      ImGui::PopStyleVar(2);
+    }
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    glfwSwapBuffers(window);
+    glfwPollEvents();
   }
+
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
+
+  ma_sound_uninit(&bgm);
+  ma_engine_uninit(&audioEngine);
+
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &VBO);
+
+  glfwTerminate();
+  return 0;
+}

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <miniaudio.h>
@@ -288,6 +289,21 @@ extern glm::vec3 sarcofagoRot;
 extern glm::vec3 sarcofagoScale;
 
 extern GLTFModel *cajonesOFGLTF;
+extern GLTFModel *gabineteGLTF;
+extern GLTFModel *camaraGLTF;
+extern GLTFModel *serversGLTF;
+extern GLTFModel *terminalGLTF;
+extern GLTFModel *boxCloseGLTF;
+extern GLTFModel *boxOpenGLTF;
+extern GLTFModel *vaultDoorGLTF;
+extern GLTFModel *escritorioGLTF;
+extern GLTFModel *mesaGLTF;
+extern GLTFModel *miniLamparaGLTF;
+extern GLTFModel *computerGLTF;
+extern GLTFModel *sillaGLTF;
+extern GLTFModel *barraGLTF;
+extern GLTFModel *logoGLTF;
+extern GLTFModel *logo2GLTF;
 extern glm::vec3 cajonesOFPos;
 extern glm::vec3 cajonesOFRot;
 extern glm::vec3 cajonesOFScale;
@@ -317,6 +333,14 @@ extern glm::vec3 lampara3Pos;
 extern glm::vec3 lampara3Rot;
 extern glm::vec3 lampara3Scale;
 
+// Luces parpadeantes (estilo baño) para la sala de descanso / sofas
+extern glm::vec3 luzDescanso1Pos;
+extern glm::vec3 luzDescanso1Rot;
+extern glm::vec3 luzDescanso1Scale;
+extern glm::vec3 luzDescanso2Pos;
+extern glm::vec3 luzDescanso2Rot;
+extern glm::vec3 luzDescanso2Scale;
+
 extern GLTFModel *emergencyGLTF;
 extern std::vector<glm::vec3> emergencyPos;
 extern std::vector<glm::vec3> emergencyRot;
@@ -332,10 +356,10 @@ extern glm::vec3 panelControlPos;
 extern glm::vec3 panelControlRot;
 extern glm::vec3 panelControlScale;
 
-extern GLTFModel *reactorControlGLTF;
-extern glm::vec3 reactorControlPos;
-extern glm::vec3 reactorControlRot;
-extern glm::vec3 reactorControlScale;
+extern GLTFModel *consolaGLTF;
+extern glm::vec3 consolaPos;
+extern glm::vec3 consolaRot;
+extern glm::vec3 consolaScale;
 
 extern GLTFModel *lamparaReactorGLTF;
 extern glm::vec3 lamparaReactorPos;
@@ -395,6 +419,20 @@ extern glm::vec3 metalDeskScale[8];
 
 
 extern std::vector<Entity> gameEntities;
+
+struct PlacedProp {
+    std::string modelName;
+    glm::vec3 pos;
+    glm::vec3 rot;
+    glm::vec3 scale;
+    bool collisionActive = true;
+};
+
+extern std::vector<PlacedProp> placedProps;
+extern std::map<std::string, GLTFModel*> modelRegistry;
+
+void saveLevelProps(const std::string& path);
+void loadLevelProps(const std::string& path);
 
 extern float wallWidth;
 extern float wallHeight;

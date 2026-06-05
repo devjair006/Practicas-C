@@ -99,6 +99,12 @@ Practicas-C/
 
 ## ⚙️ ¿Cómo Compilar y Ejecutar?
 
+> [!IMPORTANT]
+> Si acabas de clonar el repo (o cambió el commit del submódulo), inicializa/actualiza submódulos antes de compilar:
+> ```bash
+> git submodule update --init --recursive
+> ```
+
 ### Método 1: Script Automatizado (Recomendado - Solo Windows)
 1. Haz **doble clic** sobre el archivo `compilar_y_correr.bat` en la raíz del proyecto.
 2. El script detectará la instalación de Visual Studio 2022/2025 o tu CMake global, limpiará compilaciones previas, configurará CMake y compilará la versión de lanzamiento (`Release`).

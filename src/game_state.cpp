@@ -1,4 +1,7 @@
 #include "headers/game_state.h"
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
 std::string currentHUDMessage = "";
 float hudMessageTimer = 0.0f;
@@ -303,10 +306,25 @@ GLTFModel *lampara3GLTF = nullptr;
 GLTFModel *emergencyGLTF = nullptr;
 GLTFModel *reactorGLTF = nullptr;
 GLTFModel *panelControlGLTF = nullptr;
-GLTFModel *reactorControlGLTF = nullptr;
+GLTFModel *consolaGLTF = nullptr;
 GLTFModel *lamparaReactorGLTF = nullptr;
 GLTFModel *sarcofagoGLTF = nullptr;
 GLTFModel *cajonesOFGLTF = nullptr;
+GLTFModel *gabineteGLTF = nullptr;
+GLTFModel *camaraGLTF = nullptr;
+GLTFModel *serversGLTF = nullptr;
+GLTFModel *terminalGLTF = nullptr;
+GLTFModel *boxCloseGLTF = nullptr;
+GLTFModel *boxOpenGLTF = nullptr;
+GLTFModel *vaultDoorGLTF = nullptr;
+GLTFModel *escritorioGLTF = nullptr;
+GLTFModel *mesaGLTF = nullptr;
+GLTFModel *miniLamparaGLTF = nullptr;
+GLTFModel *computerGLTF = nullptr;
+GLTFModel *sillaGLTF = nullptr;
+GLTFModel *barraGLTF = nullptr;
+GLTFModel *logoGLTF = nullptr;
+GLTFModel *logo2GLTF = nullptr;
 GLTFModel *cablePisoGLTF = nullptr;
 GLTFModel *cableTechoGLTF = nullptr;
 GLTFModel *warningGLTF = nullptr;
@@ -348,14 +366,20 @@ glm::vec3 lampara2Scale(1.010f, 8.980f, 1.070f);
 std::vector<glm::vec3> emergencyPos = {
     glm::vec3(39.693f, 0.400f, 20.935f),
     glm::vec3(39.597f, 0.274f, 11.987f),
+    glm::vec3(3.0f, 2.5f, 3.0f),  // esquina noroeste sala descanso
+    glm::vec3(10.0f, 2.5f, 3.0f), // esquina noreste sala descanso
 };
 std::vector<glm::vec3> emergencyRot = {
     glm::vec3(-93.500f, 0.000f, 0.000f),
     glm::vec3(93.500f, 2.500f, 88.000f),
+    glm::vec3(0.000f, 0.000f, 0.000f), // ajustar con editor in-game
+    glm::vec3(0.000f, 0.000f, 0.000f), // ajustar con editor in-game
 };
 std::vector<glm::vec3> emergencyScale = {
     glm::vec3(1.0f, 1.0f, 1.0f),
     glm::vec3(0.990f, 0.980f, 1.0f),
+    glm::vec3(1.0f, 1.0f, 1.0f),
+    glm::vec3(1.0f, 1.0f, 1.0f),
 };
 
 glm::vec3 reactorPos(43.163f, -0.550f, 19.211f);
@@ -366,13 +390,21 @@ glm::vec3 lampara3Pos(36.155f, 0.450f, 16.392f);
 glm::vec3 lampara3Rot(-89.000f, 0.000f, 89.000f);
 glm::vec3 lampara3Scale(1.010f, 8.980f, 1.070f);
 
+// Luces parpadeantes (estilo baño) para la sala de descanso / sofas
+glm::vec3 luzDescanso1Pos(5.000f, 2.500f, 2.000f);
+glm::vec3 luzDescanso1Rot(0.0f, -180.0f, 0.0f);
+glm::vec3 luzDescanso1Scale(0.520f, 0.490f, 1.0f);
+glm::vec3 luzDescanso2Pos(12.000f, 2.500f, 2.000f);
+glm::vec3 luzDescanso2Rot(0.0f, -180.0f, 0.0f);
+glm::vec3 luzDescanso2Scale(0.520f, 0.490f, 1.0f);
+
 glm::vec3 panelControlPos(48.350f, -0.500f, 17.450f);
 glm::vec3 panelControlRot(-91.000f, 0.000f, -180.000f);
 glm::vec3 panelControlScale(0.450f, 0.490f, 0.180f);
 
-glm::vec3 reactorControlPos(40.613f, -0.200, 17.770f);
-glm::vec3 reactorControlRot(-90.000f, 0.000f, -147.500f);
-glm::vec3 reactorControlScale(0.890f, 0.730f, 0.280f);
+glm::vec3 consolaPos(40.613f, -0.200, 17.770f);
+glm::vec3 consolaRot(-90.000f, 0.000f, -147.500f);
+glm::vec3 consolaScale(0.890f, 0.730f, 0.280f);
 
 glm::vec3 lamparaReactorPos(44.000f, 0.350f, 18.607f);
 glm::vec3 lamparaReactorRot(-1.000f, 48.500f, -19.500f);
@@ -495,7 +527,7 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -586,3 +618,64 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+
+std::vector<PlacedProp> placedProps;
+std::map<std::string, GLTFModel*> modelRegistry;
+
+void saveLevelProps(const std::string& path) {
+    std::ofstream outFile(path);
+    if (!outFile.is_open()) {
+        std::cerr << "Error al abrir el archivo para guardar: " << path << std::endl;
+        return;
+    }
+    for (const auto& prop : placedProps) {
+        outFile << prop.modelName << " "
+                << prop.pos.x << " " << prop.pos.y << " " << prop.pos.z << " "
+                << prop.rot.x << " " << prop.rot.y << " " << prop.rot.z << " "
+                << prop.scale.x << " " << prop.scale.y << " " << prop.scale.z << " "
+                << (prop.collisionActive ? 1 : 0) << "\n";
+    }
+    outFile.close();
+    std::cout << "Mapa guardado exitosamente en: " << path << std::endl;
+}
+
+void loadLevelProps(const std::string& path) {
+    placedProps.clear();
+    std::ifstream inFile(path);
+    if (inFile.is_open()) {
+        std::string line;
+        while (std::getline(inFile, line)) {
+            if (line.empty() || line[0] == '#') continue;
+            std::stringstream ss(line);
+            PlacedProp prop;
+            prop.collisionActive = true;
+            if (ss >> prop.modelName 
+                   >> prop.pos.x >> prop.pos.y >> prop.pos.z 
+                   >> prop.rot.x >> prop.rot.y >> prop.rot.z 
+                   >> prop.scale.x >> prop.scale.y >> prop.scale.z) {
+                int activeVal = 1;
+                if (ss >> activeVal) {
+                    prop.collisionActive = (activeVal != 0);
+                }
+                placedProps.push_back(prop);
+            }
+        }
+        inFile.close();
+        std::cout << "Cargados " << placedProps.size() << " props desde: " << path << std::endl;
+    } else {
+        std::cout << "Archivo de posiciones no encontrado, cargando valores por defecto..." << std::endl;
+        placedProps.push_back({"cajonesOF", glm::vec3(8.0f, -0.5f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), false});
+        placedProps.push_back({"sarcofago", glm::vec3(43.235f, -0.100f, 12.691f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.260f, 1.060f, 0.930f)});
+        placedProps.push_back({"warning", glm::vec3(39.993f, 0.200f, 20.866f), glm::vec3(-89.000f, -180.000f, -0.500f), glm::vec3(1.410f, 0.950f, 1.570f)});
+        placedProps.push_back({"tesla", glm::vec3(47.950f, -0.500f, 14.400f), glm::vec3(-88.000f, 0.0f, 0.0f), glm::vec3(0.150f, 0.120f, 0.090f)});
+        placedProps.push_back({"reactor", glm::vec3(43.163f, -0.550f, 19.211f), glm::vec3(0.000f, 0.000f, 0.000f), glm::vec3(1.00f, 1.000f, 1.000f)});
+        placedProps.push_back({"panelControl", glm::vec3(48.350f, -0.500f, 17.450f), glm::vec3(-91.000f, 0.000f, -180.000f), glm::vec3(0.450f, 0.490f, 0.180f)});
+        placedProps.push_back({"consola", glm::vec3(40.613f, -0.200, 17.770f), glm::vec3(-90.000f, 0.000f, -147.500f), glm::vec3(0.890f, 0.730f, 0.280f)});
+        placedProps.push_back({"esquineros", glm::vec3(48.521f, -0.500f, 12.504f), glm::vec3(0.000f, -52.000f, 0.000f), glm::vec3(0.890f, 0.750f, 0.810f)});
+        placedProps.push_back({"esquineros2", glm::vec3(48.283f, -0.500f, 20.301f), glm::vec3(-2.500f, -144.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
+        placedProps.push_back({"esquineros3", glm::vec3(34.683f, -0.500f, 12.581f), glm::vec3(-0.500f, 56.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.860f)});
+        placedProps.push_back({"esquineros4", glm::vec3(34.833f, -0.550f, 20.451f), glm::vec3(0.500f, 120.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
+        
+        saveLevelProps(path);
+    }
+}

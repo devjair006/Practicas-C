@@ -176,56 +176,32 @@ bool checkCollision(float x, float z) {
         }
     }
 
-    // --- COLISION CON TESLA GLB ---
-    if (teslaGLTF && !teslaGLTF->meshes.empty()) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, teslaPos);
-        model = glm::rotate(model, glm::radians(teslaRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(teslaRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(teslaRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, teslaScale);
-        if (checkModelCollision(teslaGLTF, model, playerPos, playerRadius)) {
-            return true;
+    // --- COLISIONES DINAMICAS CON PROPS DE placedProps ---
+    for (const auto& prop : placedProps) {
+        if (!prop.collisionActive) continue;
+        GLTFModel* model = modelRegistry[prop.modelName];
+        if (!model) continue;
+
+        if (prop.modelName == "consola") {
+            // Mesa/panel diagonal - OBB tight
+            glm::vec3 colliderCenter = prop.pos + glm::vec3(0.0f, 0.35f, 0.0f);
+            glm::vec3 colliderHalfSize(2.65f, 0.95f, 0.42f);
+            if (checkPlayerOBBCollision(playerPos, playerRadius, colliderCenter,
+                                        prop.rot.z, colliderHalfSize)) {
+                return true;
+            }
+        } else {
+            // Colision estándar AABB del modelo
+            glm::mat4 modelMat = glm::mat4(1.0f);
+            modelMat = glm::translate(modelMat, prop.pos);
+            modelMat = glm::rotate(modelMat, glm::radians(prop.rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            modelMat = glm::rotate(modelMat, glm::radians(prop.rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            modelMat = glm::rotate(modelMat, glm::radians(prop.rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            modelMat = glm::scale(modelMat, prop.scale);
+            if (checkModelCollision(model, modelMat, playerPos, playerRadius)) {
+                return true;
+            }
         }
-    }
-
-    // --- COLISION CON ESQUINEROS ---
-    if (esquinerosGLTF && !esquinerosGLTF->meshes.empty()) {
-        // Esquinero 1
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, esquinerosPos);
-        model = glm::rotate(model, glm::radians(esquinerosRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(esquinerosRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(esquinerosRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, esquinerosScale);
-        if (checkModelCollision(esquinerosGLTF, model, playerPos, playerRadius)) return true;
-
-        // Esquinero 2
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, esquineros2Pos);
-        model = glm::rotate(model, glm::radians(esquineros2Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(esquineros2Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(esquineros2Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, esquineros2Scale);
-        if (checkModelCollision(esquinerosGLTF, model, playerPos, playerRadius)) return true;
-
-        // Esquinero 3
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, esquineros3Pos);
-        model = glm::rotate(model, glm::radians(esquineros3Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(esquineros3Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(esquineros3Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, esquineros3Scale);
-        if (checkModelCollision(esquinerosGLTF, model, playerPos, playerRadius)) return true;
-
-        // Esquinero 4
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, esquineros4Pos);
-        model = glm::rotate(model, glm::radians(esquineros4Rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(esquineros4Rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(esquineros4Rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, esquineros4Scale);
-        if (checkModelCollision(esquinerosGLTF, model, playerPos, playerRadius)) return true;
     }
 
     // --- COLISION CON GENERADOR ---
@@ -241,30 +217,6 @@ bool checkCollision(float x, float z) {
         }
     }
 
-    // --- COLISION CON PANEL CONTROL ---
-    if (panelControlGLTF && !panelControlGLTF->meshes.empty()) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, panelControlPos);
-        model = glm::rotate(model, glm::radians(panelControlRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(panelControlRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(panelControlRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, panelControlScale);
-        if (checkModelCollision(panelControlGLTF, model, playerPos, playerRadius)) {
-            return true;
-        }
-    }
-
-    // --- COLISION CON SARCOFAGO ---
-    if (sarcofagoGLTF && !sarcofagoGLTF->meshes.empty()) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, sarcofagoPos);
-        model = glm::rotate(model, glm::radians(sarcofagoRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(sarcofagoRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(sarcofagoRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, sarcofagoScale);
-        if (checkModelCollision(sarcofagoGLTF, model, playerPos, playerRadius)) return true;
-    }
-
     // --- COLISION CON EMERGENCY ---
     if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
         for (size_t i = 0; i < emergencyPos.size(); ++i) {
@@ -276,53 +228,6 @@ bool checkCollision(float x, float z) {
             model = glm::scale(model, emergencyScale[i]);
             if (checkModelCollision(emergencyGLTF, model, playerPos, playerRadius)) return true;
         }
-    }
-
-    // --- COLISION CON REACTOR ---
-    if (reactorGLTF && !reactorGLTF->meshes.empty()) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, reactorPos);
-        model = glm::rotate(model, glm::radians(reactorRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(reactorRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(reactorRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, reactorScale);
-        if (checkModelCollision(reactorGLTF, model, playerPos, playerRadius)) return true;
-    }
-
-    // --- COLISION CON REACTOR CONTROL ---
-    if (reactorControlGLTF && !reactorControlGLTF->meshes.empty()) {
-        // Al estar la mesa diagonal/cruzada, un AABB gigante deja esquinas vacías gigantes que bloquean al jugador.
-        // Lo solucionamos usando 3 cajas pequeñas tight distribuidas a lo largo de la diagonal de la mesa!
-        float angleRad = glm::radians(-147.5f); // Ángulo exacto de rotación del panel
-        glm::vec3 colliderCenter =
-            reactorControlPos + glm::vec3(0.0f, 0.35f, 0.0f);
-        glm::vec3 colliderHalfSize(2.65f, 0.95f, 0.42f);
-        if (checkPlayerOBBCollision(playerPos, playerRadius, colliderCenter,
-                                    reactorControlRot.z, colliderHalfSize)) {
-            return true;
-        }
-    }
-
-    // --- COLISION CON WARNING ---
-    if (warningGLTF && !warningGLTF->meshes.empty()) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, warningPos);
-        model = glm::rotate(model, glm::radians(warningRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(warningRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(warningRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, warningScale);
-        if (checkModelCollision(warningGLTF, model, playerPos, playerRadius)) return true;
-    }
-
-    // --- COLISION CON CAJONESOF ---
-    if (cajonesOFGLTF && !cajonesOFGLTF->meshes.empty()) {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, cajonesOFPos);
-        model = glm::rotate(model, glm::radians(cajonesOFRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(cajonesOFRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(cajonesOFRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, cajonesOFScale);
-        if (checkModelCollision(cajonesOFGLTF, model, playerPos, playerRadius)) return true;
     }
 
     return false;
