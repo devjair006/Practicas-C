@@ -354,6 +354,8 @@ int main() {
   escritorioGLTF = new GLTFModel("assets/archivo/escritorio.glb");
   mesaGLTF = new GLTFModel("assets/archivo/mesa.glb");
   miniLamparaGLTF = new GLTFModel("assets/archivo/mini-lampara.glb");
+  computerGLTF = new GLTFModel("assets/archivo/computer.glb");
+  sillaGLTF = new GLTFModel("assets/archivo/silla.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
   GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
   GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
@@ -395,6 +397,8 @@ int main() {
   modelRegistry["escritorio"] = escritorioGLTF;
   modelRegistry["mesa"] = mesaGLTF;
   modelRegistry["mini-lampara"] = miniLamparaGLTF;
+  modelRegistry["computer"] = computerGLTF;
+  modelRegistry["silla"] = sillaGLTF;
   modelRegistry["barra"] = barraGLTF;
   modelRegistry["logo"] = logoGLTF;
   modelRegistry["logo2"] = logo2GLTF;
@@ -3200,7 +3204,7 @@ int main() {
             "consola",     "panelControl", "warning", "esquineros",
             "cables_piso", "cables_techo", "barra",   "logo",
             "logo2", "camara", "servers", "terminal", "box-close", "box-open", "vault-door",
-            "escritorio", "mesa", "mini-lampara"};
+            "escritorio", "mesa", "mini-lampara", "computer", "silla"};
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
                      IM_ARRAYSIZE(availableModels));
@@ -3248,6 +3252,10 @@ int main() {
           else if (newProp.modelName == "mesa")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "mini-lampara")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "computer")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "silla")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);

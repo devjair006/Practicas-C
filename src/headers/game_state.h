@@ -220,6 +220,8 @@ extern GLTFModel *vaultDoorGLTF;
 extern GLTFModel *escritorioGLTF;
 extern GLTFModel *mesaGLTF;
 extern GLTFModel *miniLamparaGLTF;
+extern GLTFModel *computerGLTF;
+extern GLTFModel *sillaGLTF;
 extern GLTFModel *barraGLTF;
 extern GLTFModel *logoGLTF;
 extern GLTFModel *logo2GLTF;
