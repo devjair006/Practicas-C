@@ -211,6 +211,17 @@ extern glm::vec3 sarcofagoScale;
 
 extern GLTFModel *cajonesOFGLTF;
 extern GLTFModel *gabineteGLTF;
+extern GLTFModel *camaraGLTF;
+extern GLTFModel *serversGLTF;
+extern GLTFModel *terminalGLTF;
+extern GLTFModel *boxCloseGLTF;
+extern GLTFModel *boxOpenGLTF;
+extern GLTFModel *vaultDoorGLTF;
+extern GLTFModel *escritorioGLTF;
+extern GLTFModel *mesaGLTF;
+extern GLTFModel *miniLamparaGLTF;
+extern GLTFModel *computerGLTF;
+extern GLTFModel *sillaGLTF;
 extern GLTFModel *barraGLTF;
 extern GLTFModel *logoGLTF;
 extern GLTFModel *logo2GLTF;

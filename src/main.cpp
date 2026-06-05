@@ -345,6 +345,17 @@ int main() {
   consolaGLTF = new GLTFModel("assets/contencion/consola.glb");
   // Modelos de archivo restringido
   gabineteGLTF = new GLTFModel("assets/archivo/gabinete.glb");
+  camaraGLTF = new GLTFModel("assets/archivo/camara.glb");
+  serversGLTF = new GLTFModel("assets/archivo/servers.glb");
+  terminalGLTF = new GLTFModel("assets/archivo/terminal.glb");
+  boxCloseGLTF = new GLTFModel("assets/archivo/box-close.glb");
+  boxOpenGLTF = new GLTFModel("assets/archivo/box-open.glb");
+  vaultDoorGLTF = new GLTFModel("assets/archivo/vault-door.glb");
+  escritorioGLTF = new GLTFModel("assets/archivo/escritorio.glb");
+  mesaGLTF = new GLTFModel("assets/archivo/mesa.glb");
+  miniLamparaGLTF = new GLTFModel("assets/archivo/mini-lampara.glb");
+  computerGLTF = new GLTFModel("assets/archivo/computer.glb");
+  sillaGLTF = new GLTFModel("assets/archivo/silla.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
   GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
   GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
@@ -377,6 +388,17 @@ int main() {
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
   modelRegistry["gabinete"] = gabineteGLTF;
+  modelRegistry["camara"] = camaraGLTF;
+  modelRegistry["servers"] = serversGLTF;
+  modelRegistry["terminal"] = terminalGLTF;
+  modelRegistry["box-close"] = boxCloseGLTF;
+  modelRegistry["box-open"] = boxOpenGLTF;
+  modelRegistry["vault-door"] = vaultDoorGLTF;
+  modelRegistry["escritorio"] = escritorioGLTF;
+  modelRegistry["mesa"] = mesaGLTF;
+  modelRegistry["mini-lampara"] = miniLamparaGLTF;
+  modelRegistry["computer"] = computerGLTF;
+  modelRegistry["silla"] = sillaGLTF;
   modelRegistry["barra"] = barraGLTF;
   modelRegistry["logo"] = logoGLTF;
   modelRegistry["logo2"] = logo2GLTF;
@@ -3181,7 +3203,8 @@ int main() {
             "cajonesOF",   "gabinete",     "sarcofago",    "tesla",   "reactor",
             "consola",     "panelControl", "warning", "esquineros",
             "cables_piso", "cables_techo", "barra",   "logo",
-            "logo2"};
+            "logo2", "camara", "servers", "terminal", "box-close", "box-open", "vault-door",
+            "escritorio", "mesa", "mini-lampara", "computer", "silla"};
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
                      IM_ARRAYSIZE(availableModels));
@@ -3211,6 +3234,28 @@ int main() {
           else if (newProp.modelName == "cables_techo")
             newProp.scale = glm::vec3(-0.001557f, -0.001557f, -0.001557f);
           else if (newProp.modelName == "gabinete")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "camara")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "servers")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "terminal")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "box-close")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "box-open")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "vault-door")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "escritorio")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "mesa")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "mini-lampara")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "computer")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "silla")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
