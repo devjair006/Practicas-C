@@ -351,6 +351,9 @@ int main() {
   boxCloseGLTF = new GLTFModel("assets/archivo/box-close.glb");
   boxOpenGLTF = new GLTFModel("assets/archivo/box-open.glb");
   vaultDoorGLTF = new GLTFModel("assets/archivo/vault-door.glb");
+  escritorioGLTF = new GLTFModel("assets/archivo/escritorio.glb");
+  mesaGLTF = new GLTFModel("assets/archivo/mesa.glb");
+  miniLamparaGLTF = new GLTFModel("assets/archivo/mini-lampara.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
   GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
   GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
@@ -389,6 +392,9 @@ int main() {
   modelRegistry["box-close"] = boxCloseGLTF;
   modelRegistry["box-open"] = boxOpenGLTF;
   modelRegistry["vault-door"] = vaultDoorGLTF;
+  modelRegistry["escritorio"] = escritorioGLTF;
+  modelRegistry["mesa"] = mesaGLTF;
+  modelRegistry["mini-lampara"] = miniLamparaGLTF;
   modelRegistry["barra"] = barraGLTF;
   modelRegistry["logo"] = logoGLTF;
   modelRegistry["logo2"] = logo2GLTF;
@@ -3193,7 +3199,8 @@ int main() {
             "cajonesOF",   "gabinete",     "sarcofago",    "tesla",   "reactor",
             "consola",     "panelControl", "warning", "esquineros",
             "cables_piso", "cables_techo", "barra",   "logo",
-            "logo2", "camara", "servers", "terminal", "box-close", "box-open", "vault-door"};
+            "logo2", "camara", "servers", "terminal", "box-close", "box-open", "vault-door",
+            "escritorio", "mesa", "mini-lampara"};
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
                      IM_ARRAYSIZE(availableModels));
@@ -3235,6 +3242,12 @@ int main() {
           else if (newProp.modelName == "box-open")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "vault-door")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "escritorio")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "mesa")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "mini-lampara")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
