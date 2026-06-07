@@ -300,6 +300,7 @@ extern GLTFModel *escritorioGLTF;
 extern GLTFModel *mesaGLTF;
 extern GLTFModel *miniLamparaGLTF;
 extern GLTFModel *computerGLTF;
+extern GLTFModel* sillasGLTF;
 extern GLTFModel *sillaGLTF;
 extern GLTFModel *barraGLTF;
 extern GLTFModel *logoGLTF;
@@ -307,6 +308,9 @@ extern GLTFModel *logo2GLTF;
 extern glm::vec3 cajonesOFPos;
 extern glm::vec3 cajonesOFRot;
 extern glm::vec3 cajonesOFScale;
+extern GLTFModel *monitorGLTF;
+extern GLTFModel *sofaGLTF;
+extern GLTFModel *deskGLTF;
 
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;

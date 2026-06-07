@@ -152,7 +152,7 @@ glm::vec3 sofaRot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 sofaScale = glm::vec3(0.8f, 0.8f, 0.8f);
 
 
-glm::vec3 monitorPos = glm::vec3(32.75f, 0.0f, 5.2f);    
+glm::vec3 monitorPos = glm::vec3(30.6f, 0.0f, 5.2f);    
 glm::vec3 monitorRot = glm::vec3(0.0f, -180.0f, 0.0f); 
 glm::vec3 monitorScale = glm::vec3(1.5f, 1.5f, 1.5f); 
 
@@ -294,6 +294,7 @@ GLTFModel *girlBGLTF = nullptr;
 GLTFModel *teslaGLTF = nullptr;
 GLTFModel *paredesGLTF = nullptr;
 GLTFModel* monitorGLTF = nullptr;
+GLTFModel* sofaGLTF = nullptr;
 GLTFModel* lockerGLTF = nullptr;
 GLTFModel* maquinaGLTF = nullptr;
 GLTFModel *esquinerosGLTF = nullptr;
@@ -321,6 +322,7 @@ GLTFModel *escritorioGLTF = nullptr;
 GLTFModel *mesaGLTF = nullptr;
 GLTFModel *miniLamparaGLTF = nullptr;
 GLTFModel *computerGLTF = nullptr;
+GLTFModel* sillasGLTF = nullptr;
 GLTFModel *sillaGLTF = nullptr;
 GLTFModel *barraGLTF = nullptr;
 GLTFModel *logoGLTF = nullptr;
