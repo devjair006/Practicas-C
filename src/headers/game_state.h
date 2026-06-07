@@ -189,29 +189,29 @@ extern glm::vec3 desk6Pos;
 extern glm::vec3 desk6Rot;
 extern glm::vec3 desk6Scale;
 
-extern glm::vec3 silla1Pos;
-extern glm::vec3 silla1Rot;
-extern glm::vec3 silla1Scale;
+extern glm::vec3 sillita1Pos;
+extern glm::vec3 sillita1Rot;
+extern glm::vec3 sillita1Scale;
 
-extern glm::vec3 silla2Pos;
-extern glm::vec3 silla2Rot;
-extern glm::vec3 silla2Scale;
+extern glm::vec3 sillita2Pos;
+extern glm::vec3 sillita2Rot;
+extern glm::vec3 sillita2Scale;
 
-extern glm::vec3 silla3Pos;
-extern glm::vec3 silla3Rot;
-extern glm::vec3 silla3Scale;
+extern glm::vec3 sillita3Pos;
+extern glm::vec3 sillita3Rot;
+extern glm::vec3 sillita3Scale;
 
-extern glm::vec3 silla4Pos;
-extern glm::vec3 silla4Rot;
-extern glm::vec3 silla4Scale;
+extern glm::vec3 sillita4Pos;
+extern glm::vec3 sillita4Rot;
+extern glm::vec3 sillita4Scale;
 
-extern glm::vec3 silla5Pos;
-extern glm::vec3 silla5Rot;
-extern glm::vec3 silla5Scale;
+extern glm::vec3 sillita5Pos;
+extern glm::vec3 sillita5Rot;
+extern glm::vec3 sillita5Scale;
 
-extern glm::vec3 silla6Pos;
-extern glm::vec3 silla6Rot;
-extern glm::vec3 silla6Scale;
+extern glm::vec3 sillita6Pos;
+extern glm::vec3 sillita6Rot;
+extern glm::vec3 sillita6Scale;
 
 extern glm::vec3 estantePos;
 extern glm::vec3 estanteRot;
@@ -302,6 +302,7 @@ extern GLTFModel *miniLamparaGLTF;
 extern GLTFModel *computerGLTF;
 extern GLTFModel* sillasGLTF;
 extern GLTFModel *sillaGLTF;
+extern GLTFModel *sillitaGLTF;
 extern GLTFModel *barraGLTF;
 extern GLTFModel *logoGLTF;
 extern GLTFModel *logo2GLTF;
@@ -311,6 +312,7 @@ extern glm::vec3 cajonesOFScale;
 extern GLTFModel *monitorGLTF;
 extern GLTFModel *sofaGLTF;
 extern GLTFModel *deskGLTF;
+extern GLTFModel *estanteGLTF;
 
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;
