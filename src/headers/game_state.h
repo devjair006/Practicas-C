@@ -150,6 +150,85 @@ extern glm::vec3 sillas5Scale;
 extern glm::vec3 monitorPos;
 extern glm::vec3 monitorRot;
 extern glm::vec3 monitorScale;
+extern glm::vec3 monitor2Pos;
+extern glm::vec3 monitor2Rot;
+extern glm::vec3 monitor2Scale;
+extern glm::vec3 lockerPos;
+extern glm::vec3 lockerRot;
+extern glm::vec3 lockerScale;
+extern glm::vec3 locker2Pos;
+extern glm::vec3 locker2Rot;
+extern glm::vec3 locker2Scale;
+extern glm::vec3 locker3Pos;
+extern glm::vec3 locker3Rot;
+extern glm::vec3 locker3Scale;
+extern glm::vec3 locker4Pos;
+extern glm::vec3 locker4Rot;
+extern glm::vec3 locker4Scale;
+extern glm::vec3 maquinaPos;
+extern glm::vec3 maquinaRot;
+extern glm::vec3 maquinaScale;
+extern glm::vec3 deskPos;
+extern glm::vec3 deskRot;
+extern glm::vec3 deskScale;
+extern glm::vec3 desk2Pos;
+extern glm::vec3 desk2Rot;
+extern glm::vec3 desk2Scale;
+extern glm::vec3 desk3Pos;
+extern glm::vec3 desk3Rot;
+extern glm::vec3 desk3Scale;
+
+extern glm::vec3 desk4Pos;
+extern glm::vec3 desk4Rot;
+extern glm::vec3 desk4Scale;
+
+extern glm::vec3 desk5Pos;
+extern glm::vec3 desk5Rot;
+extern glm::vec3 desk5Scale;
+
+extern glm::vec3 desk6Pos;
+extern glm::vec3 desk6Rot;
+extern glm::vec3 desk6Scale;
+
+extern glm::vec3 sillita1Pos;
+extern glm::vec3 sillita1Rot;
+extern glm::vec3 sillita1Scale;
+
+extern glm::vec3 sillita2Pos;
+extern glm::vec3 sillita2Rot;
+extern glm::vec3 sillita2Scale;
+
+extern glm::vec3 sillita3Pos;
+extern glm::vec3 sillita3Rot;
+extern glm::vec3 sillita3Scale;
+
+extern glm::vec3 sillita4Pos;
+extern glm::vec3 sillita4Rot;
+extern glm::vec3 sillita4Scale;
+
+extern glm::vec3 sillita5Pos;
+extern glm::vec3 sillita5Rot;
+extern glm::vec3 sillita5Scale;
+
+extern glm::vec3 sillita6Pos;
+extern glm::vec3 sillita6Rot;
+extern glm::vec3 sillita6Scale;
+
+extern glm::vec3 estantePos;
+extern glm::vec3 estanteRot;
+extern glm::vec3 estanteScale;
+
+extern glm::vec3 estante2Pos;
+extern glm::vec3 estante2Rot;
+extern glm::vec3 estante2Scale;
+
+extern glm::vec3 estante3Pos;
+extern glm::vec3 estante3Rot;
+extern glm::vec3 estante3Scale;
+
+extern glm::vec3 monitorsciPos;
+extern glm::vec3 monitorsciRot;
+extern glm::vec3 monitorsciScale;
 
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
@@ -222,13 +301,20 @@ extern GLTFModel *escritorioGLTF;
 extern GLTFModel *mesaGLTF;
 extern GLTFModel *miniLamparaGLTF;
 extern GLTFModel *computerGLTF;
+extern GLTFModel* sillasGLTF;
 extern GLTFModel *sillaGLTF;
+extern GLTFModel *sillitaGLTF;
+extern GLTFModel *maquinaGLTF;
 extern GLTFModel *barraGLTF;
 extern GLTFModel *logoGLTF;
 extern GLTFModel *logo2GLTF;
 extern glm::vec3 cajonesOFPos;
 extern glm::vec3 cajonesOFRot;
 extern glm::vec3 cajonesOFScale;
+extern GLTFModel *monitorGLTF;
+extern GLTFModel *sofaGLTF;
+extern GLTFModel *deskGLTF;
+extern GLTFModel *estanteGLTF;
 
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;
@@ -322,6 +408,12 @@ extern glm::vec3 esquineros4Pos;
 extern glm::vec3 esquineros4Rot;
 extern glm::vec3 esquineros4Scale;
 
+
+struct WallDef {
+  glm::vec3 pos;
+  glm::vec3 rot;
+  glm::vec3 scale;
+};
 // area principal (escenario grande)
 extern GLTFModel *machineLabGLTF;
 extern glm::vec3 machineLabPos[3];
@@ -402,3 +494,5 @@ extern bool door1Opening;
 extern float door2Anim;
 extern bool door2Opening;
 extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
+
+
