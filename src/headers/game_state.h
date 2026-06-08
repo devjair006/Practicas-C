@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_set>
 
 #include <glm/glm.hpp>
 #include <miniaudio.h>
@@ -433,6 +434,7 @@ struct PlacedProp {
     glm::vec3 rot;
     glm::vec3 scale;
     bool collisionActive = true;
+    std::string area = "General";
 };
 
 extern std::vector<PlacedProp> placedProps;
@@ -440,6 +442,50 @@ extern std::map<std::string, GLTFModel*> modelRegistry;
 
 void saveLevelProps(const std::string& path);
 void loadLevelProps(const std::string& path);
+
+// Devuelve el area correcta para un modelo .glb segun la carpeta donde vive en assets/
+// Contencion: barra, cables_piso, cables_techo, consola, emergency, esquineros,
+//             esquineros2, esquineros3, esquineros4, generador, lampara-reactor,
+//             lampara, lampara2, logo, logo2, panel-control, panelControl,
+//             reactor, sarcofago, tesla, warning
+// Archivo   : box-close, box-open, camara, computer, escritorio, gabinete,
+//             mesa, mini-lampara, servers, silla, terminal, vault-door
+// Oficinas  : cajonesOF
+// Descanso  : bunk_bed, kirza_boots, locker, lockers,
+//             old_fire_extinguisher, old_soviet_taxophone, vintage_newspaper
+// General   : todo lo demas (raiz de assets)
+inline std::string getModelArea(const std::string& modelName) {
+    // --- Contencion ---
+    static const std::unordered_set<std::string> kContencion = {
+        "barra", "cables_piso", "cables_techo", "consola", "emergency",
+        "esquineros", "esquineros2", "esquineros3", "esquineros4",
+        "generador", "lampara-reactor", "lampara", "lampara2",
+        "logo", "logo2", "panel-control", "panelControl",
+        "reactor", "sarcofago", "tesla", "warning"
+    };
+    // --- Archivo ---
+    static const std::unordered_set<std::string> kArchivo = {
+        "box-close", "box-open", "camara", "computer", "escritorio",
+        "gabinete", "mesa", "mini-lampara", "servers", "silla",
+        "terminal", "vault-door"
+    };
+    // --- Oficinas ---
+    static const std::unordered_set<std::string> kOficinas = {
+        "cajonesOF"
+    };
+    // --- Descanso ---
+    static const std::unordered_set<std::string> kDescanso = {
+        "bunk_bed", "kirza_boots", "locker", "lockers",
+        "old_fire_extinguisher", "old_soviet_taxophone", "vintage_newspaper"
+    };
+
+    if (kContencion.count(modelName)) return "Contencion";
+    if (kArchivo.count(modelName))    return "Archivo";
+    if (kOficinas.count(modelName))   return "Oficinas";
+    if (kDescanso.count(modelName))   return "Descanso";
+    return "General";
+}
+
 
 extern float wallWidth;
 extern float wallHeight;
