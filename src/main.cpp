@@ -3141,21 +3141,6 @@ int main() {
           ImGui::DragFloat3("Escala", &prop.scale.x, 0.01f, 0.01f, 10.0f);
           ImGui::Checkbox("Activar Física/Colisión", &prop.collisionActive);
 
-          // Selector de área del prop seleccionado
-          int currentAreaIdx = 0;
-          for (int k = 0; k < IM_ARRAYSIZE(kAreaNames); ++k) {
-            if (prop.area == kAreaNames[k]) { currentAreaIdx = k; break; }
-          }
-          // Si el área guardada no está en la lista, usar índice 1 ("General")
-          if (currentAreaIdx == 0 && prop.area != "Todas") currentAreaIdx = 1;
-          ImGui::SetNextItemWidth(-1.0f);
-          if (ImGui::Combo("##AreaProp", &currentAreaIdx, kAreaNames + 1,
-                           IM_ARRAYSIZE(kAreaNames) - 1)) {
-            prop.area = kAreaNames[currentAreaIdx + 1];
-          }
-          ImGui::SameLine(0, 4);
-          ImGui::TextDisabled("Área del objeto");
-
           if (ImGui::Button("Traer frente a camara")) {
             prop.pos = cameraPos + cameraFront * 2.0f;
             prop.pos.y = -0.5f;
@@ -3208,6 +3193,22 @@ int main() {
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
                      IM_ARRAYSIZE(availableModels));
+
+        static int lastAreaFilterIdx = -1;
+        static int newPropAreaIdx = 0;
+        if (areaFilterIdx != lastAreaFilterIdx) {
+          if (areaFilterIdx > 0) {
+            newPropAreaIdx = areaFilterIdx - 1;
+          } else {
+            newPropAreaIdx = 0; // "General"
+          }
+          lastAreaFilterIdx = areaFilterIdx;
+        }
+
+        ImGui::SetNextItemWidth(-1.0f);
+        ImGui::Combo("##AreaNueva", &newPropAreaIdx, kAreaNames + 1, IM_ARRAYSIZE(kAreaNames) - 1);
+        ImGui::SameLine(0, 4);
+        ImGui::TextDisabled("Área Destino");
 
         if (ImGui::Button("➕ Agregar a Escena", ImVec2(-1, 0))) {
           PlacedProp newProp;
@@ -3262,8 +3263,8 @@ int main() {
           else
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
-          // Asignar área: usa el filtro activo, o "General" si es "Todas"
-          newProp.area = (areaFilterIdx > 0) ? kAreaNames[areaFilterIdx] : "General";
+          // Asignar área: usa el combo de Área Destino
+          newProp.area = kAreaNames[newPropAreaIdx + 1];
 
           placedProps.push_back(newProp);
           selectedPropIdx = (int)placedProps.size() - 1;
