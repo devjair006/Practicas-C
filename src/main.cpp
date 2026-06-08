@@ -360,6 +360,7 @@ int main() {
   deskGLTF = new GLTFModel("assets/desk.glb");
   estanteGLTF = new GLTFModel("assets/estante.glb");
   sillitaGLTF = new GLTFModel("assets/sillita.glb");
+  maquinaGLTF = new GLTFModel("assets/maquina.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
   GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
   GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
@@ -426,6 +427,7 @@ int main() {
   modelRegistry["monitor"] = monitorGLTF;
   modelRegistry["metal_desk"] = metalDeskGLTF;
   modelRegistry["sofa"] = sofaGLTF;
+  modelRegistry["maquina"] = maquinaGLTF;
   modelRegistry["litera"] = literaGLTF;
   modelRegistry["locker"] = lockerGLTF;
   modelRegistry["extintor"] = extintorGLTF;
@@ -1997,6 +1999,29 @@ if (sillitaGLTF && !sillitaGLTF->meshes.empty()) {
     sillitaGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
 }
 
+if (maquinaGLTF && !maquinaGLTF->meshes.empty()) {
+  std::vector<glm::mat4> instanceModels;
+
+  glm::vec3 positions[1] = {maquinaPos};
+  glm::vec3 rotations[1] = {maquinaRot};
+  glm::vec3 scales[1]    = {maquinaScale};
+
+  for (int i = 0; i < 1; i++) {
+    if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
+      glm::mat4 model = glm::mat4(1.0f);
+      model = glm::translate(model, positions[i]);
+      model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+      model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+      model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+      model = glm::scale(model, scales[i]);
+      instanceModels.push_back(model);
+    }
+  }
+
+  if (!instanceModels.empty())
+    maquinaGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
+}
+
     if (lamparaContencionGLTF && !lamparaContencionGLTF->meshes.empty()) {
       glm::mat4 lampModel = glm::mat4(1.0f);
       lampModel = glm::translate(lampModel, lamparaContencionPos);
@@ -2889,102 +2914,6 @@ if (sillitaGLTF && !sillitaGLTF->meshes.empty()) {
           mirrorBGScale = glm::vec3(1.0f, 1.0f, 1.0f);
         }
 
-        ImGui::Text("Sillas Model (5 Instancias)");
-static int selectedSilla = 0;
-const char *sillaItems[] = {"Sillas 1", "Sillas 2", "Sillas 3", "Sillas 4", "Sillas 5"};
-ImGui::Combo("Seleccionar Silla", &selectedSilla, sillaItems, IM_ARRAYSIZE(sillaItems));
-
-glm::vec3 *sillaPositions[] = {&sillasPos, &sillas2Pos, &sillas3Pos, &sillas4Pos, &sillas5Pos};
-glm::vec3 *sillaRotations[] = {&sillasRot, &sillas2Rot, &sillas3Rot, &sillas4Rot, &sillas5Rot};
-glm::vec3 *sillaScales[]    = {&sillasScale, &sillas2Scale, &sillas3Scale, &sillas4Scale, &sillas5Scale};
-
-ImGui::DragFloat3("Silla Pos",   &sillaPositions[selectedSilla]->x, 0.05f);
-ImGui::DragFloat3("Silla Rot",   &sillaRotations[selectedSilla]->x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Silla Scale", &sillaScales[selectedSilla]->x,    0.01f, 0.01f, 10.0f);
-
-if (ImGui::Button("Traer Silla frente a la camara")) {
-    *sillaPositions[selectedSilla] = cameraPos + cameraFront * 2.0f;
-    sillaPositions[selectedSilla]->y = -0.35f;
-    *sillaRotations[selectedSilla] = glm::vec3(0.0f, 90.0f, 0.0f);
-    *sillaScales[selectedSilla]    = glm::vec3(0.65f, 0.65f, 0.65f);
-}
-ImGui::Separator();
-
-        ImGui::Text("Sofa");
-        ImGui::DragFloat3("Sofa Pos", &sofaPos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Sofa Rot", &sofaRot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Sofa Scale", &sofaScale.x, 0.01f, 0.001f, 3.0f);
-        ImGui::Separator();
-
-        ImGui::Text("Monitor de Pared");
-        ImGui::DragFloat3("Monitor Pos", &monitorPos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Monitor Rot", &monitorRot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Monitor Scale", &monitorScale.x, 0.01f, 0.001f,
-                          3.0f);
-        ImGui::Separator();
-
-     ImGui::Text("Sillita Model (6 Instancias)");
-static int selectedSillita = 0;
-const char *sillitaItems[] = {"Sillita 1", "Sillita 2", "Sillita 3", "Sillita 4", "Sillita 5", "Sillita 6"};
-ImGui::Combo("Seleccionar Sillita", &selectedSillita, sillitaItems, IM_ARRAYSIZE(sillitaItems));
-
-glm::vec3 *sillitaPositions[] = {&sillita1Pos, &sillita2Pos, &sillita3Pos, &sillita4Pos, &sillita5Pos, &sillita6Pos};
-glm::vec3 *sillitaRotations[] = {&sillita1Rot, &sillita2Rot, &sillita3Rot, &sillita4Rot, &sillita5Rot, &sillita6Rot};
-glm::vec3 *sillitaScales[]    = {&sillita1Scale, &sillita2Scale, &sillita3Scale, &sillita4Scale, &sillita5Scale, &sillita6Scale};
-
-ImGui::DragFloat3("Sillita Pos",   &sillitaPositions[selectedSillita]->x, 0.05f);
-ImGui::DragFloat3("Sillita Rot",   &sillitaRotations[selectedSillita]->x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Sillita Scale", &sillitaScales[selectedSillita]->x,    0.01f, 0.01f, 10.0f);
-
-if (ImGui::Button("Traer Sillita frente a la camara")) {
-    *sillitaPositions[selectedSillita] = cameraPos + cameraFront * 2.0f;
-    sillitaPositions[selectedSillita]->y = -0.30f;
-    *sillitaRotations[selectedSillita] = glm::vec3(0.0f, -90.0f, 0.0f);
-    *sillitaScales[selectedSillita]    = glm::vec3(0.600f, 0.600f, 0.600f);
-}
-ImGui::Separator();
-
-ImGui::Text("Estante Model (3 Instancias)");
-static int selectedEstante = 0;
-const char *estanteItems[] = {"Estante 1", "Estante 2", "Estante 3"};
-ImGui::Combo("Seleccionar Estante", &selectedEstante, estanteItems, IM_ARRAYSIZE(estanteItems));
-
-glm::vec3 *estantePositions[] = {&estantePos, &estante2Pos, &estante3Pos};
-glm::vec3 *estanteRotations[] = {&estanteRot, &estante2Rot, &estante3Rot};
-glm::vec3 *estanteScales[]    = {&estanteScale, &estante2Scale, &estante3Scale};
-
-ImGui::DragFloat3("Estante Pos",   &estantePositions[selectedEstante]->x, 0.05f);
-ImGui::DragFloat3("Estante Rot",   &estanteRotations[selectedEstante]->x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Estante Scale", &estanteScales[selectedEstante]->x,    0.01f, 0.01f, 10.0f);
-
-if (ImGui::Button("Traer Estante frente a la camara")) {
-    *estantePositions[selectedEstante] = cameraPos + cameraFront * 2.0f;
-    estantePositions[selectedEstante]->y = -0.35f;
-    *estanteRotations[selectedEstante] = glm::vec3(0.0f, -90.0f, 0.0f);
-    *estanteScales[selectedEstante]    = glm::vec3(0.8f, 0.8f, 0.8f);
-}
-ImGui::Separator();
-
-ImGui::Text("Desk Model (6 Instancias)");
-static int selectedDesk = 0;
-const char *deskItems[] = {"Desk 1", "Desk 2", "Desk 3", "Desk 4", "Desk 5", "Desk 6"};
-ImGui::Combo("Seleccionar Desk", &selectedDesk, deskItems, IM_ARRAYSIZE(deskItems));
-
-glm::vec3 *deskPositions[] = {&deskPos, &desk2Pos, &desk3Pos, &desk4Pos, &desk5Pos, &desk6Pos};
-glm::vec3 *deskRotations[] = {&deskRot, &desk2Rot, &desk3Rot, &desk4Rot, &desk5Rot, &desk6Rot};
-glm::vec3 *deskScales[]    = {&deskScale, &desk2Scale, &desk3Scale, &desk4Scale, &desk5Scale, &desk6Scale};
-
-ImGui::DragFloat3("Desk Pos",   &deskPositions[selectedDesk]->x, 0.05f);
-ImGui::DragFloat3("Desk Rot",   &deskRotations[selectedDesk]->x, 0.5f, -180.0f, 180.0f);
-ImGui::DragFloat3("Desk Scale", &deskScales[selectedDesk]->x,    0.01f, 0.01f, 10.0f);
-
-if (ImGui::Button("Traer Desk frente a la camara")) {
-    *deskPositions[selectedDesk] = cameraPos + cameraFront * 2.0f;
-    deskPositions[selectedDesk]->y = -0.30f;
-    *deskRotations[selectedDesk] = glm::vec3(0.0f, -90.0f, 13.0f);
-    *deskScales[selectedDesk]    = glm::vec3(0.6f, 0.6f, 0.6f);
-}
-ImGui::Separator();
 
         ImGui::End();
       }
@@ -3354,6 +3283,115 @@ if (ImGui::Button("Traer Monitor frente a la camara")) {
 }
 ImGui::Separator();
 
+ ImGui::Text("Sillas Model (5 Instancias)");
+static int selectedSilla = 0;
+const char *sillaItems[] = {"Sillas 1", "Sillas 2", "Sillas 3", "Sillas 4", "Sillas 5"};
+ImGui::Combo("Seleccionar Silla", &selectedSilla, sillaItems, IM_ARRAYSIZE(sillaItems));
+
+glm::vec3 *sillaPositions[] = {&sillasPos, &sillas2Pos, &sillas3Pos, &sillas4Pos, &sillas5Pos};
+glm::vec3 *sillaRotations[] = {&sillasRot, &sillas2Rot, &sillas3Rot, &sillas4Rot, &sillas5Rot};
+glm::vec3 *sillaScales[]    = {&sillasScale, &sillas2Scale, &sillas3Scale, &sillas4Scale, &sillas5Scale};
+
+ImGui::DragFloat3("Silla Pos",   &sillaPositions[selectedSilla]->x, 0.05f);
+ImGui::DragFloat3("Silla Rot",   &sillaRotations[selectedSilla]->x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Silla Scale", &sillaScales[selectedSilla]->x,    0.01f, 0.01f, 10.0f);
+
+if (ImGui::Button("Traer Silla frente a la camara")) {
+    *sillaPositions[selectedSilla] = cameraPos + cameraFront * 2.0f;
+    sillaPositions[selectedSilla]->y = -0.35f;
+    *sillaRotations[selectedSilla] = glm::vec3(0.0f, 90.0f, 0.0f);
+    *sillaScales[selectedSilla]    = glm::vec3(0.65f, 0.65f, 0.65f);
+}
+ImGui::Separator();
+
+        ImGui::Text("Sofa");
+        ImGui::DragFloat3("Sofa Pos", &sofaPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Sofa Rot", &sofaRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Sofa Scale", &sofaScale.x, 0.01f, 0.001f, 3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Monitor de Pared");
+        ImGui::DragFloat3("Monitor Pos", &monitorPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Monitor Rot", &monitorRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Monitor Scale", &monitorScale.x, 0.01f, 0.001f,
+                          3.0f);
+        ImGui::Separator();
+
+     ImGui::Text("Sillita Model (6 Instancias)");
+static int selectedSillita = 0;
+const char *sillitaItems[] = {"Sillita 1", "Sillita 2", "Sillita 3", "Sillita 4", "Sillita 5", "Sillita 6"};
+ImGui::Combo("Seleccionar Sillita", &selectedSillita, sillitaItems, IM_ARRAYSIZE(sillitaItems));
+
+glm::vec3 *sillitaPositions[] = {&sillita1Pos, &sillita2Pos, &sillita3Pos, &sillita4Pos, &sillita5Pos, &sillita6Pos};
+glm::vec3 *sillitaRotations[] = {&sillita1Rot, &sillita2Rot, &sillita3Rot, &sillita4Rot, &sillita5Rot, &sillita6Rot};
+glm::vec3 *sillitaScales[]    = {&sillita1Scale, &sillita2Scale, &sillita3Scale, &sillita4Scale, &sillita5Scale, &sillita6Scale};
+
+ImGui::DragFloat3("Sillita Pos",   &sillitaPositions[selectedSillita]->x, 0.05f);
+ImGui::DragFloat3("Sillita Rot",   &sillitaRotations[selectedSillita]->x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Sillita Scale", &sillitaScales[selectedSillita]->x,    0.01f, 0.01f, 10.0f);
+
+if (ImGui::Button("Traer Sillita frente a la camara")) {
+    *sillitaPositions[selectedSillita] = cameraPos + cameraFront * 2.0f;
+    sillitaPositions[selectedSillita]->y = -0.30f;
+    *sillitaRotations[selectedSillita] = glm::vec3(0.0f, -90.0f, 0.0f);
+    *sillitaScales[selectedSillita]    = glm::vec3(0.600f, 0.600f, 0.600f);
+}
+ImGui::Separator();
+
+ImGui::Text("Estante Model (3 Instancias)");
+static int selectedEstante = 0;
+const char *estanteItems[] = {"Estante 1", "Estante 2", "Estante 3"};
+ImGui::Combo("Seleccionar Estante", &selectedEstante, estanteItems, IM_ARRAYSIZE(estanteItems));
+
+glm::vec3 *estantePositions[] = {&estantePos, &estante2Pos, &estante3Pos};
+glm::vec3 *estanteRotations[] = {&estanteRot, &estante2Rot, &estante3Rot};
+glm::vec3 *estanteScales[]    = {&estanteScale, &estante2Scale, &estante3Scale};
+
+ImGui::DragFloat3("Estante Pos",   &estantePositions[selectedEstante]->x, 0.05f);
+ImGui::DragFloat3("Estante Rot",   &estanteRotations[selectedEstante]->x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Estante Scale", &estanteScales[selectedEstante]->x,    0.01f, 0.01f, 10.0f);
+
+if (ImGui::Button("Traer Estante frente a la camara")) {
+    *estantePositions[selectedEstante] = cameraPos + cameraFront * 2.0f;
+    estantePositions[selectedEstante]->y = -0.35f;
+    *estanteRotations[selectedEstante] = glm::vec3(0.0f, -90.0f, 0.0f);
+    *estanteScales[selectedEstante]    = glm::vec3(0.8f, 0.8f, 0.8f);
+}
+ImGui::Separator();
+
+ImGui::Text("Desk Model (6 Instancias)");
+static int selectedDesk = 0;
+const char *deskItems[] = {"Desk 1", "Desk 2", "Desk 3", "Desk 4", "Desk 5", "Desk 6"};
+ImGui::Combo("Seleccionar Desk", &selectedDesk, deskItems, IM_ARRAYSIZE(deskItems));
+
+glm::vec3 *deskPositions[] = {&deskPos, &desk2Pos, &desk3Pos, &desk4Pos, &desk5Pos, &desk6Pos};
+glm::vec3 *deskRotations[] = {&deskRot, &desk2Rot, &desk3Rot, &desk4Rot, &desk5Rot, &desk6Rot};
+glm::vec3 *deskScales[]    = {&deskScale, &desk2Scale, &desk3Scale, &desk4Scale, &desk5Scale, &desk6Scale};
+
+ImGui::DragFloat3("Desk Pos",   &deskPositions[selectedDesk]->x, 0.05f);
+ImGui::DragFloat3("Desk Rot",   &deskRotations[selectedDesk]->x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Desk Scale", &deskScales[selectedDesk]->x,    0.01f, 0.01f, 10.0f);
+
+if (ImGui::Button("Traer Desk frente a la camara")) {
+    *deskPositions[selectedDesk] = cameraPos + cameraFront * 2.0f;
+    deskPositions[selectedDesk]->y = -0.30f;
+    *deskRotations[selectedDesk] = glm::vec3(0.0f, -90.0f, 13.0f);
+    *deskScales[selectedDesk]    = glm::vec3(0.6f, 0.6f, 0.6f);
+}
+ImGui::Separator();
+
+ImGui::Text("Maquina");
+ImGui::DragFloat3("Maquina Pos",   &maquinaPos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Maquina Rot",   &maquinaRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Maquina Scale", &maquinaScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Maquina frente a la camara")) {
+    maquinaPos = cameraPos + cameraFront * 2.0f;
+    maquinaPos.y = 0.0f;
+    maquinaRot   = glm::vec3(0.0f, 0.0f, 180.0f);
+    maquinaScale = glm::vec3(0.5f, 0.5f, 0.5f);
+}
+ImGui::Separator();
+
         ImGui::End(); // End 'Editor Contencion'
       }
 
@@ -3438,7 +3476,9 @@ ImGui::Separator();
             "consola",     "panelControl", "warning", "esquineros",
             "cables_piso", "cables_techo", "barra",   "logo",
             "logo2", "camara", "servers", "terminal", "box-close", "box-open", "vault-door",
-            "escritorio", "mesa", "mini-lampara", "computer", "silla", "sillas"};
+            "escritorio", "mesa", "mini-lampara", "computer", "silla", "sillas", "desk", "estante", "sillita",
+            "maquina"
+        };
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
                      IM_ARRAYSIZE(availableModels));
@@ -3492,6 +3532,12 @@ ImGui::Separator();
           else if (newProp.modelName == "silla")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
             else if (newProp.modelName == "sillas")
+          newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "desk")
+          newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            else if (newProp.modelName == "estante")
+          newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            else if (newProp.modelName == "sillita")
           newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);

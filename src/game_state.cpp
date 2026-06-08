@@ -679,7 +679,8 @@ void loadLevelProps(const std::string& path) {
         placedProps.push_back({"esquineros2", glm::vec3(48.283f, -0.500f, 20.301f), glm::vec3(-2.500f, -144.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
         placedProps.push_back({"esquineros3", glm::vec3(34.683f, -0.500f, 12.581f), glm::vec3(-0.500f, 56.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.860f)});
         placedProps.push_back({"esquineros4", glm::vec3(34.833f, -0.550f, 20.451f), glm::vec3(0.500f, 120.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
-        
+ 
+
         saveLevelProps(path);
     }
 }
