@@ -541,7 +541,8 @@ void saveLevelProps(const std::string& path) {
                 << prop.pos.x << " " << prop.pos.y << " " << prop.pos.z << " "
                 << prop.rot.x << " " << prop.rot.y << " " << prop.rot.z << " "
                 << prop.scale.x << " " << prop.scale.y << " " << prop.scale.z << " "
-                << (prop.collisionActive ? 1 : 0) << "\n";
+                << (prop.collisionActive ? 1 : 0) << " "
+                << prop.area << "\n";
     }
     outFile.close();
     std::cout << "Mapa guardado exitosamente en: " << path << std::endl;
@@ -565,6 +566,13 @@ void loadLevelProps(const std::string& path) {
                 if (ss >> activeVal) {
                     prop.collisionActive = (activeVal != 0);
                 }
+                // Retrocompatible: si no hay area en el archivo, inferirla del modelo
+                std::string areaStr;
+                if (ss >> areaStr) {
+                    prop.area = areaStr;
+                } else {
+                    prop.area = getModelArea(prop.modelName);
+                }
                 placedProps.push_back(prop);
             }
         }
@@ -572,17 +580,21 @@ void loadLevelProps(const std::string& path) {
         std::cout << "Cargados " << placedProps.size() << " props desde: " << path << std::endl;
     } else {
         std::cout << "Archivo de posiciones no encontrado, cargando valores por defecto..." << std::endl;
-        placedProps.push_back({"cajonesOF", glm::vec3(8.0f, -0.5f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), false});
-        placedProps.push_back({"sarcofago", glm::vec3(43.235f, -0.100f, 12.691f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.260f, 1.060f, 0.930f)});
-        placedProps.push_back({"warning", glm::vec3(39.993f, 0.200f, 20.866f), glm::vec3(-89.000f, -180.000f, -0.500f), glm::vec3(1.410f, 0.950f, 1.570f)});
-        placedProps.push_back({"tesla", glm::vec3(47.950f, -0.500f, 14.400f), glm::vec3(-88.000f, 0.0f, 0.0f), glm::vec3(0.150f, 0.120f, 0.090f)});
-        placedProps.push_back({"reactor", glm::vec3(43.163f, -0.550f, 19.211f), glm::vec3(0.000f, 0.000f, 0.000f), glm::vec3(1.00f, 1.000f, 1.000f)});
-        placedProps.push_back({"panelControl", glm::vec3(48.350f, -0.500f, 17.450f), glm::vec3(-91.000f, 0.000f, -180.000f), glm::vec3(0.450f, 0.490f, 0.180f)});
-        placedProps.push_back({"consola", glm::vec3(40.613f, -0.200, 17.770f), glm::vec3(-90.000f, 0.000f, -147.500f), glm::vec3(0.890f, 0.730f, 0.280f)});
-        placedProps.push_back({"esquineros", glm::vec3(48.521f, -0.500f, 12.504f), glm::vec3(0.000f, -52.000f, 0.000f), glm::vec3(0.890f, 0.750f, 0.810f)});
-        placedProps.push_back({"esquineros2", glm::vec3(48.283f, -0.500f, 20.301f), glm::vec3(-2.500f, -144.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
-        placedProps.push_back({"esquineros3", glm::vec3(34.683f, -0.500f, 12.581f), glm::vec3(-0.500f, 56.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.860f)});
-        placedProps.push_back({"esquineros4", glm::vec3(34.833f, -0.550f, 20.451f), glm::vec3(0.500f, 120.000f, -0.500f), glm::vec3(0.890f, 0.760f, 0.610f)});
+        placedProps.push_back({"cajonesOF",      glm::vec3(8.0f,    -0.5f,  5.0f),   glm::vec3(0.0f, 0.0f, 0.0f),         glm::vec3(1.0f,   1.0f,  1.0f),  false, "Oficinas"});
+        placedProps.push_back({"sarcofago",       glm::vec3(43.235f, -0.100f,12.691f),glm::vec3(0.0f, 0.0f, 0.0f),         glm::vec3(1.260f, 1.060f,0.930f), true,  "Contencion"});
+        placedProps.push_back({"warning",         glm::vec3(39.993f,  0.200f,20.866f),glm::vec3(-89.000f,-180.000f,-0.500f),glm::vec3(1.410f, 0.950f,1.570f), true,  "Contencion"});
+        placedProps.push_back({"tesla",           glm::vec3(47.950f, -0.500f,14.400f),glm::vec3(-88.000f,  0.0f,  0.0f),   glm::vec3(0.150f, 0.120f,0.090f), true,  "Contencion"});
+        placedProps.push_back({"reactor",         glm::vec3(43.163f, -0.550f,19.211f),glm::vec3(0.000f, 0.000f, 0.000f),   glm::vec3(1.00f,  1.000f,1.000f), true,  "Contencion"});
+        placedProps.push_back({"panelControl",    glm::vec3(48.350f, -0.500f,17.450f),glm::vec3(-91.000f, 0.000f,-180.000f),glm::vec3(0.450f, 0.490f,0.180f), true,  "Contencion"});
+        placedProps.push_back({"consola",         glm::vec3(40.613f, -0.200, 17.770f),glm::vec3(-90.000f, 0.000f,-147.500f),glm::vec3(0.890f, 0.730f,0.280f), true,  "Contencion"});
+        placedProps.push_back({"esquineros",      glm::vec3(48.521f, -0.500f,12.504f),glm::vec3(0.000f, -52.000f, 0.000f),  glm::vec3(0.890f, 0.750f,0.810f), true,  "Contencion"});
+        placedProps.push_back({"esquineros2",     glm::vec3(48.283f, -0.500f,20.301f),glm::vec3(-2.500f,-144.000f,-0.500f), glm::vec3(0.890f, 0.760f,0.610f), true,  "Contencion"});
+        placedProps.push_back({"esquineros3",     glm::vec3(34.683f, -0.500f,12.581f),glm::vec3(-0.500f, 56.000f,-0.500f),  glm::vec3(0.890f, 0.760f,0.860f), true,  "Contencion"});
+        placedProps.push_back({"esquineros4",     glm::vec3(34.833f, -0.550f,20.451f),glm::vec3( 0.500f,120.000f,-0.500f),  glm::vec3(0.890f, 0.760f,0.610f), true,  "Contencion"});
+        placedProps.push_back({"lampara-reactor", glm::vec3(44.000f,  0.350f,18.607f),glm::vec3(-1.000f, 48.500f,-19.500f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
+        placedProps.push_back({"lampara-reactor", glm::vec3(43.900f,  0.400f,20.267f),glm::vec3( 0.000f,-50.000f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
+        placedProps.push_back({"lampara-reactor", glm::vec3(42.585f,  0.350f,19.796f),glm::vec3( 0.000f,-154.000f, 0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
+        placedProps.push_back({"lampara-reactor", glm::vec3(42.594f,  0.300f,18.620f),glm::vec3( 0.000f,149.500f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
         
         saveLevelProps(path);
     }

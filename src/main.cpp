@@ -414,6 +414,7 @@ int main() {
   modelRegistry["esquineros4"] = esquinerosGLTF;
   modelRegistry["cables_piso"] = cablePisoGLTF;
   modelRegistry["cables_techo"] = cableTechoGLTF;
+  modelRegistry["lampara-reactor"] = lamparaReactorGLTF;
 
   // Sala de Descanso
   modelRegistry["sillas"] = sillasGLTF;
@@ -1777,6 +1778,7 @@ int main() {
       // El modelo de luz (lampara baño) trae un offset de pivote de Blender y
       // debe brillar con el parpadeo, igual que las lamparas fijas.
       bool esLuzBano = (prop.modelName == "ligthbathroom");
+      bool esLamparaReactor = (prop.modelName == "lampara-reactor");
       float lampGlow = 0.0f;
       if (esLuzBano) {
         pModel = glm::translate(pModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
@@ -1788,10 +1790,12 @@ int main() {
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
       if (esLuzBano) glUniform1f(emissiveStrengthLoc, 1.5f * lampGlow);
+      if (esLamparaReactor) glUniform1f(emissiveStrengthLoc, 1.2f * lampFlicker);
+
       if (shouldRender(prop.pos.x, prop.pos.z, 3.0f)) {
         model->Draw(shaderProgram, solidColorLoc);
       }
-      if (esLuzBano) glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+      if (esLuzBano || esLamparaReactor) glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
     //*------------------
     if (cablePisoGLTF && !cablePisoGLTF->meshes.empty()) {
@@ -1902,60 +1906,6 @@ int main() {
           emergencyGLTF->Draw(shaderProgram, solidColorLoc);
         glUniform1f(emissiveStrengthLoc, 0.0f);
       }
-    }
-
-    if (lamparaReactorGLTF && !lamparaReactorGLTF->meshes.empty()) {
-      glm::mat4 lrModel = glm::mat4(1.0f);
-      lrModel = glm::translate(lrModel, lamparaReactorPos);
-      lrModel = glm::rotate(lrModel, glm::radians(lamparaReactorRot.x),
-                            glm::vec3(1.0f, 0.0f, 0.0f));
-      lrModel = glm::rotate(lrModel, glm::radians(lamparaReactorRot.y),
-                            glm::vec3(0.0f, 1.0f, 0.0f));
-      lrModel = glm::rotate(lrModel, glm::radians(lamparaReactorRot.z),
-                            glm::vec3(0.0f, 0.0f, 1.0f));
-      lrModel = glm::scale(lrModel, lamparaReactorScale);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel));
-      if (shouldRender(lamparaReactorPos.x, lamparaReactorPos.z, 3.0f))
-        lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
-
-      glm::mat4 lrModel2 = glm::mat4(1.0f);
-      lrModel2 = glm::translate(lrModel2, lamparaReactorPos2);
-      lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.x),
-                             glm::vec3(1.0f, 0.0f, 0.0f));
-      lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.y),
-                             glm::vec3(0.0f, 1.0f, 0.0f));
-      lrModel2 = glm::rotate(lrModel2, glm::radians(lamparaReactorRot2.z),
-                             glm::vec3(0.0f, 0.0f, 1.0f));
-      lrModel2 = glm::scale(lrModel2, lamparaReactorScale2);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel2));
-      if (shouldRender(lamparaReactorPos2.x, lamparaReactorPos2.z, 3.0f))
-        lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
-
-      glm::mat4 lrModel3 = glm::mat4(1.0f);
-      lrModel3 = glm::translate(lrModel3, lamparaReactorPos3);
-      lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.x),
-                             glm::vec3(1.0f, 0.0f, 0.0f));
-      lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.y),
-                             glm::vec3(0.0f, 1.0f, 0.0f));
-      lrModel3 = glm::rotate(lrModel3, glm::radians(lamparaReactorRot3.z),
-                             glm::vec3(0.0f, 0.0f, 1.0f));
-      lrModel3 = glm::scale(lrModel3, lamparaReactorScale3);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel3));
-      if (shouldRender(lamparaReactorPos3.x, lamparaReactorPos3.z, 3.0f))
-        lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
-
-      glm::mat4 lrModel4 = glm::mat4(1.0f);
-      lrModel4 = glm::translate(lrModel4, lamparaReactorPos4);
-      lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.x),
-                             glm::vec3(1.0f, 0.0f, 0.0f));
-      lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.y),
-                             glm::vec3(0.0f, 1.0f, 0.0f));
-      lrModel4 = glm::rotate(lrModel4, glm::radians(lamparaReactorRot4.z),
-                             glm::vec3(0.0f, 0.0f, 1.0f));
-      lrModel4 = glm::scale(lrModel4, lamparaReactorScale4);
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lrModel4));
-      if (shouldRender(lamparaReactorPos4.x, lamparaReactorPos4.z, 3.0f))
-        lamparaReactorGLTF->Draw(shaderProgram, solidColorLoc);
     }
 
     if (generadorGLTF && !generadorGLTF->meshes.empty()) {
@@ -3145,14 +3095,37 @@ int main() {
           selectedPropIdx = 0;
         }
 
-        // List of placed props
+        // --- FILTRO POR ÁREA ---
+        // Areas basadas en carpetas reales de assets/ que contienen .glb
+        static const char* kAreaNames[] = {
+            "Todas", "General", "Contencion", "Archivo", "Oficinas", "Descanso"
+        };
+        static int areaFilterIdx = 0; // 0 = Todas
+        ImGui::SetNextItemWidth(-1.0f);
+        ImGui::Combo("##AreaFiltro", &areaFilterIdx, kAreaNames, IM_ARRAYSIZE(kAreaNames));
+        ImGui::SameLine(0, 4);
+        ImGui::TextDisabled("Filtro de Área");
+        ImGui::Spacing();
+
+        // List of placed props (filtrada por área)
         if (ImGui::TreeNode("Objetos en Escena")) {
+          bool anyVisible = false;
           for (int i = 0; i < (int)placedProps.size(); ++i) {
-            std::string label =
-                std::to_string(i) + ": " + placedProps[i].modelName;
+            // Aplicar filtro: índice 0 = "Todas" muestra todo
+            if (areaFilterIdx != 0 &&
+                placedProps[i].area != kAreaNames[areaFilterIdx]) {
+              continue;
+            }
+            anyVisible = true;
+            std::string label = std::to_string(i) + ": [" +
+                                placedProps[i].area + "] " +
+                                placedProps[i].modelName;
             if (ImGui::Selectable(label.c_str(), selectedPropIdx == i)) {
               selectedPropIdx = i;
             }
+          }
+          if (!anyVisible) {
+            ImGui::TextDisabled("(Sin objetos en esta area)");
           }
           ImGui::TreePop();
         }
@@ -3167,6 +3140,21 @@ int main() {
           ImGui::DragFloat3("Rotación", &prop.rot.x, 0.5f, -180.0f, 180.0f);
           ImGui::DragFloat3("Escala", &prop.scale.x, 0.01f, 0.01f, 10.0f);
           ImGui::Checkbox("Activar Física/Colisión", &prop.collisionActive);
+
+          // Selector de área del prop seleccionado
+          int currentAreaIdx = 0;
+          for (int k = 0; k < IM_ARRAYSIZE(kAreaNames); ++k) {
+            if (prop.area == kAreaNames[k]) { currentAreaIdx = k; break; }
+          }
+          // Si el área guardada no está en la lista, usar índice 1 ("General")
+          if (currentAreaIdx == 0 && prop.area != "Todas") currentAreaIdx = 1;
+          ImGui::SetNextItemWidth(-1.0f);
+          if (ImGui::Combo("##AreaProp", &currentAreaIdx, kAreaNames + 1,
+                           IM_ARRAYSIZE(kAreaNames) - 1)) {
+            prop.area = kAreaNames[currentAreaIdx + 1];
+          }
+          ImGui::SameLine(0, 4);
+          ImGui::TextDisabled("Área del objeto");
 
           if (ImGui::Button("Traer frente a camara")) {
             prop.pos = cameraPos + cameraFront * 2.0f;
@@ -3200,11 +3188,23 @@ int main() {
         ImGui::TextColored(ImVec4(0.1f, 0.9f, 0.2f, 1.0f),
                            "Agregar Nuevo Objeto:");
         static const char *availableModels[] = {
-            "cajonesOF",   "gabinete",     "sarcofago",    "tesla",   "reactor",
-            "consola",     "panelControl", "warning", "esquineros",
-            "cables_piso", "cables_techo", "barra",   "logo",
-            "logo2", "camara", "servers", "terminal", "box-close", "box-open", "vault-door",
-            "escritorio", "mesa", "mini-lampara", "computer", "silla"};
+            // -- Contencion --
+            "barra", "cables_piso", "cables_techo", "consola", "emergency",
+            "esquineros", "generador", "lampara-reactor", "lampara", "lampara2",
+            "logo", "logo2", "panelControl", "reactor", "sarcofago", "tesla", "warning",
+            // -- Archivo --
+            "box-close", "box-open", "camara", "computer", "escritorio",
+            "gabinete", "mesa", "mini-lampara", "servers", "silla", "terminal", "vault-door",
+            // -- Oficinas --
+            "cajonesOF",
+            // -- Descanso --
+            "bunk_bed", "kirza_boots", "locker", "lockers",
+            "old_fire_extinguisher", "old_soviet_taxophone", "vintage_newspaper",
+            // -- General (raiz assets/) --
+            "Bano", "azule", "girlB", "gnome", "lavamanos", "ligthbathroom",
+            "machine_lab", "mensB", "metal_desk", "mirror", "MirrorBG",
+            "monitor", "sillas", "sofa", "urinario"
+        };
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
                      IM_ARRAYSIZE(availableModels));
@@ -3233,6 +3233,8 @@ int main() {
             newProp.scale = glm::vec3(0.01918f, 0.01918f, 0.01918f);
           else if (newProp.modelName == "cables_techo")
             newProp.scale = glm::vec3(-0.001557f, -0.001557f, -0.001557f);
+          else if (newProp.modelName == "lampara-reactor")
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "gabinete")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "camara")
@@ -3259,6 +3261,9 @@ int main() {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
+          // Asignar área: usa el filtro activo, o "General" si es "Todas"
+          newProp.area = (areaFilterIdx > 0) ? kAreaNames[areaFilterIdx] : "General";
 
           placedProps.push_back(newProp);
           selectedPropIdx = (int)placedProps.size() - 1;
