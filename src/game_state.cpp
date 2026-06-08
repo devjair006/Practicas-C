@@ -314,19 +314,19 @@ glm::vec3 consolaPos(40.613f, -0.200, 17.770f);
 glm::vec3 consolaRot(-90.000f, 0.000f, -147.500f);
 glm::vec3 consolaScale(0.890f, 0.730f, 0.280f);
 
-glm::vec3 lamparaReactorPos(44.000f, 0.350f, 18.607f);
+glm::vec3 lamparaReactorPos(44.000f, 0.350f, 15.157f);
 glm::vec3 lamparaReactorRot(-1.000f, 48.500f, -19.500f);
 glm::vec3 lamparaReactorScale(1.000f, 1.000f, 1.000f);
 
-glm::vec3 lamparaReactorPos2(43.900f, 0.400f, 20.267f);
+glm::vec3 lamparaReactorPos2(43.900f, 0.400f, 17.067f);
 glm::vec3 lamparaReactorRot2(0.000f, -50.000f, 0.000f);
 glm::vec3 lamparaReactorScale2(1.000f, 1.000f, 1.000f);
 
-glm::vec3 lamparaReactorPos3(42.585f, 0.350f, 19.796f);
+glm::vec3 lamparaReactorPos3(42.585f, 0.350f, 16.946f);
 glm::vec3 lamparaReactorRot3(0.000f, -154.000f, 0.000f);
 glm::vec3 lamparaReactorScale3(1.000f, 1.000f, 1.000f);
 
-glm::vec3 lamparaReactorPos4(42.594f, 0.300f, 18.620f);
+glm::vec3 lamparaReactorPos4(42.594f, 0.300f, 15.620f);
 glm::vec3 lamparaReactorRot4(0.000f, 149.500f, 0.000f);
 glm::vec3 lamparaReactorScale4(1.000f, 1.000f, 1.000f);
 
@@ -476,25 +476,25 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1,
-     1, 1, 1, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1},
+     1, 1, 1, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
@@ -584,17 +584,17 @@ void loadLevelProps(const std::string& path) {
         placedProps.push_back({"sarcofago",       glm::vec3(43.235f, -0.100f,12.691f),glm::vec3(0.0f, 0.0f, 0.0f),         glm::vec3(1.260f, 1.060f,0.930f), true,  "Contencion"});
         placedProps.push_back({"warning",         glm::vec3(39.993f,  0.200f,20.866f),glm::vec3(-89.000f,-180.000f,-0.500f),glm::vec3(1.410f, 0.950f,1.570f), true,  "Contencion"});
         placedProps.push_back({"tesla",           glm::vec3(47.950f, -0.500f,14.400f),glm::vec3(-88.000f,  0.0f,  0.0f),   glm::vec3(0.150f, 0.120f,0.090f), true,  "Contencion"});
-        placedProps.push_back({"reactor",         glm::vec3(43.163f, -0.550f,19.211f),glm::vec3(0.000f, 0.000f, 0.000f),   glm::vec3(1.00f,  1.000f,1.000f), true,  "Contencion"});
+        placedProps.push_back({"reactor",         glm::vec3(43.163f, -0.550f,16.111f),glm::vec3(0.000f, 0.000f, 0.000f),   glm::vec3(1.00f,  1.000f,1.000f), true,  "Contencion"});
         placedProps.push_back({"panelControl",    glm::vec3(48.350f, -0.500f,17.450f),glm::vec3(-91.000f, 0.000f,-180.000f),glm::vec3(0.450f, 0.490f,0.180f), true,  "Contencion"});
         placedProps.push_back({"consola",         glm::vec3(40.613f, -0.200, 17.770f),glm::vec3(-90.000f, 0.000f,-147.500f),glm::vec3(0.890f, 0.730f,0.280f), true,  "Contencion"});
         placedProps.push_back({"esquineros",      glm::vec3(48.521f, -0.500f,12.504f),glm::vec3(0.000f, -52.000f, 0.000f),  glm::vec3(0.890f, 0.750f,0.810f), true,  "Contencion"});
         placedProps.push_back({"esquineros2",     glm::vec3(48.283f, -0.500f,20.301f),glm::vec3(-2.500f,-144.000f,-0.500f), glm::vec3(0.890f, 0.760f,0.610f), true,  "Contencion"});
         placedProps.push_back({"esquineros3",     glm::vec3(34.683f, -0.500f,12.581f),glm::vec3(-0.500f, 56.000f,-0.500f),  glm::vec3(0.890f, 0.760f,0.860f), true,  "Contencion"});
         placedProps.push_back({"esquineros4",     glm::vec3(34.833f, -0.550f,20.451f),glm::vec3( 0.500f,120.000f,-0.500f),  glm::vec3(0.890f, 0.760f,0.610f), true,  "Contencion"});
-        placedProps.push_back({"lampara-reactor", glm::vec3(44.000f,  0.350f,18.607f),glm::vec3(-1.000f, 48.500f,-19.500f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
-        placedProps.push_back({"lampara-reactor", glm::vec3(43.900f,  0.400f,20.267f),glm::vec3( 0.000f,-50.000f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
-        placedProps.push_back({"lampara-reactor", glm::vec3(42.585f,  0.350f,19.796f),glm::vec3( 0.000f,-154.000f, 0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
-        placedProps.push_back({"lampara-reactor", glm::vec3(42.594f,  0.300f,18.620f),glm::vec3( 0.000f,149.500f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
+        placedProps.push_back({"lampara-reactor", glm::vec3(44.000f,  0.350f,15.157f),glm::vec3(-1.000f, 48.500f,-19.500f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
+        placedProps.push_back({"lampara-reactor", glm::vec3(43.900f,  0.400f,17.067f),glm::vec3( 0.000f,-50.000f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
+        placedProps.push_back({"lampara-reactor", glm::vec3(42.585f,  0.350f,16.946f),glm::vec3( 0.000f,-154.000f, 0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
+        placedProps.push_back({"lampara-reactor", glm::vec3(42.594f,  0.300f,15.620f),glm::vec3( 0.000f,149.500f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
         
         saveLevelProps(path);
     }
