@@ -155,6 +155,74 @@ glm::vec3 monitorPos = glm::vec3(32.75f, 0.0f, 5.2f);
 glm::vec3 monitorRot = glm::vec3(0.0f, -180.0f, 0.0f);
 glm::vec3 monitorScale = glm::vec3(1.5f, 1.5f, 1.5f);
 
+glm::vec3 monitor2Pos = glm::vec3(13.4f, 0.0f, 5.2f); 
+glm::vec3 monitor2Rot = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 monitor2Scale = glm::vec3(1.5f, 1.5f, 1.5f);
+
+glm::vec3 maquinaPos = glm::vec3(30.38f, 0.0f, 7.8f); 
+glm::vec3 maquinaRot = glm::vec3(0.0f, 0.0f, 180.0f); 
+glm::vec3 maquinaScale = glm::vec3(0.5f, 0.5f, 0.5f);  
+
+glm::vec3 deskPos = glm::vec3(15.600f, -0.300f, 3.000f); 
+glm::vec3 deskRot = glm::vec3(0.0f, -90.0f, 13.0f);            
+glm::vec3 deskScale = glm::vec3(0.60f, 0.60f, 0.60f);    
+
+glm::vec3 desk2Pos = glm::vec3(17.600f, -0.300f, 3.000f); 
+glm::vec3 desk2Rot = glm::vec3(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk2Scale = glm::vec3(0.600f, 0.600f, 0.600f);
+
+glm::vec3 desk3Pos = glm::vec3(15.600f, -0.300f, 5.300f); 
+glm::vec3 desk3Rot = glm::vec3(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk3Scale = glm::vec3(0.600f, 0.600f, 0.600f);    
+
+glm::vec3 desk4Pos = glm::vec3(17.400f, -0.300f, 5.300f); 
+glm::vec3 desk4Rot = glm::vec3(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk4Scale = glm::vec3(0.600f, 0.600f, 0.600f);
+
+glm::vec3 desk5Pos = glm::vec3(19.400f, -0.300f, 5.200f); 
+glm::vec3 desk5Rot = glm::vec3(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk5Scale = glm::vec3(0.600f, 0.600f, 0.600f);    
+
+glm::vec3 desk6Pos = glm::vec3(19.400f, -0.300f, 3.000f); 
+glm::vec3 desk6Rot = glm::vec3(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk6Scale = glm::vec3(0.600f, 0.600f, 0.600f);
+
+glm::vec3 sillita1Pos = glm::vec3(15.600f, -0.300f, 2.500f);
+glm::vec3 sillita1Rot = glm::vec3(0.0f, -90.0f, 0.0f);
+glm::vec3 sillita1Scale = glm::vec3(0.600f, 0.600f, 0.600f);
+
+glm::vec3 sillita2Pos = glm::vec3(17.600f, -0.300f, 2.500f);
+glm::vec3 sillita2Rot = glm::vec3(0.0f, -90.0f, 0.0f);
+glm::vec3 sillita2Scale = glm::vec3(0.600f, 0.600f, 0.600f);
+
+glm::vec3 sillita3Pos = glm::vec3(15.600f, -0.300f, 4.800f);
+glm::vec3 sillita3Rot = glm::vec3(0.0f, -90.0f, 0.0f);
+glm::vec3 sillita3Scale = glm::vec3(0.600f, 0.600f, 0.600f);
+
+glm::vec3 sillita4Pos = glm::vec3(17.400f, -0.300f, 4.800f);
+glm::vec3 sillita4Rot = glm::vec3(0.0f, -90.0f, 0.0f);
+glm::vec3 sillita4Scale = glm::vec3(0.600f, 0.600f, 0.600f);
+
+glm::vec3 sillita5Pos = glm::vec3(19.400f, -0.300f, 2.500f);
+glm::vec3 sillita5Rot = glm::vec3(0.0f, -90.0f, 0.0f);
+glm::vec3 sillita5Scale = glm::vec3(0.600f, 0.600f, 0.600f);
+
+glm::vec3 sillita6Pos = glm::vec3(19.400f, -0.300f, 4.800f);
+glm::vec3 sillita6Rot = glm::vec3(0.0f, -90.0f, 0.0f);
+glm::vec3 sillita6Scale = glm::vec3(0.600f, 0.600f, 0.600f);
+
+glm::vec3 estantePos = glm::vec3(15.4f, -0.35f, 1.7f); 
+glm::vec3 estanteRot = glm::vec3(0.0f, -90.0f, 0.0f);   
+glm::vec3 estanteScale = glm::vec3(0.8f, 0.8f, 0.8f);
+
+glm::vec3 estante2Pos = glm::vec3(17.4f, -0.35f, 1.7f); 
+glm::vec3 estante2Rot = glm::vec3(0.0f, -90.0f, 0.0f);   
+glm::vec3 estante2Scale = glm::vec3(0.8f, 0.8f, 0.8f);
+
+glm::vec3 estante3Pos = glm::vec3(19.5f, -0.35f, 1.7f);
+glm::vec3 estante3Rot = glm::vec3(0.0f, -90.0f, 0.0f);
+glm::vec3 estante3Scale = glm::vec3(0.8f, 0.8f, 0.8f);
+
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -236,6 +304,10 @@ GLTFModel *logo2GLTF = nullptr;
 GLTFModel *cablePisoGLTF = nullptr;
 GLTFModel *cableTechoGLTF = nullptr;
 GLTFModel *warningGLTF = nullptr;
+GLTFModel *sillitaGLTF = nullptr;
+GLTFModel *maquinaGLTF = nullptr;
+GLTFModel *deskGLTF = nullptr;
+GLTFModel *estanteGLTF = nullptr;
 
 glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
 glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);
