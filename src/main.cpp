@@ -356,6 +356,11 @@ int main() {
   miniLamparaGLTF = new GLTFModel("assets/archivo/mini-lampara.glb");
   computerGLTF = new GLTFModel("assets/archivo/computer.glb");
   sillaGLTF = new GLTFModel("assets/archivo/silla.glb");
+  monitorGLTF = new GLTFModel("assets/monitor.glb");
+  deskGLTF = new GLTFModel("assets/desk.glb");
+  estanteGLTF = new GLTFModel("assets/estante.glb");
+  sillitaGLTF = new GLTFModel("assets/sillita.glb");
+  maquinaGLTF = new GLTFModel("assets/maquina.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
   GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
   GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
@@ -418,8 +423,12 @@ int main() {
 
   // Sala de Descanso
   modelRegistry["sillas"] = sillasGLTF;
+  modelRegistry["sillita"] = sillitaGLTF;
+  modelRegistry["desk"] = deskGLTF;
+  modelRegistry["monitor"] = monitorGLTF;
   modelRegistry["metal_desk"] = metalDeskGLTF;
   modelRegistry["sofa"] = sofaGLTF;
+  modelRegistry["maquina"] = maquinaGLTF;
   modelRegistry["litera"] = literaGLTF;
   modelRegistry["locker"] = lockerGLTF;
   modelRegistry["extintor"] = extintorGLTF;
@@ -430,6 +439,7 @@ int main() {
   modelRegistry["old_fire_extinguisher"] = fireExtinguisherGLTF;
   modelRegistry["old_soviet_taxophone"] = taxophoneGLTF;
   modelRegistry["vintage_newspaper"] = newspaperGLTF;
+  modelRegistry["estante"] = estanteGLTF;
   // Modelo de luz (lampara estilo baño) disponible en el editor de niveles
   modelRegistry["ligthbathroom"] = ligthbathroomGLTF;
 
@@ -1798,6 +1808,122 @@ int main() {
       if (esLuzBano || esLamparaReactor) glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
     //*------------------
+
+    if (monitorGLTF && !monitorGLTF->meshes.empty()) {
+      std::vector<glm::mat4> instanceModels;
+
+      glm::vec3 positions[2] = {monitorPos, monitor2Pos};
+      glm::vec3 rotations[2] = {monitorRot, monitor2Rot};
+      glm::vec3 scales[2]    = {monitorScale, monitor2Scale};
+
+      for (int i = 0; i < 2; i++) {
+        if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
+          glm::mat4 model = glm::mat4(1.0f);
+          model = glm::translate(model, positions[i]);
+          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::scale(model, scales[i]);
+          instanceModels.push_back(model);
+        }
+      }
+
+      if (!instanceModels.empty())
+        monitorGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
+    }
+
+    if (deskGLTF && !deskGLTF->meshes.empty()) {
+      std::vector<glm::mat4> instanceModels;
+
+      glm::vec3 positions[6] = {deskPos, desk2Pos, desk3Pos, desk4Pos, desk5Pos, desk6Pos};
+      glm::vec3 rotations[6] = {deskRot, desk2Rot, desk3Rot, desk4Rot, desk5Rot, desk6Rot};
+      glm::vec3 scales[6]    = {deskScale, desk2Scale, desk3Scale, desk4Scale, desk5Scale, desk6Scale};
+
+      for (int i = 0; i < 6; i++) {
+        if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
+          glm::mat4 model = glm::mat4(1.0f);
+          model = glm::translate(model, positions[i]);
+          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::scale(model, scales[i]);
+          instanceModels.push_back(model);
+        }
+      }
+
+      if (!instanceModels.empty())
+        deskGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
+    }
+
+    if (estanteGLTF && !estanteGLTF->meshes.empty()) {
+      std::vector<glm::mat4> instanceModels;
+
+      glm::vec3 positions[3] = {estantePos, estante2Pos, estante3Pos};
+      glm::vec3 rotations[3] = {estanteRot, estante2Rot, estante3Rot};
+      glm::vec3 scales[3]    = {estanteScale, estante2Scale, estante3Scale};
+
+      for (int i = 0; i < 3; i++) {
+        if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
+          glm::mat4 model = glm::mat4(1.0f);
+          model = glm::translate(model, positions[i]);
+          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::scale(model, scales[i]);
+          instanceModels.push_back(model);
+        }
+      }
+
+      if (!instanceModels.empty())
+        estanteGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
+    }
+
+    if (sillitaGLTF && !sillitaGLTF->meshes.empty()) {
+      std::vector<glm::mat4> instanceModels;
+
+      glm::vec3 positions[6] = {sillita1Pos, sillita2Pos, sillita3Pos, sillita4Pos, sillita5Pos, sillita6Pos};
+      glm::vec3 rotations[6] = {sillita1Rot, sillita2Rot, sillita3Rot, sillita4Rot, sillita5Rot, sillita6Rot};
+      glm::vec3 scales[6]    = {sillita1Scale, sillita2Scale, sillita3Scale, sillita4Scale, sillita5Scale, sillita6Scale};
+
+      for (int i = 0; i < 6; i++) {
+        if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
+          glm::mat4 model = glm::mat4(1.0f);
+          model = glm::translate(model, positions[i]);
+          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::scale(model, scales[i]);
+          instanceModels.push_back(model);
+        }
+      }
+
+      if (!instanceModels.empty())
+        sillitaGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
+    }
+
+    if (maquinaGLTF && !maquinaGLTF->meshes.empty()) {
+      std::vector<glm::mat4> instanceModels;
+
+      glm::vec3 positions[1] = {maquinaPos};
+      glm::vec3 rotations[1] = {maquinaRot};
+      glm::vec3 scales[1]    = {maquinaScale};
+
+      for (int i = 0; i < 1; i++) {
+        if (shouldRender(positions[i].x, positions[i].z, 3.0f)) {
+          glm::mat4 model = glm::mat4(1.0f);
+          model = glm::translate(model, positions[i]);
+          model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+          model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+          model = glm::scale(model, scales[i]);
+          instanceModels.push_back(model);
+        }
+      }
+
+      if (!instanceModels.empty())
+        maquinaGLTF->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
+    }
+
     if (cablePisoGLTF && !cablePisoGLTF->meshes.empty()) {
       for (size_t i = 0; i < cablePisoPos.size(); i++) {
         glm::mat4 cpModel = glm::mat4(1.0f);
