@@ -39,7 +39,7 @@ struct SpotLight {
     float outerCutOff;
     float radius;
 };
-#define MAX_SPOT_LIGHTS 4
+#define MAX_SPOT_LIGHTS 12
 uniform int numSpotLights;
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 
