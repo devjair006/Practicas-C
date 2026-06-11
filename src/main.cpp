@@ -361,6 +361,7 @@ int main() {
   estanteGLTF = new GLTFModel("assets/estante.glb");
   sillitaGLTF = new GLTFModel("assets/sillita.glb");
   maquinaGLTF = new GLTFModel("assets/maquina.glb");
+  machineLabGLTF = new GLTFModel("assets/machine_lab.glb");
   estantesGLTF = new GLTFModel("assets/muestras/estantes.glb");
   morguefridgeGLTF = new GLTFModel("assets/muestras/morguefridge.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
@@ -423,6 +424,10 @@ int main() {
   modelRegistry["cables_piso"] = cablePisoGLTF;
   modelRegistry["cables_techo"] = cableTechoGLTF;
   modelRegistry["lampara-reactor"] = lamparaReactorGLTF;
+  modelRegistry["emergency"] = emergencyGLTF;
+  modelRegistry["generador"] = generadorGLTF;
+  modelRegistry["lampara"] = lamparaContencionGLTF;
+  modelRegistry["lampara2"] = lampara2GLTF;
 
   // Sala de Descanso
   modelRegistry["sillas"] = sillasGLTF;
@@ -446,6 +451,17 @@ int main() {
   modelRegistry["estante"] = estanteGLTF;
   modelRegistry["estantes"] = estantesGLTF;
   modelRegistry["morguefridge"] = morguefridgeGLTF;
+  // Modelos generales/baño
+  modelRegistry["Bano"] = banoGLTF;
+  modelRegistry["azule"] = azulejoGLTF;
+  modelRegistry["girlB"] = girlBGLTF;
+  modelRegistry["gnome"] = gnomeGLTF;
+  modelRegistry["lavamanos"] = lavamanosGLTF;
+  modelRegistry["mensB"] = mensBGLTF;
+  modelRegistry["mirror"] = mirrorGLTF;
+  modelRegistry["MirrorBG"] = mirrorBGGLTF;
+  modelRegistry["urinario"] = urinarioGLTF;
+
   // Modelo de luz (lampara estilo baño) disponible en el editor de niveles
   modelRegistry["ligthbathroom"] = ligthbathroomGLTF;
 
@@ -1154,6 +1170,37 @@ int main() {
       }
     }
 
+    // 3. SPOTLIGHTS PARA LUCES DE EMERGENCIA (Archivo y dinámicas)
+    for (const auto &prop : placedProps) {
+      if (spotIdx >= 12)
+        break;
+      if (prop.modelName == "emergency") {
+        glm::mat4 rotMat = glm::mat4(1.0f);
+        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.x),
+                             glm::vec3(1.0f, 0.0f, 0.0f));
+        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.y),
+                             glm::vec3(0.0f, 1.0f, 0.0f));
+        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.z),
+                             glm::vec3(0.0f, 0.0f, 1.0f));
+
+        // Dirección: El frente del modelo suele ser -Z
+        glm::vec3 dir = glm::normalize(
+            glm::vec3(rotMat * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
+
+        // Posición: Desplazada un poco hacia adelante para evitar la pared
+        glm::vec3 offsetPos = prop.pos + dir * 0.15f;
+
+        glUniform3fv(spotLightPosLoc[spotIdx], 1, glm::value_ptr(offsetPos));
+        glUniform3fv(spotLightDirLoc[spotIdx], 1, glm::value_ptr(dir));
+        glUniform3f(spotLightColLoc[spotIdx], 1.0f * emergencyPulse, 0.0f, 0.0f);
+        glUniform1f(spotLightCutOffLoc[spotIdx], glm::cos(glm::radians(50.0f)));
+        glUniform1f(spotLightOuterCutOffLoc[spotIdx],
+                    glm::cos(glm::radians(80.0f)));
+        glUniform1f(spotLightRadLoc[spotIdx], 2.5f); // Radio corto
+        spotIdx++;
+      }
+    }
+
     glUniform1i(numSpotLightsLoc, spotIdx);
 
     // Limpiar uniformes no usados
@@ -1848,6 +1895,7 @@ int main() {
       bool esLuzBano = (prop.modelName == "ligthbathroom");
       bool esLamparaReactor = (prop.modelName == "lampara-reactor");
       bool esMiniLampara = (prop.modelName == "mini-lampara");
+      bool esEmergency = (prop.modelName == "emergency");
       float lampGlow = 0.0f;
       float miniLampFlicker = 1.0f;
 
@@ -1870,11 +1918,12 @@ int main() {
       if (esLuzBano) glUniform1f(emissiveStrengthLoc, 1.5f * lampGlow);
       if (esLamparaReactor) glUniform1f(emissiveStrengthLoc, 1.2f * lampFlicker);
       if (esMiniLampara) glUniform1f(emissiveStrengthLoc, 1.3f * miniLampFlicker);
+      if (esEmergency) glUniform1f(emissiveStrengthLoc, 4.0f * emergencyPulse);
 
       if (shouldRender(prop.pos.x, prop.pos.z, 3.0f)) {
         model->Draw(shaderProgram, solidColorLoc);
       }
-      if (esLuzBano || esLamparaReactor || esMiniLampara) glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+      if (esLuzBano || esLamparaReactor || esMiniLampara || esEmergency) glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
     //*------------------
 

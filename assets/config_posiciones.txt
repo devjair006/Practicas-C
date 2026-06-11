@@ -156,3 +156,6 @@ estante_cajas 0.35 -0.15 6.157 -90 1 86.5 0.01 0.01 0.01 1 Descanso
 expendedora 3.337 -0.5 8.64 -91 0 -178.5 0.5 0.5 0.5 1 Descanso
 expendedora 2.737 -0.5 8.64 -91 0 -178.5 0.5 0.5 0.5 1 Descanso
 estante_cajas 12.65 -0.15 5.407 -90 0 -90 0.01 0.01 0.01 1 Descanso
+emergency 48.955 0.3 6.698 2 -4 91.5 1 1 1 1 Archivo
+emergency 48.955 0.3 5.298 2 -4 93.5 1 1 1 1 Archivo
+emergency 41.105 0.3 6.148 2 180 91.5 1 1 1 1 Archivo
