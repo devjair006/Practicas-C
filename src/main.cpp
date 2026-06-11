@@ -361,6 +361,7 @@ int main() {
   estanteGLTF = new GLTFModel("assets/estante.glb");
   sillitaGLTF = new GLTFModel("assets/sillita.glb");
   maquinaGLTF = new GLTFModel("assets/maquina.glb");
+  machineLabGLTF = new GLTFModel("assets/machine_lab.glb");
   estantesGLTF = new GLTFModel("assets/muestras/estantes.glb");
   morguefridgeGLTF = new GLTFModel("assets/muestras/morguefridge.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
@@ -423,6 +424,10 @@ int main() {
   modelRegistry["cables_piso"] = cablePisoGLTF;
   modelRegistry["cables_techo"] = cableTechoGLTF;
   modelRegistry["lampara-reactor"] = lamparaReactorGLTF;
+  modelRegistry["emergency"] = emergencyGLTF;
+  modelRegistry["generador"] = generadorGLTF;
+  modelRegistry["lampara"] = lamparaContencionGLTF;
+  modelRegistry["lampara2"] = lampara2GLTF;
 
   // Sala de Descanso
   modelRegistry["sillas"] = sillasGLTF;
@@ -446,6 +451,17 @@ int main() {
   modelRegistry["estante"] = estanteGLTF;
   modelRegistry["estantes"] = estantesGLTF;
   modelRegistry["morguefridge"] = morguefridgeGLTF;
+  // Modelos generales/baño
+  modelRegistry["Bano"] = banoGLTF;
+  modelRegistry["azule"] = azulejoGLTF;
+  modelRegistry["girlB"] = girlBGLTF;
+  modelRegistry["gnome"] = gnomeGLTF;
+  modelRegistry["lavamanos"] = lavamanosGLTF;
+  modelRegistry["mensB"] = mensBGLTF;
+  modelRegistry["mirror"] = mirrorGLTF;
+  modelRegistry["MirrorBG"] = mirrorBGGLTF;
+  modelRegistry["urinario"] = urinarioGLTF;
+
   // Modelo de luz (lampara estilo baño) disponible en el editor de niveles
   modelRegistry["ligthbathroom"] = ligthbathroomGLTF;
 
@@ -563,13 +579,13 @@ int main() {
   }
 
   int numSpotLightsLoc = glGetUniformLocation(shaderProgram, "numSpotLights");
-  int spotLightPosLoc[4];
-  int spotLightDirLoc[4];
-  int spotLightColLoc[4];
-  int spotLightCutOffLoc[4];
-  int spotLightOuterCutOffLoc[4];
-  int spotLightRadLoc[4];
-  for (int i = 0; i < 4; i++) {
+  int spotLightPosLoc[12];
+  int spotLightDirLoc[12];
+  int spotLightColLoc[12];
+  int spotLightCutOffLoc[12];
+  int spotLightOuterCutOffLoc[12];
+  int spotLightRadLoc[12];
+  for (int i = 0; i < 12; i++) {
     std::string base = "spotLights[" + std::to_string(i) + "]";
     spotLightPosLoc[i] =
         glGetUniformLocation(shaderProgram, (base + ".position").c_str());
@@ -1052,7 +1068,7 @@ int main() {
     glUniform3fv(pointLightPosLoc[11], 1, glm::value_ptr(teslaPos));
     glUniform3f(pointLightColLoc[11], 0.2f * teslaPulse, 0.4f * teslaPulse,
                 1.0f * teslaPulse);
-    glUniform1f(pointLightRadLoc[11], 5.0f);
+    glUniform1f(pointLightRadLoc[11], 4.0f); // Radio reducido (era 5.0)
 
     // --- LUCES PARPADEANTES SALA DE DESCANSO (estilo baño, indices 12 y 13) ---
     float flickerDescanso1 = getFlicker(currentFrame, 7.3f);
@@ -1096,14 +1112,16 @@ int main() {
       glUniform1f(pointLightRadLoc[i], 0.0f);
     }
 
-    // --- SPOTLIGHTS PARA LÁMPARAS DE REACTOR ---
-    glUniform1i(numSpotLightsLoc, 4);
+    // --- SPOTLIGHTS (Max 12) ---
+    int spotIdx = 0;
+
+    // 1. LÁMPARAS DE REACTOR (4 fijas)
     glm::vec3 lp[4] = {lamparaReactorPos, lamparaReactorPos2,
                        lamparaReactorPos3, lamparaReactorPos4};
     glm::vec3 lr[4] = {lamparaReactorRot, lamparaReactorRot2,
                        lamparaReactorRot3, lamparaReactorRot4};
-    for (int i = 0; i < 4; i++) {
-      glUniform3fv(spotLightPosLoc[i], 1, glm::value_ptr(lp[i]));
+    for (int i = 0; i < 4 && spotIdx < 12; i++) {
+      glUniform3fv(spotLightPosLoc[spotIdx], 1, glm::value_ptr(lp[i]));
 
       glm::mat4 rotMat = glm::mat4(1.0f);
       rotMat = glm::rotate(rotMat, glm::radians(lr[i].x),
@@ -1115,11 +1133,80 @@ int main() {
       glm::vec3 dir = glm::normalize(
           glm::vec3(rotMat * glm::vec4(0.0f, -1.0f, 0.0f, 0.0f)));
 
-      glUniform3fv(spotLightDirLoc[i], 1, glm::value_ptr(dir));
-      glUniform3f(spotLightColLoc[i], 1.0f, 0.9f, 0.6f); // Warm yellow
-      glUniform1f(spotLightCutOffLoc[i], glm::cos(glm::radians(25.0f)));
-      glUniform1f(spotLightOuterCutOffLoc[i], glm::cos(glm::radians(35.0f)));
-      glUniform1f(spotLightRadLoc[i], 20.0f);
+      glUniform3fv(spotLightDirLoc[spotIdx], 1, glm::value_ptr(dir));
+      glUniform3f(spotLightColLoc[spotIdx], 1.0f, 0.9f, 0.6f); // Warm yellow
+      glUniform1f(spotLightCutOffLoc[spotIdx], glm::cos(glm::radians(25.0f)));
+      glUniform1f(spotLightOuterCutOffLoc[spotIdx], glm::cos(glm::radians(35.0f)));
+      glUniform1f(spotLightRadLoc[spotIdx], 6.0f); // Alcance reducido (era 20.0)
+      spotIdx++;
+    }
+
+    // 2. SPOTLIGHTS PARA MINI-LAMPARAS (Archivo)
+    int miniLampCount = 0;
+    for (const auto &prop : placedProps) {
+      if (spotIdx >= 12) break;
+      if (prop.modelName == "mini-lampara") {
+        // La luz sale un poco por encima de la base
+        glUniform3fv(spotLightPosLoc[spotIdx], 1, glm::value_ptr(prop.pos + glm::vec3(0.0f, 0.35f, 0.0f)));
+
+        glm::mat4 rotMat = glm::mat4(1.0f);
+        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        
+        // Dirección: la mini-lampara suele apuntar hacia adelante y abajo
+        glm::vec3 dir = glm::normalize(glm::vec3(rotMat * glm::vec4(0.0f, -0.7f, -1.0f, 0.0f)));
+
+        float flicker = 1.0f;
+        if (miniLampCount < 2) flicker = getFlicker(currentFrame, miniLampCount * 23.4f);
+
+        glUniform3fv(spotLightDirLoc[spotIdx], 1, glm::value_ptr(dir));
+        glUniform3f(spotLightColLoc[spotIdx], 1.0f * flicker, 0.95f * flicker, 0.7f * flicker); // Amarillento
+        glUniform1f(spotLightCutOffLoc[spotIdx], glm::cos(glm::radians(35.0f)));
+        glUniform1f(spotLightOuterCutOffLoc[spotIdx], glm::cos(glm::radians(50.0f)));
+        glUniform1f(spotLightRadLoc[spotIdx], 2.5f); // Alcance muy reducido (era 4.0)
+        spotIdx++;
+        miniLampCount++;
+      }
+    }
+
+    // 3. SPOTLIGHTS PARA LUCES DE EMERGENCIA (Archivo y dinámicas)
+    for (const auto &prop : placedProps) {
+      if (spotIdx >= 12)
+        break;
+      if (prop.modelName == "emergency") {
+        glm::mat4 rotMat = glm::mat4(1.0f);
+        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.x),
+                             glm::vec3(1.0f, 0.0f, 0.0f));
+        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.y),
+                             glm::vec3(0.0f, 1.0f, 0.0f));
+        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.z),
+                             glm::vec3(0.0f, 0.0f, 1.0f));
+
+        // Dirección: El frente del modelo suele ser -Z
+        glm::vec3 dir = glm::normalize(
+            glm::vec3(rotMat * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
+
+        // Posición: Desplazada un poco hacia adelante para evitar la pared
+        glm::vec3 offsetPos = prop.pos + dir * 0.15f;
+
+        glUniform3fv(spotLightPosLoc[spotIdx], 1, glm::value_ptr(offsetPos));
+        glUniform3fv(spotLightDirLoc[spotIdx], 1, glm::value_ptr(dir));
+        glUniform3f(spotLightColLoc[spotIdx], 1.0f * emergencyPulse, 0.0f, 0.0f);
+        glUniform1f(spotLightCutOffLoc[spotIdx], glm::cos(glm::radians(50.0f)));
+        glUniform1f(spotLightOuterCutOffLoc[spotIdx],
+                    glm::cos(glm::radians(80.0f)));
+        glUniform1f(spotLightRadLoc[spotIdx], 2.5f); // Radio corto
+        spotIdx++;
+      }
+    }
+
+    glUniform1i(numSpotLightsLoc, spotIdx);
+
+    // Limpiar uniformes no usados
+    for (int i = spotIdx; i < 12; i++) {
+        glUniform3f(spotLightColLoc[i], 0.0f, 0.0f, 0.0f);
+        glUniform1f(spotLightRadLoc[i], 0.0f);
     }
 
     // --- CULLING HELPER ---
@@ -1777,6 +1864,8 @@ int main() {
 
     // --- BUCLE DINAMICO DE RENDERING DE PROPS ---
     int editorLampDrawIdx = kEditorLightBaseIdx; // sincroniza glow con su luz
+    int miniLampDrawCount = 0;
+    int cameraAnimCount = 0;
     for (const auto& prop : placedProps) {
       GLTFModel* model = modelRegistry[prop.modelName];
       if (!model || model->meshes.empty()) continue;
@@ -1785,7 +1874,17 @@ int main() {
       pModel = glm::translate(pModel, prop.pos);
       pModel = glm::rotate(pModel, glm::radians(prop.rot.x),
                            glm::vec3(1.0f, 0.0f, 0.0f));
-      pModel = glm::rotate(pModel, glm::radians(prop.rot.y),
+      
+      float finalRotY = prop.rot.y;
+      if (prop.modelName == "camara") {
+        if (cameraAnimCount < 3) {
+          // Paneo suave de +-40 grados desincronizado por posicion X
+          finalRotY += 40.0f * sin(currentFrame * 0.75f + prop.pos.x);
+        }
+        cameraAnimCount++;
+      }
+
+      pModel = glm::rotate(pModel, glm::radians(finalRotY),
                            glm::vec3(0.0f, 1.0f, 0.0f));
       pModel = glm::rotate(pModel, glm::radians(prop.rot.z),
                            glm::vec3(0.0f, 0.0f, 1.0f));
@@ -1795,7 +1894,11 @@ int main() {
       // debe brillar con el parpadeo, igual que las lamparas fijas.
       bool esLuzBano = (prop.modelName == "ligthbathroom");
       bool esLamparaReactor = (prop.modelName == "lampara-reactor");
+      bool esMiniLampara = (prop.modelName == "mini-lampara");
+      bool esEmergency = (prop.modelName == "emergency");
       float lampGlow = 0.0f;
+      float miniLampFlicker = 1.0f;
+
       if (esLuzBano) {
         pModel = glm::translate(pModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
         // Mismo parpadeo que la luz puntual asociada (mismo offset por indice)
@@ -1804,14 +1907,23 @@ int main() {
         editorLampDrawIdx++;
       }
 
+      if (esMiniLampara) {
+        if (miniLampDrawCount < 2) {
+            miniLampFlicker = getFlicker(currentFrame, miniLampDrawCount * 23.4f);
+        }
+        miniLampDrawCount++;
+      }
+
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
       if (esLuzBano) glUniform1f(emissiveStrengthLoc, 1.5f * lampGlow);
       if (esLamparaReactor) glUniform1f(emissiveStrengthLoc, 1.2f * lampFlicker);
+      if (esMiniLampara) glUniform1f(emissiveStrengthLoc, 1.3f * miniLampFlicker);
+      if (esEmergency) glUniform1f(emissiveStrengthLoc, 4.0f * emergencyPulse);
 
       if (shouldRender(prop.pos.x, prop.pos.z, 3.0f)) {
         model->Draw(shaderProgram, solidColorLoc);
       }
-      if (esLuzBano || esLamparaReactor) glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+      if (esLuzBano || esLamparaReactor || esMiniLampara || esEmergency) glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
     //*------------------
 
