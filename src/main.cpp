@@ -361,6 +361,8 @@ int main() {
   estanteGLTF = new GLTFModel("assets/estante.glb");
   sillitaGLTF = new GLTFModel("assets/sillita.glb");
   maquinaGLTF = new GLTFModel("assets/maquina.glb");
+  estantesGLTF = new GLTFModel("assets/muestras/estantes.glb");
+  morguefridgeGLTF = new GLTFModel("assets/muestras/morguefridge.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
   GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
   GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
@@ -440,6 +442,8 @@ int main() {
   modelRegistry["old_soviet_taxophone"] = taxophoneGLTF;
   modelRegistry["vintage_newspaper"] = newspaperGLTF;
   modelRegistry["estante"] = estanteGLTF;
+  modelRegistry["estantes"] = estantesGLTF;
+  modelRegistry["morguefridge"] = morguefridgeGLTF;
   // Modelo de luz (lampara estilo baño) disponible en el editor de niveles
   modelRegistry["ligthbathroom"] = ligthbathroomGLTF;
 
@@ -2836,11 +2840,6 @@ int main() {
                           3.0f);
         ImGui::Separator();
 
-        ImGui::Text("Sofa");
-        ImGui::DragFloat3("Sofa Pos", &sofaPos.x, 0.05f, -100.0f, 100.0f);
-        ImGui::DragFloat3("Sofa Rot", &sofaRot.x, 0.5f, -180.0f, 180.0f);
-        ImGui::DragFloat3("Sofa Scale", &sofaScale.x, 0.01f, 0.001f, 3.0f);
-        ImGui::Separator();
 
         ImGui::Text("Monitor de Pared");
         ImGui::DragFloat3("Monitor Pos", &monitorPos.x, 0.05f, -100.0f, 100.0f);
@@ -3107,6 +3106,79 @@ int main() {
         }
         ImGui::Separator();
 
+          ImGui::Text("Monitor de Pared");
+        ImGui::DragFloat3("Monitor Pos", &monitorPos.x, 0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Monitor Rot", &monitorRot.x, 0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Monitor Scale", &monitorScale.x, 0.01f, 0.001f,
+                          3.0f);
+        ImGui::Separator();
+
+        ImGui::Text("Estantes");
+ImGui::DragFloat3("Estantes Pos",   &estantesPos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Estantes Rot",   &estantesRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Estantes Scale", &estantesScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Estantes frente a la camara")) {
+    estantesPos   = cameraPos + cameraFront * 2.0f;
+    estantesPos.y = 0.0f;
+    estantesRot   = glm::vec3(0.0f, 180.0f, 0.0f);
+    estantesScale = glm::vec3(0.6f, 0.6f, 0.6f);
+}
+ImGui::Separator();
+
+ImGui::Text("Morgue Fridge");
+ImGui::DragFloat3("MorgueFridge Pos",   &morguefridgePos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("MorgueFridge Rot",   &morguefridgeRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("MorgueFridge Scale", &morguefridgeScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer MorgueFridge frente a la camara")) {
+    morguefridgePos   = cameraPos + cameraFront * 2.0f;
+    morguefridgePos.y = 0.0f;
+    morguefridgeRot   = glm::vec3(0.0f, 90.0f, 0.0f);
+    morguefridgeScale = glm::vec3(0.6f, 0.6f, 0.6f);
+}
+ImGui::Separator();
+
+        ImGui::Text("Locker Model (4 Instancias)");
+static int selectedLocker = 0;
+const char *lockerItems[] = {"Locker 1", "Locker 2", "Locker 3", "Locker 4"};
+ImGui::Combo("Seleccionar Locker", &selectedLocker, lockerItems, IM_ARRAYSIZE(lockerItems));
+
+glm::vec3 *lockerPositions[] = {&lockerPos, &locker2Pos, &locker3Pos, &locker4Pos};
+glm::vec3 *lockerRotations[] = {&lockerRot, &locker2Rot, &locker3Rot, &locker4Rot};
+glm::vec3 *lockerScales[]    = {&lockerScale, &locker2Scale, &locker3Scale, &locker4Scale};
+
+ImGui::DragFloat3("Locker Pos",   &lockerPositions[selectedLocker]->x, 0.05f);
+ImGui::DragFloat3("Locker Rot",   &lockerRotations[selectedLocker]->x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Locker Scale", &lockerScales[selectedLocker]->x,    0.01f, 0.01f, 10.0f);
+
+if (ImGui::Button("Traer Locker frente a la camara")) {
+    *lockerPositions[selectedLocker] = cameraPos + cameraFront * 2.0f;
+    lockerPositions[selectedLocker]->y = -0.35f;
+    *lockerRotations[selectedLocker] = glm::vec3(0.0f, 90.0f, 0.0f);
+    *lockerScales[selectedLocker]    = glm::vec3(0.8f, 0.8f, 0.8f);
+}
+ImGui::Separator();
+
+        ImGui::Text("Estante Model (3 Instancias)");
+static int selectedEstante = 0;
+const char *estanteItems[] = {"Estante 1", "Estante 2", "Estante 3"};
+ImGui::Combo("Seleccionar Estante", &selectedEstante, estanteItems, IM_ARRAYSIZE(estanteItems));
+
+glm::vec3 *estantePositions[] = {&estantePos, &estante2Pos, &estante3Pos};
+glm::vec3 *estanteRotations[] = {&estanteRot, &estante2Rot, &estante3Rot};
+glm::vec3 *estanteScales[]    = {&estanteScale, &estante2Scale, &estante3Scale};
+
+ImGui::DragFloat3("Estante Pos",   &estantePositions[selectedEstante]->x, 0.05f);
+ImGui::DragFloat3("Estante Rot",   &estanteRotations[selectedEstante]->x, 0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Estante Scale", &estanteScales[selectedEstante]->x,    0.01f, 0.01f, 10.0f);
+
+if (ImGui::Button("Traer Estante frente a la camara")) {
+    *estantePositions[selectedEstante] = cameraPos + cameraFront * 2.0f;
+    estantePositions[selectedEstante]->y = -0.35f;
+    *estanteRotations[selectedEstante] = glm::vec3(0.0f, -90.0f, 0.0f);
+    *estanteScales[selectedEstante]    = glm::vec3(0.8f, 0.8f, 0.8f);
+}
+ImGui::Separator();
+
         ImGui::Text("Consola");
         ImGui::DragFloat3("Consola Pos", &consolaPos.x, 0.05f);
         ImGui::DragFloat3("Consola Rot", &consolaRot.x, 0.5f, -180.0f, 180.0f);
@@ -3224,7 +3296,7 @@ int main() {
         // --- FILTRO POR ÁREA ---
         // Areas basadas en carpetas reales de assets/ que contienen .glb
         static const char* kAreaNames[] = {
-            "Todas", "General", "Contencion", "Archivo", "Oficinas", "Descanso"
+            "Todas", "General", "Contencion", "Archivo", "Oficinas", "Descanso" 
         };
         static int areaFilterIdx = 0; // 0 = Todas
         ImGui::SetNextItemWidth(-1.0f);
