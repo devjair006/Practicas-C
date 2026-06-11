@@ -462,8 +462,9 @@ void loadLevelProps(const std::string& path);
 // Archivo   : box-close, box-open, camara, computer, escritorio, gabinete,
 //             mesa, mini-lampara, servers, silla, terminal, vault-door
 // Oficinas  : cajonesOF
-// Descanso  : bunk_bed, kirza_boots, locker, lockers,
-//             old_fire_extinguisher, old_soviet_taxophone, vintage_newspaper
+// Descanso  : botas, bunk_bed, estante_cajas, expendedora, extintor_viejo,
+//             locker, lockers, old_sofa_free, old_soviet_taxophone,
+//             papel_viejo, planta_electrica
 // General   : todo lo demas (raiz de assets)
 inline std::string getModelArea(const std::string& modelName) {
     // --- Contencion ---
@@ -486,8 +487,9 @@ inline std::string getModelArea(const std::string& modelName) {
     };
     // --- Descanso ---
     static const std::unordered_set<std::string> kDescanso = {
-        "bunk_bed", "kirza_boots", "locker", "lockers",
-        "old_fire_extinguisher", "old_soviet_taxophone", "vintage_newspaper"
+        "botas", "bunk_bed", "estante_cajas", "expendedora", "extintor_viejo",
+        "locker", "lockers", "old_sofa_free", "old_soviet_taxophone",
+        "papel_viejo", "planta_electrica"
     };
 
     if (kContencion.count(modelName)) return "Contencion";
