@@ -368,27 +368,28 @@ int main() {
       new GLTFModel("assets/metal_desk.glb"); // global declarado en game_state
 
   // --- SALA DE DESCANSO: modelos nuevos (assets/descanso/) ---
-  GLTFModel *literaGLTF =
-      new GLTFModel("assets/descanso/litera.glb"); // archivo pendiente de agregar
   GLTFModel *lockerGLTF =
-      new GLTFModel("assets/descanso/locker.glb"); 
-  GLTFModel *extintorGLTF =
-      new GLTFModel("assets/descanso/extintor.glb"); // archivo pendiente de agregar
-  GLTFModel *botiquinGLTF =
-      new GLTFModel("assets/descanso/botiquin.glb"); // archivo pendiente de agregar
+      new GLTFModel("assets/descanso/locker.glb");
   GLTFModel *bunkBedGLTF =
-      new GLTFModel("assets/descanso/bunk_bed.glb"); // litera para la sala de descanso
-  GLTFModel *kirzaBootsGLTF =
-      new GLTFModel("assets/descanso/kirza_boots.glb");
+      new GLTFModel("assets/descanso/bunk_bed.glb");
   GLTFModel *lockersGLTF =
       new GLTFModel("assets/descanso/lockers.glb");
-  GLTFModel *fireExtinguisherGLTF =
-      new GLTFModel("assets/descanso/old_fire_extinguisher.glb");
   GLTFModel *taxophoneGLTF =
       new GLTFModel("assets/descanso/old_soviet_taxophone.glb");
- 
-  GLTFModel *newspaperGLTF =
-      new GLTFModel("assets/descanso/vintage_newspaper.glb");
+  GLTFModel *estanteCajasGLTF =
+      new GLTFModel("assets/descanso/estante_cajas.glb");
+  GLTFModel *expendedoraGLTF =
+      new GLTFModel("assets/descanso/expendedora.glb");
+  GLTFModel *extintorViejoGLTF =
+      new GLTFModel("assets/descanso/extintor_viejo.glb");
+  GLTFModel *oldSofaGLTF =
+      new GLTFModel("assets/descanso/old_sofa_free.glb", true);
+  GLTFModel *papelViejoGLTF =
+      new GLTFModel("assets/descanso/papel_viejo.glb");
+  GLTFModel *plantaElectricaGLTF =
+      new GLTFModel("assets/descanso/planta_electrica.glb");
+  GLTFModel *botasGLTF =
+      new GLTFModel("assets/descanso/botas.glb");
 
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
@@ -429,16 +430,17 @@ int main() {
   modelRegistry["metal_desk"] = metalDeskGLTF;
   modelRegistry["sofa"] = sofaGLTF;
   modelRegistry["maquina"] = maquinaGLTF;
-  modelRegistry["litera"] = literaGLTF;
   modelRegistry["locker"] = lockerGLTF;
-  modelRegistry["extintor"] = extintorGLTF;
-  modelRegistry["botiquin"] = botiquinGLTF;
   modelRegistry["bunk_bed"] = bunkBedGLTF;
-  modelRegistry["kirza_boots"] = kirzaBootsGLTF;
   modelRegistry["lockers"] = lockersGLTF;
-  modelRegistry["old_fire_extinguisher"] = fireExtinguisherGLTF;
   modelRegistry["old_soviet_taxophone"] = taxophoneGLTF;
-  modelRegistry["vintage_newspaper"] = newspaperGLTF;
+  modelRegistry["estante_cajas"] = estanteCajasGLTF;
+  modelRegistry["expendedora"] = expendedoraGLTF;
+  modelRegistry["extintor_viejo"] = extintorViejoGLTF;
+  modelRegistry["old_sofa_free"] = oldSofaGLTF;
+  modelRegistry["papel_viejo"] = papelViejoGLTF;
+  modelRegistry["planta_electrica"] = plantaElectricaGLTF;
+  modelRegistry["botas"] = botasGLTF;
   modelRegistry["estante"] = estanteGLTF;
   // Modelo de luz (lampara estilo baño) disponible en el editor de niveles
   modelRegistry["ligthbathroom"] = ligthbathroomGLTF;
@@ -3309,8 +3311,9 @@ int main() {
             // -- Oficinas --
             "cajonesOF",
             // -- Descanso --
-            "bunk_bed", "kirza_boots", "locker", "lockers",
-            "old_fire_extinguisher", "old_soviet_taxophone", "vintage_newspaper",
+            "botas", "bunk_bed", "estante_cajas", "expendedora", "extintor_viejo",
+            "locker", "lockers", "old_sofa_free", "old_soviet_taxophone",
+            "papel_viejo", "planta_electrica",
             // -- General (raiz assets/) --
             "Bano", "azule", "girlB", "gnome", "lavamanos", "ligthbathroom",
             "machine_lab", "mensB", "metal_desk", "mirror", "MirrorBG",
