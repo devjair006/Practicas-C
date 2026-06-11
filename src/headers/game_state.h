@@ -226,6 +226,14 @@ extern glm::vec3 estante3Pos;
 extern glm::vec3 estante3Rot;
 extern glm::vec3 estante3Scale;
 
+extern glm::vec3 estantesPos;
+extern glm::vec3 estantesRot;
+extern glm::vec3 estantesScale;
+
+extern glm::vec3 morguefridgePos;
+extern glm::vec3 morguefridgeRot;
+extern glm::vec3 morguefridgeScale;
+
 extern glm::vec3 monitorsciPos;
 extern glm::vec3 monitorsciRot;
 extern glm::vec3 monitorsciScale;
@@ -315,6 +323,9 @@ extern GLTFModel *monitorGLTF;
 extern GLTFModel *sofaGLTF;
 extern GLTFModel *deskGLTF;
 extern GLTFModel *estanteGLTF;
+extern GLTFModel *lockerGLTF;
+extern GLTFModel *estantesGLTF;
+extern GLTFModel *morguefridgeGLTF;
 
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;

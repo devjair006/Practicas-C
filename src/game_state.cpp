@@ -223,6 +223,30 @@ glm::vec3 estante3Pos = glm::vec3(19.5f, -0.35f, 1.7f);
 glm::vec3 estante3Rot = glm::vec3(0.0f, -90.0f, 0.0f);
 glm::vec3 estante3Scale = glm::vec3(0.8f, 0.8f, 0.8f);
 
+glm::vec3 lockerPos = glm::vec3(25.3f, -0.35f, 8.5f);
+glm::vec3 lockerRot = glm::vec3(0.0f, 90.0f, 0.0f);
+glm::vec3 lockerScale = glm::vec3(0.8f, 0.8f, 0.8f);
+
+glm::vec3 locker2Pos = glm::vec3(22.60f, -0.35f, 8.5f);
+glm::vec3 locker2Rot = glm::vec3(0.0f, 90.0f, 0.0f);
+glm::vec3 locker2Scale = glm::vec3(0.8f, 0.8f, 0.8f);
+
+glm::vec3 locker3Pos = glm::vec3(30.0f, -0.35f, 1.8f);
+glm::vec3 locker3Rot = glm::vec3(0.0f, -90.0f, 0.0f);
+glm::vec3 locker3Scale = glm::vec3(0.8f, 0.8f, 0.8f);
+
+glm::vec3 locker4Pos = glm::vec3(27.4f, -0.35f, 1.8f);
+glm::vec3 locker4Rot = glm::vec3(0.0f, -90.0f, 0.0f);
+glm::vec3 locker4Scale = glm::vec3(0.8f, 0.8f, 0.8f);
+
+glm::vec3 estantesPos = glm::vec3(22.6f, 0.0f, 12.8f);
+glm::vec3 estantesRot = glm::vec3(0.0f, 180.0f, 0.0f);
+glm::vec3 estantesScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 morguefridgePos = glm::vec3(22.6f, 0.0f, 16.0f);
+glm::vec3 morguefridgeRot = glm::vec3(0.0f, 90.0f, 0.0f);
+glm::vec3 morguefridgeScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -298,6 +322,7 @@ GLTFModel *mesaGLTF = nullptr;
 GLTFModel *miniLamparaGLTF = nullptr;
 GLTFModel *computerGLTF = nullptr;
 GLTFModel *sillaGLTF = nullptr;
+GLTFModel *sillasGLTF = nullptr;
 GLTFModel *barraGLTF = nullptr;
 GLTFModel *logoGLTF = nullptr;
 GLTFModel *logo2GLTF = nullptr;
@@ -308,6 +333,10 @@ GLTFModel *sillitaGLTF = nullptr;
 GLTFModel *maquinaGLTF = nullptr;
 GLTFModel *deskGLTF = nullptr;
 GLTFModel *estanteGLTF = nullptr;
+GLTFModel *sofaGLTF = nullptr;
+GLTFModel *lockerGLTF = nullptr;
+GLTFModel *estantesGLTF = nullptr;
+GLTFModel *morguefridgeGLTF = nullptr;
 
 glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
 glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);
