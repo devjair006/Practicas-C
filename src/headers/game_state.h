@@ -337,6 +337,24 @@ extern std::vector<glm::vec3> cableTechoPos;
 extern std::vector<glm::vec3> cableTechoRot;
 extern std::vector<glm::vec3> cableTechoScale;
 
+extern GLTFModel *sangrePisoGLTF;
+extern std::vector<glm::vec3> sangrePisoPos;
+extern std::vector<glm::vec3> sangrePisoRot;
+extern std::vector<glm::vec3> sangrePisoScale;
+
+extern GLTFModel *sangrePiso2GLTF;
+extern std::vector<glm::vec3> sangrePiso2Pos;
+extern std::vector<glm::vec3> sangrePiso2Rot;
+extern std::vector<glm::vec3> sangrePiso2Scale;
+
+extern GLTFModel *sangreParedesGLTF;
+extern GLTFModel *sangrePared2GLTF;
+extern GLTFModel *behindYouGLTF;
+
+extern glm::vec3 behindYouPos;
+extern glm::vec3 behindYouRot;
+extern glm::vec3 behindYouScale;
+
 extern GLTFModel *warningGLTF;
 extern glm::vec3 warningPos;
 extern glm::vec3 warningRot;
@@ -361,9 +379,6 @@ extern glm::vec3 luzDescanso2Rot;
 extern glm::vec3 luzDescanso2Scale;
 
 extern GLTFModel *emergencyGLTF;
-extern std::vector<glm::vec3> emergencyPos;
-extern std::vector<glm::vec3> emergencyRot;
-extern std::vector<glm::vec3> emergencyScale;
 
 extern GLTFModel *reactorGLTF;
 extern glm::vec3 reactorPos;
@@ -491,11 +506,17 @@ inline std::string getModelArea(const std::string& modelName) {
         "locker", "lockers", "old_sofa_free", "old_soviet_taxophone",
         "papel_viejo", "planta_electrica"
     };
+    // --- Baño ---
+    static const std::unordered_set<std::string> kBano = {
+        "Bano", "azule", "girlB", "lavamanos", "ligthbathroom",
+        "mensB", "mirror", "MirrorBG", "urinario"
+    };
 
     if (kContencion.count(modelName)) return "Contencion";
     if (kArchivo.count(modelName))    return "Archivo";
     if (kOficinas.count(modelName))   return "Oficinas";
     if (kDescanso.count(modelName))   return "Descanso";
+    if (kBano.count(modelName))       return "Baño";
     return "General";
 }
 

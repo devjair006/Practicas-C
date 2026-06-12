@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/norm.hpp>
 
 #include <cmath>
 #include <fstream>
@@ -16,6 +17,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
+#include <algorithm>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -63,6 +66,8 @@ static const char *getEntityTypeLabel(int type) {
     return "Tarjeta Nv1";
   case 9:
     return "Tarjeta Nv2";
+  case 10:
+    return "Sangre";
   default:
     return "Desconocido";
   }
@@ -73,7 +78,7 @@ static bool isCollectibleEntityType(int type) {
 }
 
 static bool isInspectableEntityType(int type) {
-  return type == 3 || type == 4 || type == 5 || type == 6 || type == 7;
+  return type == 3 || type == 4 || type == 5 || type == 6 || type == 7 || type == 10;
 }
 
 static int findFocusedEntityIndex(float *outDistance = nullptr,
@@ -311,16 +316,16 @@ int main() {
   // LOS ARCHIVOS GLTF/OBJ
   // AQUI--------------------------------------------------------------------------------
 
-  GLTFModel *azulejoGLTF = new GLTFModel("assets/azule.glb");
-  GLTFModel *mirrorGLTF = new GLTFModel("assets/mirror.glb");
-  GLTFModel *mirrorBGGLTF = new GLTFModel("assets/mirrorBG.glb");
-  GLTFModel *ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
+  GLTFModel *azulejoGLTF = new GLTFModel("assets/bano/azule.glb");
+  GLTFModel *mirrorGLTF = new GLTFModel("assets/bano/mirror.glb");
+  GLTFModel *mirrorBGGLTF = new GLTFModel("assets/bano/MirrorBG.glb");
+  GLTFModel *ligthbathroomGLTF = new GLTFModel("assets/bano/ligthbathroom.glb");
   GLTFModel *ligthbathroom2GLTF = ligthbathroomGLTF;
-  mensBGLTF = new GLTFModel("assets/mensB.glb");
-  girlBGLTF = new GLTFModel("assets/girlB.glb");
-  banoGLTF = new GLTFModel("assets/Bano.glb");
-  lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
-  urinarioGLTF = new GLTFModel("assets/urinario.glb");
+  mensBGLTF = new GLTFModel("assets/bano/mensB.glb");
+  girlBGLTF = new GLTFModel("assets/bano/girlB.glb");
+  banoGLTF = new GLTFModel("assets/bano/Bano.glb");
+  lavamanosGLTF = new GLTFModel("assets/bano/lavamanos.glb");
+  urinarioGLTF = new GLTFModel("assets/bano/urinario.glb");
 
   // Modelos de contencion
   teslaGLTF = new GLTFModel("assets/contencion/tesla.glb");
@@ -338,7 +343,12 @@ int main() {
   panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
   lamparaReactorGLTF = new GLTFModel("assets/contencion/lampara-reactor.glb");
   warningGLTF = new GLTFModel("assets/contencion/warning.glb");
+  sangrePisoGLTF = new GLTFModel("assets/sangre-piso.glb");
+  sangrePiso2GLTF = new GLTFModel("assets/sangre-piso2.glb");
+  sangreParedesGLTF = new GLTFModel("assets/help.glb");
+  sangrePared2GLTF = new GLTFModel("assets/it-sees-you.glb");
   cajonesOFGLTF = new GLTFModel("assets/oficinas/cajonesOF.glb");
+  behindYouGLTF = new GLTFModel("assets/behind-you.glb");
   barraGLTF = new GLTFModel("assets/contencion/barra.glb");
   logoGLTF = new GLTFModel("assets/contencion/logo.glb");
   logo2GLTF = new GLTFModel("assets/contencion/logo2.glb");
@@ -428,6 +438,11 @@ int main() {
   modelRegistry["generador"] = generadorGLTF;
   modelRegistry["lampara"] = lamparaContencionGLTF;
   modelRegistry["lampara2"] = lampara2GLTF;
+  modelRegistry["sangre-piso"] = sangrePisoGLTF;
+  modelRegistry["sangre-piso2"] = sangrePiso2GLTF;
+  modelRegistry["help"] = sangreParedesGLTF;
+  modelRegistry["it-sees-you"] = sangrePared2GLTF;
+  modelRegistry["behind-you"] = behindYouGLTF;
 
   // Sala de Descanso
   modelRegistry["sillas"] = sillasGLTF;
@@ -480,10 +495,10 @@ int main() {
             << "Esquineros(" << esquinerosGLTF->meshes.size() << ")"
             << std::endl;
   unsigned int wallTex1 = loadTexture("assets/paredesLAB.png");
-  unsigned int wallTex2 = loadTexture("assets/paredbanosT.png");
+  unsigned int wallTex2 = loadTexture("assets/bano/paredbanosT.png");
   unsigned int wallTex3 = loadTexture("assets/wall.png");
-  unsigned int wallTex4 = loadTexture("assets/paredbanosGT.png");
-  unsigned int wallTex5 = loadTexture("assets/pisosBanos.png");
+  unsigned int wallTex4 = loadTexture("assets/bano/paredbanosGT.png");
+  unsigned int wallTex5 = loadTexture("assets/bano/pisosBanos.png");
 
   // Texturas de área de contención
   unsigned int wallContencionTex =
@@ -563,10 +578,10 @@ int main() {
       glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
 
   int numPointLightsLoc = glGetUniformLocation(shaderProgram, "numPointLights");
-  int pointLightPosLoc[20];
-  int pointLightColLoc[20];
-  int pointLightRadLoc[20];
-  for (int i = 0; i < 20; i++) {
+  int pointLightPosLoc[32];
+  int pointLightColLoc[32];
+  int pointLightRadLoc[32];
+  for (int i = 0; i < 32; i++) {
     std::string posStr = "pointLights[" + std::to_string(i) + "]";
     posStr += ".position";
     std::string colStr = "pointLights[" + std::to_string(i) + "]";
@@ -579,13 +594,13 @@ int main() {
   }
 
   int numSpotLightsLoc = glGetUniformLocation(shaderProgram, "numSpotLights");
-  int spotLightPosLoc[12];
-  int spotLightDirLoc[12];
-  int spotLightColLoc[12];
-  int spotLightCutOffLoc[12];
-  int spotLightOuterCutOffLoc[12];
-  int spotLightRadLoc[12];
-  for (int i = 0; i < 12; i++) {
+  int spotLightPosLoc[16];
+  int spotLightDirLoc[16];
+  int spotLightColLoc[16];
+  int spotLightCutOffLoc[16];
+  int spotLightOuterCutOffLoc[16];
+  int spotLightRadLoc[16];
+  for (int i = 0; i < 16; i++) {
     std::string base = "spotLights[" + std::to_string(i) + "]";
     spotLightPosLoc[i] =
         glGetUniformLocation(shaderProgram, (base + ".position").c_str());
@@ -708,7 +723,7 @@ int main() {
        true,
        true}, // Area contencion
 
-      {41,
+      {42,
        0,
        49,
        8,
@@ -1009,58 +1024,94 @@ int main() {
     // colores mas altos en vez de 0.8 0.9 1.0 a unos 0.8 0.6 0.2 para que se
     // vea mas amarillento
     glUniform3fv(pointLightPosLoc[0], 1, glm::value_ptr(ligthbathroomPos));
-    glUniform3f(pointLightColLoc[0], 0.8f * flicker1, 0.6f * flicker1,
-                0.2f * flicker1);
-    glUniform1f(pointLightRadLoc[0], 4.0f);
+    glUniform3f(pointLightColLoc[0], 0.6f * flicker1, 0.45f * flicker1,
+                0.15f * flicker1);
+    glUniform1f(pointLightRadLoc[0], 3.5f);
 
     // Lámpara 2
     glUniform3fv(pointLightPosLoc[1], 1, glm::value_ptr(ligthbathroom2Pos));
-    glUniform3f(pointLightColLoc[1], 0.8f * flicker2, 0.6f * flicker2,
-                0.2f * flicker2);
-    glUniform1f(pointLightRadLoc[1], 4.0f);
+    glUniform3f(pointLightColLoc[1], 0.6f * flicker2, 0.45f * flicker2,
+                0.15f * flicker2);
+    glUniform1f(pointLightRadLoc[1], 3.5f);
 
     // Lámpara 3 (baño)
     glUniform3fv(pointLightPosLoc[2], 1, glm::value_ptr(lamp3Pos));
-    glUniform3f(pointLightColLoc[2], 0.8f * flicker3, 0.6f * flicker3,
-                0.2f * flicker3);
-    glUniform1f(pointLightRadLoc[2], 4.0f);
+    glUniform3f(pointLightColLoc[2], 0.6f * flicker3, 0.45f * flicker3,
+                0.15f * flicker3);
+    glUniform1f(pointLightRadLoc[2], 3.5f);
 
     // Lámpara 4 (baño)
     glUniform3fv(pointLightPosLoc[3], 1, glm::value_ptr(lamp4Pos));
-    glUniform3f(pointLightColLoc[3], 0.8f * flicker4, 0.6f * flicker4,
-                0.2f * flicker4);
-    glUniform1f(pointLightRadLoc[3], 4.0f);
+    glUniform3f(pointLightColLoc[3], 0.6f * flicker4, 0.45f * flicker4,
+                0.15f * flicker4);
+    glUniform1f(pointLightRadLoc[3], 3.5f);
 
     // lampara contencion 1
     glUniform3fv(pointLightPosLoc[4], 1, glm::value_ptr(lamparaContencionPos));
-    glUniform3f(pointLightColLoc[4], 0.8f * lampFlicker, 0.9f * lampFlicker,
-                1.0f * lampFlicker);
+    glUniform3f(pointLightColLoc[4], 0.6f * lampFlicker, 0.7f * lampFlicker,
+                0.8f * lampFlicker);
     glUniform1f(pointLightRadLoc[4], 4.0f);
 
     // lampara contencion 2 (tenue)
     glUniform3fv(pointLightPosLoc[5], 1, glm::value_ptr(lampara2Pos));
-    glUniform3f(pointLightColLoc[5], 0.4f * lampFlicker, 0.45f * lampFlicker,
-                0.5f * lampFlicker);
+    glUniform3f(pointLightColLoc[5], 0.3f * lampFlicker, 0.35f * lampFlicker,
+                0.4f * lampFlicker);
     glUniform1f(pointLightRadLoc[5], 3.0f);
 
     // lampara contencion 3 (tenue)
     glUniform3fv(pointLightPosLoc[6], 1, glm::value_ptr(lampara3Pos));
-    glUniform3f(pointLightColLoc[6], 0.4f * lampFlicker, 0.45f * lampFlicker,
-                0.5f * lampFlicker);
+    glUniform3f(pointLightColLoc[6], 0.3f * lampFlicker, 0.35f * lampFlicker,
+                0.4f * lampFlicker);
     glUniform1f(pointLightRadLoc[6], 3.0f);
 
-    // --- LUCES DE EMERGENCIA DINAMICAS ---
-    // Empezamos en el indice 7 (despues de las fijas)
-    int currentLightIdx = 7;
-    for (size_t i = 0; i < emergencyPos.size() && currentLightIdx < 11;
-         i++) { // Dejamos el 11 para la Tesla
-      glUniform3fv(pointLightPosLoc[currentLightIdx], 1,
-                   glm::value_ptr(emergencyPos[i]));
-      glUniform3f(pointLightColLoc[currentLightIdx], 1.0f * emergencyPulse,
-                  0.0f, 0.0f);
-      glUniform1f(pointLightRadLoc[currentLightIdx],
-                  2.0f); // Radio corto para evitar traspasar paredes
-      currentLightIdx++;
+    // --- LUCES DINAMICAS PARA PROPS DEL EDITOR (Indices 7-10 y 14-31) ---
+    std::vector<int> dynamicSlots = {7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
+    
+    struct LightProp {
+        const PlacedProp* prop;
+        float distSq;
+    };
+    std::vector<LightProp> emittingProps;
+    for (const auto &prop : placedProps) {
+        if (prop.modelName == "emergency" || prop.modelName == "ligthbathroom") {
+            float d2 = glm::distance2(cameraPos, prop.pos);
+            emittingProps.push_back({&prop, d2});
+        }
+    }
+    std::sort(emittingProps.begin(), emittingProps.end(), [](const LightProp& a, const LightProp& b) {
+        return a.distSq < b.distSq;
+    });
+
+    std::map<const PlacedProp*, int> assignedPointSlots;
+    int currentSlotIdx = 0;
+    for (const auto &lp : emittingProps) {
+      if (currentSlotIdx >= (int)dynamicSlots.size()) break;
+
+      const auto &prop = *lp.prop;
+      int slot = dynamicSlots[currentSlotIdx];
+      assignedPointSlots[&prop] = slot;
+      bool isEmergency = (prop.modelName == "emergency");
+      bool isBano = (prop.modelName == "ligthbathroom");
+
+      if (isEmergency) {
+        glUniform3fv(pointLightPosLoc[slot], 1, glm::value_ptr(prop.pos));
+        float intensity = 0.25f + 0.35f * emergencyPulse;
+        glUniform3f(pointLightColLoc[slot], intensity, 0.0f, 0.0f);
+        glUniform1f(pointLightRadLoc[slot], 3.5f);
+        currentSlotIdx++;
+      }
+      else if (isBano) {
+        float f = getFlicker(currentFrame, slot * 7.13f);
+        glUniform3fv(pointLightPosLoc[slot], 1, glm::value_ptr(prop.pos));
+        glUniform3f(pointLightColLoc[slot], 0.6f * f, 0.45f * f, 0.15f * f);
+        glUniform1f(pointLightRadLoc[slot], 3.5f);
+        currentSlotIdx++;
+      }
+    }
+    for (int i = currentSlotIdx; i < (int)dynamicSlots.size(); i++) {
+        int slot = dynamicSlots[i];
+        glUniform3f(pointLightColLoc[slot], 0.0f, 0.0f, 0.0f);
+        glUniform1f(pointLightRadLoc[slot], 0.0f);
     }
 
     // --- LUZ DE LA TESLA (Indice 11) ---
@@ -1068,59 +1119,35 @@ int main() {
     glUniform3fv(pointLightPosLoc[11], 1, glm::value_ptr(teslaPos));
     glUniform3f(pointLightColLoc[11], 0.2f * teslaPulse, 0.4f * teslaPulse,
                 1.0f * teslaPulse);
-    glUniform1f(pointLightRadLoc[11], 4.0f); // Radio reducido (era 5.0)
+    glUniform1f(pointLightRadLoc[11], 4.0f);
 
     // --- LUCES PARPADEANTES SALA DE DESCANSO (estilo baño, indices 12 y 13) ---
     float flickerDescanso1 = getFlicker(currentFrame, 7.3f);
     float flickerDescanso2 = getFlicker(currentFrame, 33.9f);
 
     glUniform3fv(pointLightPosLoc[12], 1, glm::value_ptr(luzDescanso1Pos));
-    glUniform3f(pointLightColLoc[12], 0.8f * flickerDescanso1,
-                0.6f * flickerDescanso1, 0.2f * flickerDescanso1);
+    glUniform3f(pointLightColLoc[12], 0.6f * flickerDescanso1,
+                0.45f * flickerDescanso1, 0.15f * flickerDescanso1);
     glUniform1f(pointLightRadLoc[12], 4.0f);
 
     glUniform3fv(pointLightPosLoc[13], 1, glm::value_ptr(luzDescanso2Pos));
-    glUniform3f(pointLightColLoc[13], 0.8f * flickerDescanso2,
-                0.6f * flickerDescanso2, 0.2f * flickerDescanso2);
+    glUniform3f(pointLightColLoc[13], 0.6f * flickerDescanso2,
+                0.45f * flickerDescanso2, 0.15f * flickerDescanso2);
     glUniform1f(pointLightRadLoc[13], 4.0f);
 
-    // --- LUCES PUNTUALES DINAMICAS PARA LAMPARAS COLOCADAS EN EL EDITOR ---
-    // Cada modelo "ligthbathroom" agregado desde el Editor de Niveles emite su
-    // propia luz parpadeante, para que la iluminacion salga de la lampara.
-    constexpr int kEditorLightBaseIdx = 14;
-    int editorLightIdx = kEditorLightBaseIdx;
-    for (const auto &prop : placedProps) {
-      if (editorLightIdx >= 20)
-        break; // Tope del arreglo (MAX_POINT_LIGHTS)
-      if (prop.modelName != "ligthbathroom")
-        continue;
-      float f = getFlicker(currentFrame, editorLightIdx * 7.13f);
-      glUniform3fv(pointLightPosLoc[editorLightIdx], 1,
-                   glm::value_ptr(prop.pos));
-      glUniform3f(pointLightColLoc[editorLightIdx], 0.8f * f, 0.6f * f,
-                  0.2f * f);
-      glUniform1f(pointLightRadLoc[editorLightIdx], 4.0f);
-      editorLightIdx++;
-    }
-
     // Informar al shader cuantas luces reales estamos usando
-    // 14 fijas (bano/contencion/emergencia/tesla/descanso) + las del editor
-    glUniform1i(numPointLightsLoc, editorLightIdx);
+    glUniform1i(numPointLightsLoc, 32); 
 
-    for (int i = currentLightIdx; i < 11; i++) {
-      glUniform3f(pointLightColLoc[i], 0.0f, 0.0f, 0.0f);
-      glUniform1f(pointLightRadLoc[i], 0.0f);
-    }
 
-    // --- SPOTLIGHTS (Max 12) ---
+    // --- SPOTLIGHTS (Max 16) ---
     int spotIdx = 0;
 
-    // 1. LÁMPARAS DE REACTOR (4 fijas)
+    // 1. LÁMPARAS DE REACTOR (4 fijas - slots 0-3)
     glm::vec3 lp[4] = {lamparaReactorPos, lamparaReactorPos2,
                        lamparaReactorPos3, lamparaReactorPos4};
     glm::vec3 lr[4] = {lamparaReactorRot, lamparaReactorRot2,
                        lamparaReactorRot3, lamparaReactorRot4};
-    for (int i = 0; i < 4 && spotIdx < 12; i++) {
+    for (int i = 0; i < 4; i++) {
       glUniform3fv(spotLightPosLoc[spotIdx], 1, glm::value_ptr(lp[i]));
 
       glm::mat4 rotMat = glm::mat4(1.0f);
@@ -1137,74 +1164,70 @@ int main() {
       glUniform3f(spotLightColLoc[spotIdx], 1.0f, 0.9f, 0.6f); // Warm yellow
       glUniform1f(spotLightCutOffLoc[spotIdx], glm::cos(glm::radians(25.0f)));
       glUniform1f(spotLightOuterCutOffLoc[spotIdx], glm::cos(glm::radians(35.0f)));
-      glUniform1f(spotLightRadLoc[spotIdx], 6.0f); // Alcance reducido (era 20.0)
+      glUniform1f(spotLightRadLoc[spotIdx], 6.0f);
       spotIdx++;
     }
 
-    // 2. SPOTLIGHTS PARA MINI-LAMPARAS (Archivo)
-    int miniLampCount = 0;
+    // 2. SPOTLIGHTS DINAMICOS (Mini-lamparas y Emergencia - slots 4-15)
+    struct SpotProp {
+        const PlacedProp* prop;
+        float distSq;
+        bool isMini;
+    };
+    std::vector<SpotProp> dynamicSpots;
     for (const auto &prop : placedProps) {
-      if (spotIdx >= 12) break;
-      if (prop.modelName == "mini-lampara") {
-        // La luz sale un poco por encima de la base
-        glUniform3fv(spotLightPosLoc[spotIdx], 1, glm::value_ptr(prop.pos + glm::vec3(0.0f, 0.35f, 0.0f)));
+        if (prop.modelName == "mini-lampara" || prop.modelName == "emergency") {
+            float d2 = glm::distance2(cameraPos, prop.pos);
+            dynamicSpots.push_back({&prop, d2, (prop.modelName == "mini-lampara")});
+        }
+    }
+    std::sort(dynamicSpots.begin(), dynamicSpots.end(), [](const SpotProp& a, const SpotProp& b) {
+        return a.distSq < b.distSq;
+    });
+
+    std::map<const PlacedProp*, float> miniLampFlickers;
+    int miniLampCount = 0;
+    for (const auto &sp : dynamicSpots) {
+        if (spotIdx >= 16) break;
+        const auto &prop = *sp.prop;
 
         glm::mat4 rotMat = glm::mat4(1.0f);
         rotMat = glm::rotate(rotMat, glm::radians(prop.rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
         rotMat = glm::rotate(rotMat, glm::radians(prop.rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
         rotMat = glm::rotate(rotMat, glm::radians(prop.rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        
-        // Dirección: la mini-lampara suele apuntar hacia adelante y abajo
-        glm::vec3 dir = glm::normalize(glm::vec3(rotMat * glm::vec4(0.0f, -0.7f, -1.0f, 0.0f)));
 
-        float flicker = 1.0f;
-        if (miniLampCount < 2) flicker = getFlicker(currentFrame, miniLampCount * 23.4f);
-
-        glUniform3fv(spotLightDirLoc[spotIdx], 1, glm::value_ptr(dir));
-        glUniform3f(spotLightColLoc[spotIdx], 1.0f * flicker, 0.95f * flicker, 0.7f * flicker); // Amarillento
-        glUniform1f(spotLightCutOffLoc[spotIdx], glm::cos(glm::radians(35.0f)));
-        glUniform1f(spotLightOuterCutOffLoc[spotIdx], glm::cos(glm::radians(50.0f)));
-        glUniform1f(spotLightRadLoc[spotIdx], 2.5f); // Alcance muy reducido (era 4.0)
+        if (sp.isMini) {
+            glUniform3fv(spotLightPosLoc[spotIdx], 1, glm::value_ptr(prop.pos + glm::vec3(0.0f, 0.35f, 0.0f)));
+            glm::vec3 dir = glm::normalize(glm::vec3(rotMat * glm::vec4(0.0f, -0.7f, -1.0f, 0.0f)));
+            glUniform3fv(spotLightDirLoc[spotIdx], 1, glm::value_ptr(dir));
+            
+            float f = 1.0f;
+            if (miniLampCount < 2) f = getFlicker(currentFrame, miniLampCount * 23.4f);
+            miniLampFlickers[&prop] = f;
+            glUniform3f(spotLightColLoc[spotIdx], 0.7f * f, 0.65f * f, 0.5f * f);
+            glUniform1f(spotLightCutOffLoc[spotIdx], glm::cos(glm::radians(35.0f)));
+            glUniform1f(spotLightOuterCutOffLoc[spotIdx], glm::cos(glm::radians(50.0f)));
+            glUniform1f(spotLightRadLoc[spotIdx], 2.5f);
+            miniLampCount++;
+        } else {
+            // Emergency
+            glm::vec3 dir = glm::normalize(glm::vec3(rotMat * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
+            glm::vec3 offsetPos = prop.pos + dir * 0.15f;
+            glUniform3fv(spotLightPosLoc[spotIdx], 1, glm::value_ptr(offsetPos));
+            glUniform3fv(spotLightDirLoc[spotIdx], 1, glm::value_ptr(dir));
+            float spotInt = 0.25f + 0.35f * emergencyPulse;
+            glUniform3f(spotLightColLoc[spotIdx], spotInt, 0.0f, 0.0f);
+            glUniform1f(spotLightCutOffLoc[spotIdx], glm::cos(glm::radians(35.0f)));
+            glUniform1f(spotLightOuterCutOffLoc[spotIdx], glm::cos(glm::radians(50.0f)));
+            glUniform1f(spotLightRadLoc[spotIdx], 3.5f);
+        }
         spotIdx++;
-        miniLampCount++;
-      }
-    }
-
-    // 3. SPOTLIGHTS PARA LUCES DE EMERGENCIA (Archivo y dinámicas)
-    for (const auto &prop : placedProps) {
-      if (spotIdx >= 12)
-        break;
-      if (prop.modelName == "emergency") {
-        glm::mat4 rotMat = glm::mat4(1.0f);
-        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.x),
-                             glm::vec3(1.0f, 0.0f, 0.0f));
-        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.y),
-                             glm::vec3(0.0f, 1.0f, 0.0f));
-        rotMat = glm::rotate(rotMat, glm::radians(prop.rot.z),
-                             glm::vec3(0.0f, 0.0f, 1.0f));
-
-        // Dirección: El frente del modelo suele ser -Z
-        glm::vec3 dir = glm::normalize(
-            glm::vec3(rotMat * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
-
-        // Posición: Desplazada un poco hacia adelante para evitar la pared
-        glm::vec3 offsetPos = prop.pos + dir * 0.15f;
-
-        glUniform3fv(spotLightPosLoc[spotIdx], 1, glm::value_ptr(offsetPos));
-        glUniform3fv(spotLightDirLoc[spotIdx], 1, glm::value_ptr(dir));
-        glUniform3f(spotLightColLoc[spotIdx], 1.0f * emergencyPulse, 0.0f, 0.0f);
-        glUniform1f(spotLightCutOffLoc[spotIdx], glm::cos(glm::radians(50.0f)));
-        glUniform1f(spotLightOuterCutOffLoc[spotIdx],
-                    glm::cos(glm::radians(80.0f)));
-        glUniform1f(spotLightRadLoc[spotIdx], 2.5f); // Radio corto
-        spotIdx++;
-      }
     }
 
     glUniform1i(numSpotLightsLoc, spotIdx);
 
     // Limpiar uniformes no usados
-    for (int i = spotIdx; i < 12; i++) {
+    for (int i = spotIdx; i < 16; i++) {
         glUniform3f(spotLightColLoc[i], 0.0f, 0.0f, 0.0f);
         glUniform1f(spotLightRadLoc[i], 0.0f);
     }
@@ -1525,6 +1548,7 @@ int main() {
                        // oscuro del mapa
     glBindVertexArray(VAO);
 
+    /*
     if (banoGLTF && !banoGLTF->meshes.empty()) {
       std::vector<glm::mat4> instanceModels;
       glm::vec3 positions[8] = {banoPos,  banoPos2, banoPos3, banoPos4,
@@ -1705,7 +1729,7 @@ int main() {
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                          glm::value_ptr(ligthbathroomModel));
       glUniform1f(emissiveStrengthLoc,
-                  1.5f * flicker1); // Hacer que brille la lampara
+                  1.0f * flicker1); // Hacer que brille la lampara
       if (shouldRender(ligthbathroomPos.x, ligthbathroomPos.z, 3.0f))
         ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
@@ -1730,7 +1754,7 @@ int main() {
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                          glm::value_ptr(ligthbathroom3Model));
       glUniform1f(emissiveStrengthLoc,
-                  1.5f * flicker3); // Hacer que brille la lampara
+                  1.0f * flicker3); // Hacer que brille la lampara
       if (shouldRender(lamp3Pos.x, lamp3Pos.z, 3.0f))
         ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
@@ -1755,7 +1779,7 @@ int main() {
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                          glm::value_ptr(ligthbathroom4Model));
       glUniform1f(emissiveStrengthLoc,
-                  1.5f * flicker4); // Hacer que brille la lampara
+                  1.0f * flicker4); // Hacer que brille la lampara
       if (shouldRender(lamp4Pos.x, lamp4Pos.z, 3.0f))
         ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
@@ -1777,7 +1801,7 @@ int main() {
           luzDescanso1Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                          glm::value_ptr(luzDescanso1Model));
-      glUniform1f(emissiveStrengthLoc, 1.5f * flickerDescanso1);
+      glUniform1f(emissiveStrengthLoc, 1.0f * flickerDescanso1);
       if (shouldRender(luzDescanso1Pos.x, luzDescanso1Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
 
@@ -1798,7 +1822,7 @@ int main() {
           luzDescanso2Model, glm::vec3(-0.423f, -2.7725f, 2.622f));
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                          glm::value_ptr(luzDescanso2Model));
-      glUniform1f(emissiveStrengthLoc, 1.5f * flickerDescanso2);
+      glUniform1f(emissiveStrengthLoc, 1.0f * flickerDescanso2);
       if (shouldRender(luzDescanso2Pos.x, luzDescanso2Pos.z, 3.0f)) ligthbathroomGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
     }
@@ -1826,7 +1850,7 @@ int main() {
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
                          glm::value_ptr(ligthbathroom2Model));
       glUniform1f(emissiveStrengthLoc,
-                  1.5f * flicker2); // Hacer que brille la lampara
+                  1.0f * flicker2); // Hacer que brille la lampara
       if (shouldRender(ligthbathroom2Pos.x, ligthbathroom2Pos.z, 3.0f))
         ligthbathroom2GLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
@@ -1861,14 +1885,26 @@ int main() {
       if (shouldRender(urinarioPos.x, urinarioPos.z, 3.0f))
         urinarioGLTF->Draw(shaderProgram, solidColorLoc);
     }
+    */
 
     // --- BUCLE DINAMICO DE RENDERING DE PROPS ---
-    int editorLampDrawIdx = kEditorLightBaseIdx; // sincroniza glow con su luz
+    int renderSlotIdx = 0;
     int miniLampDrawCount = 0;
     int cameraAnimCount = 0;
     for (const auto& prop : placedProps) {
       GLTFModel* model = modelRegistry[prop.modelName];
       if (!model || model->meshes.empty()) continue;
+
+      bool esLuzBano = (prop.modelName == "ligthbathroom");
+      bool esEmergency = (prop.modelName == "emergency");
+
+      int associatedSlot = -1;
+      if (esLuzBano || esEmergency) {
+        if (renderSlotIdx < (int)dynamicSlots.size()) {
+          associatedSlot = dynamicSlots[renderSlotIdx];
+          renderSlotIdx++;
+        }
+      }
 
       glm::mat4 pModel = glm::mat4(1.0f);
       pModel = glm::translate(pModel, prop.pos);
@@ -1892,19 +1928,16 @@ int main() {
 
       // El modelo de luz (lampara baño) trae un offset de pivote de Blender y
       // debe brillar con el parpadeo, igual que las lamparas fijas.
-      bool esLuzBano = (prop.modelName == "ligthbathroom");
       bool esLamparaReactor = (prop.modelName == "lampara-reactor");
       bool esMiniLampara = (prop.modelName == "mini-lampara");
-      bool esEmergency = (prop.modelName == "emergency");
       float lampGlow = 0.0f;
       float miniLampFlicker = 1.0f;
 
       if (esLuzBano) {
         pModel = glm::translate(pModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
         // Mismo parpadeo que la luz puntual asociada (mismo offset por indice)
-        if (editorLampDrawIdx < 20)
-          lampGlow = getFlicker(currentFrame, editorLampDrawIdx * 7.13f);
-        editorLampDrawIdx++;
+        if (associatedSlot >= 0 && associatedSlot < 32)
+          lampGlow = getFlicker(currentFrame, associatedSlot * 7.13f);
       }
 
       if (esMiniLampara) {
@@ -1915,10 +1948,11 @@ int main() {
       }
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
-      if (esLuzBano) glUniform1f(emissiveStrengthLoc, 1.5f * lampGlow);
-      if (esLamparaReactor) glUniform1f(emissiveStrengthLoc, 1.2f * lampFlicker);
-      if (esMiniLampara) glUniform1f(emissiveStrengthLoc, 1.3f * miniLampFlicker);
-      if (esEmergency) glUniform1f(emissiveStrengthLoc, 4.0f * emergencyPulse);
+      if (esLuzBano) glUniform1f(emissiveStrengthLoc, 1.0f * lampGlow);
+      if (esLamparaReactor) glUniform1f(emissiveStrengthLoc, 0.9f * lampFlicker);
+      if (esMiniLampara) glUniform1f(emissiveStrengthLoc, 0.8f * miniLampFlicker);
+      // Emisivo base (0.25) + pulso (0.55)
+      if (esEmergency) glUniform1f(emissiveStrengthLoc, 0.40f + 0.80f * emergencyPulse);
 
       if (shouldRender(prop.pos.x, prop.pos.z, 3.0f)) {
         model->Draw(shaderProgram, solidColorLoc);
@@ -2090,7 +2124,7 @@ int main() {
       lampModel = glm::scale(lampModel, lamparaContencionScale);
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lampModel));
-      glUniform1f(emissiveStrengthLoc, 1.5f * lampFlicker);
+      glUniform1f(emissiveStrengthLoc, 1.0f * lampFlicker);
       if (shouldRender(lamparaContencionPos.x, lamparaContencionPos.z, 3.0f))
         lamparaContencionGLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f);
@@ -2108,7 +2142,7 @@ int main() {
       lamp2Model = glm::scale(lamp2Model, lampara2Scale);
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lamp2Model));
-      glUniform1f(emissiveStrengthLoc, 0.8f * lampFlicker);
+      glUniform1f(emissiveStrengthLoc, 0.6f * lampFlicker);
       if (shouldRender(lampara2Pos.x, lampara2Pos.z, 3.0f))
         lampara2GLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f);
@@ -2126,32 +2160,11 @@ int main() {
       lamp3Model = glm::scale(lamp3Model, lampara3Scale);
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(lamp3Model));
-      glUniform1f(emissiveStrengthLoc, 0.8f * lampFlicker);
+      glUniform1f(emissiveStrengthLoc, 0.6f * lampFlicker);
       if (shouldRender(lampara3Pos.x, lampara3Pos.z, 3.0f))
         lampara3GLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f);
     }
-    if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
-      for (size_t i = 0; i < emergencyPos.size(); i++) {
-        glm::mat4 emergModel = glm::mat4(1.0f);
-        emergModel = glm::translate(emergModel, emergencyPos[i]);
-        emergModel = glm::rotate(emergModel, glm::radians(emergencyRot[i].x),
-                                 glm::vec3(1.0f, 0.0f, 0.0f));
-        emergModel = glm::rotate(emergModel, glm::radians(emergencyRot[i].y),
-                                 glm::vec3(0.0f, 1.0f, 0.0f));
-        emergModel = glm::rotate(emergModel, glm::radians(emergencyRot[i].z),
-                                 glm::vec3(0.0f, 0.0f, 1.0f));
-        emergModel = glm::scale(emergModel, emergencyScale[i]);
-
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(emergModel));
-        // Usar el pulso compartido y aumentar intensidad emisiva
-        glUniform1f(emissiveStrengthLoc, 4.0f * emergencyPulse);
-        if (shouldRender(emergencyPos[i].x, emergencyPos[i].z, 3.0f))
-          emergencyGLTF->Draw(shaderProgram, solidColorLoc);
-        glUniform1f(emissiveStrengthLoc, 0.0f);
-      }
-    }
-
     if (generadorGLTF && !generadorGLTF->meshes.empty()) {
       for (int i = 0; i < 3; i++) { // Dibujamos los 3 ejemplares
         glm::mat4 generadorModel = glm::mat4(1.0f);
@@ -2458,11 +2471,6 @@ int main() {
           drawModelHitbox(generadorGLTF, generadorPos[i], generadorRot[i],
                           generadorScale[i]);
         }
-
-        for (size_t i = 0; i < emergencyPos.size(); i++) {
-          drawModelHitbox(emergencyGLTF, emergencyPos[i], emergencyRot[i],
-                          emergencyScale[i]);
-        }
       }
 
       glLineWidth(1.0f);
@@ -2702,7 +2710,7 @@ int main() {
                                  panelGap * 2.0f);
 
       ImGui::SetNextWindowPos(ImVec2(0.0f, panelTopY), ImGuiCond_Always);
-      ImGui::SetNextWindowSize(ImVec2(sideTabW, 238.0f), ImGuiCond_Always);
+      ImGui::SetNextWindowSize(ImVec2(sideTabW, 360.0f), ImGuiCond_Always);
       ImGui::SetNextWindowBgAlpha(0.78f);
       ImGui::Begin("EditorDockTabs", NULL,
                    ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
@@ -2722,6 +2730,8 @@ int main() {
       sideTab("I", 0);
       sideTab("M", 1);
       sideTab("S", 2);
+      sideTab("B", 3);
+      sideTab("C", 4);
       if (ImGui::Button("<", ImVec2(-1.0f, 34.0f))) {
         showDebugGUI = false;
       }
@@ -2747,10 +2757,12 @@ int main() {
         ImGui::End();
       }
 
-      if (false) {
-        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
-        ImGui::Begin("Editor Bano", NULL);
+      if (activeEditorPanel == 3) {
+        ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH), ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.84f);
+        ImGui::Begin("Editor Bano 🚽", NULL,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
         ImGui::Text("Ajuste en tiempo real (sin recompilar)");
         ImGui::Separator();
         ImGui::Text("Bano");
@@ -2965,10 +2977,12 @@ int main() {
         ImGui::End();
       }
 
-      if (false) {
-        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
-        ImGui::Begin("Editor Contencion", NULL);
+      if (activeEditorPanel == 4) {
+        ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH), ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.84f);
+        ImGui::Begin("Editor Contencion ⚡", NULL,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
         ImGui::Text("Tesla Model");
         ImGui::DragFloat3("Tesla Pos", &teslaPos.x, 0.05f);
         ImGui::DragFloat3("Tesla Rot", &teslaRot.x, 0.5f, -180.0f, 180.0f);
@@ -3121,28 +3135,35 @@ int main() {
         ImGui::Separator();
         ImGui::Text("Emergency Lights");
         if (ImGui::Button("Agregar Luz de Emergencia")) {
-          emergencyPos.push_back(cameraPos + cameraFront * 2.0f);
-          emergencyRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
-          emergencyScale.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
+          PlacedProp newProp;
+          newProp.modelName = "emergency";
+          newProp.pos = cameraPos + cameraFront * 2.0f;
+          newProp.rot = glm::vec3(0.0f, 0.0f, 0.0f);
+          newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          newProp.area = "Contencion";
+          newProp.collisionActive = true;
+          placedProps.push_back(newProp);
         }
-        for (size_t i = 0; i < emergencyPos.size(); i++) {
-          ImGui::PushID(i);
-          ImGui::Text("Luz %d", (int)i);
-          ImGui::DragFloat3("Pos", &emergencyPos[i].x, 0.05f);
-          ImGui::DragFloat3("Rot", &emergencyRot[i].x, 0.5f, -180.0f, 180.0f);
-          ImGui::DragFloat3("Scale", &emergencyScale[i].x, 0.01f, 0.01f, 10.0f);
-          if (ImGui::Button("Traer frente a camara")) {
-            emergencyPos[i] = cameraPos + cameraFront * 2.0f;
-          }
-          ImGui::SameLine();
-          if (ImGui::Button("Eliminar")) {
-            emergencyPos.erase(emergencyPos.begin() + i);
-            emergencyRot.erase(emergencyRot.begin() + i);
-            emergencyScale.erase(emergencyScale.begin() + i);
+        int emergencyIdx = 0;
+        for (size_t i = 0; i < placedProps.size(); i++) {
+          if (placedProps[i].modelName == "emergency") {
+            ImGui::PushID(static_cast<int>(i) + 7000);
+            ImGui::Text("Luz %d", emergencyIdx);
+            ImGui::DragFloat3("Pos", &placedProps[i].pos.x, 0.05f);
+            ImGui::DragFloat3("Rot", &placedProps[i].rot.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("Scale", &placedProps[i].scale.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer frente a camara")) {
+              placedProps[i].pos = cameraPos + cameraFront * 2.0f;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Eliminar")) {
+              placedProps.erase(placedProps.begin() + i);
+              ImGui::PopID();
+              break; // Break the loop to avoid invalid iterator
+            }
             ImGui::PopID();
-            break; // Break the loop to avoid invalid iterator
+            emergencyIdx++;
           }
-          ImGui::PopID();
         }
 
         ImGui::Separator();
@@ -3410,7 +3431,7 @@ ImGui::Separator();
         // --- FILTRO POR ÁREA ---
         // Areas basadas en carpetas reales de assets/ que contienen .glb
         static const char* kAreaNames[] = {
-            "Todas", "General", "Contencion", "Archivo", "Oficinas", "Descanso" 
+            "Todas", "General", "Contencion", "Archivo", "Oficinas", "Descanso", "Baño"
         };
         static int areaFilterIdx = 0; // 0 = Todas
         ImGui::SetNextItemWidth(-1.0f);
@@ -3488,7 +3509,8 @@ ImGui::Separator();
             // -- Contencion --
             "barra", "cables_piso", "cables_techo", "consola", "emergency",
             "esquineros", "generador", "lampara-reactor", "lampara", "lampara2",
-            "logo", "logo2", "panelControl", "reactor", "sarcofago", "tesla", "warning",
+            "logo", "logo2", "panelControl", "reactor", "sangre-piso", "sangre-piso2", "help", "it-sees-you", "sarcofago", "tesla", "warning",
+            "behind-you",
             // -- Archivo --
             "box-close", "box-open", "camara", "computer", "escritorio",
             "gabinete", "mesa", "mini-lampara", "servers", "silla", "terminal", "vault-door",
@@ -3499,9 +3521,10 @@ ImGui::Separator();
             "locker", "lockers", "old_sofa_free", "old_soviet_taxophone",
             "papel_viejo", "planta_electrica",
             // -- General (raiz assets/) --
-            "Bano", "azule", "girlB", "gnome", "lavamanos", "ligthbathroom",
-            "machine_lab", "mensB", "metal_desk", "mirror", "MirrorBG",
-            "monitor", "sillas", "sofa", "urinario"
+            "gnome", "machine_lab", "metal_desk", "monitor", "sillas", "sofa",
+            // -- Baño --
+            "Bano", "azule", "girlB", "lavamanos", "ligthbathroom",
+            "mensB", "mirror", "MirrorBG", "urinario"
         };
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
@@ -3573,6 +3596,10 @@ ImGui::Separator();
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "silla")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "sangre-piso" || newProp.modelName == "sangre-piso2" || newProp.modelName == "help" || newProp.modelName == "it-sees-you") {
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            newProp.collisionActive = false;
+          }
           else
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 

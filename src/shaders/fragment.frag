@@ -27,7 +27,7 @@ struct PointLight {
     vec3 color;
     float radius;
 };
-#define MAX_POINT_LIGHTS 20
+#define MAX_POINT_LIGHTS 32
 uniform int numPointLights;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
@@ -39,7 +39,7 @@ struct SpotLight {
     float outerCutOff;
     float radius;
 };
-#define MAX_SPOT_LIGHTS 12
+#define MAX_SPOT_LIGHTS 16
 uniform int numSpotLights;
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 

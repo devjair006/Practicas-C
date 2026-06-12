@@ -176,6 +176,38 @@ bool checkCollision(float x, float z) {
         }
     }
 
+    // --- COLISIÓN CON ESPEJOS (AABB) ---
+    GLTFModel* mirrorGLTF = modelRegistry["mirror"];
+    if (mirrorGLTF && !mirrorGLTF->meshes.empty()) {
+        glm::vec3 positions[4] = { mirrorPos, mirrorPos2, mirrorPos3, mirrorPos4 };
+        glm::vec3 rotations[4] = { mirrorRot, mirrorRot2, mirrorRot3, mirrorRot4 };
+        glm::vec3 scales[4] = { mirrorScale, mirrorScale2, mirrorScale3, mirrorScale4 };
+        for (int i = 0; i < 4; i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, positions[i]);
+            model = glm::rotate(model, glm::radians(rotations[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(rotations[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(rotations[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::scale(model, scales[i]);
+            if (checkModelCollision(mirrorGLTF, model, playerPos, playerRadius)) {
+                return true;
+            }
+        }
+    }
+
+    GLTFModel* mirrorBGGLTF = modelRegistry["MirrorBG"];
+    if (mirrorBGGLTF && !mirrorBGGLTF->meshes.empty()) {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, mirrorBGpos);
+        model = glm::rotate(model, glm::radians(mirrorBGRot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(mirrorBGRot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(mirrorBGRot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, mirrorBGScale);
+        if (checkModelCollision(mirrorBGGLTF, model, playerPos, playerRadius)) {
+            return true;
+        }
+    }
+
     // --- COLISIONES DINAMICAS CON PROPS DE placedProps ---
     for (const auto& prop : placedProps) {
         if (!prop.collisionActive) continue;
@@ -214,19 +246,6 @@ bool checkCollision(float x, float z) {
             model = glm::rotate(model, glm::radians(generadorRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
             model = glm::scale(model, generadorScale[i]);
             if (checkModelCollision(generadorGLTF, model, playerPos, playerRadius)) return true;
-        }
-    }
-
-    // --- COLISION CON EMERGENCY ---
-    if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
-        for (size_t i = 0; i < emergencyPos.size(); ++i) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, emergencyPos[i]);
-            model = glm::rotate(model, glm::radians(emergencyRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(emergencyRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(emergencyRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
-            model = glm::scale(model, emergencyScale[i]);
-            if (checkModelCollision(emergencyGLTF, model, playerPos, playerRadius)) return true;
         }
     }
 
@@ -537,10 +556,12 @@ void processInput(GLFWwindow* window) {
                     );
                 }
             }
-        } else if (entity.type == 3 || entity.type == 4 || entity.type == 5 || entity.type == 6 || entity.type == 7) {
+        } else if (entity.type == 3 || entity.type == 4 || entity.type == 5 || entity.type == 6 || entity.type == 7 || entity.type == 10) {
             if (distancia < 3.0f && lookAngle > 0.92f && justPressedE) {
                 if (!entity.text.empty()) {
                     printTypewriter(entity.text);
+                } else if (entity.type == 10) {
+                    printTypewriter("[SANGRE]: Alguien estuvo perdiendo mucha sangre por aqui...");
                 } else if (entity.type == 4) {
                     printTypewriter("[CAJON]: Esta vacio o atascado.");
                 }
@@ -564,6 +585,19 @@ void processInput(GLFWwindow* window) {
                 std::cout << "La entidad ha imitado perfectamente tu postura." << std::endl;
                 printTypewriter("COPIA COMPLETA. HAS SIDO REEMPLAZADO.");
                 std::cout << "=========================================================\n" << std::endl;
+            }
+        }
+    }
+
+    // --- INTERACCION AUTOMATICA CON SANGRE (desde placedProps) ---
+    for (const auto& prop : placedProps) {
+        if (prop.modelName == "sangre-piso" || prop.modelName == "sangre-piso2" || prop.modelName == "help" || prop.modelName == "it-sees-you") {
+            float dist = glm::length(prop.pos - cameraPos);
+            glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos) : glm::vec3(0.0f);
+            float look = glm::dot(cameraFront, dir);
+
+            if (dist < 2.5f && look > 0.85f && justPressedE) {
+                printTypewriter("[SANGRE]: Alguien estuvo perdiendo mucha sangre por aqui...");
             }
         }
     }
