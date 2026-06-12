@@ -349,6 +349,11 @@ extern std::vector<glm::vec3> sangrePiso2Scale;
 
 extern GLTFModel *sangreParedesGLTF;
 extern GLTFModel *sangrePared2GLTF;
+extern GLTFModel *behindYouGLTF;
+
+extern glm::vec3 behindYouPos;
+extern glm::vec3 behindYouRot;
+extern glm::vec3 behindYouScale;
 
 extern GLTFModel *warningGLTF;
 extern glm::vec3 warningPos;
@@ -501,11 +506,17 @@ inline std::string getModelArea(const std::string& modelName) {
         "locker", "lockers", "old_sofa_free", "old_soviet_taxophone",
         "papel_viejo", "planta_electrica"
     };
+    // --- Baño ---
+    static const std::unordered_set<std::string> kBano = {
+        "Bano", "azule", "girlB", "lavamanos", "ligthbathroom",
+        "mensB", "mirror", "MirrorBG", "urinario"
+    };
 
     if (kContencion.count(modelName)) return "Contencion";
     if (kArchivo.count(modelName))    return "Archivo";
     if (kOficinas.count(modelName))   return "Oficinas";
     if (kDescanso.count(modelName))   return "Descanso";
+    if (kBano.count(modelName))       return "Baño";
     return "General";
 }
 

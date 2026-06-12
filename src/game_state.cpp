@@ -17,9 +17,9 @@ glm::vec3 girlBpos(38.776f, 0.250f, 9.150f);
 glm::vec3 girlBrot(90.000f, 0.000f, 0.000f);
 glm::vec3 girlBscale(1.700f, 1.700f, 1.700f);
 
-glm::vec3 mirrorBGpos(40.815f, 0.150f, 5.55f);
-glm::vec3 mirrorBGRot(0.0f, 0.5f, -90.0f);
-glm::vec3 mirrorBGScale(1.30f, 1.0f, 3.0f);
+glm::vec3 mirrorBGpos(40.85f, 0.150f, 4.50f);
+glm::vec3 mirrorBGRot(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorBGScale(3.20f, 1.0f, 0.05f);
 
 glm::vec3 azulejoPos(35.160f, 0.200f, 7.00f);
 glm::vec3 azulejoRot(90.0f, -90.0f, 0.0f);
@@ -30,7 +30,7 @@ glm::vec3 mirrorRot(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale(0.540f, 0.520f, 0.630f);
 
 glm::vec3 mirrorPos2(33.160f, 0.100f, 4.00f);
-glm::vec3 mirrorRot2(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorRot2(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale2(0.540f, 0.520f, 0.630f);
 
 glm::vec3 mirrorPos3(33.160f, 0.100f, 5.00f);
@@ -38,7 +38,7 @@ glm::vec3 mirrorRot3(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale3(0.540f, 0.520f, 0.630f);
 
 glm::vec3 mirrorPos4(33.160f, 0.1f, 6.00f);
-glm::vec3 mirrorRot4(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorRot4(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale4(0.540f, 0.520f, 0.630f);
 
 glm::vec3 ligthbathroom2Pos(35.160f, 0.480f, 3.403f);
@@ -341,6 +341,11 @@ std::vector<glm::vec3> sangrePiso2Scale = {};
 
 GLTFModel *sangreParedesGLTF = nullptr;
 GLTFModel *sangrePared2GLTF = nullptr;
+GLTFModel *behindYouGLTF = nullptr;
+
+glm::vec3 behindYouPos = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 behindYouRot = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 behindYouScale = glm::vec3(1.0f, 1.0f, 1.0f);
 
 GLTFModel *warningGLTF = nullptr;
 GLTFModel *sillitaGLTF = nullptr;
@@ -517,7 +522,7 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -615,6 +620,46 @@ void loadLevelProps(const std::string& path) {
         }
         inFile.close();
         std::cout << "Cargados " << placedProps.size() << " props desde: " << path << std::endl;
+
+        // Migración de Baño: Si no existe MirrorBG, añadimos todos los props del baño
+        bool hasBano = false;
+        for (const auto& p : placedProps) {
+            if (p.modelName == "MirrorBG") { hasBano = true; break; }
+        }
+        if (!hasBano) {
+            placedProps.push_back({"MirrorBG", mirrorBGpos, mirrorBGRot, mirrorBGScale, true, "Baño"});
+            placedProps.push_back({"mensB", mensBpos, mensBrot, mensBscale, true, "Baño"});
+            placedProps.push_back({"girlB", girlBpos, girlBrot, girlBscale, true, "Baño"});
+            placedProps.push_back({"azule", azulejoPos, azulejoRot, azulejoScale, true, "Baño"});
+            placedProps.push_back({"mirror", mirrorPos, mirrorRot, mirrorScale, true, "Baño"});
+            placedProps.push_back({"mirror", mirrorPos2, mirrorRot2, mirrorScale2, true, "Baño"});
+            placedProps.push_back({"mirror", mirrorPos3, mirrorRot3, mirrorScale3, true, "Baño"});
+            placedProps.push_back({"mirror", mirrorPos4, mirrorRot4, mirrorScale4, true, "Baño"});
+            placedProps.push_back({"ligthbathroom", ligthbathroomPos, ligthbathroomRot, ligthbathroomScale, true, "Baño"});
+            placedProps.push_back({"ligthbathroom", lamp3Pos, lamp3Rot, lamp3Scale, true, "Baño"});
+            placedProps.push_back({"ligthbathroom", lamp4Pos, lamp4Rot, lamp4Scale, true, "Baño"});
+            placedProps.push_back({"ligthbathroom", ligthbathroom2Pos, ligthbathroom2Rot, ligthbathroom2Scale, true, "Baño"});
+            placedProps.push_back({"Bano", banoPos, banoRot, banoScale, true, "Baño"});
+            placedProps.push_back({"Bano", banoPos2, banoRot2, banoScale2, true, "Baño"});
+            placedProps.push_back({"Bano", banoPos3, banoRot3, banoScale3, true, "Baño"});
+            placedProps.push_back({"Bano", banoPos4, banoRot4, banoScale4, true, "Baño"});
+            placedProps.push_back({"Bano", banoPos5, banoRot5, banoScale5, true, "Baño"});
+            placedProps.push_back({"Bano", banoPos6, banoRot6, banoScale6, true, "Baño"});
+            placedProps.push_back({"Bano", banoPos7, banoRot7, banoScale7, true, "Baño"});
+            placedProps.push_back({"Bano", banoPos8, banoRot8, banoScale8, true, "Baño"});
+            placedProps.push_back({"lavamanos", lavamanosPos, lavamanosRot, lavamanosScale, true, "Baño"});
+            placedProps.push_back({"lavamanos", lavamanosPos2, lavamanosRot2, lavamanosScale2, true, "Baño"});
+            placedProps.push_back({"lavamanos", lavamanosPos3, lavamanosRot3, lavamanosScale3, true, "Baño"});
+            placedProps.push_back({"lavamanos", lavamanosPos4, lavamanosRot4, lavamanosScale4, true, "Baño"});
+            placedProps.push_back({"lavamanos", lavamanosPos5, lavamanosRot5, lavamanosScale5, true, "Baño"});
+            placedProps.push_back({"lavamanos", lavamanosPos6, lavamanosRot6, lavamanosScale6, true, "Baño"});
+            placedProps.push_back({"lavamanos", lavamanosPos7, lavamanosRot7, lavamanosScale7, true, "Baño"});
+            placedProps.push_back({"lavamanos", lavamanosPos8, lavamanosRot8, lavamanosScale8, true, "Baño"});
+            placedProps.push_back({"urinario", urinarioPos, urinarioRot, urinarioScale, true, "Baño"});
+            std::cout << "Migracion: Modelos de bano anadidos a placedProps." << std::endl;
+            saveLevelProps(path);
+        }
+
     } else {
         std::cout << "Archivo de posiciones no encontrado, cargando valores por defecto..." << std::endl;
         placedProps.push_back({"cajonesOF",      glm::vec3(8.0f,    -0.5f,  5.0f),   glm::vec3(0.0f, 0.0f, 0.0f),         glm::vec3(1.0f,   1.0f,  1.0f),  false, "Oficinas"});

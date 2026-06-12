@@ -316,16 +316,16 @@ int main() {
   // LOS ARCHIVOS GLTF/OBJ
   // AQUI--------------------------------------------------------------------------------
 
-  GLTFModel *azulejoGLTF = new GLTFModel("assets/azule.glb");
-  GLTFModel *mirrorGLTF = new GLTFModel("assets/mirror.glb");
-  GLTFModel *mirrorBGGLTF = new GLTFModel("assets/mirrorBG.glb");
-  GLTFModel *ligthbathroomGLTF = new GLTFModel("assets/ligthbathroom.glb");
+  GLTFModel *azulejoGLTF = new GLTFModel("assets/bano/azule.glb");
+  GLTFModel *mirrorGLTF = new GLTFModel("assets/bano/mirror.glb");
+  GLTFModel *mirrorBGGLTF = new GLTFModel("assets/bano/MirrorBG.glb");
+  GLTFModel *ligthbathroomGLTF = new GLTFModel("assets/bano/ligthbathroom.glb");
   GLTFModel *ligthbathroom2GLTF = ligthbathroomGLTF;
-  mensBGLTF = new GLTFModel("assets/mensB.glb");
-  girlBGLTF = new GLTFModel("assets/girlB.glb");
-  banoGLTF = new GLTFModel("assets/Bano.glb");
-  lavamanosGLTF = new GLTFModel("assets/lavamanos.glb");
-  urinarioGLTF = new GLTFModel("assets/urinario.glb");
+  mensBGLTF = new GLTFModel("assets/bano/mensB.glb");
+  girlBGLTF = new GLTFModel("assets/bano/girlB.glb");
+  banoGLTF = new GLTFModel("assets/bano/Bano.glb");
+  lavamanosGLTF = new GLTFModel("assets/bano/lavamanos.glb");
+  urinarioGLTF = new GLTFModel("assets/bano/urinario.glb");
 
   // Modelos de contencion
   teslaGLTF = new GLTFModel("assets/contencion/tesla.glb");
@@ -345,9 +345,10 @@ int main() {
   warningGLTF = new GLTFModel("assets/contencion/warning.glb");
   sangrePisoGLTF = new GLTFModel("assets/sangre-piso.glb");
   sangrePiso2GLTF = new GLTFModel("assets/sangre-piso2.glb");
-  sangreParedesGLTF = new GLTFModel("assets/sangre-paredes.glb");
-  sangrePared2GLTF = new GLTFModel("assets/sangre-pared2.glb");
+  sangreParedesGLTF = new GLTFModel("assets/help.glb");
+  sangrePared2GLTF = new GLTFModel("assets/it-sees-you.glb");
   cajonesOFGLTF = new GLTFModel("assets/oficinas/cajonesOF.glb");
+  behindYouGLTF = new GLTFModel("assets/behind-you.glb");
   barraGLTF = new GLTFModel("assets/contencion/barra.glb");
   logoGLTF = new GLTFModel("assets/contencion/logo.glb");
   logo2GLTF = new GLTFModel("assets/contencion/logo2.glb");
@@ -439,8 +440,9 @@ int main() {
   modelRegistry["lampara2"] = lampara2GLTF;
   modelRegistry["sangre-piso"] = sangrePisoGLTF;
   modelRegistry["sangre-piso2"] = sangrePiso2GLTF;
-  modelRegistry["sangre-paredes"] = sangreParedesGLTF;
-  modelRegistry["sangre-pared2"] = sangrePared2GLTF;
+  modelRegistry["help"] = sangreParedesGLTF;
+  modelRegistry["it-sees-you"] = sangrePared2GLTF;
+  modelRegistry["behind-you"] = behindYouGLTF;
 
   // Sala de Descanso
   modelRegistry["sillas"] = sillasGLTF;
@@ -493,10 +495,10 @@ int main() {
             << "Esquineros(" << esquinerosGLTF->meshes.size() << ")"
             << std::endl;
   unsigned int wallTex1 = loadTexture("assets/paredesLAB.png");
-  unsigned int wallTex2 = loadTexture("assets/paredbanosT.png");
+  unsigned int wallTex2 = loadTexture("assets/bano/paredbanosT.png");
   unsigned int wallTex3 = loadTexture("assets/wall.png");
-  unsigned int wallTex4 = loadTexture("assets/paredbanosGT.png");
-  unsigned int wallTex5 = loadTexture("assets/pisosBanos.png");
+  unsigned int wallTex4 = loadTexture("assets/bano/paredbanosGT.png");
+  unsigned int wallTex5 = loadTexture("assets/bano/pisosBanos.png");
 
   // Texturas de área de contención
   unsigned int wallContencionTex =
@@ -721,7 +723,7 @@ int main() {
        true,
        true}, // Area contencion
 
-      {41,
+      {42,
        0,
        49,
        8,
@@ -1546,6 +1548,7 @@ int main() {
                        // oscuro del mapa
     glBindVertexArray(VAO);
 
+    /*
     if (banoGLTF && !banoGLTF->meshes.empty()) {
       std::vector<glm::mat4> instanceModels;
       glm::vec3 positions[8] = {banoPos,  banoPos2, banoPos3, banoPos4,
@@ -1882,6 +1885,7 @@ int main() {
       if (shouldRender(urinarioPos.x, urinarioPos.z, 3.0f))
         urinarioGLTF->Draw(shaderProgram, solidColorLoc);
     }
+    */
 
     // --- BUCLE DINAMICO DE RENDERING DE PROPS ---
     int renderSlotIdx = 0;
@@ -2706,7 +2710,7 @@ int main() {
                                  panelGap * 2.0f);
 
       ImGui::SetNextWindowPos(ImVec2(0.0f, panelTopY), ImGuiCond_Always);
-      ImGui::SetNextWindowSize(ImVec2(sideTabW, 238.0f), ImGuiCond_Always);
+      ImGui::SetNextWindowSize(ImVec2(sideTabW, 360.0f), ImGuiCond_Always);
       ImGui::SetNextWindowBgAlpha(0.78f);
       ImGui::Begin("EditorDockTabs", NULL,
                    ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
@@ -2726,6 +2730,8 @@ int main() {
       sideTab("I", 0);
       sideTab("M", 1);
       sideTab("S", 2);
+      sideTab("B", 3);
+      sideTab("C", 4);
       if (ImGui::Button("<", ImVec2(-1.0f, 34.0f))) {
         showDebugGUI = false;
       }
@@ -2751,10 +2757,12 @@ int main() {
         ImGui::End();
       }
 
-      if (false) {
-        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
-        ImGui::Begin("Editor Bano", NULL);
+      if (activeEditorPanel == 3) {
+        ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH), ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.84f);
+        ImGui::Begin("Editor Bano 🚽", NULL,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
         ImGui::Text("Ajuste en tiempo real (sin recompilar)");
         ImGui::Separator();
         ImGui::Text("Bano");
@@ -2969,10 +2977,12 @@ int main() {
         ImGui::End();
       }
 
-      if (false) {
-        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
-        ImGui::Begin("Editor Contencion", NULL);
+      if (activeEditorPanel == 4) {
+        ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH), ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.84f);
+        ImGui::Begin("Editor Contencion ⚡", NULL,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
         ImGui::Text("Tesla Model");
         ImGui::DragFloat3("Tesla Pos", &teslaPos.x, 0.05f);
         ImGui::DragFloat3("Tesla Rot", &teslaRot.x, 0.5f, -180.0f, 180.0f);
@@ -3421,7 +3431,7 @@ ImGui::Separator();
         // --- FILTRO POR ÁREA ---
         // Areas basadas en carpetas reales de assets/ que contienen .glb
         static const char* kAreaNames[] = {
-            "Todas", "General", "Contencion", "Archivo", "Oficinas", "Descanso" 
+            "Todas", "General", "Contencion", "Archivo", "Oficinas", "Descanso", "Baño"
         };
         static int areaFilterIdx = 0; // 0 = Todas
         ImGui::SetNextItemWidth(-1.0f);
@@ -3499,7 +3509,8 @@ ImGui::Separator();
             // -- Contencion --
             "barra", "cables_piso", "cables_techo", "consola", "emergency",
             "esquineros", "generador", "lampara-reactor", "lampara", "lampara2",
-            "logo", "logo2", "panelControl", "reactor", "sangre-piso", "sangre-piso2", "sangre-paredes", "sangre-pared2", "sarcofago", "tesla", "warning",
+            "logo", "logo2", "panelControl", "reactor", "sangre-piso", "sangre-piso2", "help", "it-sees-you", "sarcofago", "tesla", "warning",
+            "behind-you",
             // -- Archivo --
             "box-close", "box-open", "camara", "computer", "escritorio",
             "gabinete", "mesa", "mini-lampara", "servers", "silla", "terminal", "vault-door",
@@ -3510,9 +3521,10 @@ ImGui::Separator();
             "locker", "lockers", "old_sofa_free", "old_soviet_taxophone",
             "papel_viejo", "planta_electrica",
             // -- General (raiz assets/) --
-            "Bano", "azule", "girlB", "gnome", "lavamanos", "ligthbathroom",
-            "machine_lab", "mensB", "metal_desk", "mirror", "MirrorBG",
-            "monitor", "sillas", "sofa", "urinario"
+            "gnome", "machine_lab", "metal_desk", "monitor", "sillas", "sofa",
+            // -- Baño --
+            "Bano", "azule", "girlB", "lavamanos", "ligthbathroom",
+            "mensB", "mirror", "MirrorBG", "urinario"
         };
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
@@ -3584,7 +3596,7 @@ ImGui::Separator();
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "silla")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-          else if (newProp.modelName == "sangre-piso" || newProp.modelName == "sangre-piso2" || newProp.modelName == "sangre-paredes" || newProp.modelName == "sangre-pared2") {
+          else if (newProp.modelName == "sangre-piso" || newProp.modelName == "sangre-piso2" || newProp.modelName == "help" || newProp.modelName == "it-sees-you") {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
             newProp.collisionActive = false;
           }
