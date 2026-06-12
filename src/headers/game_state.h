@@ -348,6 +348,7 @@ extern std::vector<glm::vec3> sangrePiso2Rot;
 extern std::vector<glm::vec3> sangrePiso2Scale;
 
 extern GLTFModel *sangreParedesGLTF;
+extern GLTFModel *sangrePared2GLTF;
 
 extern GLTFModel *warningGLTF;
 extern glm::vec3 warningPos;

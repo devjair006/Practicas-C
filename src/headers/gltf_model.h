@@ -516,7 +516,8 @@ private:
                 if (nameStr.find("led") != std::string::npos || 
                     nameStr.find("light") != std::string::npos || 
                     nameStr.find("emis") != std::string::npos || 
-                    nameStr.find("auto") != std::string::npos) {
+                    nameStr.find("auto") != std::string::npos ||
+                    nameStr.find("emergency") != std::string::npos) {
                     matColor = glm::vec3(1.0f, 1.0f, 1.0f);
                 }
             }

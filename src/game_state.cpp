@@ -340,6 +340,7 @@ std::vector<glm::vec3> sangrePiso2Rot = {};
 std::vector<glm::vec3> sangrePiso2Scale = {};
 
 GLTFModel *sangreParedesGLTF = nullptr;
+GLTFModel *sangrePared2GLTF = nullptr;
 
 GLTFModel *warningGLTF = nullptr;
 GLTFModel *sillitaGLTF = nullptr;
