@@ -339,6 +339,8 @@ std::vector<glm::vec3> sangrePiso2Pos = {};
 std::vector<glm::vec3> sangrePiso2Rot = {};
 std::vector<glm::vec3> sangrePiso2Scale = {};
 
+GLTFModel *sangreParedesGLTF = nullptr;
+
 GLTFModel *warningGLTF = nullptr;
 GLTFModel *sillitaGLTF = nullptr;
 GLTFModel *maquinaGLTF = nullptr;
@@ -382,25 +384,6 @@ glm::vec3 lamparaContencionScale(0.570f, 0.720f, 0.900f);
 glm::vec3 lampara2Pos(36.155f, 0.450f, 18.042f);
 glm::vec3 lampara2Rot(-89.000f, 0.000f, 89.000f);
 glm::vec3 lampara2Scale(1.010f, 8.980f, 1.070f);
-
-std::vector<glm::vec3> emergencyPos = {
-    glm::vec3(39.693f, 0.400f, 20.935f),
-    glm::vec3(39.597f, 0.274f, 11.987f),
-    glm::vec3(3.0f, 2.5f, 3.0f),  // esquina noroeste sala descanso
-    glm::vec3(10.0f, 2.5f, 3.0f), // esquina noreste sala descanso
-};
-std::vector<glm::vec3> emergencyRot = {
-    glm::vec3(-93.500f, 0.000f, 0.000f),
-    glm::vec3(93.500f, 2.500f, 88.000f),
-    glm::vec3(0.000f, 0.000f, 0.000f), // ajustar con editor in-game
-    glm::vec3(0.000f, 0.000f, 0.000f), // ajustar con editor in-game
-};
-std::vector<glm::vec3> emergencyScale = {
-    glm::vec3(1.0f, 1.0f, 1.0f),
-    glm::vec3(0.990f, 0.980f, 1.0f),
-    glm::vec3(1.0f, 1.0f, 1.0f),
-    glm::vec3(1.0f, 1.0f, 1.0f),
-};
 
 glm::vec3 reactorPos(43.163f, -0.550f, 19.211f);
 glm::vec3 reactorRot(0.000f, 0.000f, 0.000f);
@@ -647,8 +630,14 @@ void loadLevelProps(const std::string& path) {
         placedProps.push_back({"lampara-reactor", glm::vec3(44.000f,  0.350f,15.157f),glm::vec3(-1.000f, 48.500f,-19.500f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
         placedProps.push_back({"lampara-reactor", glm::vec3(43.900f,  0.400f,17.067f),glm::vec3( 0.000f,-50.000f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
         placedProps.push_back({"lampara-reactor", glm::vec3(42.585f,  0.350f,16.946f),glm::vec3( 0.000f,-154.000f, 0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
-        placedProps.push_back({"lampara-reactor", glm::vec3(42.594f,  0.300f,15.620f),glm::vec3( 0.000f,149.500f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
-        
+        placedProps.push_back({"lampara-reactor", glm::vec3(42.594f,  0.300f, 15.620f),glm::vec3( 0.000f,149.500f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
+
+        // Luces de emergencia migradas al sistema de props
+        placedProps.push_back({"emergency", glm::vec3(39.693f, 0.400f, 20.935f),  glm::vec3(-93.500f, 0.000f, 0.000f), glm::vec3(1.0f, 1.0f, 1.0f), true, "Contencion"});
+        placedProps.push_back({"emergency", glm::vec3(39.597f, 0.274f, 11.987f),  glm::vec3(93.500f, 2.500f, 88.000f),  glm::vec3(0.990f, 0.980f, 1.0f), true, "Contencion"});
+        placedProps.push_back({"emergency", glm::vec3(3.0f, 2.5f, 3.0f),         glm::vec3(0.000f, 0.000f, 0.000f),    glm::vec3(1.0f, 1.0f, 1.0f), true, "Descanso"});
+        placedProps.push_back({"emergency", glm::vec3(10.0f, 2.5f, 3.0f),        glm::vec3(0.000f, 0.000f, 0.000f),    glm::vec3(1.0f, 1.0f, 1.0f), true, "Descanso"});
+
         saveLevelProps(path);
     }
 }

@@ -347,6 +347,8 @@ extern std::vector<glm::vec3> sangrePiso2Pos;
 extern std::vector<glm::vec3> sangrePiso2Rot;
 extern std::vector<glm::vec3> sangrePiso2Scale;
 
+extern GLTFModel *sangreParedesGLTF;
+
 extern GLTFModel *warningGLTF;
 extern glm::vec3 warningPos;
 extern glm::vec3 warningRot;
@@ -371,9 +373,6 @@ extern glm::vec3 luzDescanso2Rot;
 extern glm::vec3 luzDescanso2Scale;
 
 extern GLTFModel *emergencyGLTF;
-extern std::vector<glm::vec3> emergencyPos;
-extern std::vector<glm::vec3> emergencyRot;
-extern std::vector<glm::vec3> emergencyScale;
 
 extern GLTFModel *reactorGLTF;
 extern glm::vec3 reactorPos;

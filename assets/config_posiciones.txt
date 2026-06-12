@@ -29,8 +29,8 @@ cables_piso 35.087 -0.45 18.132 -88.5 -7 -61 0.01918 0.01918 0.01918 0 Contencio
 cables_techo 36.039 0.35 18.104 0 28 0 0.019 0.019 0.019 0 Contencion
 cables_techo 46.601 0.45 20.25 0 46 0 0.019 0.019 0.019 0 Contencion
 logo 39.8328 0.25 11.85 0 -0.5 180 0.599 0.139 0.01 1 Contencion
-logo2 39.68 0.3 21.156 174 87 96 0.001 0.005 0.001 1 Contencion
-logo2 37.28 0.25 21.166 180 -88.5 91.5 0.001 0.005 0.001 1 Contencion
+logo2 43.68 0.3 21.166 174 87 96 0.001 0.005 0.001 1 Contencion
+logo2 41.28 0.3 21.166 180 -88.5 91.5 0.001 0.005 0.001 1 Contencion
 cables_piso 42.887 -0.45 17.682 -88.5 -7 -61 0.01918 0.01918 0.01918 0 Contencion
 cables_techo 39.489 0.6 15.304 0 105.5 0 0.019 0.019 0.019 0 Contencion
 cables_techo 38.539 0.2 17.454 0 139.5 0 0.019 0.019 0.019 0 Contencion
@@ -164,3 +164,16 @@ sangre-piso 41.995 -0.45 4.102 -90.5 -0.5 45.5 0.5 0.5 0.5 0 General
 sangre-piso 42.495 -0.45 2.602 -90.5 -0.5 45.5 0.5 0.5 0.5 0 General
 sangre-piso 45.545 -0.45 3.102 -90.5 -0.5 45.5 0.5 0.5 0.5 0 General
 sangre-piso2 45.912 -0.5 9.361 -87 0 0 1 1 1 0 Archivo
+sangre-paredes 48.764 0.05 10.401 0 -84 -92 0.47 0.68 0.27 0 Archivo
+emergency 39.693 0.4 20.935 -93.5 0 0 1 1 1 0 Contencion
+emergency 40.297 0.624 11.687 98 89 80.5 0.99 0.98 1 0 Contencion
+emergency 3 2.5 3 0 0 0 1 1 1 1 Descanso
+emergency 10 2.5 3 0 0 0 1 1 1 1 Descanso
+emergency 47.847 0.624 10.537 98 89 80.5 0.99 0.98 1 0 Contencion
+emergency 28.247 0.624 10.537 98 89 80.5 0.99 0.98 1 0 Contencion
+emergency 18.147 0.624 10.537 98 89 80.5 0.99 0.98 1 0 Contencion
+emergency 1.247 0.624 10.537 98 89 80.5 0.99 0.98 1 0 Contencion
+emergency 1.297 0.624 22.737 98 89 80.5 0.99 0.98 1 0 Contencion
+emergency 14.797 0.624 22.687 98 89 80.5 0.99 0.98 1 0 Contencion
+emergency 27.047 0.624 22.737 98 89 80.5 0.99 0.98 1 0 Contencion
+emergency 47.347 0.624 22.737 98 89 80.5 0.99 0.98 1 0 Contencion

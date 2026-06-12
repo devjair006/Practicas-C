@@ -217,19 +217,6 @@ bool checkCollision(float x, float z) {
         }
     }
 
-    // --- COLISION CON EMERGENCY ---
-    if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
-        for (size_t i = 0; i < emergencyPos.size(); ++i) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, emergencyPos[i]);
-            model = glm::rotate(model, glm::radians(emergencyRot[i].x), glm::vec3(1.0f, 0.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(emergencyRot[i].y), glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(emergencyRot[i].z), glm::vec3(0.0f, 0.0f, 1.0f));
-            model = glm::scale(model, emergencyScale[i]);
-            if (checkModelCollision(emergencyGLTF, model, playerPos, playerRadius)) return true;
-        }
-    }
-
     return false;
 }
 
@@ -572,7 +559,7 @@ void processInput(GLFWwindow* window) {
 
     // --- INTERACCION AUTOMATICA CON SANGRE (desde placedProps) ---
     for (const auto& prop : placedProps) {
-        if (prop.modelName == "sangre-piso" || prop.modelName == "sangre-piso2") {
+        if (prop.modelName == "sangre-piso" || prop.modelName == "sangre-piso2" || prop.modelName == "sangre-paredes") {
             float dist = glm::length(prop.pos - cameraPos);
             glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos) : glm::vec3(0.0f);
             float look = glm::dot(cameraFront, dir);

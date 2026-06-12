@@ -342,6 +342,7 @@ int main() {
   warningGLTF = new GLTFModel("assets/contencion/warning.glb");
   sangrePisoGLTF = new GLTFModel("assets/sangre-piso.glb");
   sangrePiso2GLTF = new GLTFModel("assets/sangre-piso2.glb");
+  sangreParedesGLTF = new GLTFModel("assets/sangre-paredes.glb");
   cajonesOFGLTF = new GLTFModel("assets/oficinas/cajonesOF.glb");
   barraGLTF = new GLTFModel("assets/contencion/barra.glb");
   logoGLTF = new GLTFModel("assets/contencion/logo.glb");
@@ -434,6 +435,7 @@ int main() {
   modelRegistry["lampara2"] = lampara2GLTF;
   modelRegistry["sangre-piso"] = sangrePisoGLTF;
   modelRegistry["sangre-piso2"] = sangrePiso2GLTF;
+  modelRegistry["sangre-paredes"] = sangreParedesGLTF;
 
   // Sala de Descanso
   modelRegistry["sillas"] = sillasGLTF;
@@ -1058,15 +1060,15 @@ int main() {
     // --- LUCES DE EMERGENCIA DINAMICAS ---
     // Empezamos en el indice 7 (despues de las fijas)
     int currentLightIdx = 7;
-    for (size_t i = 0; i < emergencyPos.size() && currentLightIdx < 11;
-         i++) { // Dejamos el 11 para la Tesla
-      glUniform3fv(pointLightPosLoc[currentLightIdx], 1,
-                   glm::value_ptr(emergencyPos[i]));
-      glUniform3f(pointLightColLoc[currentLightIdx], 1.0f * emergencyPulse,
-                  0.0f, 0.0f);
-      glUniform1f(pointLightRadLoc[currentLightIdx],
-                  2.0f); // Radio corto para evitar traspasar paredes
-      currentLightIdx++;
+    for (const auto &prop : placedProps) {
+      if (prop.modelName == "emergency" && currentLightIdx < 11) {
+        glUniform3fv(pointLightPosLoc[currentLightIdx], 1,
+                     glm::value_ptr(prop.pos));
+        glUniform3f(pointLightColLoc[currentLightIdx], 1.0f * emergencyPulse,
+                    0.0f, 0.0f);
+        glUniform1f(pointLightRadLoc[currentLightIdx], 2.0f);
+        currentLightIdx++;
+      }
     }
 
     // --- LUZ DE LA TESLA (Indice 11) ---
@@ -2137,27 +2139,6 @@ int main() {
         lampara3GLTF->Draw(shaderProgram, solidColorLoc);
       glUniform1f(emissiveStrengthLoc, 0.0f);
     }
-    if (emergencyGLTF && !emergencyGLTF->meshes.empty()) {
-      for (size_t i = 0; i < emergencyPos.size(); i++) {
-        glm::mat4 emergModel = glm::mat4(1.0f);
-        emergModel = glm::translate(emergModel, emergencyPos[i]);
-        emergModel = glm::rotate(emergModel, glm::radians(emergencyRot[i].x),
-                                 glm::vec3(1.0f, 0.0f, 0.0f));
-        emergModel = glm::rotate(emergModel, glm::radians(emergencyRot[i].y),
-                                 glm::vec3(0.0f, 1.0f, 0.0f));
-        emergModel = glm::rotate(emergModel, glm::radians(emergencyRot[i].z),
-                                 glm::vec3(0.0f, 0.0f, 1.0f));
-        emergModel = glm::scale(emergModel, emergencyScale[i]);
-
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(emergModel));
-        // Usar el pulso compartido y aumentar intensidad emisiva
-        glUniform1f(emissiveStrengthLoc, 4.0f * emergencyPulse);
-        if (shouldRender(emergencyPos[i].x, emergencyPos[i].z, 3.0f))
-          emergencyGLTF->Draw(shaderProgram, solidColorLoc);
-        glUniform1f(emissiveStrengthLoc, 0.0f);
-      }
-    }
-
     if (generadorGLTF && !generadorGLTF->meshes.empty()) {
       for (int i = 0; i < 3; i++) { // Dibujamos los 3 ejemplares
         glm::mat4 generadorModel = glm::mat4(1.0f);
@@ -2463,11 +2444,6 @@ int main() {
         for (int i = 0; i < 3; i++) {
           drawModelHitbox(generadorGLTF, generadorPos[i], generadorRot[i],
                           generadorScale[i]);
-        }
-
-        for (size_t i = 0; i < emergencyPos.size(); i++) {
-          drawModelHitbox(emergencyGLTF, emergencyPos[i], emergencyRot[i],
-                          emergencyScale[i]);
         }
       }
 
@@ -3127,28 +3103,35 @@ int main() {
         ImGui::Separator();
         ImGui::Text("Emergency Lights");
         if (ImGui::Button("Agregar Luz de Emergencia")) {
-          emergencyPos.push_back(cameraPos + cameraFront * 2.0f);
-          emergencyRot.push_back(glm::vec3(0.0f, 0.0f, 0.0f));
-          emergencyScale.push_back(glm::vec3(1.0f, 1.0f, 1.0f));
+          PlacedProp newProp;
+          newProp.modelName = "emergency";
+          newProp.pos = cameraPos + cameraFront * 2.0f;
+          newProp.rot = glm::vec3(0.0f, 0.0f, 0.0f);
+          newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          newProp.area = "Contencion";
+          newProp.collisionActive = true;
+          placedProps.push_back(newProp);
         }
-        for (size_t i = 0; i < emergencyPos.size(); i++) {
-          ImGui::PushID(i);
-          ImGui::Text("Luz %d", (int)i);
-          ImGui::DragFloat3("Pos", &emergencyPos[i].x, 0.05f);
-          ImGui::DragFloat3("Rot", &emergencyRot[i].x, 0.5f, -180.0f, 180.0f);
-          ImGui::DragFloat3("Scale", &emergencyScale[i].x, 0.01f, 0.01f, 10.0f);
-          if (ImGui::Button("Traer frente a camara")) {
-            emergencyPos[i] = cameraPos + cameraFront * 2.0f;
-          }
-          ImGui::SameLine();
-          if (ImGui::Button("Eliminar")) {
-            emergencyPos.erase(emergencyPos.begin() + i);
-            emergencyRot.erase(emergencyRot.begin() + i);
-            emergencyScale.erase(emergencyScale.begin() + i);
+        int emergencyIdx = 0;
+        for (size_t i = 0; i < placedProps.size(); i++) {
+          if (placedProps[i].modelName == "emergency") {
+            ImGui::PushID(static_cast<int>(i) + 7000);
+            ImGui::Text("Luz %d", emergencyIdx);
+            ImGui::DragFloat3("Pos", &placedProps[i].pos.x, 0.05f);
+            ImGui::DragFloat3("Rot", &placedProps[i].rot.x, 0.5f, -180.0f, 180.0f);
+            ImGui::DragFloat3("Scale", &placedProps[i].scale.x, 0.01f, 0.01f, 10.0f);
+            if (ImGui::Button("Traer frente a camara")) {
+              placedProps[i].pos = cameraPos + cameraFront * 2.0f;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Eliminar")) {
+              placedProps.erase(placedProps.begin() + i);
+              ImGui::PopID();
+              break; // Break the loop to avoid invalid iterator
+            }
             ImGui::PopID();
-            break; // Break the loop to avoid invalid iterator
+            emergencyIdx++;
           }
-          ImGui::PopID();
         }
 
         ImGui::Separator();
@@ -3494,7 +3477,7 @@ ImGui::Separator();
             // -- Contencion --
             "barra", "cables_piso", "cables_techo", "consola", "emergency",
             "esquineros", "generador", "lampara-reactor", "lampara", "lampara2",
-            "logo", "logo2", "panelControl", "reactor", "sangre-piso", "sangre-piso2", "sarcofago", "tesla", "warning",
+            "logo", "logo2", "panelControl", "reactor", "sangre-piso", "sangre-piso2", "sangre-paredes", "sarcofago", "tesla", "warning",
             // -- Archivo --
             "box-close", "box-open", "camara", "computer", "escritorio",
             "gabinete", "mesa", "mini-lampara", "servers", "silla", "terminal", "vault-door",
@@ -3579,7 +3562,7 @@ ImGui::Separator();
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "silla")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-          else if (newProp.modelName == "sangre-piso" || newProp.modelName == "sangre-piso2") {
+          else if (newProp.modelName == "sangre-piso" || newProp.modelName == "sangre-piso2" || newProp.modelName == "sangre-paredes") {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
             newProp.collisionActive = false;
           }
