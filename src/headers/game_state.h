@@ -337,6 +337,16 @@ extern std::vector<glm::vec3> cableTechoPos;
 extern std::vector<glm::vec3> cableTechoRot;
 extern std::vector<glm::vec3> cableTechoScale;
 
+extern GLTFModel *sangrePisoGLTF;
+extern std::vector<glm::vec3> sangrePisoPos;
+extern std::vector<glm::vec3> sangrePisoRot;
+extern std::vector<glm::vec3> sangrePisoScale;
+
+extern GLTFModel *sangrePiso2GLTF;
+extern std::vector<glm::vec3> sangrePiso2Pos;
+extern std::vector<glm::vec3> sangrePiso2Rot;
+extern std::vector<glm::vec3> sangrePiso2Scale;
+
 extern GLTFModel *warningGLTF;
 extern glm::vec3 warningPos;
 extern glm::vec3 warningRot;

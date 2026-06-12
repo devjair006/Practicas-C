@@ -328,6 +328,17 @@ GLTFModel *logoGLTF = nullptr;
 GLTFModel *logo2GLTF = nullptr;
 GLTFModel *cablePisoGLTF = nullptr;
 GLTFModel *cableTechoGLTF = nullptr;
+
+GLTFModel *sangrePisoGLTF = nullptr;
+std::vector<glm::vec3> sangrePisoPos = {};
+std::vector<glm::vec3> sangrePisoRot = {};
+std::vector<glm::vec3> sangrePisoScale = {};
+
+GLTFModel *sangrePiso2GLTF = nullptr;
+std::vector<glm::vec3> sangrePiso2Pos = {};
+std::vector<glm::vec3> sangrePiso2Rot = {};
+std::vector<glm::vec3> sangrePiso2Scale = {};
+
 GLTFModel *warningGLTF = nullptr;
 GLTFModel *sillitaGLTF = nullptr;
 GLTFModel *maquinaGLTF = nullptr;

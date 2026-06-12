@@ -159,3 +159,8 @@ estante_cajas 12.65 -0.15 5.407 -90 0 -90 0.01 0.01 0.01 1 Descanso
 emergency 48.955 0.3 6.698 2 -4 91.5 1 1 1 1 Archivo
 emergency 48.955 0.3 5.298 2 -4 93.5 1 1 1 1 Archivo
 emergency 41.105 0.3 6.148 2 180 91.5 1 1 1 1 Archivo
+sangre-piso 48.295 -0.45 5.952 -88.5 3 45.5 0.5 0.5 0.5 0 General
+sangre-piso 41.995 -0.45 4.102 -90.5 -0.5 45.5 0.5 0.5 0.5 0 General
+sangre-piso 42.495 -0.45 2.602 -90.5 -0.5 45.5 0.5 0.5 0.5 0 General
+sangre-piso 45.545 -0.45 3.102 -90.5 -0.5 45.5 0.5 0.5 0.5 0 General
+sangre-piso2 45.912 -0.5 9.361 -87 0 0 1 1 1 0 Archivo

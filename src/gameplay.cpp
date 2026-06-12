@@ -537,10 +537,12 @@ void processInput(GLFWwindow* window) {
                     );
                 }
             }
-        } else if (entity.type == 3 || entity.type == 4 || entity.type == 5 || entity.type == 6 || entity.type == 7) {
+        } else if (entity.type == 3 || entity.type == 4 || entity.type == 5 || entity.type == 6 || entity.type == 7 || entity.type == 10) {
             if (distancia < 3.0f && lookAngle > 0.92f && justPressedE) {
                 if (!entity.text.empty()) {
                     printTypewriter(entity.text);
+                } else if (entity.type == 10) {
+                    printTypewriter("[SANGRE]: Alguien estuvo perdiendo mucha sangre por aqui...");
                 } else if (entity.type == 4) {
                     printTypewriter("[CAJON]: Esta vacio o atascado.");
                 }
@@ -564,6 +566,19 @@ void processInput(GLFWwindow* window) {
                 std::cout << "La entidad ha imitado perfectamente tu postura." << std::endl;
                 printTypewriter("COPIA COMPLETA. HAS SIDO REEMPLAZADO.");
                 std::cout << "=========================================================\n" << std::endl;
+            }
+        }
+    }
+
+    // --- INTERACCION AUTOMATICA CON SANGRE (desde placedProps) ---
+    for (const auto& prop : placedProps) {
+        if (prop.modelName == "sangre-piso" || prop.modelName == "sangre-piso2") {
+            float dist = glm::length(prop.pos - cameraPos);
+            glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos) : glm::vec3(0.0f);
+            float look = glm::dot(cameraFront, dir);
+
+            if (dist < 2.5f && look > 0.85f && justPressedE) {
+                printTypewriter("[SANGRE]: Alguien estuvo perdiendo mucha sangre por aqui...");
             }
         }
     }

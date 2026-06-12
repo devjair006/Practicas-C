@@ -63,6 +63,8 @@ static const char *getEntityTypeLabel(int type) {
     return "Tarjeta Nv1";
   case 9:
     return "Tarjeta Nv2";
+  case 10:
+    return "Sangre";
   default:
     return "Desconocido";
   }
@@ -73,7 +75,7 @@ static bool isCollectibleEntityType(int type) {
 }
 
 static bool isInspectableEntityType(int type) {
-  return type == 3 || type == 4 || type == 5 || type == 6 || type == 7;
+  return type == 3 || type == 4 || type == 5 || type == 6 || type == 7 || type == 10;
 }
 
 static int findFocusedEntityIndex(float *outDistance = nullptr,
@@ -338,6 +340,8 @@ int main() {
   panelControlGLTF = new GLTFModel("assets/contencion/panel-control.glb");
   lamparaReactorGLTF = new GLTFModel("assets/contencion/lampara-reactor.glb");
   warningGLTF = new GLTFModel("assets/contencion/warning.glb");
+  sangrePisoGLTF = new GLTFModel("assets/sangre-piso.glb");
+  sangrePiso2GLTF = new GLTFModel("assets/sangre-piso2.glb");
   cajonesOFGLTF = new GLTFModel("assets/oficinas/cajonesOF.glb");
   barraGLTF = new GLTFModel("assets/contencion/barra.glb");
   logoGLTF = new GLTFModel("assets/contencion/logo.glb");
@@ -428,6 +432,8 @@ int main() {
   modelRegistry["generador"] = generadorGLTF;
   modelRegistry["lampara"] = lamparaContencionGLTF;
   modelRegistry["lampara2"] = lampara2GLTF;
+  modelRegistry["sangre-piso"] = sangrePisoGLTF;
+  modelRegistry["sangre-piso2"] = sangrePiso2GLTF;
 
   // Sala de Descanso
   modelRegistry["sillas"] = sillasGLTF;
@@ -3488,7 +3494,7 @@ ImGui::Separator();
             // -- Contencion --
             "barra", "cables_piso", "cables_techo", "consola", "emergency",
             "esquineros", "generador", "lampara-reactor", "lampara", "lampara2",
-            "logo", "logo2", "panelControl", "reactor", "sarcofago", "tesla", "warning",
+            "logo", "logo2", "panelControl", "reactor", "sangre-piso", "sangre-piso2", "sarcofago", "tesla", "warning",
             // -- Archivo --
             "box-close", "box-open", "camara", "computer", "escritorio",
             "gabinete", "mesa", "mini-lampara", "servers", "silla", "terminal", "vault-door",
@@ -3573,6 +3579,10 @@ ImGui::Separator();
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "silla")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "sangre-piso" || newProp.modelName == "sangre-piso2") {
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            newProp.collisionActive = false;
+          }
           else
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 
