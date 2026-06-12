@@ -371,9 +371,16 @@ int main() {
   estanteGLTF = new GLTFModel("assets/estante.glb");
   sillitaGLTF = new GLTFModel("assets/sillita.glb");
   maquinaGLTF = new GLTFModel("assets/maquina.glb");
+
+    // --- SALA DE MUESTRAS: Modelos (assets/muestras/) ---
   machineLabGLTF = new GLTFModel("assets/machine_lab.glb");
   estantesGLTF = new GLTFModel("assets/muestras/estantes.glb");
   morguefridgeGLTF = new GLTFModel("assets/muestras/morguefridge.glb");
+  monitoringGLTF = new GLTFModel("assets/muestras/monitoring.glb");
+  refrigeradorGLTF = new GLTFModel("assets/muestras/refrigerador.glb");
+  camillaGLTF = new GLTFModel("assets/muestras/camilla.glb");
+  muralGLTF = new GLTFModel("assets/muestras/mural.glb");
+  terminalesGLTF = new GLTFModel("assets/muestras/terminales.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
   GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
   GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
@@ -466,6 +473,11 @@ int main() {
   modelRegistry["estante"] = estanteGLTF;
   modelRegistry["estantes"] = estantesGLTF;
   modelRegistry["morguefridge"] = morguefridgeGLTF;
+  modelRegistry["monitoring"] = monitoringGLTF;
+  modelRegistry["refrigerador"] = refrigeradorGLTF;
+  modelRegistry["camilla"] = camillaGLTF;
+  modelRegistry["mural"] = muralGLTF;
+  modelRegistry["terminales"] = terminalesGLTF;
   // Modelos generales/baño
   modelRegistry["Bano"] = banoGLTF;
   modelRegistry["azule"] = azulejoGLTF;
@@ -3269,6 +3281,66 @@ if (ImGui::Button("Traer MorgueFridge frente a la camara")) {
     morguefridgePos.y = 0.0f;
     morguefridgeRot   = glm::vec3(0.0f, 90.0f, 0.0f);
     morguefridgeScale = glm::vec3(0.6f, 0.6f, 0.6f);
+}
+ImGui::Separator();
+
+ImGui::Text("Monitoring");
+ImGui::DragFloat3("Monitoring Pos",   &monitoringPos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Monitoring Rot",   &monitoringRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Monitoring Scale", &monitoringScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Monitoring frente a la camara")) {
+    monitoringPos   = cameraPos + cameraFront * 2.0f;
+    monitoringPos.y = -0.35f;
+    monitoringRot   = glm::vec3(0.0f, 90.0f, 0.0f);
+    monitoringScale = glm::vec3(0.6f, 0.6f, 0.6f);
+}
+ImGui::Separator();
+
+ImGui::Text("Refrigerador");
+ImGui::DragFloat3("Refrigerador Pos",   &refrigeradorPos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Refrigerador Rot",   &refrigeradorRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Refrigerador Scale", &refrigeradorScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Refrigerador frente a la camara")) {
+    refrigeradorPos   = cameraPos + cameraFront * 2.0f;
+    refrigeradorPos.y = -0.35f;
+    refrigeradorRot   = glm::vec3(0.0f, 90.0f, 0.0f);
+    refrigeradorScale = glm::vec3(0.6f, 0.6f, 0.6f);
+}
+ImGui::Separator();
+
+ImGui::Text("Camilla");
+ImGui::DragFloat3("Camilla Pos",   &camillaPos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Camilla Rot",   &camillaRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Camilla Scale", &camillaScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Camilla frente a la camara")) {
+    camillaPos   = cameraPos + cameraFront * 2.0f;
+    camillaPos.y = -0.35f;
+    camillaRot   = glm::vec3(0.0f, 90.0f, 0.0f);
+    camillaScale = glm::vec3(0.6f, 0.6f, 0.6f);
+}
+ImGui::Separator();
+
+ImGui::Text("Terminales");
+ImGui::DragFloat3("Terminales Pos",   &terminalesPos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Terminales Rot",   &terminalesRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Terminales Scale", &terminalesScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Terminales frente a la camara")) {
+    terminalesPos   = cameraPos + cameraFront * 2.0f;
+    terminalesPos.y = -0.35f;
+    terminalesRot   = glm::vec3(0.0f, 180.0f, 0.0f);
+    terminalesScale = glm::vec3(0.7f, 0.7f, 0.7f);
+}
+ImGui::Separator();
+
+ImGui::Text("Mural");
+        ImGui::DragFloat3("Mural Pos",   &muralPos.x,   0.05f, -100.0f, 100.0f);
+        ImGui::DragFloat3("Mural Rot",   &muralRot.x,   0.5f, -180.0f, 180.0f);
+        ImGui::DragFloat3("Mural Scale", &muralScale.x, 0.01f, 0.01f, 10.0f);
+        if (ImGui::Button("Traer Mural frente a la camara")) {
+          muralPos = cameraPos + cameraFront * 2.0f;
+    muralPos.y = 0.5f; 
+    muralRot   = glm::vec3(0.0f, 180.0f, 0.0f);
+    muralScale = glm::vec3(0.6f, 0.6f, 0.6f);
 }
 ImGui::Separator();
 

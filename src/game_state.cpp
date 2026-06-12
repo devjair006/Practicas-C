@@ -247,6 +247,26 @@ glm::vec3 morguefridgePos = glm::vec3(22.6f, 0.0f, 16.0f);
 glm::vec3 morguefridgeRot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 morguefridgeScale = glm::vec3(0.6f, 0.6f, 0.6f);
 
+glm::vec3 monitoringPos = glm::vec3(20.3f, -0.35f, 15.1f);
+glm::vec3 monitoringRot = glm::vec3(0.0f, 90.0f, 0.0f);
+glm::vec3 monitoringScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 refrigeradorPos = glm::vec3(22.6f, -0.35f, 12.9f);
+glm::vec3 refrigeradorRot = glm::vec3(0.0f, 90.0f, 0.0f);
+glm::vec3 refrigeradorScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 camillaPos = glm::vec3(19.1f, -0.35f, 18.8f);
+glm::vec3 camillaRot = glm::vec3(0.0f, 90.0f, 0.0f);
+glm::vec3 camillaScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 muralPos = glm::vec3(7.4f, 0.5f, 14.1f); 
+glm::vec3 muralRot = glm::vec3(0.0f, 180.0f, 0.0f);
+glm::vec3 muralScale = glm::vec3(0.6f, 0.6f, 0.6f); 
+
+glm::vec3 terminalesPos = glm::vec3(8.0f, -0.35f, 13.0f); 
+glm::vec3 terminalesRot = glm::vec3(0.0f, 180.0f, 0.0f);   
+glm::vec3 terminalesScale = glm::vec3(0.7f, 0.7f, 0.7f);
+
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -355,7 +375,14 @@ GLTFModel *estanteGLTF = nullptr;
 GLTFModel *sofaGLTF = nullptr;
 GLTFModel *lockerGLTF = nullptr;
 GLTFModel *estantesGLTF = nullptr;
+GLTFModel *monitoringGLTF = nullptr;
 GLTFModel *morguefridgeGLTF = nullptr;
+GLTFModel *refrigeradorGLTF = nullptr;
+GLTFModel *camillaGLTF = nullptr;
+GLTFModel *muralGLTF = nullptr;
+GLTFModel *terminalesGLTF = nullptr;
+
+
 
 glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
 glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);

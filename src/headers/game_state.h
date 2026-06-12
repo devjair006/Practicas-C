@@ -234,9 +234,29 @@ extern glm::vec3 morguefridgePos;
 extern glm::vec3 morguefridgeRot;
 extern glm::vec3 morguefridgeScale;
 
+extern glm::vec3 monitoringPos;
+extern glm::vec3 monitoringRot;
+extern glm::vec3 monitoringScale;
+
 extern glm::vec3 monitorsciPos;
 extern glm::vec3 monitorsciRot;
 extern glm::vec3 monitorsciScale;
+
+extern glm::vec3 refrigeradorPos;
+extern glm::vec3 refrigeradorRot;
+extern glm::vec3 refrigeradorScale;
+
+extern glm::vec3 camillaPos;
+extern glm::vec3 camillaRot;
+extern glm::vec3 camillaScale;
+
+extern glm::vec3 muralPos;
+extern glm::vec3 muralRot;
+extern glm::vec3 muralScale;
+
+extern glm::vec3 terminalesPos;
+extern glm::vec3 terminalesRot;
+extern glm::vec3 terminalesScale;
 
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
@@ -326,6 +346,11 @@ extern GLTFModel *estanteGLTF;
 extern GLTFModel *lockerGLTF;
 extern GLTFModel *estantesGLTF;
 extern GLTFModel *morguefridgeGLTF;
+extern GLTFModel *monitoringGLTF;
+extern GLTFModel *refrigeradorGLTF;
+extern GLTFModel *camillaGLTF;
+extern GLTFModel *muralGLTF;
+extern GLTFModel* terminalesGLTF;
 
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;
