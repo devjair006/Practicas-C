@@ -1380,7 +1380,15 @@ int main() {
             } else if (renderBlock == 9 || renderBlock == -9) {
               currentAnim = door2Anim;
             } else if (renderBlock == 7 || renderBlock == -7) {
-              currentAnim = doorStdAnim;
+              int key = z * MAP_WIDTH + x;
+              auto it = activeDoorsAnim.find(key);
+              if (it != activeDoorsAnim.end()) {
+                currentAnim = it->second;
+              } else if (renderBlock == -7) {
+                currentAnim = 90.0f;
+              } else {
+                currentAnim = 0.0f;
+              }
             }
 
             // Rotacion: La izquierda gira hacia adelante (negativo), la derecha

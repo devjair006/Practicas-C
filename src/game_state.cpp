@@ -541,8 +541,7 @@ float door1Anim = 0.0f;
 bool door1Opening = false;
 float door2Anim = 0.0f;
 bool door2Opening = false;
-float doorStdAnim = 0.0f;
-bool doorStdOpening = false;
+std::map<int, float> activeDoorsAnim;
 
 int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,

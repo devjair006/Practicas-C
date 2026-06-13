@@ -334,11 +334,17 @@ void tryOpenDoor(GLFWwindow *window) {
     int targetBlock = worldMap[gridZ][gridX];
 
     if (targetBlock == 7) {
-      for (int cx = 0; cx < MAP_WIDTH; cx++) {
-        if (worldMap[gridZ][cx] == 7)
-          worldMap[gridZ][cx] = -7;
+      std::vector<std::pair<int, int>> doorsToOpen;
+      doorsToOpen.push_back({gridX, gridZ});
+      if (gridX > 0 && worldMap[gridZ][gridX - 1] == 7) doorsToOpen.push_back({gridX - 1, gridZ});
+      if (gridX < MAP_WIDTH - 1 && worldMap[gridZ][gridX + 1] == 7) doorsToOpen.push_back({gridX + 1, gridZ});
+      if (gridZ > 0 && worldMap[gridZ - 1][gridX] == 7) doorsToOpen.push_back({gridX, gridZ - 1});
+      if (gridZ < MAP_HEIGHT - 1 && worldMap[gridZ + 1][gridX] == 7) doorsToOpen.push_back({gridX, gridZ + 1});
+
+      for (auto& p : doorsToOpen) {
+        worldMap[p.second][p.first] = -7;
+        activeDoorsAnim[p.second * MAP_WIDTH + p.first] = 0.0f;
       }
-      doorStdOpening = true;
       printTypewriter("[PUERTA]: Abierta.");
       ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
     } else if (targetBlock == 8) {
@@ -740,10 +746,12 @@ void processInput(GLFWwindow *window) {
     if (door2Anim > 90.0f)
       door2Anim = 90.0f;
   }
-  if (doorStdOpening && doorStdAnim < 90.0f) {
-    doorStdAnim += 120.0f * deltaTime;
-    if (doorStdAnim > 90.0f)
-      doorStdAnim = 90.0f;
+  for (auto& pair : activeDoorsAnim) {
+    if (pair.second < 90.0f) {
+      pair.second += 120.0f * deltaTime;
+      if (pair.second > 90.0f)
+        pair.second = 90.0f;
+    }
   }
 }
 
