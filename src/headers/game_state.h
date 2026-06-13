@@ -552,6 +552,8 @@ extern float door1Anim;
 extern bool door1Opening;
 extern float door2Anim;
 extern bool door2Opening;
+extern float doorStdAnim;
+extern bool doorStdOpening;
 extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
 
 
