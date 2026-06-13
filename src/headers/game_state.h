@@ -18,7 +18,7 @@ enum GameState { MENU, PLAYING, GAMEOVER };
 struct Entity {
   glm::vec3 pos;
   int type; // 0=Log, 1=Bateria, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa,
-            // 5=Monitor, 6=Maquina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
+            // 5=Monitor, 6=Maquina, 7=Portal, 8=Tarjeta Amarilla, 9=Tarjeta Roja, 11=Tarjeta Azul
   bool active;
   std::string text;
   float seed;
@@ -283,8 +283,9 @@ extern bool isFlashlightOn;
 extern bool fKeyWasPressed;
 extern ma_engine audioEngine;
 extern int bateriasRecolectadas;
-extern bool hasKeycardLvl1;
-extern bool hasKeycardLvl2;
+extern bool hasKeycardYellow;
+extern bool hasKeycardRed;
+extern bool hasKeycardBlue;
 extern bool dimensionAlterna;
 extern bool portalActivado;
 extern int currentZone;
@@ -552,6 +553,7 @@ extern float door1Anim;
 extern bool door1Opening;
 extern float door2Anim;
 extern bool door2Opening;
+extern std::map<int, float> activeDoorsAnim;
 extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
 
 
