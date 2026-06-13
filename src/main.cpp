@@ -539,8 +539,12 @@ int main() {
   // Texturas especÃ­ficas con fallback
   unsigned int batteryTex =
       loadTextureWithFallback("assets/battery.png", clueTexture);
-  unsigned int keycardTex =
-      loadTextureWithFallback("assets/keycard.png", clueTexture);
+  unsigned int keycardBlueTex =
+      loadTextureWithFallback("assets/keycard-azul.png", clueTexture);
+  unsigned int keycardRedTex =
+      loadTextureWithFallback("assets/keycard-roja.png", clueTexture);
+  unsigned int keycardYellowTex =
+      loadTextureWithFallback("assets/keycard-amarilla.png", clueTexture);
   unsigned int pcTex = loadTextureWithFallback("assets/pc.png", wallTex2);
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2559,7 +2563,7 @@ int main() {
 
     for (auto &entity : gameEntities) {
       if (!entity.active ||
-          (entity.type >= 3 && entity.type != 8 && entity.type != 9))
+          (entity.type >= 3 && entity.type != 8 && entity.type != 9 && entity.type != 11))
         continue;
       if (entity.type == 0 || entity.type == 3)
         continue; // Ya se dibujaron en 3D
@@ -2568,8 +2572,12 @@ int main() {
 
       if (entity.type == 1) {
         glBindTexture(GL_TEXTURE_2D, batteryTex);
-      } else if (entity.type == 8 || entity.type == 9) {
-        glBindTexture(GL_TEXTURE_2D, keycardTex);
+      } else if (entity.type == 8) {
+        glBindTexture(GL_TEXTURE_2D, keycardYellowTex);
+      } else if (entity.type == 9) {
+        glBindTexture(GL_TEXTURE_2D, keycardRedTex);
+      } else if (entity.type == 11) {
+        glBindTexture(GL_TEXTURE_2D, keycardBlueTex);
       } else if (entity.type == 0 || entity.type == 3) {
         glBindTexture(GL_TEXTURE_2D, clueTexture);
       } else {
@@ -2580,7 +2588,7 @@ int main() {
 
       // FlotaciÃ³n sutil de objetos clave para visibilidad---
       float bounce = 0.0f;
-      if (entity.type == 8 || entity.type == 9)
+      if (entity.type == 8 || entity.type == 9 || entity.type == 11)
         bounce = sin(currentFrame * 3.0f) * 0.1f;
 
       float targetY = entity.pos.y + bounce;
@@ -2604,13 +2612,17 @@ int main() {
         glUniform3f(colorLoc, pulse, 0.1f, 0.1f);
         glUniform1f(emissiveStrengthLoc, 0.0f);
       } else if (entity.type == 8) {
-        glUniform3f(colorLoc, 1.0f, 1.0f, 0.0f); // Tarjeta amarilla
+        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Tarjeta amarilla
         glUniform1f(emissiveStrengthLoc, 1.2f);  // Hacer que brille
-        glVertexAttrib3f(3, 1.0f, 1.0f, 0.0f);
+        glVertexAttrib3f(3, 1.0f, 1.0f, 1.0f);
       } else if (entity.type == 9) {
-        glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f); // Tarjeta roja
+        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Tarjeta roja
         glUniform1f(emissiveStrengthLoc, 1.2f);  // Hacer que brille
-        glVertexAttrib3f(3, 1.0f, 0.0f, 0.0f);
+        glVertexAttrib3f(3, 1.0f, 1.0f, 1.0f);
+      } else if (entity.type == 11) {
+        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Tarjeta azul
+        glUniform1f(emissiveStrengthLoc, 1.2f);  // Hacer que brille
+        glVertexAttrib3f(3, 1.0f, 1.0f, 1.0f);
       } else {
         glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
         glUniform1f(emissiveStrengthLoc, 0.0f);
@@ -4010,21 +4022,27 @@ int main() {
                (ImTextureID)(intptr_t)clueTexture, true,
                selectedHotbarSlot == 0);
 
-      // Slot 1: Tarjeta Lvl1
-      drawSlot("Llave 1", (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl1,
+      // Slot 1: Tarjeta Amarilla
+      drawSlot("T.Amarilla", (ImTextureID)(intptr_t)keycardYellowTex, hasKeycardYellow,
                selectedHotbarSlot == 1);
 
-      // Slot 2: Tarjeta Lvl2
-      drawSlot("Llave 2", (ImTextureID)(intptr_t)keycardTex, hasKeycardLvl2,
+      // Slot 2: Tarjeta Roja
+      drawSlot("T.Roja", (ImTextureID)(intptr_t)keycardRedTex, hasKeycardRed,
                selectedHotbarSlot == 2);
 
-      // Slots 3-5: Baterías
-      for (int i = 0; i < 3; i++) {
-        char batLabel[16];
-        snprintf(batLabel, sizeof(batLabel), "Bat %d", i + 1);
-        drawSlot(batLabel, (ImTextureID)(intptr_t)batteryTex,
-                 bateriasRecolectadas > i, selectedHotbarSlot == (3 + i));
-      }
+      // Slot 3: Tarjeta Azul
+      drawSlot("T.Azul", (ImTextureID)(intptr_t)keycardBlueTex, hasKeycardBlue,
+               selectedHotbarSlot == 3);
+
+      // Slots 4-5: Baterías (sólo mostramos 2 o reducimos baterías, o ajustamos índices)
+      // Ajustemos las baterías a la derecha. El máximo de slots es 6. (0 a 5)
+      // Linterna(0), LlaveA(1), LlaveR(2), LlaveAz(3), Bat1(4), Bat2(5)
+      // Wait, there are 3 batteries originally. We might need to add a slot or group batteries.
+      // Grouping batteries:
+      char batLabel[16];
+      snprintf(batLabel, sizeof(batLabel), "Bats:%d/3", bateriasRecolectadas);
+      drawSlot(batLabel, (ImTextureID)(intptr_t)batteryTex,
+               bateriasRecolectadas > 0, selectedHotbarSlot == 4);
 
       ImGui::End();
       ImGui::PopStyleVar(2);

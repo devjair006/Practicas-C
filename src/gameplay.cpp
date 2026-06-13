@@ -348,32 +348,44 @@ void tryOpenDoor(GLFWwindow *window) {
       printTypewriter("[PUERTA]: Abierta.");
       ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
     } else if (targetBlock == 8) {
-      if (hasKeycardLvl1) {
+      if (hasKeycardYellow) {
         for (int cx = 0; cx < MAP_WIDTH; cx++) {
           if (worldMap[gridZ][cx] == 8)
             worldMap[gridZ][cx] = -8;
         }
         door1Opening = true;
-        printTypewriter("[PUERTA]: Tarjeta Nivel 1 Aceptada. Accediendo a Sala "
-                        "de Control.");
+        printTypewriter("[PUERTA]: Tarjeta Amarilla Aceptada. Accediendo a Sala "
+                        "de Pruebas.");
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
         printTypewriter(
-            "[PUERTA BLOQUEADA]: Se requiere Tarjeta Amarilla (Nivel 1).");
+            "[PUERTA BLOQUEADA]: Se requiere Tarjeta Amarilla.");
       }
     } else if (targetBlock == 9) {
-      if (hasKeycardLvl2) {
+      if (hasKeycardRed) {
         for (int cx = 0; cx < MAP_WIDTH; cx++) {
           if (worldMap[gridZ][cx] == 9)
             worldMap[gridZ][cx] = -9;
         }
         door2Opening = true;
-        printTypewriter("[PUERTA]: Tarjeta Nivel 2 Aceptada. Peligro: Zona de "
+        printTypewriter("[PUERTA]: Tarjeta Roja Aceptada. Peligro: Zona de "
                         "Alta Radiacion.");
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
         printTypewriter(
-            "[PUERTA BLOQUEADA]: Se requiere Tarjeta Roja (Nivel 2).");
+            "[PUERTA BLOQUEADA]: Se requiere Tarjeta Roja.");
+      }
+    } else if (targetBlock == 10) {
+      if (hasKeycardBlue) {
+        for (int cx = 0; cx < MAP_WIDTH; cx++) {
+          if (worldMap[gridZ][cx] == 10)
+            worldMap[gridZ][cx] = -10;
+        }
+        printTypewriter("[PUERTA]: Tarjeta Azul Aceptada. Acceso concedido.");
+        ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+      } else {
+        printTypewriter(
+            "[PUERTA BLOQUEADA]: Se requiere Tarjeta Azul.");
       }
     }
   }
@@ -639,7 +651,7 @@ void processInput(GLFWwindow *window) {
     float lookAngle = glm::dot(cameraFront, realDirToEntity);
 
     if (entity.type == 0 || entity.type == 1 || entity.type == 8 ||
-        entity.type == 9) {
+        entity.type == 9 || entity.type == 10) {
       if (distancia < 1.5f && justPressedE) {
         entity.active = false;
         ma_engine_play_sound(&audioEngine, "assets/collect.wav", NULL);
@@ -652,26 +664,33 @@ void processInput(GLFWwindow *window) {
                     << bateriasRecolectadas << " / 3\n"
                     << std::endl;
         } else if (entity.type == 8) {
-          hasKeycardLvl1 = true;
-          std::cout << "\n[OBJETO CLAVE]: Has obtenido la TARJETA AMARILLA "
-                       "(Nivel 1).\n"
+          hasKeycardYellow = true;
+          std::cout << "\n[OBJETO CLAVE]: Has obtenido la TARJETA AMARILLA.\n"
                     << std::endl;
-          openDocument("TARJETA AMARILLA - NIVEL 1",
-                       "Autorizacion: Sala de Control.\n\n"
+          openDocument("TARJETA AMARILLA",
+                       "Autorizacion: Sala de Pruebas.\n\n"
                        "Personal permitido: mantenimiento y soporte.\n"
                        "Observacion manuscrita:\n"
                        "\"Si la puerta se abre sola, no entres.\"");
         } else if (entity.type == 9) {
-          hasKeycardLvl2 = true;
+          hasKeycardRed = true;
           std::cout
-              << "\n[OBJETO CLAVE]: Has obtenido la TARJETA ROJA (Nivel 2).\n"
+              << "\n[OBJETO CLAVE]: Has obtenido la TARJETA ROJA.\n"
               << std::endl;
-          openDocument("TARJETA ROJA - NIVEL 2",
+          openDocument("TARJETA ROJA",
                        "Autorizacion: Laboratorio principal.\n\n"
                        "Acceso restringido a personal senior.\n"
                        "Nota de emergencia:\n"
                        "\"No activen el nucleo sin las baterias. La copia ya "
                        "no obedece.\"");
+        } else if (entity.type == 10) {
+          hasKeycardBlue = true;
+          std::cout
+              << "\n[OBJETO CLAVE]: Has obtenido la TARJETA AZUL.\n"
+              << std::endl;
+          openDocument("TARJETA AZUL",
+                       "Autorizacion: Oficinas administrativas.\n\n"
+                       "Acceso general a zona de oficinas.\n");
         }
       }
     } else if (entity.type == 3 || entity.type == 4 || entity.type == 5 ||
