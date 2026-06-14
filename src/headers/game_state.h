@@ -279,6 +279,7 @@ extern GameState gameState;
 extern bool isCursorLocked;
 extern bool tabKeyWasPressed;
 extern bool eKeyWasPressed;
+extern bool interactionPressedThisFrame;
 extern bool isFlashlightOn;
 extern bool fKeyWasPressed;
 extern ma_engine audioEngine;

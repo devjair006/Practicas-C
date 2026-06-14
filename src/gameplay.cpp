@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "headers/gameplay.h"
+#include "headers/animated_entity.h"
 
 #include <cmath>
 #include <iostream>
@@ -277,6 +278,12 @@ bool checkCollision(float x, float z) {
     }
   }
 
+  // --- COLISION CON ENTIDADES ANIMADAS ---
+  if (activeAnimatedEntitySystem &&
+      activeAnimatedEntitySystem->CheckCollision(playerPos, playerRadius)) {
+    return true;
+  }
+
   // --- COLISION CON GENERADOR ---
   if (generadorGLTF && !generadorGLTF->meshes.empty()) {
     for (int i = 0; i < 3; ++i) {
@@ -392,6 +399,8 @@ void tryOpenDoor(GLFWwindow *window) {
 }
 
 void processInput(GLFWwindow *window) {
+  interactionPressedThisFrame = false;
+
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     if (isReadingDocument)
       closeDocument();
@@ -601,6 +610,7 @@ void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
     if (!eKeyWasPressed) {
       justPressedE = true;
+      interactionPressedThisFrame = true;
       eKeyWasPressed = true;
       tryOpenDoor(window);
 

@@ -39,6 +39,7 @@
 
 #include "headers/game_state.h"
 #include "headers/gameplay.h"
+#include "headers/animated_entity.h"
 #include "headers/obj_mesh.h"
 #include "headers/shader.h"
 #include "headers/texture.h"
@@ -319,13 +320,6 @@ int main() {
   std::cout << "[SISTEMA] Modelo activo del gnomo: " << gnomeModelPath
             << std::endl;
 
-  GLTFModel *skeletonGLTF =
-      new GLTFModel("src/skeleton+3d+model_Clone1.glb");
-  std::cout << "[SISTEMA] Esqueleto: "
-            << (skeletonGLTF->meshes.empty() ? "no cargado" : "cargado")
-            << " | animaciones: " << skeletonGLTF->GetAnimationCount()
-            << std::endl;
-
   //----------------------------------------------------------------------------AGREGAR
   // LOS ARCHIVOS GLTF/OBJ
   // AQUI--------------------------------------------------------------------------------
@@ -502,6 +496,9 @@ int main() {
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
+  AnimatedEntitySystem animatedEntities;
+  activeAnimatedEntitySystem = &animatedEntities;
+  animatedEntities.Load("assets/animated_entities.txt");
   std::cout << "[SISTEMA] Props oficinas cargados: CajonesOF("
             << cajonesOFGLTF->meshes.size() << ")" << std::endl;
   std::cout << "[SISTEMA] Props baño cargados: "
@@ -706,36 +703,6 @@ int main() {
   if (gnomeMoveAnimIndex < 0) {
     gnomeMoveAnimIndex = gnomeIdleAnimIndex;
   }
-
-  enum class SkeletonSequenceState { Waiting, Scared, Running, Finished };
-  std::vector<glm::mat4> skeletonBoneTransforms;
-  glm::vec3 skeletonPos = glm::vec3(42.7f, -0.65f, 22.6f);
-  glm::vec3 skeletonRunStartPos = skeletonPos;
-  const glm::vec3 skeletonRunTarget = glm::vec3(12.5f, -1.0f, 22.3f);
-  glm::vec3 skeletonRunDirection = glm::vec3(0.0f, 0.0f, 1.0f);
-  SkeletonSequenceState skeletonState = SkeletonSequenceState::Waiting;
-  float skeletonStateTime = 0.0f;
-  const int skeletonScaredAnimIndex = 1;
-  const int skeletonRunAnimIndex = 0;
-  const float skeletonTriggerDistance = 4.5f;
-  const float skeletonRunSpeed = 5.5f;
-  const float skeletonFacingOffset = glm::radians(270.0f);
-  const bool skeletonHasSkinningBones =
-      skeletonGLTF && skeletonGLTF->CountBonesInMeshes() > 0;
-  const float skeletonScaredDuration =
-      skeletonGLTF && skeletonGLTF->GetAnimationCount() > 0
-          ? (std::max)(0.6f, skeletonGLTF->GetAnimationLengthSeconds(
-                                skeletonScaredAnimIndex))
-          : 1.5f;
-  glm::vec3 skeletonBoundsSize =
-      skeletonGLTF ? skeletonGLTF->localAABB.max - skeletonGLTF->localAABB.min
-                   : glm::vec3(1.0f);
-  float skeletonLargestDimension =
-      (std::max)(skeletonBoundsSize.x,
-                 (std::max)(skeletonBoundsSize.y, skeletonBoundsSize.z));
-  const float skeletonScale =
-      skeletonLargestDimension > 0.001f ? 1.02f / skeletonLargestDimension
-                                        : 1.0f;
 
   glm::vec3 debugSpawnPos = cameraPos;
   float debugSpawnYaw = yaw;
@@ -1006,6 +973,12 @@ int main() {
     ImGui::NewFrame();
 
     processInput(window);
+    animatedEntities.Update(deltaTime, cameraPos, cameraFront,
+                            interactionPressedThisFrame,
+                            gameState == PLAYING && !isReadingDocument);
+    for (const std::string &message : animatedEntities.ConsumeMessages()) {
+      printTypewriter(message);
+    }
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1648,104 +1621,8 @@ int main() {
     // --- DECORACIÓN BAÑO (GLB estáticos) ---
     // Limpiar estado incondicionalmente antes de dibujar los props para evitar
     // heredar colores o estados
-    // --- EVENTO DEL ESQUELETO: se asusta y luego huye del jugador ---
-    if (skeletonGLTF && !skeletonGLTF->meshes.empty() &&
-        skeletonState != SkeletonSequenceState::Finished) {
-      glm::vec3 toPlayer = cameraPos - skeletonPos;
-      toPlayer.y = 0.0f;
-      float distanceToSkeleton = glm::length(toPlayer);
-
-      if (gameState == PLAYING) {
-        if (skeletonState == SkeletonSequenceState::Waiting &&
-            distanceToSkeleton <= skeletonTriggerDistance) {
-          skeletonState = SkeletonSequenceState::Scared;
-          skeletonStateTime = 0.0f;
-
-          printTypewriter("[RUIDO]: El esqueleto se sobresalta...");
-        } else if (skeletonState == SkeletonSequenceState::Scared) {
-          skeletonStateTime += deltaTime;
-          if (skeletonStateTime >= skeletonScaredDuration) {
-            skeletonState = SkeletonSequenceState::Running;
-            skeletonStateTime = 0.0f;
-            skeletonRunStartPos = skeletonPos;
-            glm::vec3 toRunTarget = skeletonRunTarget - skeletonRunStartPos;
-            toRunTarget.y = 0.0f;
-            if (glm::length2(toRunTarget) > 0.0001f) {
-              skeletonRunDirection = glm::normalize(toRunTarget);
-            }
-          }
-        } else if (skeletonState == SkeletonSequenceState::Running) {
-          skeletonStateTime += deltaTime;
-          float runDistance =
-              glm::length(skeletonRunTarget - skeletonRunStartPos);
-          float traveledDistance = skeletonRunSpeed * skeletonStateTime;
-          if (traveledDistance >= runDistance) {
-            skeletonPos = skeletonRunTarget;
-            skeletonState = SkeletonSequenceState::Finished;
-          } else {
-            skeletonPos = skeletonRunStartPos +
-                          skeletonRunDirection * traveledDistance;
-          }
-        }
-      }
-
-      if (skeletonState != SkeletonSequenceState::Finished &&
-          shouldRender(skeletonPos.x, skeletonPos.z, 3.0f)) {
-        int skeletonAnimIndex =
-            skeletonState == SkeletonSequenceState::Running
-                ? skeletonRunAnimIndex
-                : skeletonScaredAnimIndex;
-        if (skeletonAnimIndex >= skeletonGLTF->GetAnimationCount()) {
-          skeletonAnimIndex = 0;
-        }
-
-        float skeletonAnimationTime =
-            skeletonState == SkeletonSequenceState::Waiting ? 0.0f
-                                                            : skeletonStateTime;
-        glm::vec3 facingDirection =
-            skeletonState == SkeletonSequenceState::Running
-                ? skeletonRunDirection
-                : toPlayer;
-        float skeletonAngle =
-            atan2(facingDirection.x, facingDirection.z) + skeletonFacingOffset;
-
-        glm::mat4 skeletonModel = glm::mat4(1.0f);
-        skeletonModel = glm::translate(skeletonModel, skeletonPos);
-        skeletonModel =
-            glm::rotate(skeletonModel, skeletonAngle,
-                        glm::vec3(0.0f, 1.0f, 0.0f));
-        skeletonModel =
-            glm::scale(skeletonModel, glm::vec3(skeletonScale));
-
-        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
-        glUniform1i(solidColorLoc, 0);
-
-        if (skeletonHasSkinningBones) {
-          skeletonGLTF->UpdateAnimation(skeletonAnimationTime,
-                                        skeletonBoneTransforms,
-                                        skeletonAnimIndex);
-          if (finalBonesLoc >= 0 && !skeletonBoneTransforms.empty()) {
-            glUniformMatrix4fv(finalBonesLoc,
-                               (GLsizei)skeletonBoneTransforms.size(),
-                               GL_FALSE,
-                               glm::value_ptr(skeletonBoneTransforms[0]));
-          }
-          if (isAnimatedLoc >= 0) {
-            glUniform1i(isAnimatedLoc, 1);
-          }
-          glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
-                             glm::value_ptr(skeletonModel));
-          skeletonGLTF->Draw(shaderProgram, solidColorLoc);
-        } else {
-          if (isAnimatedLoc >= 0) {
-            glUniform1i(isAnimatedLoc, 0);
-          }
-          skeletonGLTF->DrawAnimated(skeletonAnimationTime, skeletonAnimIndex,
-                                     shaderProgram, modelLoc, solidColorLoc,
-                                     skeletonModel);
-        }
-      }
-    }
+    animatedEntities.Render(shaderProgram, modelLoc, solidColorLoc, colorLoc,
+                            isAnimatedLoc, finalBonesLoc, cameraPos);
 
     glActiveTexture(GL_TEXTURE0);
     if (isAnimatedLoc >= 0)
@@ -2959,7 +2836,7 @@ int main() {
                                  panelGap * 2.0f);
 
       ImGui::SetNextWindowPos(ImVec2(0.0f, panelTopY), ImGuiCond_Always);
-      ImGui::SetNextWindowSize(ImVec2(sideTabW, 360.0f), ImGuiCond_Always);
+      ImGui::SetNextWindowSize(ImVec2(sideTabW, 430.0f), ImGuiCond_Always);
       ImGui::SetNextWindowBgAlpha(0.78f);
       ImGui::Begin("EditorDockTabs", NULL,
                    ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
@@ -2979,6 +2856,7 @@ int main() {
       sideTab("I", 0);
       sideTab("M", 1);
       sideTab("S", 2);
+      sideTab("A", 3);
       if (ImGui::Button("<", ImVec2(-1.0f, 34.0f))) {
         showDebugGUI = false;
       }
@@ -3300,6 +3178,19 @@ int main() {
         if (!gameEntities.empty() && ImGui::Button("Entidad seleccionada")) {
           teleportNear(gameEntities[selectedEntityIndex].pos);
         }
+        ImGui::End();
+      }
+
+      if (activeEditorPanel == 3) {
+        ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY),
+                                ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH),
+                                 ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.86f);
+        ImGui::Begin("Editor de Entidades Animadas", NULL,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        animatedEntities.DrawEditor(cameraPos, cameraFront,
+                                    "assets/animated_entities.txt");
         ImGui::End();
       }
 

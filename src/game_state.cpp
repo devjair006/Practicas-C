@@ -290,6 +290,7 @@ GameState gameState = MENU;
 bool isCursorLocked = false;
 bool tabKeyWasPressed = false;
 bool eKeyWasPressed = false;
+bool interactionPressedThisFrame = false;
 bool isFlashlightOn = true;
 bool fKeyWasPressed = false;
 

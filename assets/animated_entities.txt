@@ -1,0 +1,11 @@
+# Animated entities v1
+ENTITY "Esqueleto corredor" "assets/entidadesanimadas/esqueleto.glb" 42.7 -0.65 22.6 0 0 0 1 1 1 1 1 1.02 1 270 1 4.5 0.92 1 1 1 0 0 0 0 0 1 1 1
+ACTION 3 0 1 1 0 0 0 1 "[RUIDO]: El esqueleto se sobresalta..."
+ACTION 1 1 0 1 0 0 0 0 ""
+ACTION 2 0 1 5.5 12.5 -1 22.3 1 ""
+ACTION 4 0 1 1 0 0 0 1 ""
+END
+ENTITY "cerdo" "assets/entidadesanimadas/humanoide2glb.glb" 45.737 -0.498 10.422 0 -90 0 0.501 0.52 0.53 1 1 1.82 1 87 0 23.4 -0.039 0 1.11 1 1 1 0 0 0 1 1 1
+ACTION 2 1 1 1.4 16.407 -0.498 10.7134 1 ""
+ACTION 1 3 1.25 1 14.5411 0.00715387 10.8831 1 ""
+END
