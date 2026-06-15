@@ -18,7 +18,7 @@ enum GameState { MENU, PLAYING, GAMEOVER };
 struct Entity {
   glm::vec3 pos;
   int type; // 0=Log, 1=Bateria, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa,
-            // 5=Monitor, 6=Maquina, 7=Portal, 8=TarjetaNv1, 9=TarjetaNv2
+            // 5=Monitor, 6=Maquina, 7=Portal, 8=Tarjeta Amarilla, 9=Tarjeta Roja, 11=Tarjeta Azul
   bool active;
   std::string text;
   float seed;
@@ -303,8 +303,9 @@ extern bool isFlashlightOn;
 extern bool fKeyWasPressed;
 extern ma_engine audioEngine;
 extern int bateriasRecolectadas;
-extern bool hasKeycardLvl1;
-extern bool hasKeycardLvl2;
+extern bool hasKeycardYellow;
+extern bool hasKeycardRed;
+extern bool hasKeycardBlue;
 extern bool dimensionAlterna;
 extern bool portalActivado;
 extern int currentZone;
@@ -388,6 +389,24 @@ extern std::vector<glm::vec3> cableTechoPos;
 extern std::vector<glm::vec3> cableTechoRot;
 extern std::vector<glm::vec3> cableTechoScale;
 
+extern GLTFModel *sangrePisoGLTF;
+extern std::vector<glm::vec3> sangrePisoPos;
+extern std::vector<glm::vec3> sangrePisoRot;
+extern std::vector<glm::vec3> sangrePisoScale;
+
+extern GLTFModel *sangrePiso2GLTF;
+extern std::vector<glm::vec3> sangrePiso2Pos;
+extern std::vector<glm::vec3> sangrePiso2Rot;
+extern std::vector<glm::vec3> sangrePiso2Scale;
+
+extern GLTFModel *sangreParedesGLTF;
+extern GLTFModel *sangrePared2GLTF;
+extern GLTFModel *behindYouGLTF;
+
+extern glm::vec3 behindYouPos;
+extern glm::vec3 behindYouRot;
+extern glm::vec3 behindYouScale;
+
 extern GLTFModel *warningGLTF;
 extern glm::vec3 warningPos;
 extern glm::vec3 warningRot;
@@ -412,9 +431,6 @@ extern glm::vec3 luzDescanso2Rot;
 extern glm::vec3 luzDescanso2Scale;
 
 extern GLTFModel *emergencyGLTF;
-extern std::vector<glm::vec3> emergencyPos;
-extern std::vector<glm::vec3> emergencyRot;
-extern std::vector<glm::vec3> emergencyScale;
 
 extern GLTFModel *reactorGLTF;
 extern glm::vec3 reactorPos;
@@ -542,11 +558,17 @@ inline std::string getModelArea(const std::string& modelName) {
         "locker", "lockers", "old_sofa_free", "old_soviet_taxophone",
         "papel_viejo", "planta_electrica"
     };
+    // --- Baño ---
+    static const std::unordered_set<std::string> kBano = {
+        "Bano", "azule", "girlB", "lavamanos", "ligthbathroom",
+        "mensB", "mirror", "MirrorBG", "urinario"
+    };
 
     if (kContencion.count(modelName)) return "Contencion";
     if (kArchivo.count(modelName))    return "Archivo";
     if (kOficinas.count(modelName))   return "Oficinas";
     if (kDescanso.count(modelName))   return "Descanso";
+    if (kBano.count(modelName))       return "Baño";
     return "General";
 }
 
@@ -557,6 +579,7 @@ extern float door1Anim;
 extern bool door1Opening;
 extern float door2Anim;
 extern bool door2Opening;
+extern std::map<int, float> activeDoorsAnim;
 extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
 
 

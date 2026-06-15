@@ -1,7 +1,8 @@
 #include "headers/game_state.h"
 #include <fstream>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+
 
 std::string currentHUDMessage = "";
 float hudMessageTimer = 0.0f;
@@ -17,9 +18,9 @@ glm::vec3 girlBpos(38.776f, 0.250f, 9.150f);
 glm::vec3 girlBrot(90.000f, 0.000f, 0.000f);
 glm::vec3 girlBscale(1.700f, 1.700f, 1.700f);
 
-glm::vec3 mirrorBGpos(40.815f, 0.150f, 5.55f);
-glm::vec3 mirrorBGRot(0.0f, 0.5f, -90.0f);
-glm::vec3 mirrorBGScale(1.30f, 1.0f, 3.0f);
+glm::vec3 mirrorBGpos(40.85f, 0.150f, 4.50f);
+glm::vec3 mirrorBGRot(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorBGScale(3.20f, 1.0f, 0.05f);
 
 glm::vec3 azulejoPos(35.160f, 0.200f, 7.00f);
 glm::vec3 azulejoRot(90.0f, -90.0f, 0.0f);
@@ -30,7 +31,7 @@ glm::vec3 mirrorRot(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale(0.540f, 0.520f, 0.630f);
 
 glm::vec3 mirrorPos2(33.160f, 0.100f, 4.00f);
-glm::vec3 mirrorRot2(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorRot2(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale2(0.540f, 0.520f, 0.630f);
 
 glm::vec3 mirrorPos3(33.160f, 0.100f, 5.00f);
@@ -38,7 +39,7 @@ glm::vec3 mirrorRot3(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale3(0.540f, 0.520f, 0.630f);
 
 glm::vec3 mirrorPos4(33.160f, 0.1f, 6.00f);
-glm::vec3 mirrorRot4(0.0f, -90.0f, 0.0f);
+glm::vec3 mirrorRot4(90.0f, -90.0f, 0.0f);
 glm::vec3 mirrorScale4(0.540f, 0.520f, 0.630f);
 
 glm::vec3 ligthbathroom2Pos(35.160f, 0.480f, 3.403f);
@@ -155,36 +156,36 @@ glm::vec3 monitorPos = glm::vec3(32.75f, 0.0f, 5.2f);
 glm::vec3 monitorRot = glm::vec3(0.0f, -180.0f, 0.0f);
 glm::vec3 monitorScale = glm::vec3(1.5f, 1.5f, 1.5f);
 
-glm::vec3 monitor2Pos = glm::vec3(13.4f, 0.0f, 5.2f); 
+glm::vec3 monitor2Pos = glm::vec3(13.4f, 0.0f, 5.2f);
 glm::vec3 monitor2Rot = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 monitor2Scale = glm::vec3(1.5f, 1.5f, 1.5f);
 
-glm::vec3 maquinaPos = glm::vec3(30.38f, 0.0f, 7.8f); 
-glm::vec3 maquinaRot = glm::vec3(0.0f, 0.0f, 180.0f); 
-glm::vec3 maquinaScale = glm::vec3(0.5f, 0.5f, 0.5f);  
+glm::vec3 maquinaPos = glm::vec3(30.38f, 0.0f, 7.8f);
+glm::vec3 maquinaRot = glm::vec3(0.0f, 0.0f, 180.0f);
+glm::vec3 maquinaScale = glm::vec3(0.5f, 0.5f, 0.5f);
 
-glm::vec3 deskPos = glm::vec3(15.600f, -0.300f, 3.000f); 
-glm::vec3 deskRot = glm::vec3(0.0f, -90.0f, 13.0f);            
-glm::vec3 deskScale = glm::vec3(0.60f, 0.60f, 0.60f);    
+glm::vec3 deskPos = glm::vec3(15.600f, -0.300f, 3.000f);
+glm::vec3 deskRot = glm::vec3(0.0f, -90.0f, 13.0f);
+glm::vec3 deskScale = glm::vec3(0.60f, 0.60f, 0.60f);
 
-glm::vec3 desk2Pos = glm::vec3(17.600f, -0.300f, 3.000f); 
-glm::vec3 desk2Rot = glm::vec3(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk2Pos = glm::vec3(17.600f, -0.300f, 3.000f);
+glm::vec3 desk2Rot = glm::vec3(0.0f, -90.0f, 13.0f);
 glm::vec3 desk2Scale = glm::vec3(0.600f, 0.600f, 0.600f);
 
-glm::vec3 desk3Pos = glm::vec3(15.600f, -0.300f, 5.300f); 
-glm::vec3 desk3Rot = glm::vec3(0.0f, -90.0f, 13.0f);            
-glm::vec3 desk3Scale = glm::vec3(0.600f, 0.600f, 0.600f);    
+glm::vec3 desk3Pos = glm::vec3(15.600f, -0.300f, 5.300f);
+glm::vec3 desk3Rot = glm::vec3(0.0f, -90.0f, 13.0f);
+glm::vec3 desk3Scale = glm::vec3(0.600f, 0.600f, 0.600f);
 
-glm::vec3 desk4Pos = glm::vec3(17.400f, -0.300f, 5.300f); 
-glm::vec3 desk4Rot = glm::vec3(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk4Pos = glm::vec3(17.400f, -0.300f, 5.300f);
+glm::vec3 desk4Rot = glm::vec3(0.0f, -90.0f, 13.0f);
 glm::vec3 desk4Scale = glm::vec3(0.600f, 0.600f, 0.600f);
 
-glm::vec3 desk5Pos = glm::vec3(19.400f, -0.300f, 5.200f); 
-glm::vec3 desk5Rot = glm::vec3(0.0f, -90.0f, 13.0f);            
-glm::vec3 desk5Scale = glm::vec3(0.600f, 0.600f, 0.600f);    
+glm::vec3 desk5Pos = glm::vec3(19.400f, -0.300f, 5.200f);
+glm::vec3 desk5Rot = glm::vec3(0.0f, -90.0f, 13.0f);
+glm::vec3 desk5Scale = glm::vec3(0.600f, 0.600f, 0.600f);
 
-glm::vec3 desk6Pos = glm::vec3(19.400f, -0.300f, 3.000f); 
-glm::vec3 desk6Rot = glm::vec3(0.0f, -90.0f, 13.0f);            
+glm::vec3 desk6Pos = glm::vec3(19.400f, -0.300f, 3.000f);
+glm::vec3 desk6Rot = glm::vec3(0.0f, -90.0f, 13.0f);
 glm::vec3 desk6Scale = glm::vec3(0.600f, 0.600f, 0.600f);
 
 glm::vec3 sillita1Pos = glm::vec3(15.600f, -0.300f, 2.500f);
@@ -211,12 +212,12 @@ glm::vec3 sillita6Pos = glm::vec3(19.400f, -0.300f, 4.800f);
 glm::vec3 sillita6Rot = glm::vec3(0.0f, -90.0f, 0.0f);
 glm::vec3 sillita6Scale = glm::vec3(0.600f, 0.600f, 0.600f);
 
-glm::vec3 estantePos = glm::vec3(15.4f, -0.35f, 1.7f); 
-glm::vec3 estanteRot = glm::vec3(0.0f, -90.0f, 0.0f);   
+glm::vec3 estantePos = glm::vec3(15.4f, -0.35f, 1.7f);
+glm::vec3 estanteRot = glm::vec3(0.0f, -90.0f, 0.0f);
 glm::vec3 estanteScale = glm::vec3(0.8f, 0.8f, 0.8f);
 
-glm::vec3 estante2Pos = glm::vec3(17.4f, -0.35f, 1.7f); 
-glm::vec3 estante2Rot = glm::vec3(0.0f, -90.0f, 0.0f);   
+glm::vec3 estante2Pos = glm::vec3(17.4f, -0.35f, 1.7f);
+glm::vec3 estante2Rot = glm::vec3(0.0f, -90.0f, 0.0f);
 glm::vec3 estante2Scale = glm::vec3(0.8f, 0.8f, 0.8f);
 
 glm::vec3 estante3Pos = glm::vec3(19.5f, -0.35f, 1.7f);
@@ -259,12 +260,12 @@ glm::vec3 camillaPos = glm::vec3(19.1f, -0.35f, 18.8f);
 glm::vec3 camillaRot = glm::vec3(0.0f, 90.0f, 0.0f);
 glm::vec3 camillaScale = glm::vec3(0.6f, 0.6f, 0.6f);
 
-glm::vec3 muralPos = glm::vec3(7.4f, 0.5f, 14.1f); 
+glm::vec3 muralPos = glm::vec3(7.4f, 0.5f, 14.1f);
 glm::vec3 muralRot = glm::vec3(0.0f, 180.0f, 0.0f);
-glm::vec3 muralScale = glm::vec3(0.6f, 0.6f, 0.6f); 
+glm::vec3 muralScale = glm::vec3(0.6f, 0.6f, 0.6f);
 
-glm::vec3 terminalesPos = glm::vec3(8.0f, -0.35f, 13.0f); 
-glm::vec3 terminalesRot = glm::vec3(0.0f, 180.0f, 0.0f);   
+glm::vec3 terminalesPos = glm::vec3(8.0f, -0.35f, 13.0f);
+glm::vec3 terminalesRot = glm::vec3(0.0f, 180.0f, 0.0f);
 glm::vec3 terminalesScale = glm::vec3(0.7f, 0.7f, 0.7f);
 
 glm::vec3 esferaPos = glm::vec3(10.6f, -0.35f, 20.0f);
@@ -315,8 +316,9 @@ bool fKeyWasPressed = false;
 ma_engine audioEngine;
 
 int bateriasRecolectadas = 0;
-bool hasKeycardLvl1 = false;
-bool hasKeycardLvl2 = false;
+bool hasKeycardYellow = false;
+bool hasKeycardRed = false;
+bool hasKeycardBlue = false;
 bool dimensionAlterna = false;
 bool portalActivado = false;
 int currentZone = 1;
@@ -368,6 +370,25 @@ GLTFModel *logoGLTF = nullptr;
 GLTFModel *logo2GLTF = nullptr;
 GLTFModel *cablePisoGLTF = nullptr;
 GLTFModel *cableTechoGLTF = nullptr;
+
+GLTFModel *sangrePisoGLTF = nullptr;
+std::vector<glm::vec3> sangrePisoPos = {};
+std::vector<glm::vec3> sangrePisoRot = {};
+std::vector<glm::vec3> sangrePisoScale = {};
+
+GLTFModel *sangrePiso2GLTF = nullptr;
+std::vector<glm::vec3> sangrePiso2Pos = {};
+std::vector<glm::vec3> sangrePiso2Rot = {};
+std::vector<glm::vec3> sangrePiso2Scale = {};
+
+GLTFModel *sangreParedesGLTF = nullptr;
+GLTFModel *sangrePared2GLTF = nullptr;
+GLTFModel *behindYouGLTF = nullptr;
+
+glm::vec3 behindYouPos = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 behindYouRot = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 behindYouScale = glm::vec3(1.0f, 1.0f, 1.0f);
+
 GLTFModel *warningGLTF = nullptr;
 GLTFModel *sillitaGLTF = nullptr;
 GLTFModel *maquinaGLTF = nullptr;
@@ -421,25 +442,6 @@ glm::vec3 lamparaContencionScale(0.570f, 0.720f, 0.900f);
 glm::vec3 lampara2Pos(36.155f, 0.450f, 18.042f);
 glm::vec3 lampara2Rot(-89.000f, 0.000f, 89.000f);
 glm::vec3 lampara2Scale(1.010f, 8.980f, 1.070f);
-
-std::vector<glm::vec3> emergencyPos = {
-    glm::vec3(39.693f, 0.400f, 20.935f),
-    glm::vec3(39.597f, 0.274f, 11.987f),
-    glm::vec3(3.0f, 2.5f, 3.0f),  // esquina noroeste sala descanso
-    glm::vec3(10.0f, 2.5f, 3.0f), // esquina noreste sala descanso
-};
-std::vector<glm::vec3> emergencyRot = {
-    glm::vec3(-93.500f, 0.000f, 0.000f),
-    glm::vec3(93.500f, 2.500f, 88.000f),
-    glm::vec3(0.000f, 0.000f, 0.000f), // ajustar con editor in-game
-    glm::vec3(0.000f, 0.000f, 0.000f), // ajustar con editor in-game
-};
-std::vector<glm::vec3> emergencyScale = {
-    glm::vec3(1.0f, 1.0f, 1.0f),
-    glm::vec3(0.990f, 0.980f, 1.0f),
-    glm::vec3(1.0f, 1.0f, 1.0f),
-    glm::vec3(1.0f, 1.0f, 1.0f),
-};
 
 glm::vec3 reactorPos(43.163f, -0.550f, 19.211f);
 glm::vec3 reactorRot(0.000f, 0.000f, 0.000f);
@@ -541,7 +543,7 @@ std::vector<Entity> gameEntities = {
      "[CABLE SUELTO]:Hay un cable pelado aqui.", 0.0f},
     {glm::vec3(20.0f, -0.4f, 5.0f), 0, true,
      "LOG 1 (Arrugado): 'Apagon general. Las compuertas se bloquearon.'", 0.0f},
-    {glm::vec3(42.0f, -0.2f, 5.0f), 8, true, "", 0.0f},
+    {glm::vec3(15.0f, -0.4f, 3.0f), 8, true, "", 0.0f}, // Tarjeta Amarilla (Pruebas)
     {glm::vec3(12.0f, -0.2f, 6.0f), 1, true, "", 0.0f},
     {glm::vec3(24.0f, -0.5f, 6.0f), 4, true, "", 1.0f},
     {glm::vec3(24.0f, 0.0f, 6.0f), 5, true,
@@ -551,13 +553,14 @@ std::vector<Entity> gameEntities = {
      "[PANTALLA ERROR]: 'Falla de contencion.'", 2.5f},
     {glm::vec3(28.0f, 0.0f, 16.0f), 6, true, "[MAQUINA]: Unidad Frigorifica.",
      5.0f},
-    {glm::vec3(42.0f, -0.4f, 17.0f), 9, true, "", 0.0f},
+    {glm::vec3(40.6f, -0.4f, 17.0f), 9, true, "", 0.0f}, // Tarjeta Roja (Contencion)
     {glm::vec3(42.0f, -0.2f, 15.0f), 0, true,
      "LOG 2 (Sangriento): 'La muestra escapo.'", 0.0f},
     {glm::vec3(15.0f, -0.2f, 18.0f), 1, true, "", 0.0f},
     {glm::vec3(10.0f, -0.4f, 28.0f), 3, true,
      "[MANCHA]: Rastro oscuro hacia ventilacion.", 0.0f},
-    {glm::vec3(25.0f, 0.0f, 3.0f), 2, true, "", 0.0f}};
+    {glm::vec3(25.0f, 0.0f, 3.0f), 2, true, "", 0.0f},
+    {glm::vec3(8.0f, -0.4f, 5.0f), 11, true, "", 0.0f}}; // Tarjeta Azul (Oficinas)
 
 float wallWidth = 0.3f;
 float wallHeight = 1.0f;
@@ -565,129 +568,318 @@ float door1Anim = 0.0f;
 bool door1Opening = false;
 float door2Anim = 0.0f;
 bool door2Opening = false;
+std::map<int, float> activeDoorsAnim;
 
 int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
-    {1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-    {1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-    {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-};
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+     0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+     0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 7, 7, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 8, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 7, 7, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+    {1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+    {1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+    {1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 4, 4, 4, 4, 4, 4},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
 std::vector<PlacedProp> placedProps;
-std::map<std::string, GLTFModel*> modelRegistry;
+std::map<std::string, GLTFModel *> modelRegistry;
 
-void saveLevelProps(const std::string& path) {
-    std::ofstream outFile(path);
-    if (!outFile.is_open()) {
-        std::cerr << "Error al abrir el archivo para guardar: " << path << std::endl;
-        return;
-    }
-    for (const auto& prop : placedProps) {
-        outFile << prop.modelName << " "
-                << prop.pos.x << " " << prop.pos.y << " " << prop.pos.z << " "
-                << prop.rot.x << " " << prop.rot.y << " " << prop.rot.z << " "
-                << prop.scale.x << " " << prop.scale.y << " " << prop.scale.z << " "
-                << (prop.collisionActive ? 1 : 0) << " "
-                << prop.area << "\n";
-    }
-    outFile.close();
-    std::cout << "Mapa guardado exitosamente en: " << path << std::endl;
+void saveLevelProps(const std::string &path) {
+  std::ofstream outFile(path);
+  if (!outFile.is_open()) {
+    std::cerr << "Error al abrir el archivo para guardar: " << path
+              << std::endl;
+    return;
+  }
+  for (const auto &prop : placedProps) {
+    outFile << prop.modelName << " " << prop.pos.x << " " << prop.pos.y << " "
+            << prop.pos.z << " " << prop.rot.x << " " << prop.rot.y << " "
+            << prop.rot.z << " " << prop.scale.x << " " << prop.scale.y << " "
+            << prop.scale.z << " " << (prop.collisionActive ? 1 : 0) << " "
+            << prop.area << "\n";
+  }
+  outFile.close();
+  std::cout << "Mapa guardado exitosamente en: " << path << std::endl;
 }
 
-void loadLevelProps(const std::string& path) {
-    placedProps.clear();
-    std::ifstream inFile(path);
-    if (inFile.is_open()) {
-        std::string line;
-        while (std::getline(inFile, line)) {
-            if (line.empty() || line[0] == '#') continue;
-            std::stringstream ss(line);
-            PlacedProp prop;
-            prop.collisionActive = true;
-            if (ss >> prop.modelName 
-                   >> prop.pos.x >> prop.pos.y >> prop.pos.z 
-                   >> prop.rot.x >> prop.rot.y >> prop.rot.z 
-                   >> prop.scale.x >> prop.scale.y >> prop.scale.z) {
-                int activeVal = 1;
-                if (ss >> activeVal) {
-                    prop.collisionActive = (activeVal != 0);
-                }
-                // Retrocompatible: si no hay area en el archivo, inferirla del modelo
-                std::string areaStr;
-                if (ss >> areaStr) {
-                    prop.area = areaStr;
-                } else {
-                    prop.area = getModelArea(prop.modelName);
-                }
-                placedProps.push_back(prop);
-            }
+void loadLevelProps(const std::string &path) {
+  placedProps.clear();
+  std::ifstream inFile(path);
+  if (inFile.is_open()) {
+    std::string line;
+    while (std::getline(inFile, line)) {
+      if (line.empty() || line[0] == '#')
+        continue;
+      std::stringstream ss(line);
+      PlacedProp prop;
+      prop.collisionActive = true;
+      if (ss >> prop.modelName >> prop.pos.x >> prop.pos.y >> prop.pos.z >>
+          prop.rot.x >> prop.rot.y >> prop.rot.z >> prop.scale.x >>
+          prop.scale.y >> prop.scale.z) {
+        int activeVal = 1;
+        if (ss >> activeVal) {
+          prop.collisionActive = (activeVal != 0);
         }
-        inFile.close();
-        std::cout << "Cargados " << placedProps.size() << " props desde: " << path << std::endl;
-    } else {
-        std::cout << "Archivo de posiciones no encontrado, cargando valores por defecto..." << std::endl;
-        placedProps.push_back({"cajonesOF",      glm::vec3(8.0f,    -0.5f,  5.0f),   glm::vec3(0.0f, 0.0f, 0.0f),         glm::vec3(1.0f,   1.0f,  1.0f),  false, "Oficinas"});
-        placedProps.push_back({"sarcofago",       glm::vec3(43.235f, -0.100f,12.691f),glm::vec3(0.0f, 0.0f, 0.0f),         glm::vec3(1.260f, 1.060f,0.930f), true,  "Contencion"});
-        placedProps.push_back({"warning",         glm::vec3(39.993f,  0.200f,20.866f),glm::vec3(-89.000f,-180.000f,-0.500f),glm::vec3(1.410f, 0.950f,1.570f), true,  "Contencion"});
-        placedProps.push_back({"tesla",           glm::vec3(47.950f, -0.500f,14.400f),glm::vec3(-88.000f,  0.0f,  0.0f),   glm::vec3(0.150f, 0.120f,0.090f), true,  "Contencion"});
-        placedProps.push_back({"reactor",         glm::vec3(43.163f, -0.550f,16.111f),glm::vec3(0.000f, 0.000f, 0.000f),   glm::vec3(1.00f,  1.000f,1.000f), true,  "Contencion"});
-        placedProps.push_back({"panelControl",    glm::vec3(48.350f, -0.500f,17.450f),glm::vec3(-91.000f, 0.000f,-180.000f),glm::vec3(0.450f, 0.490f,0.180f), true,  "Contencion"});
-        placedProps.push_back({"consola",         glm::vec3(40.613f, -0.200, 17.770f),glm::vec3(-90.000f, 0.000f,-147.500f),glm::vec3(0.890f, 0.730f,0.280f), true,  "Contencion"});
-        placedProps.push_back({"esquineros",      glm::vec3(48.521f, -0.500f,12.504f),glm::vec3(0.000f, -52.000f, 0.000f),  glm::vec3(0.890f, 0.750f,0.810f), true,  "Contencion"});
-        placedProps.push_back({"esquineros2",     glm::vec3(48.283f, -0.500f,20.301f),glm::vec3(-2.500f,-144.000f,-0.500f), glm::vec3(0.890f, 0.760f,0.610f), true,  "Contencion"});
-        placedProps.push_back({"esquineros3",     glm::vec3(34.683f, -0.500f,12.581f),glm::vec3(-0.500f, 56.000f,-0.500f),  glm::vec3(0.890f, 0.760f,0.860f), true,  "Contencion"});
-        placedProps.push_back({"esquineros4",     glm::vec3(34.833f, -0.550f,20.451f),glm::vec3( 0.500f,120.000f,-0.500f),  glm::vec3(0.890f, 0.760f,0.610f), true,  "Contencion"});
-        placedProps.push_back({"lampara-reactor", glm::vec3(44.000f,  0.350f,15.157f),glm::vec3(-1.000f, 48.500f,-19.500f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
-        placedProps.push_back({"lampara-reactor", glm::vec3(43.900f,  0.400f,17.067f),glm::vec3( 0.000f,-50.000f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
-        placedProps.push_back({"lampara-reactor", glm::vec3(42.585f,  0.350f,16.946f),glm::vec3( 0.000f,-154.000f, 0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
-        placedProps.push_back({"lampara-reactor", glm::vec3(42.594f,  0.300f,15.620f),glm::vec3( 0.000f,149.500f,  0.000f), glm::vec3(1.000f, 1.000f,1.000f), false, "Contencion"});
-        
-        saveLevelProps(path);
+        // Retrocompatible: si no hay area en el archivo, inferirla del modelo
+        std::string areaStr;
+        if (ss >> areaStr) {
+          prop.area = areaStr;
+        } else {
+          prop.area = getModelArea(prop.modelName);
+        }
+        placedProps.push_back(prop);
+      }
     }
+    inFile.close();
+    std::cout << "Cargados " << placedProps.size() << " props desde: " << path
+              << std::endl;
+
+    // Migración de Baño: Si no existe MirrorBG, añadimos todos los props del
+    // baño
+    bool hasBano = false;
+    for (const auto &p : placedProps) {
+      if (p.modelName == "MirrorBG") {
+        hasBano = true;
+        break;
+      }
+    }
+    if (!hasBano) {
+      placedProps.push_back(
+          {"MirrorBG", mirrorBGpos, mirrorBGRot, mirrorBGScale, true, "Baño"});
+      placedProps.push_back(
+          {"mensB", mensBpos, mensBrot, mensBscale, true, "Baño"});
+      placedProps.push_back(
+          {"girlB", girlBpos, girlBrot, girlBscale, true, "Baño"});
+      placedProps.push_back(
+          {"azule", azulejoPos, azulejoRot, azulejoScale, true, "Baño"});
+      placedProps.push_back(
+          {"mirror", mirrorPos, mirrorRot, mirrorScale, true, "Baño"});
+      placedProps.push_back(
+          {"mirror", mirrorPos2, mirrorRot2, mirrorScale2, true, "Baño"});
+      placedProps.push_back(
+          {"mirror", mirrorPos3, mirrorRot3, mirrorScale3, true, "Baño"});
+      placedProps.push_back(
+          {"mirror", mirrorPos4, mirrorRot4, mirrorScale4, true, "Baño"});
+      placedProps.push_back({"ligthbathroom", ligthbathroomPos,
+                             ligthbathroomRot, ligthbathroomScale, true,
+                             "Baño"});
+      placedProps.push_back(
+          {"ligthbathroom", lamp3Pos, lamp3Rot, lamp3Scale, true, "Baño"});
+      placedProps.push_back(
+          {"ligthbathroom", lamp4Pos, lamp4Rot, lamp4Scale, true, "Baño"});
+      placedProps.push_back({"ligthbathroom", ligthbathroom2Pos,
+                             ligthbathroom2Rot, ligthbathroom2Scale, true,
+                             "Baño"});
+      placedProps.push_back(
+          {"Bano", banoPos, banoRot, banoScale, true, "Baño"});
+      placedProps.push_back(
+          {"Bano", banoPos2, banoRot2, banoScale2, true, "Baño"});
+      placedProps.push_back(
+          {"Bano", banoPos3, banoRot3, banoScale3, true, "Baño"});
+      placedProps.push_back(
+          {"Bano", banoPos4, banoRot4, banoScale4, true, "Baño"});
+      placedProps.push_back(
+          {"Bano", banoPos5, banoRot5, banoScale5, true, "Baño"});
+      placedProps.push_back(
+          {"Bano", banoPos6, banoRot6, banoScale6, true, "Baño"});
+      placedProps.push_back(
+          {"Bano", banoPos7, banoRot7, banoScale7, true, "Baño"});
+      placedProps.push_back(
+          {"Bano", banoPos8, banoRot8, banoScale8, true, "Baño"});
+      placedProps.push_back({"lavamanos", lavamanosPos, lavamanosRot,
+                             lavamanosScale, true, "Baño"});
+      placedProps.push_back({"lavamanos", lavamanosPos2, lavamanosRot2,
+                             lavamanosScale2, true, "Baño"});
+      placedProps.push_back({"lavamanos", lavamanosPos3, lavamanosRot3,
+                             lavamanosScale3, true, "Baño"});
+      placedProps.push_back({"lavamanos", lavamanosPos4, lavamanosRot4,
+                             lavamanosScale4, true, "Baño"});
+      placedProps.push_back({"lavamanos", lavamanosPos5, lavamanosRot5,
+                             lavamanosScale5, true, "Baño"});
+      placedProps.push_back({"lavamanos", lavamanosPos6, lavamanosRot6,
+                             lavamanosScale6, true, "Baño"});
+      placedProps.push_back({"lavamanos", lavamanosPos7, lavamanosRot7,
+                             lavamanosScale7, true, "Baño"});
+      placedProps.push_back({"lavamanos", lavamanosPos8, lavamanosRot8,
+                             lavamanosScale8, true, "Baño"});
+      placedProps.push_back(
+          {"urinario", urinarioPos, urinarioRot, urinarioScale, true, "Baño"});
+      std::cout << "Migracion: Modelos de bano anadidos a placedProps."
+                << std::endl;
+      saveLevelProps(path);
+    }
+
+  } else {
+    std::cout << "Archivo de posiciones no encontrado, cargando valores por "
+                 "defecto..."
+              << std::endl;
+    placedProps.push_back({"cajonesOF", glm::vec3(8.0f, -0.5f, 5.0f),
+                           glm::vec3(0.0f, 0.0f, 0.0f),
+                           glm::vec3(1.0f, 1.0f, 1.0f), false, "Oficinas"});
+    placedProps.push_back({"sarcofago", glm::vec3(43.235f, -0.100f, 12.691f),
+                           glm::vec3(0.0f, 0.0f, 0.0f),
+                           glm::vec3(1.260f, 1.060f, 0.930f), true,
+                           "Contencion"});
+    placedProps.push_back({"warning", glm::vec3(39.993f, 0.200f, 20.866f),
+                           glm::vec3(-89.000f, -180.000f, -0.500f),
+                           glm::vec3(1.410f, 0.950f, 1.570f), true,
+                           "Contencion"});
+    placedProps.push_back({"tesla", glm::vec3(47.950f, -0.500f, 14.400f),
+                           glm::vec3(-88.000f, 0.0f, 0.0f),
+                           glm::vec3(0.150f, 0.120f, 0.090f), true,
+                           "Contencion"});
+    placedProps.push_back({"reactor", glm::vec3(43.163f, -0.550f, 16.111f),
+                           glm::vec3(0.000f, 0.000f, 0.000f),
+                           glm::vec3(1.00f, 1.000f, 1.000f), true,
+                           "Contencion"});
+    placedProps.push_back({"panelControl", glm::vec3(48.350f, -0.500f, 17.450f),
+                           glm::vec3(-91.000f, 0.000f, -180.000f),
+                           glm::vec3(0.450f, 0.490f, 0.180f), true,
+                           "Contencion"});
+    placedProps.push_back({"consola", glm::vec3(40.613f, -0.200, 17.770f),
+                           glm::vec3(-90.000f, 0.000f, -147.500f),
+                           glm::vec3(0.890f, 0.730f, 0.280f), true,
+                           "Contencion"});
+    placedProps.push_back({"esquineros", glm::vec3(48.521f, -0.500f, 12.504f),
+                           glm::vec3(0.000f, -52.000f, 0.000f),
+                           glm::vec3(0.890f, 0.750f, 0.810f), true,
+                           "Contencion"});
+    placedProps.push_back({"esquineros2", glm::vec3(48.283f, -0.500f, 20.301f),
+                           glm::vec3(-2.500f, -144.000f, -0.500f),
+                           glm::vec3(0.890f, 0.760f, 0.610f), true,
+                           "Contencion"});
+    placedProps.push_back({"esquineros3", glm::vec3(34.683f, -0.500f, 12.581f),
+                           glm::vec3(-0.500f, 56.000f, -0.500f),
+                           glm::vec3(0.890f, 0.760f, 0.860f), true,
+                           "Contencion"});
+    placedProps.push_back({"esquineros4", glm::vec3(34.833f, -0.550f, 20.451f),
+                           glm::vec3(0.500f, 120.000f, -0.500f),
+                           glm::vec3(0.890f, 0.760f, 0.610f), true,
+                           "Contencion"});
+    placedProps.push_back(
+        {"lampara-reactor", glm::vec3(44.000f, 0.350f, 15.157f),
+         glm::vec3(-1.000f, 48.500f, -19.500f),
+         glm::vec3(1.000f, 1.000f, 1.000f), false, "Contencion"});
+    placedProps.push_back(
+        {"lampara-reactor", glm::vec3(43.900f, 0.400f, 17.067f),
+         glm::vec3(0.000f, -50.000f, 0.000f), glm::vec3(1.000f, 1.000f, 1.000f),
+         false, "Contencion"});
+    placedProps.push_back(
+        {"lampara-reactor", glm::vec3(42.585f, 0.350f, 16.946f),
+         glm::vec3(0.000f, -154.000f, 0.000f),
+         glm::vec3(1.000f, 1.000f, 1.000f), false, "Contencion"});
+    placedProps.push_back(
+        {"lampara-reactor", glm::vec3(42.594f, 0.300f, 15.620f),
+         glm::vec3(0.000f, 149.500f, 0.000f), glm::vec3(1.000f, 1.000f, 1.000f),
+         false, "Contencion"});
+
+    // Luces de emergencia migradas al sistema de props
+    placedProps.push_back({"emergency", glm::vec3(39.693f, 0.400f, 20.935f),
+                           glm::vec3(-93.500f, 0.000f, 0.000f),
+                           glm::vec3(1.0f, 1.0f, 1.0f), true, "Contencion"});
+    placedProps.push_back({"emergency", glm::vec3(39.597f, 0.274f, 11.987f),
+                           glm::vec3(93.500f, 2.500f, 88.000f),
+                           glm::vec3(0.990f, 0.980f, 1.0f), true,
+                           "Contencion"});
+    placedProps.push_back({"emergency", glm::vec3(3.0f, 2.5f, 3.0f),
+                           glm::vec3(0.000f, 0.000f, 0.000f),
+                           glm::vec3(1.0f, 1.0f, 1.0f), true, "Descanso"});
+    placedProps.push_back({"emergency", glm::vec3(10.0f, 2.5f, 3.0f),
+                           glm::vec3(0.000f, 0.000f, 0.000f),
+                           glm::vec3(1.0f, 1.0f, 1.0f), true, "Descanso"});
+
+    saveLevelProps(path);
+  }
 }
