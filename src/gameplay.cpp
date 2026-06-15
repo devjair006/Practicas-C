@@ -16,6 +16,18 @@
 #include "headers/game_state.h"
 #include "headers/gltf_model.h"
 
+namespace {
+bool isNonBlockingDecoration(const std::string &modelName) {
+  return modelName == "ligthbathroom" || modelName == "mini-lampara" ||
+         modelName == "lampara-reactor" || modelName == "emergency" ||
+         modelName == "warning" || modelName == "logo" ||
+         modelName == "logo2" || modelName == "cables_piso" ||
+         modelName == "cables_techo" || modelName == "sangre-piso" ||
+         modelName == "sangre-piso2" || modelName == "help" ||
+         modelName == "it-sees-you" || modelName == "behind-you";
+}
+} // namespace
+
 bool checkSphereAABBCollision(glm::vec3 sphereCenter, float radius, AABB box) {
   float closestX = glm::max(box.min.x, glm::min(sphereCenter.x, box.max.x));
   float closestY = glm::max(box.min.y, glm::min(sphereCenter.y, box.max.y));
@@ -247,7 +259,7 @@ bool checkCollision(float x, float z) {
 
   // --- COLISIONES DINAMICAS CON PROPS DE placedProps ---
   for (const auto &prop : placedProps) {
-    if (!prop.collisionActive)
+    if (!prop.collisionActive || isNonBlockingDecoration(prop.modelName))
       continue;
     GLTFModel *model = modelRegistry[prop.modelName];
     if (!model)

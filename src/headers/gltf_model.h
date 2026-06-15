@@ -326,11 +326,39 @@ public:
             return;
         }
 
+        for (int i = 0; i < MAX_BONES; ++i) {
+            m_FinalTransforms[i] = glm::mat4(1.0f);
+        }
+
         float TicksPerSecond = (float)(m_Scene->mAnimations[animIndex]->mTicksPerSecond != 0 ? m_Scene->mAnimations[animIndex]->mTicksPerSecond : 25.0f);
         float TimeInTicks = timeInSeconds * TicksPerSecond;
         float AnimationTime = fmod(TimeInTicks, (float)m_Scene->mAnimations[animIndex]->mDuration);
 
         ReadNodeHierarchy(AnimationTime, m_Scene->mRootNode, glm::mat4(1.0f), animIndex);
+
+        for (auto const& [name, info] : m_BoneInfoMap) {
+            transforms[info.id] = m_FinalTransforms[info.id];
+        }
+    }
+
+    void UpdateAnimationLayers(float primaryTimeInSeconds, int primaryAnimIndex,
+                               float secondaryTimeInSeconds, int secondaryAnimIndex,
+                               std::vector<glm::mat4>& transforms) {
+        transforms.resize(MAX_BONES, glm::mat4(1.0f));
+        if (!m_Scene || !m_Scene->HasAnimations()) return;
+
+        const aiAnimation* primary = GetAnimation(primaryAnimIndex);
+        const aiAnimation* secondary = GetAnimation(secondaryAnimIndex);
+        if (!primary && !secondary) return;
+
+        for (int i = 0; i < MAX_BONES; ++i) {
+            m_FinalTransforms[i] = glm::mat4(1.0f);
+        }
+
+        float primaryTime = GetAnimationTimeTicks(primary, primaryTimeInSeconds);
+        float secondaryTime = GetAnimationTimeTicks(secondary, secondaryTimeInSeconds);
+        ReadNodeHierarchyLayered(m_Scene->mRootNode, glm::mat4(1.0f),
+                                 primary, primaryTime, secondary, secondaryTime);
 
         for (auto const& [name, info] : m_BoneInfoMap) {
             transforms[info.id] = m_FinalTransforms[info.id];
@@ -350,6 +378,25 @@ public:
     }
 
 private:
+    const aiAnimation* GetAnimation(int index) const {
+        if (!m_Scene || !m_Scene->HasAnimations() || index < 0 ||
+            index >= static_cast<int>(m_Scene->mNumAnimations)) {
+            return nullptr;
+        }
+        return m_Scene->mAnimations[index];
+    }
+
+    static float GetAnimationTimeTicks(const aiAnimation* animation,
+                                       float timeInSeconds) {
+        if (!animation || animation->mDuration <= 0.0) return 0.0f;
+        float ticksPerSecond =
+            static_cast<float>(animation->mTicksPerSecond != 0.0
+                                   ? animation->mTicksPerSecond
+                                   : 25.0);
+        return fmod(timeInSeconds * ticksPerSecond,
+                    static_cast<float>(animation->mDuration));
+    }
+
     static AABB TransformAABB(const AABB& localBox,
                               const glm::mat4& transform) {
         glm::vec3 corners[8] = {
@@ -620,6 +667,59 @@ private:
 
         for (unsigned int i = 0; i < pNode->mNumChildren; i++) {
             ReadNodeHierarchy(AnimationTime, pNode->mChildren[i], GlobalTransformation, animIndex);
+        }
+    }
+
+    void ReadNodeHierarchyLayered(const aiNode* node,
+                                  const glm::mat4& parentTransform,
+                                  const aiAnimation* primary,
+                                  float primaryTime,
+                                  const aiAnimation* secondary,
+                                  float secondaryTime) {
+        std::string nodeName(node->mName.data);
+        glm::mat4 nodeTransform = ConvertMatrixToGLMFormat(node->mTransformation);
+
+        const aiNodeAnim* nodeAnim =
+            primary ? FindNodeAnim(primary, nodeName) : nullptr;
+        float animationTime = primaryTime;
+        if (!nodeAnim && secondary) {
+            nodeAnim = FindNodeAnim(secondary, nodeName);
+            animationTime = secondaryTime;
+        }
+
+        if (nodeAnim) {
+            aiVector3D scaling;
+            CalcInterpolatedScaling(scaling, animationTime, nodeAnim);
+            glm::mat4 scalingMatrix =
+                glm::scale(glm::mat4(1.0f),
+                           glm::vec3(scaling.x, scaling.y, scaling.z));
+
+            aiQuaternion rotation;
+            CalcInterpolatedRotation(rotation, animationTime, nodeAnim);
+            glm::mat4 rotationMatrix =
+                glm::toMat4(glm::quat(rotation.w, rotation.x, rotation.y,
+                                     rotation.z));
+
+            aiVector3D translation;
+            CalcInterpolatedPosition(translation, animationTime, nodeAnim);
+            glm::mat4 translationMatrix =
+                glm::translate(glm::mat4(1.0f),
+                               glm::vec3(translation.x, translation.y,
+                                         translation.z));
+            nodeTransform = translationMatrix * rotationMatrix * scalingMatrix;
+        }
+
+        glm::mat4 globalTransform = parentTransform * nodeTransform;
+        auto bone = m_BoneInfoMap.find(nodeName);
+        if (bone != m_BoneInfoMap.end()) {
+            m_FinalTransforms[bone->second.id] =
+                globalTransform * bone->second.offset;
+        }
+
+        for (unsigned int i = 0; i < node->mNumChildren; ++i) {
+            ReadNodeHierarchyLayered(node->mChildren[i], globalTransform,
+                                     primary, primaryTime, secondary,
+                                     secondaryTime);
         }
     }
 

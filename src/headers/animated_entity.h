@@ -68,8 +68,24 @@ struct AnimatedEntity {
   bool sequenceLoop = false;
   std::vector<AnimatedAction> actions;
 
+  bool canReceiveDamage = true;
+  float maxHealth = 100.0f;
+  float health = 100.0f;
+  float hitboxScale = 1.0f;
+  int damageAnimation = 0;
+  int deathAnimation = 0;
+  float damageAnimationDuration = 0.45f;
+  float deathAnimationDuration = 1.5f;
+  float knockbackDistance = 0.15f;
+  bool disappearAfterDeath = false;
+  float corpseLifetime = 3.0f;
+
   bool running = false;
   bool finished = false;
+  bool takingDamage = false;
+  bool dead = false;
+  float damageTimer = 0.0f;
+  float deathTimer = 0.0f;
   int actionIndex = 0;
   float actionTime = 0.0f;
   float animationTime = 0.0f;
@@ -107,6 +123,10 @@ public:
                   const glm::vec3 &cameraFront, const std::string &savePath);
   bool CheckCollision(const glm::vec3 &playerPosition,
                       float playerRadius) const;
+  bool ShootRay(const glm::vec3 &origin, const glm::vec3 &direction,
+                float range, float damage, int *hitEntityIndex = nullptr,
+                glm::vec3 *hitPoint = nullptr);
+  void ApplyDamage(int index, float damage, const glm::vec3 &hitDirection);
 
   std::vector<AnimatedEntity> &Entities();
   const std::vector<AnimatedEntity> &Entities() const;
