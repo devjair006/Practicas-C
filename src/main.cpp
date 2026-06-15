@@ -212,6 +212,7 @@ int main() {
     return -1;
   }
   glfwMakeContextCurrent(window);
+  glfwSwapInterval(1);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetScrollCallback(window, scroll_callback);
@@ -227,6 +228,13 @@ int main() {
                           MA_SOUND_FLAG_STREAM, NULL, NULL, &bgm);
   ma_sound_set_looping(&bgm, MA_TRUE);
   ma_sound_start(&bgm);
+
+  ma_sound shotgunFireSound;
+  bool shotgunFireSoundReady =
+      ma_sound_init_from_file(
+          &audioEngine,
+          "assets/dragon-studio-cinematic-shotgun-with-reload-467480.mp3", 0,
+          NULL, NULL, &shotgunFireSound) == MA_SUCCESS;
 
   // --- SETUP IMGUI ---
   IMGUI_CHECKVERSION();
@@ -1113,7 +1121,7 @@ int main() {
   buildStaticMapBatches();
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
+    deltaTime = (std::min)(currentFrame - lastFrame, 0.05f);
     lastFrame = currentFrame;
 
     if (hudMessageTimer > 0.0f) {
@@ -1179,11 +1187,10 @@ int main() {
       WeaponViewmodel &weapon = weapons[currentWeaponIndex];
       weaponCooldown = weaponFireInterval;
       weaponMuzzleFlashTimer = 0.08f;
-      if (currentWeaponIndex == 2) {
-        ma_engine_play_sound(
-            &audioEngine,
-            "assets/dragon-studio-cinematic-shotgun-with-reload-467480.mp3",
-            NULL);
+      if (currentWeaponIndex == 2 && shotgunFireSoundReady) {
+        ma_sound_stop(&shotgunFireSound);
+        ma_sound_seek_to_pcm_frame(&shotgunFireSound, 0);
+        ma_sound_start(&shotgunFireSound);
       }
       weaponAnimationIndex = weapon.fireAnimation;
       weaponArmsAnimationIndex = weapon.armsFireAnimation;
@@ -1367,9 +1374,7 @@ int main() {
     glUniform1f(pointLightRadLoc[6], 3.0f);
 
     // --- LUCES DINAMICAS PARA PROPS DEL EDITOR (Indices 7-10 y 14-31) ---
-    std::vector<int> dynamicSlots = {7,  8,  9,  10, 14, 15, 16, 17,
-                                     18, 19, 20, 21, 22, 23, 24, 25,
-                                     26, 27, 28, 29, 30, 31};
+    std::vector<int> dynamicSlots = {7, 8, 9, 10, 14, 15};
 
     struct LightProp {
       const PlacedProp *prop;
@@ -1379,7 +1384,8 @@ int main() {
     for (const auto &prop : placedProps) {
       if (prop.modelName == "emergency" || prop.modelName == "ligthbathroom") {
         float d2 = glm::distance2(cameraPos, prop.pos);
-        emittingProps.push_back({&prop, d2});
+        if (d2 <= 18.0f * 18.0f)
+          emittingProps.push_back({&prop, d2});
       }
     }
     std::sort(emittingProps.begin(), emittingProps.end(),
@@ -1441,8 +1447,10 @@ int main() {
                 0.45f * flickerDescanso2, 0.15f * flickerDescanso2);
     glUniform1f(pointLightRadLoc[13], 4.0f);
 
-    // Informar al shader cuantas luces reales estamos usando
-    glUniform1i(numPointLightsLoc, 32);
+    // Los indices fijos llegan hasta 13; solo enviamos los dinamicos cercanos.
+    int highestPointLightSlot =
+        currentSlotIdx > 0 ? dynamicSlots[currentSlotIdx - 1] : 13;
+    glUniform1i(numPointLightsLoc, (std::max)(14, highestPointLightSlot + 1));
 
     // --- SPOTLIGHTS (Max 16) ---
     int spotIdx = 0;
@@ -1484,7 +1492,9 @@ int main() {
     for (const auto &prop : placedProps) {
       if (prop.modelName == "mini-lampara" || prop.modelName == "emergency") {
         float d2 = glm::distance2(cameraPos, prop.pos);
-        dynamicSpots.push_back({&prop, d2, (prop.modelName == "mini-lampara")});
+        if (d2 <= 18.0f * 18.0f)
+          dynamicSpots.push_back(
+              {&prop, d2, (prop.modelName == "mini-lampara")});
       }
     }
     std::sort(dynamicSpots.begin(), dynamicSpots.end(),
@@ -1495,7 +1505,7 @@ int main() {
     std::map<const PlacedProp *, float> miniLampFlickers;
     int miniLampCount = 0;
     for (const auto &sp : dynamicSpots) {
-      if (spotIdx >= 16)
+      if (spotIdx >= 10)
         break;
       const auto &prop = *sp.prop;
 
@@ -1558,7 +1568,7 @@ int main() {
       glm::vec2 objPos(x, z);
       glm::vec2 dir = objPos - glm::vec2(cameraPos.x, cameraPos.z);
       float dist = glm::length(dir);
-      constexpr float kPropRenderDistance = 24.0f;
+      constexpr float kPropRenderDistance = 18.0f;
       if (dist > kPropRenderDistance + radius)
         return false;
       if (dist > radius + 3.0f) {
@@ -2231,6 +2241,7 @@ int main() {
     int renderSlotIdx = 0;
     int miniLampDrawCount = 0;
     int cameraAnimCount = 0;
+    std::map<GLTFModel *, std::vector<glm::mat4>> propInstanceBatches;
     for (const auto &prop : placedProps) {
       GLTFModel *model = modelRegistry[prop.modelName];
       if (!model || model->meshes.empty())
@@ -2246,6 +2257,9 @@ int main() {
           renderSlotIdx++;
         }
       }
+
+      if (!shouldRender(prop.pos.x, prop.pos.z, 3.0f))
+        continue;
 
       glm::mat4 pModel = glm::mat4(1.0f);
       pModel = glm::translate(pModel, prop.pos);
@@ -2288,6 +2302,13 @@ int main() {
         miniLampDrawCount++;
       }
 
+      bool needsIndividualDraw =
+          esLuzBano || esLamparaReactor || esMiniLampara || esEmergency;
+      if (!needsIndividualDraw) {
+        propInstanceBatches[model].push_back(pModel);
+        continue;
+      }
+
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
       if (esLuzBano)
         glUniform1f(emissiveStrengthLoc, 1.0f * lampGlow);
@@ -2295,15 +2316,16 @@ int main() {
         glUniform1f(emissiveStrengthLoc, 0.9f * lampFlicker);
       if (esMiniLampara)
         glUniform1f(emissiveStrengthLoc, 0.8f * miniLampFlicker);
-      // Emisivo base (0.25) + pulso (0.55)
       if (esEmergency)
         glUniform1f(emissiveStrengthLoc, 0.40f + 0.80f * emergencyPulse);
 
-      if (shouldRender(prop.pos.x, prop.pos.z, 3.0f)) {
-        model->Draw(shaderProgram, solidColorLoc);
-      }
-      if (esLuzBano || esLamparaReactor || esMiniLampara || esEmergency)
-        glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+      model->Draw(shaderProgram, solidColorLoc);
+      glUniform1f(emissiveStrengthLoc, 0.0f);
+    }
+
+    glUniform1f(emissiveStrengthLoc, 0.0f);
+    for (auto &[model, instanceModels] : propInstanceBatches) {
+      model->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
     }
     //*------------------
 
@@ -3211,6 +3233,8 @@ int main() {
                          ImGuiWindowFlags_NoMove);
         ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "POSICION ACTUAL:");
         ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
+        ImGui::Text("FPS: %.0f  |  Frame: %.2f ms", ImGui::GetIO().Framerate,
+                    1000.0f / (std::max)(1.0f, ImGui::GetIO().Framerate));
         ImGui::Spacing();
         ImGui::Checkbox("Ver Hitboxes (H)", &showCollisionViewer);
         ImGui::Spacing();
@@ -3765,6 +3789,8 @@ int main() {
   ImGui::DestroyContext();
 
   ma_sound_uninit(&bgm);
+  if (shotgunFireSoundReady)
+    ma_sound_uninit(&shotgunFireSound);
   ma_engine_uninit(&audioEngine);
 
   glDeleteVertexArrays(1, &VAO);
