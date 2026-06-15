@@ -745,6 +745,7 @@ int main() {
     float damage;
     float fireInterval;
     bool automatic;
+    bool holdArmsAnimationAtEnd;
     std::vector<glm::mat4> bones;
   };
   auto findWeaponAnimation = [](GLTFModel *model,
@@ -766,17 +767,18 @@ int main() {
        findWeaponAnimation(pistolViewmodel, {"Pistol_Walk"}),
        findWeaponAnimation(pistolViewmodel, {"Pistol_Aiming_Fire"}),
        findWeaponAnimation(pistolViewmodel, {"Pistol_IdlePose"}),
-       findWeaponAnimation(pistolViewmodel, {"Arms_BasePose"}),
-       findWeaponAnimation(pistolViewmodel, {"Arms_BasePose"}),
-       findWeaponAnimation(pistolViewmodel, {"Arms_BasePose"}),
-       findWeaponAnimation(pistolViewmodel, {"Arms_Fire"}),
-       findWeaponAnimation(pistolViewmodel, {"Arms_BasePose"}),
+       findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
+       findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
+       findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
+       findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
+       findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
        glm::vec3(0.18f, -0.38f, -0.72f),
        glm::vec3(0.0f),
        0.9f,
        35.0f,
        0.28f,
-       false},
+       false,
+       true},
       {"Rifle",
        rifleViewmodel,
        findWeaponAnimation(rifleViewmodel, {"Rifle_Breathing"}),
@@ -794,7 +796,8 @@ int main() {
        1.0f,
        22.0f,
        0.11f,
-       true},
+       true,
+       false},
       {"Escopeta",
        shotgunViewmodel,
        findWeaponAnimation(shotgunViewmodel, {"shotgun01_BasePose"}),
@@ -812,6 +815,7 @@ int main() {
        1.05f,
        70.0f,
        0.75f,
+       false,
        false}};
   int currentWeaponIndex = 0;
   int weaponAnimationIndex = weapons[0].idleAnimation;
@@ -1175,6 +1179,12 @@ int main() {
       WeaponViewmodel &weapon = weapons[currentWeaponIndex];
       weaponCooldown = weaponFireInterval;
       weaponMuzzleFlashTimer = 0.08f;
+      if (currentWeaponIndex == 2) {
+        ma_engine_play_sound(
+            &audioEngine,
+            "assets/dragon-studio-cinematic-shotgun-with-reload-467480.mp3",
+            NULL);
+      }
       weaponAnimationIndex = weapon.fireAnimation;
       weaponArmsAnimationIndex = weapon.armsFireAnimation;
       weaponAnimationTime = 0.0f;
@@ -2961,8 +2971,15 @@ int main() {
 
         bool hasBones = weapon.model->CountBonesInMeshes() > 0;
         if (hasBones) {
+          float armsAnimationTime = weaponAnimationTime;
+          if (weapon.holdArmsAnimationAtEnd) {
+            float armsLength = weapon.model->GetAnimationLengthSeconds(
+                weaponArmsAnimationIndex);
+            if (armsLength > 0.001f)
+              armsAnimationTime = armsLength * 0.999f;
+          }
           weapon.model->UpdateAnimationLayers(
-              weaponAnimationTime, weaponArmsAnimationIndex,
+              armsAnimationTime, weaponArmsAnimationIndex,
               weaponAnimationTime, weaponAnimationIndex, weapon.bones);
           if (finalBonesLoc >= 0 && !weapon.bones.empty()) {
             glUniformMatrix4fv(finalBonesLoc,
