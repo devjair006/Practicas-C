@@ -371,6 +371,11 @@ int main() {
   camillaGLTF = new GLTFModel("assets/muestras/camilla.glb");
   muralGLTF = new GLTFModel("assets/muestras/mural.glb");
   terminalesGLTF = new GLTFModel("assets/muestras/terminales.glb");
+  esferaGLTF = new GLTFModel("assets/muestras/esfera.glb");
+  bodybagGLTF = new GLTFModel("assets/muestras/bodybag.glb");
+  coffinGLTF = new GLTFModel("assets/muestras/coffin.glb");
+  bloodyboxGLTF = new GLTFModel("assets/muestras/bloodybox.glb");
+  labtableGLTF = new GLTFModel("assets/muestras/labtable.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
   GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
   GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
@@ -463,6 +468,12 @@ int main() {
   modelRegistry["camilla"] = camillaGLTF;
   modelRegistry["mural"] = muralGLTF;
   modelRegistry["terminales"] = terminalesGLTF;
+  modelRegistry["esfera"] = esferaGLTF;
+  modelRegistry["bodybag"] = bodybagGLTF;
+  modelRegistry["coffin"] = coffinGLTF;
+  modelRegistry["bloodybox"] = bloodyboxGLTF;
+  modelRegistry["labtable"] = labtableGLTF;
+
   // Modelos generales/baño
   modelRegistry["Bano"] = banoGLTF;
   modelRegistry["azule"] = azulejoGLTF;
@@ -3311,6 +3322,18 @@ if (ImGui::Button("Traer Terminales frente a la camara")) {
 }
 ImGui::Separator();
 
+ImGui::Text("Esfera");
+ImGui::DragFloat3("Esfera Pos",   &esferaPos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Esfera Rot",   &esferaRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Esfera Scale", &esferaScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Esfera frente a la camara")) {
+    esferaPos   = cameraPos + cameraFront * 2.0f;
+    esferaPos.y = -0.35f;
+    esferaRot   = glm::vec3(0.0f, 180.0f, 0.0f);
+    esferaScale = glm::vec3(0.6f, 0.6f, 0.6f);
+}
+ImGui::Separator();
+
 ImGui::Text("Mural");
         ImGui::DragFloat3("Mural Pos",   &muralPos.x,   0.05f, -100.0f, 100.0f);
         ImGui::DragFloat3("Mural Rot",   &muralRot.x,   0.5f, -180.0f, 180.0f);
@@ -3320,6 +3343,54 @@ ImGui::Text("Mural");
     muralPos.y = 0.5f; 
     muralRot   = glm::vec3(0.0f, 180.0f, 0.0f);
     muralScale = glm::vec3(0.6f, 0.6f, 0.6f);
+}
+ImGui::Separator();
+
+ImGui::Text("Bodybag");
+ImGui::DragFloat3("Bodybag Pos",   &bodybagPos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Bodybag Rot",   &bodybagRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Bodybag Scale", &bodybagScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Bodybag frente a la camara")) {
+    bodybagPos   = cameraPos + cameraFront * 2.0f;
+    bodybagPos.y = -0.35f;
+    bodybagRot   = glm::vec3(0.0f, 180.0f, 0.0f);
+    bodybagScale = glm::vec3(0.7f, 0.7f, 0.7f);
+}
+ImGui::Separator();
+
+ImGui::Text("Coffin");
+ImGui::DragFloat3("Coffin Pos",   &coffinPos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Coffin Rot",   &coffinRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Coffin Scale", &coffinScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Coffin frente a la camara")) {
+    coffinPos   = cameraPos + cameraFront * 2.0f;
+    coffinPos.y = -0.35f;
+    coffinRot   = glm::vec3(0.0f, 45.0f, 0.0f);
+    coffinScale = glm::vec3(0.7f, 0.7f, 0.7f);
+}
+ImGui::Separator();
+
+ImGui::Text("Bloodybox");
+ImGui::DragFloat3("Bloodybox Pos",   &bloodyboxPos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Bloodybox Rot",   &bloodyboxRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Bloodybox Scale", &bloodyboxScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Bloodybox frente a la camara")) {
+    bloodyboxPos   = cameraPos + cameraFront * 2.0f;
+    bloodyboxPos.y = -0.35f;
+    bloodyboxRot   = glm::vec3(0.0f, 180.0f, 0.0f);
+    bloodyboxScale = glm::vec3(0.6f, 0.6f, 0.6f);
+}
+ImGui::Separator();
+
+ImGui::Text("Labtable");
+ImGui::DragFloat3("Labtable Pos",   &labtablePos.x,   0.05f, -100.0f, 100.0f);
+ImGui::DragFloat3("Labtable Rot",   &labtableRot.x,   0.5f, -180.0f, 180.0f);
+ImGui::DragFloat3("Labtable Scale", &labtableScale.x, 0.01f, 0.01f, 10.0f);
+if (ImGui::Button("Traer Labtable frente a la camara")) {
+    labtablePos   = cameraPos + cameraFront * 2.0f;
+    labtablePos.y = -0.35f;
+    labtableRot   = glm::vec3(0.0f, 180.0f, 0.0f);
+    labtableScale = glm::vec3(0.6f, 0.6f, 0.6f);
 }
 ImGui::Separator();
 
