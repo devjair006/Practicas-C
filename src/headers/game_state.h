@@ -258,6 +258,34 @@ extern glm::vec3 terminalesPos;
 extern glm::vec3 terminalesRot;
 extern glm::vec3 terminalesScale;
 
+extern glm::vec3 esferaPos;
+extern glm::vec3 esferaRot;
+extern glm::vec3 esferaScale;
+
+extern glm::vec3 bodybagPos;
+extern glm::vec3 bodybagRot;
+extern glm::vec3 bodybagScale;
+
+extern glm::vec3 coffinPos;
+extern glm::vec3 coffinRot;
+extern glm::vec3 coffinScale;
+
+extern glm::vec3 bloodyboxPos;
+extern glm::vec3 bloodyboxRot;
+extern glm::vec3 bloodyboxScale;
+
+extern glm::vec3 labtablePos;
+extern glm::vec3 labtableRot;
+extern glm::vec3 labtableScale;
+
+extern glm::vec3 shelfPos;
+extern glm::vec3 shelfRot;
+extern glm::vec3 shelfScale;
+
+extern glm::vec3 safetyPos;
+extern glm::vec3 safetyRot;
+extern glm::vec3 safetyScale;
+
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
 extern glm::vec3 cameraUp;
@@ -303,7 +331,7 @@ extern GLTFModel *lavamanosGLTF;
 extern GLTFModel *urinarioGLTF;
 extern GLTFModel *mensBGLTF;
 extern GLTFModel *girlBGLTF;
-// area de contencion
+// area de contencion//
 extern GLTFModel *teslaGLTF;
 extern glm::vec3 teslaPos;
 extern glm::vec3 teslaRot;
@@ -353,6 +381,14 @@ extern GLTFModel *refrigeradorGLTF;
 extern GLTFModel *camillaGLTF;
 extern GLTFModel *muralGLTF;
 extern GLTFModel* terminalesGLTF;
+extern GLTFModel* monitorsciGLTF;
+extern GLTFModel *esferaGLTF;
+extern GLTFModel *bodybagGLTF;
+extern GLTFModel *coffinGLTF;
+extern GLTFModel *bloodyboxGLTF;
+extern GLTFModel *labtableGLTF;
+extern GLTFModel *shelfGLTF;
+extern GLTFModel *safetyGLTF;
 
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;
