@@ -541,9 +541,9 @@ void loadLevelProps(const std::string& path);
 // Archivo   : box-close, box-open, camara, computer, escritorio, gabinete,
 //             mesa, mini-lampara, servers, silla, terminal, vault-door
 // Oficinas  : cajonesOF
-// Descanso  : botas, bunk_bed, estante_cajas, expendedora, extintor_viejo,
-//             locker, lockers, old_sofa_free, old_soviet_taxophone,
-//             papel_viejo, planta_electrica
+// Descanso  : botas, bunk_bed, compu_destruida, estante_cajas, expendedora,
+//             extintor_viejo, jaula, locker, lockers, old_sofa_free,
+//             old_soviet_taxophone, papel_viejo, planta_electrica
 // General   : todo lo demas (raiz de assets)
 inline std::string getModelArea(const std::string& modelName) {
     // --- Contencion ---
@@ -566,9 +566,10 @@ inline std::string getModelArea(const std::string& modelName) {
     };
     // --- Descanso ---
     static const std::unordered_set<std::string> kDescanso = {
-        "botas", "bunk_bed", "estante_cajas", "expendedora", "extintor_viejo",
-        "locker", "lockers", "old_sofa_free", "old_soviet_taxophone",
-        "papel_viejo", "planta_electrica"
+        "botas", "bunk_bed", "compu_destruida", "estante_cajas",
+        "expendedora", "extintor_viejo", "jaula", "locker", "lockers",
+        "old_sofa_free", "old_soviet_taxophone", "papel_viejo",
+        "planta_electrica"
     };
     // --- Baño ---
     static const std::unordered_set<std::string> kBano = {
@@ -593,5 +594,3 @@ extern float door2Anim;
 extern bool door2Opening;
 extern std::map<int, float> activeDoorsAnim;
 extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
-
-
