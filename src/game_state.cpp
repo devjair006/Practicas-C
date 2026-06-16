@@ -288,6 +288,14 @@ glm::vec3 labtablePos = glm::vec3(12.0f, -0.35f, 13.0f);
 glm::vec3 labtableRot = glm::vec3(0.0f, 180.0f, 0.0f);
 glm::vec3 labtableScale = glm::vec3(0.6f, 0.6f, 0.6f);
 
+glm::vec3 shelfPos = glm::vec3(22.5f, -0.35f, 13.7f);
+glm::vec3 shelfRot = glm::vec3(0.0f, 180.0f, 0.0f);
+glm::vec3 shelfScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 safetyPos = glm::vec3(9.0f, -0.35f, 20.6f);
+glm::vec3 safetyRot = glm::vec3(0.0f, 180.0f, 0.0f);
+glm::vec3 safetyScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -409,6 +417,8 @@ GLTFModel *bodybagGLTF = nullptr;
 GLTFModel *coffinGLTF = nullptr;
 GLTFModel *bloodyboxGLTF = nullptr;
 GLTFModel *labtableGLTF = nullptr;
+GLTFModel *shelfGLTF = nullptr;
+GLTFModel *safetyGLTF = nullptr;
 
 glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
 glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);

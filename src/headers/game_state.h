@@ -278,6 +278,14 @@ extern glm::vec3 labtablePos;
 extern glm::vec3 labtableRot;
 extern glm::vec3 labtableScale;
 
+extern glm::vec3 shelfPos;
+extern glm::vec3 shelfRot;
+extern glm::vec3 shelfScale;
+
+extern glm::vec3 safetyPos;
+extern glm::vec3 safetyRot;
+extern glm::vec3 safetyScale;
+
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
 extern glm::vec3 cameraUp;
@@ -379,6 +387,8 @@ extern GLTFModel *bodybagGLTF;
 extern GLTFModel *coffinGLTF;
 extern GLTFModel *bloodyboxGLTF;
 extern GLTFModel *labtableGLTF;
+extern GLTFModel *shelfGLTF;
+extern GLTFModel *safetyGLTF;
 
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;
