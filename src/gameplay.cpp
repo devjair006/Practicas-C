@@ -30,9 +30,10 @@ bool isNonBlockingDecoration(const std::string &modelName) {
 bool isPlayerNearProp(const PlacedProp &prop, const GLTFModel *model,
                       const glm::vec3 &playerPosition, float playerRadius) {
   if (prop.modelName == "consola") {
+    float maxScale = (std::max)({prop.scale.x, prop.scale.y, prop.scale.z});
     return glm::distance2(glm::vec2(prop.pos.x, prop.pos.z),
                           glm::vec2(playerPosition.x, playerPosition.z)) <
-           16.0f;
+           (4.0f * maxScale + 1.0f) * (4.0f * maxScale + 1.0f);
   }
 
   glm::vec3 localSize = model->localAABB.max - model->localAABB.min;
@@ -288,13 +289,20 @@ bool checkCollision(float x, float z) {
 
     if (prop.modelName == "consola") {
       // Mesa/panel diagonal - OBB tight
-      glm::vec3 colliderCenter = prop.pos + glm::vec3(0.0f, 0.35f, 0.0f);
-      glm::vec3 colliderHalfSize(2.65f, 0.95f, 0.42f);
+      // Escalar el collider según el scale del prop
+      glm::vec3 baseHalfSize(2.65f, 0.95f, 0.42f);
+      glm::vec3 scaledHalfSize = baseHalfSize * prop.scale;
+
+      // Ajustar el centro del collider proporcionalmente
+      glm::vec3 baseOffset(0.0f, 0.35f, 0.0f);
+      glm::vec3 colliderCenter = prop.pos + (baseOffset * prop.scale.y);
+
       if (checkPlayerOBBCollision(playerPos, playerRadius, colliderCenter,
-                                  prop.rot.z, colliderHalfSize)) {
+                                  prop.rot.z, scaledHalfSize)) {
         return true;
       }
-    } else {
+    }
+ else {
       // Colision estándar AABB del modelo
       glm::mat4 modelMat = glm::mat4(1.0f);
       modelMat = glm::translate(modelMat, prop.pos);
