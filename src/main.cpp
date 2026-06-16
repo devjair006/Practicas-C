@@ -394,6 +394,7 @@ int main() {
   estanteGLTF = new GLTFModel("assets/estante.glb");
   sillitaGLTF = new GLTFModel("assets/sillita.glb");
   maquinaGLTF = new GLTFModel("assets/maquina.glb");
+  paredGLTF = new GLTFModel("assets/pared.glb");
 
   // --- SALA DE MUESTRAS: Modelos (assets/muestras/) ---
   machineLabGLTF = new GLTFModel("assets/machine_lab.glb");
@@ -483,6 +484,7 @@ int main() {
   modelRegistry["metal_desk"] = metalDeskGLTF;
   modelRegistry["sofa"] = sofaGLTF;
   modelRegistry["maquina"] = maquinaGLTF;
+  modelRegistry["pared"] = paredGLTF;
   modelRegistry["locker"] = lockerGLTF;
   modelRegistry["bunk_bed"] = bunkBedGLTF;
   modelRegistry["lockers"] = lockersGLTF;
@@ -604,6 +606,12 @@ int main() {
       loadTextureWithFallback("assets/keycard-roja.png", clueTexture);
   unsigned int keycardYellowTex =
       loadTextureWithFallback("assets/keycard-amarilla.png", clueTexture);
+  unsigned int keycardBlueInvTex =
+      loadTextureWithFallback("assets/inv-keycard-azul.png", keycardBlueTex);
+  unsigned int keycardRedInvTex =
+      loadTextureWithFallback("assets/inv-keycard-roja.png", keycardRedTex);
+  unsigned int keycardYellowInvTex =
+      loadTextureWithFallback("assets/inv-keycard-amarilla.png", keycardYellowTex);
   unsigned int pcTex = loadTextureWithFallback("assets/pc.png", wallTex2);
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3377,7 +3385,7 @@ int main() {
             "extintor_viejo", "locker", "lockers", "old_sofa_free",
             "old_soviet_taxophone", "papel_viejo", "planta_electrica",
             // -- General (raiz assets/) --
-            "gnome", "machine_lab", "metal_desk", "monitor", "sillas", "sofa",
+            "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas", "sofa",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
             "mirror", "MirrorBG", "urinario"};
@@ -3739,15 +3747,15 @@ int main() {
                selectedHotbarSlot == 0);
 
       // Slot 1: Tarjeta Amarilla
-      drawSlot("T.Amarilla", (ImTextureID)(intptr_t)keycardYellowTex, hasKeycardYellow,
+      drawSlot("T.Amarilla", (ImTextureID)(intptr_t)keycardYellowInvTex, hasKeycardYellow,
                selectedHotbarSlot == 1);
 
       // Slot 2: Tarjeta Roja
-      drawSlot("T.Roja", (ImTextureID)(intptr_t)keycardRedTex, hasKeycardRed,
+      drawSlot("T.Roja", (ImTextureID)(intptr_t)keycardRedInvTex, hasKeycardRed,
                selectedHotbarSlot == 2);
 
       // Slot 3: Tarjeta Azul
-      drawSlot("T.Azul", (ImTextureID)(intptr_t)keycardBlueTex, hasKeycardBlue,
+      drawSlot("T.Azul", (ImTextureID)(intptr_t)keycardBlueInvTex, hasKeycardBlue,
                selectedHotbarSlot == 3);
 
       // Slots 4-5: Baterías (sólo mostramos 2 o reducimos baterías, o ajustamos índices)
