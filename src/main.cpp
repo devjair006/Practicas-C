@@ -404,6 +404,13 @@ int main() {
   camillaGLTF = new GLTFModel("assets/muestras/camilla.glb");
   muralGLTF = new GLTFModel("assets/muestras/mural.glb");
   terminalesGLTF = new GLTFModel("assets/muestras/terminales.glb");
+  esferaGLTF = new GLTFModel("assets/muestras/esfera.glb");
+  bodybagGLTF = new GLTFModel("assets/muestras/bodybag.glb");
+  coffinGLTF = new GLTFModel("assets/muestras/coffin.glb");
+  bloodyboxGLTF = new GLTFModel("assets/muestras/bloodybox.glb");
+  labtableGLTF = new GLTFModel("assets/muestras/labtable.glb");
+  shelfGLTF = new GLTFModel("assets/muestras/shelf.glb");
+  safetyGLTF = new GLTFModel("assets/muestras/safety.glb");
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
   GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
   GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
@@ -495,6 +502,14 @@ int main() {
   modelRegistry["camilla"] = camillaGLTF;
   modelRegistry["mural"] = muralGLTF;
   modelRegistry["terminales"] = terminalesGLTF;
+  modelRegistry["esfera"] = esferaGLTF;
+  modelRegistry["bodybag"] = bodybagGLTF;
+  modelRegistry["coffin"] = coffinGLTF;
+  modelRegistry["bloodybox"] = bloodyboxGLTF;
+  modelRegistry["labtable"] = labtableGLTF;
+  modelRegistry["shelf"] = shelfGLTF;
+  modelRegistry["safety"] = safetyGLTF;
+
   // Modelos generales/baño
   modelRegistry["Bano"] = banoGLTF;
   modelRegistry["azule"] = azulejoGLTF;
