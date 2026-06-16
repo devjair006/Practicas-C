@@ -394,6 +394,7 @@ int main() {
   estanteGLTF = new GLTFModel("assets/estante.glb");
   sillitaGLTF = new GLTFModel("assets/sillita.glb");
   maquinaGLTF = new GLTFModel("assets/maquina.glb");
+  paredGLTF = new GLTFModel("assets/pared.glb");
 
   // --- SALA DE MUESTRAS: Modelos (assets/muestras/) ---
   machineLabGLTF = new GLTFModel("assets/machine_lab.glb");
@@ -483,6 +484,7 @@ int main() {
   modelRegistry["metal_desk"] = metalDeskGLTF;
   modelRegistry["sofa"] = sofaGLTF;
   modelRegistry["maquina"] = maquinaGLTF;
+  modelRegistry["pared"] = paredGLTF;
   modelRegistry["locker"] = lockerGLTF;
   modelRegistry["bunk_bed"] = bunkBedGLTF;
   modelRegistry["lockers"] = lockersGLTF;
@@ -3383,7 +3385,7 @@ int main() {
             "extintor_viejo", "locker", "lockers", "old_sofa_free",
             "old_soviet_taxophone", "papel_viejo", "planta_electrica",
             // -- General (raiz assets/) --
-            "gnome", "machine_lab", "metal_desk", "monitor", "sillas", "sofa",
+            "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas", "sofa",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
             "mirror", "MirrorBG", "urinario"};

@@ -363,6 +363,7 @@ extern GLTFModel* sillasGLTF;
 extern GLTFModel *sillaGLTF;
 extern GLTFModel *sillitaGLTF;
 extern GLTFModel *maquinaGLTF;
+extern GLTFModel *paredGLTF;
 extern GLTFModel *barraGLTF;
 extern GLTFModel *logoGLTF;
 extern GLTFModel *logo2GLTF;

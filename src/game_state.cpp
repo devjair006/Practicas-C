@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sstream>
 
-
 std::string currentHUDMessage = "";
 float hudMessageTimer = 0.0f;
 bool isReadingDocument = false;
@@ -401,6 +400,7 @@ glm::vec3 behindYouScale = glm::vec3(1.0f, 1.0f, 1.0f);
 GLTFModel *warningGLTF = nullptr;
 GLTFModel *sillitaGLTF = nullptr;
 GLTFModel *maquinaGLTF = nullptr;
+GLTFModel *paredGLTF = nullptr;
 GLTFModel *deskGLTF = nullptr;
 GLTFModel *estanteGLTF = nullptr;
 GLTFModel *sofaGLTF = nullptr;
@@ -554,7 +554,8 @@ std::vector<Entity> gameEntities = {
      "[CABLE SUELTO]:Hay un cable pelado aqui.", 0.0f},
     {glm::vec3(20.0f, -0.4f, 5.0f), 0, true,
      "LOG 1 (Arrugado): 'Apagon general. Las compuertas se bloquearon.'", 0.0f},
-    {glm::vec3(15.0f, -0.4f, 3.0f), 8, true, "", 0.0f}, // Tarjeta Amarilla (Pruebas)
+    {glm::vec3(15.0f, -0.4f, 3.0f), 8, true, "",
+     0.0f}, // Tarjeta Amarilla (Pruebas)
     {glm::vec3(12.0f, -0.2f, 6.0f), 1, true, "", 0.0f},
     {glm::vec3(24.0f, -0.5f, 6.0f), 4, true, "", 1.0f},
     {glm::vec3(24.0f, 0.0f, 6.0f), 5, true,
@@ -564,14 +565,16 @@ std::vector<Entity> gameEntities = {
      "[PANTALLA ERROR]: 'Falla de contencion.'", 2.5f},
     {glm::vec3(28.0f, 0.0f, 16.0f), 6, true, "[MAQUINA]: Unidad Frigorifica.",
      5.0f},
-    {glm::vec3(40.6f, -0.4f, 17.0f), 9, true, "", 0.0f}, // Tarjeta Roja (Contencion)
+    {glm::vec3(40.6f, -0.4f, 17.0f), 9, true, "",
+     0.0f}, // Tarjeta Roja (Contencion)
     {glm::vec3(42.0f, -0.2f, 15.0f), 0, true,
      "LOG 2 (Sangriento): 'La muestra escapo.'", 0.0f},
     {glm::vec3(15.0f, -0.2f, 18.0f), 1, true, "", 0.0f},
     {glm::vec3(10.0f, -0.4f, 28.0f), 3, true,
      "[MANCHA]: Rastro oscuro hacia ventilacion.", 0.0f},
     {glm::vec3(25.0f, 0.0f, 3.0f), 2, true, "", 0.0f},
-    {glm::vec3(8.0f, -0.4f, 5.0f), 11, true, "", 0.0f}}; // Tarjeta Azul (Oficinas)
+    {glm::vec3(8.0f, -0.4f, 5.0f), 11, true, "",
+     0.0f}}; // Tarjeta Azul (Oficinas)
 
 float wallWidth = 0.3f;
 float wallHeight = 1.0f;
@@ -591,7 +594,7 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+     0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
