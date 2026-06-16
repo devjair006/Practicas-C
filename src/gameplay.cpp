@@ -702,7 +702,7 @@ void processInput(GLFWwindow *window) {
     float lookAngle = glm::dot(cameraFront, realDirToEntity);
 
     if (entity.type == 0 || entity.type == 1 || entity.type == 8 ||
-        entity.type == 9 || entity.type == 10) {
+        entity.type == 9 || entity.type == 11) {
       if (distancia < 1.5f && justPressedE) {
         entity.active = false;
         ma_engine_play_sound(&audioEngine, "assets/collect.wav", NULL);
@@ -734,7 +734,7 @@ void processInput(GLFWwindow *window) {
                        "Nota de emergencia:\n"
                        "\"No activen el nucleo sin las baterias. La copia ya "
                        "no obedece.\"");
-        } else if (entity.type == 10) {
+        } else if (entity.type == 11) {
           hasKeycardBlue = true;
           std::cout
               << "\n[OBJETO CLAVE]: Has obtenido la TARJETA AZUL.\n"

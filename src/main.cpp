@@ -604,6 +604,12 @@ int main() {
       loadTextureWithFallback("assets/keycard-roja.png", clueTexture);
   unsigned int keycardYellowTex =
       loadTextureWithFallback("assets/keycard-amarilla.png", clueTexture);
+  unsigned int keycardBlueInvTex =
+      loadTextureWithFallback("assets/inv-keycard-azul.png", keycardBlueTex);
+  unsigned int keycardRedInvTex =
+      loadTextureWithFallback("assets/inv-keycard-roja.png", keycardRedTex);
+  unsigned int keycardYellowInvTex =
+      loadTextureWithFallback("assets/inv-keycard-amarilla.png", keycardYellowTex);
   unsigned int pcTex = loadTextureWithFallback("assets/pc.png", wallTex2);
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3739,15 +3745,15 @@ int main() {
                selectedHotbarSlot == 0);
 
       // Slot 1: Tarjeta Amarilla
-      drawSlot("T.Amarilla", (ImTextureID)(intptr_t)keycardYellowTex, hasKeycardYellow,
+      drawSlot("T.Amarilla", (ImTextureID)(intptr_t)keycardYellowInvTex, hasKeycardYellow,
                selectedHotbarSlot == 1);
 
       // Slot 2: Tarjeta Roja
-      drawSlot("T.Roja", (ImTextureID)(intptr_t)keycardRedTex, hasKeycardRed,
+      drawSlot("T.Roja", (ImTextureID)(intptr_t)keycardRedInvTex, hasKeycardRed,
                selectedHotbarSlot == 2);
 
       // Slot 3: Tarjeta Azul
-      drawSlot("T.Azul", (ImTextureID)(intptr_t)keycardBlueTex, hasKeycardBlue,
+      drawSlot("T.Azul", (ImTextureID)(intptr_t)keycardBlueInvTex, hasKeycardBlue,
                selectedHotbarSlot == 3);
 
       // Slots 4-5: Baterías (sólo mostramos 2 o reducimos baterías, o ajustamos índices)
