@@ -91,14 +91,15 @@ void main() {
     vec3 pointLightsDiffuse = vec3(0.0);
     vec3 norm = normalize(Normal);
     for(int i = 0; i < numPointLights; i++) {
-        vec3 lightDirVec = normalize(pointLights[i].position - FragPos);
+        float radius = pointLights[i].radius;
+        if (radius <= 0.0) continue;
+        vec3 toLight = pointLights[i].position - FragPos;
+        float distance = length(toLight);
+        if (distance >= radius) continue;
+        vec3 lightDirVec = toLight / max(distance, 0.0001);
         float diff = max(dot(norm, lightDirVec), 0.0);
 
-        float distance = length(pointLights[i].position - FragPos);
-
         // Atenuación suave estilo Unreal: la luz muere exactamente en "radius" sin cortes feos
-        float radius = pointLights[i].radius;
-        if (radius <= 0.0) radius = 4.0; // Fallback
         float falloff = clamp(1.0 - (distance * distance) / (radius * radius), 0.0, 1.0);
         float attenuation = falloff * falloff;
 
@@ -107,16 +108,18 @@ void main() {
 
     vec3 spotLightsDiffuse = vec3(0.0);
     for(int i = 0; i < numSpotLights; i++) {
-        vec3 lightDirVec = normalize(spotLights[i].position - FragPos);
+        float radius = spotLights[i].radius;
+        if (radius <= 0.0) continue;
+        vec3 toLight = spotLights[i].position - FragPos;
+        float distance = length(toLight);
+        if (distance >= radius) continue;
+        vec3 lightDirVec = toLight / max(distance, 0.0001);
         float diff = max(dot(norm, lightDirVec), 0.0);
 
         float theta = dot(lightDirVec, normalize(-spotLights[i].direction));
         float epsilon = spotLights[i].cutOff - spotLights[i].outerCutOff;
         float intensity = clamp((theta - spotLights[i].outerCutOff) / epsilon, 0.0, 1.0);
 
-        float distance = length(spotLights[i].position - FragPos);
-        float radius = spotLights[i].radius;
-        if (radius <= 0.0) radius = 10.0;
         float falloff = clamp(1.0 - (distance * distance) / (radius * radius), 0.0, 1.0);
         float attenuation = falloff * falloff;
 

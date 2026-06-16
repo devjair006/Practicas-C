@@ -1,0 +1,113 @@
+--- PRUEBA DE ASSIMP (GNOME) ---
+EXITO: El gnomo se cargo correctamente desde assets/gnome.glb
+--- INFO DEL MODELO ---
+Animaciones: 5
+  [0] Nombre: ArmatureAction (Duracion: 5280, TicksPerSecond: 1000)
+  [1] Nombre: mesh_armAction (Duracion: 2600, TicksPerSecond: 1000)
+  [2] Nombre: mesh_arm_1Action (Duracion: 2600, TicksPerSecond: 1000)
+  [3] Nombre: mesh_bodyAction (Duracion: 2600, TicksPerSecond: 1000)
+  [4] Nombre: mesh_headAction (Duracion: 2600, TicksPerSecond: 1000)
+Mallas (Meshes): 4 | Huesos totales en mallas: 22
+------------------------
+Cargando archivo OBJ: assets/laptop.obj...
+  Cargada libreria de materiales: laptop.mtl
+Modelo cargado con 299835 vertices.
+Cargando archivo OBJ: assets/cables.obj...
+  Cargada libreria de materiales: cables.mtl
+Modelo cargado con 11832 vertices.
+Cargando archivo OBJ: assets/carta.obj...
+  Cargada libreria de materiales: carta.mtl
+Modelo cargado con 5841 vertices.
+Cargando archivo OBJ: assets/puertaizqui.obj...
+  Cargada libreria de materiales: puertaizqui.mtl
+Modelo cargado con 3858 vertices.
+Cargando archivo OBJ: assets/puertadere.obj...
+  Cargada libreria de materiales: puertadere.mtl
+Modelo cargado con 3858 vertices.
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 13
+[SISTEMA] Modelo activo del gnomo: assets/gnome.glb
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 32
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 36
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 33
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 0
+Cargados 222 props desde: assets/config_posiciones.txt
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 31
+[ENTIDADES ANIMADAS] Modelo assets/entidadesanimadas/esqueleto.glb | meshes: 1 | animaciones: 2
+[SISTEMA] Huesos cargados en m_BoneInfoMap: 51
+[ENTIDADES ANIMADAS] Modelo assets/entidadesanimadas/humanoide2glb.glb | meshes: 1 | animaciones: 16
+[SISTEMA] Props oficinas cargados: CajonesOF(1)
+[SISTEMA] Props baño cargados: Lampara(2), Bano(4), Lavamanos(4), Urinario(6)
+[SISTEMA] Props contención cargados: Tesla(9), Reactor(9), Esquineros(11)
+[SISTEMA] Props archivo cargados: Gabinete(3), Camara(5), Servers(1), Terminal(1), VaultDoor(5), Escritorio(1), Computer(1)
+[SISTEMA] Props muestras cargados: MachineLab(1), MorgueFridge(2), Monitoring(2), Refrigerador(1), Camilla(4), Terminales(1)
+[SISTEMA] Props descanso cargados: Locker(1), BunkBed(4), Taxophone(19), Expendedora(2), Extintor(7), PlantaElectrica(6)

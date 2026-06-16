@@ -39,6 +39,7 @@
 
 #include "headers/game_state.h"
 #include "headers/gameplay.h"
+#include "headers/animated_entity.h"
 #include "headers/obj_mesh.h"
 #include "headers/shader.h"
 #include "headers/texture.h"
@@ -211,6 +212,7 @@ int main() {
     return -1;
   }
   glfwMakeContextCurrent(window);
+  glfwSwapInterval(1);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetScrollCallback(window, scroll_callback);
@@ -226,6 +228,13 @@ int main() {
                           MA_SOUND_FLAG_STREAM, NULL, NULL, &bgm);
   ma_sound_set_looping(&bgm, MA_TRUE);
   ma_sound_start(&bgm);
+
+  ma_sound shotgunFireSound;
+  bool shotgunFireSoundReady =
+      ma_sound_init_from_file(
+          &audioEngine,
+          "assets/dragon-studio-cinematic-shotgun-with-reload-467480.mp3", 0,
+          NULL, NULL, &shotgunFireSound) == MA_SUCCESS;
 
   // --- SETUP IMGUI ---
   IMGUI_CHECKVERSION();
@@ -318,6 +327,13 @@ int main() {
   }
   std::cout << "[SISTEMA] Modelo activo del gnomo: " << gnomeModelPath
             << std::endl;
+
+  GLTFModel *pistolViewmodel =
+      new GLTFModel("assets/armas/FP_Arms_Pistol_01_Anims.glb");
+  GLTFModel *rifleViewmodel =
+      new GLTFModel("assets/armas/FP_Arms_rifle_01_Anims.glb");
+  GLTFModel *shotgunViewmodel =
+      new GLTFModel("assets/armas/FP_Arms_Shotgun_01_Anims.glb");
 
   //----------------------------------------------------------------------------AGREGAR
   // LOS ARCHIVOS GLTF/OBJ
@@ -506,6 +522,9 @@ int main() {
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
+  AnimatedEntitySystem animatedEntities;
+  activeAnimatedEntitySystem = &animatedEntities;
+  animatedEntities.Load("assets/animated_entities.txt");
   std::cout << "[SISTEMA] Props oficinas cargados: CajonesOF("
             << cajonesOFGLTF->meshes.size() << ")" << std::endl;
   std::cout << "[SISTEMA] Props baño cargados: "
@@ -517,6 +536,31 @@ int main() {
             << "Tesla(" << teslaGLTF->meshes.size() << "), "
             << "Reactor(" << reactorGLTF->meshes.size() << "), "
             << "Esquineros(" << esquinerosGLTF->meshes.size() << ")"
+            << std::endl;
+  std::cout << "[SISTEMA] Props archivo cargados: "
+            << "Gabinete(" << gabineteGLTF->meshes.size() << "), "
+            << "Camara(" << camaraGLTF->meshes.size() << "), "
+            << "Servers(" << serversGLTF->meshes.size() << "), "
+            << "Terminal(" << terminalGLTF->meshes.size() << "), "
+            << "VaultDoor(" << vaultDoorGLTF->meshes.size() << "), "
+            << "Escritorio(" << escritorioGLTF->meshes.size() << "), "
+            << "Computer(" << computerGLTF->meshes.size() << ")"
+            << std::endl;
+  std::cout << "[SISTEMA] Props muestras cargados: "
+            << "MachineLab(" << machineLabGLTF->meshes.size() << "), "
+            << "MorgueFridge(" << morguefridgeGLTF->meshes.size() << "), "
+            << "Monitoring(" << monitoringGLTF->meshes.size() << "), "
+            << "Refrigerador(" << refrigeradorGLTF->meshes.size() << "), "
+            << "Camilla(" << camillaGLTF->meshes.size() << "), "
+            << "Terminales(" << terminalesGLTF->meshes.size() << ")"
+            << std::endl;
+  std::cout << "[SISTEMA] Props descanso cargados: "
+            << "Locker(" << lockerGLTF->meshes.size() << "), "
+            << "BunkBed(" << bunkBedGLTF->meshes.size() << "), "
+            << "Taxophone(" << taxophoneGLTF->meshes.size() << "), "
+            << "Expendedora(" << expendedoraGLTF->meshes.size() << "), "
+            << "Extintor(" << extintorViejoGLTF->meshes.size() << "), "
+            << "PlantaElectrica(" << plantaElectricaGLTF->meshes.size() << ")"
             << std::endl;
   unsigned int wallTex1 = loadTexture("assets/paredesLAB.png");
   unsigned int wallTex2 = loadTexture("assets/bano/paredbanosT.png");
@@ -692,6 +736,151 @@ int main() {
   bool showInteractionDebugger = true;
   bool showAnimationTester = true;
   bool showSpawnInspector = true;
+  bool weaponEnabled = true;
+  bool weaponAutomatic = false;
+  bool weaponTriggerWasDown = false;
+  float weaponDamage = 35.0f;
+  float weaponRange = 35.0f;
+  float weaponFireInterval = 0.28f;
+  float weaponCooldown = 0.0f;
+  float weaponMuzzleFlashTimer = 0.0f;
+  float weaponHitMarkerTimer = 0.0f;
+  struct WeaponViewmodel {
+    const char *name;
+    GLTFModel *model;
+    int idleAnimation;
+    int walkAnimation;
+    int runAnimation;
+    int fireAnimation;
+    int reloadAnimation;
+    int armsIdleAnimation;
+    int armsWalkAnimation;
+    int armsRunAnimation;
+    int armsFireAnimation;
+    int armsReloadAnimation;
+    glm::vec3 position;
+    glm::vec3 rotation;
+    float targetSize;
+    float damage;
+    float fireInterval;
+    bool automatic;
+    bool holdArmsAnimationAtEnd;
+    std::vector<glm::mat4> bones;
+  };
+  auto findWeaponAnimation = [](GLTFModel *model,
+                                std::initializer_list<const char *> names) {
+    if (!model)
+      return 0;
+    for (const char *name : names) {
+      int index = model->FindAnimationIndexContains(name);
+      if (index >= 0)
+        return index;
+    }
+    return 0;
+  };
+  std::vector<WeaponViewmodel> weapons = {
+      {"Pistola",
+       pistolViewmodel,
+       findWeaponAnimation(pistolViewmodel, {"IdlePose", "BasePose"}),
+       findWeaponAnimation(pistolViewmodel, {"Pistol_Walk"}),
+       findWeaponAnimation(pistolViewmodel, {"Pistol_Walk"}),
+       findWeaponAnimation(pistolViewmodel, {"Pistol_Aiming_Fire"}),
+       findWeaponAnimation(pistolViewmodel, {"Pistol_IdlePose"}),
+       findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
+       findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
+       findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
+       findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
+       findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
+       glm::vec3(0.18f, -0.38f, -0.72f),
+       glm::vec3(0.0f),
+       0.9f,
+       35.0f,
+       0.28f,
+       false,
+       true},
+      {"Rifle",
+       rifleViewmodel,
+       findWeaponAnimation(rifleViewmodel, {"Rifle_Breathing"}),
+       findWeaponAnimation(rifleViewmodel, {"Rifle_Walk"}),
+       findWeaponAnimation(rifleViewmodel, {"Rifle_Run"}),
+       findWeaponAnimation(rifleViewmodel, {"Rifle_Breathing"}),
+       findWeaponAnimation(rifleViewmodel, {"Rifle_BasePose"}),
+       findWeaponAnimation(rifleViewmodel, {"Arms_BasePose"}),
+       findWeaponAnimation(rifleViewmodel, {"Arms_BasePose"}),
+       findWeaponAnimation(rifleViewmodel, {"Arms_BasePose"}),
+       findWeaponAnimation(rifleViewmodel, {"Arms_BasePose"}),
+       findWeaponAnimation(rifleViewmodel, {"Arms_Reload"}),
+       glm::vec3(0.12f, -0.40f, -0.82f),
+       glm::vec3(0.0f),
+       1.0f,
+       22.0f,
+       0.11f,
+       true,
+       false},
+      {"Escopeta",
+       shotgunViewmodel,
+       findWeaponAnimation(shotgunViewmodel, {"shotgun01_BasePose"}),
+       findWeaponAnimation(shotgunViewmodel, {"shotgun01_BasePose"}),
+       findWeaponAnimation(shotgunViewmodel, {"shotgun01_BasePose"}),
+       findWeaponAnimation(shotgunViewmodel, {"shotgun01_fire"}),
+       findWeaponAnimation(shotgunViewmodel, {"shotgun01_ReloadStart"}),
+       findWeaponAnimation(shotgunViewmodel, {"arms_basePose"}),
+       findWeaponAnimation(shotgunViewmodel, {"arms_basePose"}),
+       findWeaponAnimation(shotgunViewmodel, {"arms_basePose"}),
+       findWeaponAnimation(shotgunViewmodel, {"arms_basePose"}),
+       findWeaponAnimation(shotgunViewmodel, {"arms_ReloadStart"}),
+       glm::vec3(0.10f, -0.42f, -0.88f),
+       glm::vec3(0.0f),
+       1.05f,
+       70.0f,
+       0.75f,
+       false,
+       false}};
+  int currentWeaponIndex = 0;
+  int weaponAnimationIndex = weapons[0].idleAnimation;
+  int weaponArmsAnimationIndex = weapons[0].armsIdleAnimation;
+  float weaponAnimationTime = 0.0f;
+  float weaponActionDuration = 0.0f;
+  bool weaponActionPlaying = false;
+  bool weaponCycleWasPressed = false;
+  bool weaponReloadWasPressed = false;
+  auto loadWeaponConfig = [&]() {
+    std::ifstream config("assets/weapon_config.txt");
+    int enabled = 1;
+    int automatic = 0;
+    if (config >> enabled >> automatic >> weaponDamage >> weaponRange >>
+        weaponFireInterval) {
+      weaponEnabled = enabled != 0;
+      weaponAutomatic = automatic != 0;
+    }
+    int savedWeaponIndex = 0;
+    if (config >> savedWeaponIndex) {
+      currentWeaponIndex =
+          glm::clamp(savedWeaponIndex, 0, static_cast<int>(weapons.size()) - 1);
+      for (WeaponViewmodel &weapon : weapons) {
+        config >> weapon.position.x >> weapon.position.y >> weapon.position.z >>
+            weapon.rotation.x >> weapon.rotation.y >> weapon.rotation.z >>
+            weapon.targetSize;
+      }
+      weaponDamage = weapons[currentWeaponIndex].damage;
+      weaponFireInterval = weapons[currentWeaponIndex].fireInterval;
+      weaponAutomatic = weapons[currentWeaponIndex].automatic;
+    }
+  };
+  auto saveWeaponConfig = [&]() {
+    std::ofstream config("assets/weapon_config.txt");
+    config << (weaponEnabled ? 1 : 0) << " " << (weaponAutomatic ? 1 : 0)
+           << " " << weaponDamage << " " << weaponRange << " "
+           << weaponFireInterval << "\n";
+    config << currentWeaponIndex << "\n";
+    for (const WeaponViewmodel &weapon : weapons) {
+      config << weapon.position.x << " " << weapon.position.y << " "
+             << weapon.position.z << " " << weapon.rotation.x << " "
+             << weapon.rotation.y << " " << weapon.rotation.z << " "
+             << weapon.targetSize << "\n";
+    }
+  };
+  loadWeaponConfig();
 
   // --- ZONAS DE HABITACION ---
   // Cada zona define un rectángulo del worldMap con texturas propias para
@@ -943,7 +1132,7 @@ int main() {
   buildStaticMapBatches();
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
+    deltaTime = (std::min)(currentFrame - lastFrame, 0.05f);
     lastFrame = currentFrame;
 
     if (hudMessageTimer > 0.0f) {
@@ -955,6 +1144,109 @@ int main() {
     ImGui::NewFrame();
 
     processInput(window);
+    weaponCooldown = (std::max)(0.0f, weaponCooldown - deltaTime);
+    weaponMuzzleFlashTimer =
+        (std::max)(0.0f, weaponMuzzleFlashTimer - deltaTime);
+    weaponHitMarkerTimer =
+        (std::max)(0.0f, weaponHitMarkerTimer - deltaTime);
+
+    bool cycleWeaponDown = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS;
+    if (cycleWeaponDown && !weaponCycleWasPressed && gameState == PLAYING) {
+      currentWeaponIndex =
+          (currentWeaponIndex + 1) % static_cast<int>(weapons.size());
+      WeaponViewmodel &weapon = weapons[currentWeaponIndex];
+      weaponDamage = weapon.damage;
+      weaponFireInterval = weapon.fireInterval;
+      weaponAutomatic = weapon.automatic;
+      weaponAnimationIndex = weapon.idleAnimation;
+      weaponArmsAnimationIndex = weapon.armsIdleAnimation;
+      weaponAnimationTime = 0.0f;
+      weaponActionPlaying = false;
+    }
+    weaponCycleWasPressed = cycleWeaponDown;
+
+    bool reloadWeaponDown = glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS;
+    if (reloadWeaponDown && !weaponReloadWasPressed && gameState == PLAYING &&
+        weaponEnabled) {
+      WeaponViewmodel &weapon = weapons[currentWeaponIndex];
+      weaponAnimationIndex = weapon.reloadAnimation;
+      weaponArmsAnimationIndex = weapon.armsReloadAnimation;
+      weaponAnimationTime = 0.0f;
+      weaponActionDuration = weapon.model
+                                 ? (std::max)(
+                                       weapon.model->GetAnimationLengthSeconds(
+                                           weaponAnimationIndex),
+                                       weapon.model->GetAnimationLengthSeconds(
+                                           weaponArmsAnimationIndex))
+                                 : 0.0f;
+      weaponActionPlaying = weaponActionDuration > 0.02f &&
+                            (weapon.reloadAnimation != weapon.idleAnimation ||
+                             weapon.armsReloadAnimation !=
+                                 weapon.armsIdleAnimation);
+    }
+    weaponReloadWasPressed = reloadWeaponDown;
+
+    bool weaponTriggerDown =
+        glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+    bool weaponCanFire =
+        weaponEnabled && gameState == PLAYING && !isReadingDocument &&
+        isCursorLocked && !ImGui::GetIO().WantCaptureMouse &&
+        weaponCooldown <= 0.0f &&
+        (weaponAutomatic ? weaponTriggerDown
+                         : weaponTriggerDown && !weaponTriggerWasDown);
+    if (weaponCanFire) {
+      WeaponViewmodel &weapon = weapons[currentWeaponIndex];
+      weaponCooldown = weaponFireInterval;
+      weaponMuzzleFlashTimer = 0.08f;
+      if (currentWeaponIndex == 2 && shotgunFireSoundReady) {
+        ma_sound_stop(&shotgunFireSound);
+        ma_sound_seek_to_pcm_frame(&shotgunFireSound, 0);
+        ma_sound_start(&shotgunFireSound);
+      }
+      weaponAnimationIndex = weapon.fireAnimation;
+      weaponArmsAnimationIndex = weapon.armsFireAnimation;
+      weaponAnimationTime = 0.0f;
+      weaponActionDuration = weapon.model
+                                 ? (std::max)(
+                                       weapon.model->GetAnimationLengthSeconds(
+                                           weaponAnimationIndex),
+                                       weapon.model->GetAnimationLengthSeconds(
+                                           weaponArmsAnimationIndex))
+                                 : 0.0f;
+      weaponActionPlaying = weaponActionDuration > 0.02f &&
+                            (weapon.fireAnimation != weapon.idleAnimation ||
+                             weapon.armsFireAnimation != weapon.armsIdleAnimation);
+      if (animatedEntities.ShootRay(cameraPos, cameraFront, weaponRange,
+                                    weaponDamage)) {
+        weaponHitMarkerTimer = 0.16f;
+      }
+    }
+    weaponTriggerWasDown = weaponTriggerDown;
+    WeaponViewmodel &activeWeapon = weapons[currentWeaponIndex];
+    if (weaponActionPlaying) {
+      weaponAnimationTime += deltaTime;
+      if (weaponAnimationTime >= weaponActionDuration) {
+        weaponActionPlaying = false;
+        weaponAnimationTime = 0.0f;
+      }
+    } else {
+      weaponAnimationIndex =
+          isSprinting ? activeWeapon.runAnimation
+                      : (isMoving ? activeWeapon.walkAnimation
+                                  : activeWeapon.idleAnimation);
+      weaponArmsAnimationIndex =
+          isSprinting ? activeWeapon.armsRunAnimation
+                      : (isMoving ? activeWeapon.armsWalkAnimation
+                                  : activeWeapon.armsIdleAnimation);
+      weaponAnimationTime += deltaTime;
+    }
+
+    animatedEntities.Update(deltaTime, cameraPos, cameraFront,
+                            interactionPressedThisFrame,
+                            gameState == PLAYING && !isReadingDocument);
+    for (const std::string &message : animatedEntities.ConsumeMessages()) {
+      printTypewriter(message);
+    }
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1093,9 +1385,7 @@ int main() {
     glUniform1f(pointLightRadLoc[6], 3.0f);
 
     // --- LUCES DINAMICAS PARA PROPS DEL EDITOR (Indices 7-10 y 14-31) ---
-    std::vector<int> dynamicSlots = {7,  8,  9,  10, 14, 15, 16, 17,
-                                     18, 19, 20, 21, 22, 23, 24, 25,
-                                     26, 27, 28, 29, 30, 31};
+    std::vector<int> dynamicSlots = {7, 8, 9, 10, 14, 15};
 
     struct LightProp {
       const PlacedProp *prop;
@@ -1105,7 +1395,8 @@ int main() {
     for (const auto &prop : placedProps) {
       if (prop.modelName == "emergency" || prop.modelName == "ligthbathroom") {
         float d2 = glm::distance2(cameraPos, prop.pos);
-        emittingProps.push_back({&prop, d2});
+        if (d2 <= 18.0f * 18.0f)
+          emittingProps.push_back({&prop, d2});
       }
     }
     std::sort(emittingProps.begin(), emittingProps.end(),
@@ -1167,8 +1458,10 @@ int main() {
                 0.45f * flickerDescanso2, 0.15f * flickerDescanso2);
     glUniform1f(pointLightRadLoc[13], 4.0f);
 
-    // Informar al shader cuantas luces reales estamos usando
-    glUniform1i(numPointLightsLoc, 32);
+    // Los indices fijos llegan hasta 13; solo enviamos los dinamicos cercanos.
+    int highestPointLightSlot =
+        currentSlotIdx > 0 ? dynamicSlots[currentSlotIdx - 1] : 13;
+    glUniform1i(numPointLightsLoc, (std::max)(14, highestPointLightSlot + 1));
 
     // --- SPOTLIGHTS (Max 16) ---
     int spotIdx = 0;
@@ -1210,7 +1503,9 @@ int main() {
     for (const auto &prop : placedProps) {
       if (prop.modelName == "mini-lampara" || prop.modelName == "emergency") {
         float d2 = glm::distance2(cameraPos, prop.pos);
-        dynamicSpots.push_back({&prop, d2, (prop.modelName == "mini-lampara")});
+        if (d2 <= 18.0f * 18.0f)
+          dynamicSpots.push_back(
+              {&prop, d2, (prop.modelName == "mini-lampara")});
       }
     }
     std::sort(dynamicSpots.begin(), dynamicSpots.end(),
@@ -1221,7 +1516,7 @@ int main() {
     std::map<const PlacedProp *, float> miniLampFlickers;
     int miniLampCount = 0;
     for (const auto &sp : dynamicSpots) {
-      if (spotIdx >= 16)
+      if (spotIdx >= 10)
         break;
       const auto &prop = *sp.prop;
 
@@ -1284,7 +1579,7 @@ int main() {
       glm::vec2 objPos(x, z);
       glm::vec2 dir = objPos - glm::vec2(cameraPos.x, cameraPos.z);
       float dist = glm::length(dir);
-      constexpr float kPropRenderDistance = 24.0f;
+      constexpr float kPropRenderDistance = 18.0f;
       if (dist > kPropRenderDistance + radius)
         return false;
       if (dist > radius + 3.0f) {
@@ -1296,6 +1591,9 @@ int main() {
     };
 
     // --- DIBUJAR MAPA BATCHEADO (Optimizado) ---
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(solidColorLoc, 0);
+    glUniform1f(emissiveStrengthLoc, 0.0f);
     for (auto &b : mapBatches) {
       glBindVertexArray(b.VAO);
       glBindTexture(GL_TEXTURE_2D, b.textureID);
@@ -1597,6 +1895,9 @@ int main() {
     // --- DECORACIÓN BAÑO (GLB estáticos) ---
     // Limpiar estado incondicionalmente antes de dibujar los props para evitar
     // heredar colores o estados
+    animatedEntities.Render(shaderProgram, modelLoc, solidColorLoc, colorLoc,
+                            isAnimatedLoc, finalBonesLoc, cameraPos);
+
     glActiveTexture(GL_TEXTURE0);
     if (isAnimatedLoc >= 0)
       glUniform1i(isAnimatedLoc, 0);
@@ -1951,6 +2252,7 @@ int main() {
     int renderSlotIdx = 0;
     int miniLampDrawCount = 0;
     int cameraAnimCount = 0;
+    std::map<GLTFModel *, std::vector<glm::mat4>> propInstanceBatches;
     for (const auto &prop : placedProps) {
       GLTFModel *model = modelRegistry[prop.modelName];
       if (!model || model->meshes.empty())
@@ -1966,6 +2268,9 @@ int main() {
           renderSlotIdx++;
         }
       }
+
+      if (!shouldRender(prop.pos.x, prop.pos.z, 3.0f))
+        continue;
 
       glm::mat4 pModel = glm::mat4(1.0f);
       pModel = glm::translate(pModel, prop.pos);
@@ -2008,6 +2313,13 @@ int main() {
         miniLampDrawCount++;
       }
 
+      bool needsIndividualDraw =
+          esLuzBano || esLamparaReactor || esMiniLampara || esEmergency;
+      if (!needsIndividualDraw) {
+        propInstanceBatches[model].push_back(pModel);
+        continue;
+      }
+
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
       if (esLuzBano)
         glUniform1f(emissiveStrengthLoc, 1.0f * lampGlow);
@@ -2015,15 +2327,16 @@ int main() {
         glUniform1f(emissiveStrengthLoc, 0.9f * lampFlicker);
       if (esMiniLampara)
         glUniform1f(emissiveStrengthLoc, 0.8f * miniLampFlicker);
-      // Emisivo base (0.25) + pulso (0.55)
       if (esEmergency)
         glUniform1f(emissiveStrengthLoc, 0.40f + 0.80f * emergencyPulse);
 
-      if (shouldRender(prop.pos.x, prop.pos.z, 3.0f)) {
-        model->Draw(shaderProgram, solidColorLoc);
-      }
-      if (esLuzBano || esLamparaReactor || esMiniLampara || esEmergency)
-        glUniform1f(emissiveStrengthLoc, 0.0f); // Resetear
+      model->Draw(shaderProgram, solidColorLoc);
+      glUniform1f(emissiveStrengthLoc, 0.0f);
+    }
+
+    glUniform1f(emissiveStrengthLoc, 0.0f);
+    for (auto &[model, instanceModels] : propInstanceBatches) {
+      model->DrawInstanced(shaderProgram, solidColorLoc, instanceModels);
     }
     //*------------------
 
@@ -2547,7 +2860,7 @@ int main() {
         drawModelHitbox(mensBGLTF, mensBpos, mensBrot, mensBscale);
         drawModelHitbox(girlBGLTF, girlBpos, girlBrot, girlBscale);
 
-        // --- Props Dinámicos (placedProps) ---
+        // --- Props Dinámicos (placedProps) ------
         for (const auto &prop : placedProps) {
           GLTFModel *model = modelRegistry[prop.modelName];
           if (model) {
@@ -2643,6 +2956,91 @@ int main() {
       glDrawArrays(GL_TRIANGLES, 0, 6);
       glUniform1f(emissiveStrengthLoc,
                   0.0f); // Resetear para siguientes objetos
+    }
+
+    // Viewmodel FPS: se dibuja con profundidad limpia para no atravesar paredes.
+    if (gameState == PLAYING && weaponEnabled && !isReadingDocument) {
+      WeaponViewmodel &weapon = weapons[currentWeaponIndex];
+      if (weapon.model && !weapon.model->meshes.empty()) {
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+
+        glm::mat4 viewmodelView(1.0f);
+        glm::mat4 viewmodelProjection =
+            glm::perspective(glm::radians(58.0f),
+                             static_cast<float>(currentWidth) /
+                                 static_cast<float>(currentHeight),
+                             0.01f, 20.0f);
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE,
+                           glm::value_ptr(viewmodelView));
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE,
+                           glm::value_ptr(viewmodelProjection));
+
+        glm::vec3 boundsSize =
+            weapon.model->localAABB.max - weapon.model->localAABB.min;
+        float largest =
+            (std::max)(boundsSize.x,
+                       (std::max)(boundsSize.y, boundsSize.z));
+        float viewmodelScale =
+            largest > 0.001f ? weapon.targetSize / largest : 1.0f;
+        float recoil = weaponMuzzleFlashTimer > 0.0f ? 0.035f : 0.0f;
+
+        glm::mat4 viewmodelMatrix(1.0f);
+        viewmodelMatrix =
+            glm::translate(viewmodelMatrix,
+                           weapon.position + glm::vec3(0.0f, 0.0f, recoil));
+        viewmodelMatrix =
+            glm::rotate(viewmodelMatrix, glm::radians(weapon.rotation.x),
+                        glm::vec3(1.0f, 0.0f, 0.0f));
+        viewmodelMatrix =
+            glm::rotate(viewmodelMatrix, glm::radians(weapon.rotation.y),
+                        glm::vec3(0.0f, 1.0f, 0.0f));
+        viewmodelMatrix =
+            glm::rotate(viewmodelMatrix, glm::radians(weapon.rotation.z),
+                        glm::vec3(0.0f, 0.0f, 1.0f));
+        viewmodelMatrix =
+            glm::scale(viewmodelMatrix, glm::vec3(viewmodelScale));
+
+        bool hasBones = weapon.model->CountBonesInMeshes() > 0;
+        if (hasBones) {
+          float armsAnimationTime = weaponAnimationTime;
+          if (weapon.holdArmsAnimationAtEnd) {
+            float armsLength = weapon.model->GetAnimationLengthSeconds(
+                weaponArmsAnimationIndex);
+            if (armsLength > 0.001f)
+              armsAnimationTime = armsLength * 0.999f;
+          }
+          weapon.model->UpdateAnimationLayers(
+              armsAnimationTime, weaponArmsAnimationIndex,
+              weaponAnimationTime, weaponAnimationIndex, weapon.bones);
+          if (finalBonesLoc >= 0 && !weapon.bones.empty()) {
+            glUniformMatrix4fv(finalBonesLoc,
+                               static_cast<GLsizei>(weapon.bones.size()),
+                               GL_FALSE, glm::value_ptr(weapon.bones[0]));
+          }
+        }
+        if (isAnimatedLoc >= 0)
+          glUniform1i(isAnimatedLoc, hasBones ? 1 : 0);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE,
+                           glm::value_ptr(viewmodelMatrix));
+        glUniform1i(solidColorLoc, 0);
+        glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
+        glUniform1f(emissiveStrengthLoc, 0.85f);
+        if (hasBones) {
+          weapon.model->Draw(shaderProgram, solidColorLoc);
+        } else {
+          weapon.model->DrawAnimated(weaponAnimationTime, weaponAnimationIndex,
+                                     shaderProgram, modelLoc, solidColorLoc,
+                                     viewmodelMatrix);
+        }
+        if (isAnimatedLoc >= 0)
+          glUniform1i(isAnimatedLoc, 0);
+        glUniform1i(solidColorLoc, 0);
+        glUniform1f(emissiveStrengthLoc, 0.0f);
+        glActiveTexture(GL_TEXTURE0);
+        glBindVertexArray(0);
+      }
     }
 
     if (gameState == MENU) {
@@ -2809,7 +3207,7 @@ int main() {
                                  panelGap * 2.0f);
 
       ImGui::SetNextWindowPos(ImVec2(0.0f, panelTopY), ImGuiCond_Always);
-      ImGui::SetNextWindowSize(ImVec2(sideTabW, 360.0f), ImGuiCond_Always);
+      ImGui::SetNextWindowSize(ImVec2(sideTabW, 430.0f), ImGuiCond_Always);
       ImGui::SetNextWindowBgAlpha(0.78f);
       ImGui::Begin("EditorDockTabs", NULL,
                    ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
@@ -2829,6 +3227,7 @@ int main() {
       sideTab("I", 0);
       sideTab("M", 1);
       sideTab("S", 2);
+      sideTab("A", 3);
       if (ImGui::Button("<", ImVec2(-1.0f, 34.0f))) {
         showDebugGUI = false;
       }
@@ -2845,6 +3244,8 @@ int main() {
                          ImGuiWindowFlags_NoMove);
         ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "POSICION ACTUAL:");
         ImGui::Text("X: %.1f  |  Z: %.1f", cameraPos.x, cameraPos.z);
+        ImGui::Text("FPS: %.0f  |  Frame: %.2f ms", ImGui::GetIO().Framerate,
+                    1000.0f / (std::max)(1.0f, ImGui::GetIO().Framerate));
         ImGui::Spacing();
         ImGui::Checkbox("Ver Hitboxes (H)", &showCollisionViewer);
         ImGui::Spacing();
@@ -3153,6 +3554,50 @@ int main() {
         ImGui::End();
       }
 
+      if (activeEditorPanel == 3) {
+        ImGui::SetNextWindowPos(ImVec2(leftPanelX, panelTopY),
+                                ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(leftPanelW, availablePanelH),
+                                 ImGuiCond_Always);
+        ImGui::SetNextWindowBgAlpha(0.86f);
+        ImGui::Begin("Editor de Entidades Animadas", NULL,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+        animatedEntities.DrawEditor(cameraPos, cameraFront,
+                                    "assets/animated_entities.txt");
+        ImGui::SeparatorText("Arma del jugador");
+        ImGui::Checkbox("Arma equipada", &weaponEnabled);
+        const char *weaponNames[] = {"Pistola", "Rifle", "Escopeta"};
+        if (ImGui::Combo("Viewmodel activo", &currentWeaponIndex, weaponNames,
+                         IM_ARRAYSIZE(weaponNames))) {
+          WeaponViewmodel &weapon = weapons[currentWeaponIndex];
+          weaponDamage = weapon.damage;
+          weaponFireInterval = weapon.fireInterval;
+          weaponAutomatic = weapon.automatic;
+          weaponAnimationIndex = weapon.idleAnimation;
+          weaponArmsAnimationIndex = weapon.armsIdleAnimation;
+          weaponAnimationTime = 0.0f;
+          weaponActionPlaying = false;
+        }
+        WeaponViewmodel &weaponEditor = weapons[currentWeaponIndex];
+        ImGui::DragFloat3("Posicion viewmodel", &weaponEditor.position.x,
+                          0.005f);
+        ImGui::DragFloat3("Rotacion viewmodel", &weaponEditor.rotation.x,
+                          0.5f);
+        ImGui::DragFloat("Tamano viewmodel", &weaponEditor.targetSize, 0.01f,
+                         0.05f, 5.0f);
+        ImGui::Checkbox("Disparo automatico", &weaponAutomatic);
+        ImGui::DragFloat("Dano del arma", &weaponDamage, 1.0f, 1.0f, 1000.0f);
+        ImGui::DragFloat("Alcance del arma", &weaponRange, 0.5f, 1.0f, 100.0f);
+        ImGui::DragFloat("Intervalo disparo", &weaponFireInterval, 0.01f,
+                         0.05f, 3.0f);
+        if (ImGui::Button("Guardar configuracion arma", ImVec2(-1.0f, 0.0f)))
+          saveWeaponConfig();
+        if (ImGui::Button("Recargar configuracion arma", ImVec2(-1.0f, 0.0f)))
+          loadWeaponConfig();
+        ImGui::TextDisabled("Disparar: clic izquierdo | Recargar: R | Cambiar: Q");
+        ImGui::End();
+      }
+
       if (showCollisionViewer) {
         ImGui::SetNextWindowPos(
             ImVec2(leftPanelX + leftPanelW + panelGap, panelTopY),
@@ -3315,6 +3760,34 @@ int main() {
       ImGui::PopStyleVar(2);
     }
 
+    if (gameState == PLAYING && weaponEnabled && !isReadingDocument) {
+      ImDrawList *weaponHud = ImGui::GetForegroundDrawList();
+      ImVec2 center(currentWidth * 0.5f, currentHeight * 0.5f);
+      ImU32 crosshairColor = weaponHitMarkerTimer > 0.0f
+                                 ? IM_COL32(255, 70, 70, 255)
+                                 : IM_COL32(225, 235, 235, 210);
+      float gap = 5.0f;
+      float length = 8.0f;
+      weaponHud->AddLine(ImVec2(center.x - gap - length, center.y),
+                         ImVec2(center.x - gap, center.y), crosshairColor,
+                         1.5f);
+      weaponHud->AddLine(ImVec2(center.x + gap, center.y),
+                         ImVec2(center.x + gap + length, center.y),
+                         crosshairColor, 1.5f);
+      weaponHud->AddLine(ImVec2(center.x, center.y - gap - length),
+                         ImVec2(center.x, center.y - gap), crosshairColor,
+                         1.5f);
+      weaponHud->AddLine(ImVec2(center.x, center.y + gap),
+                         ImVec2(center.x, center.y + gap + length),
+                         crosshairColor, 1.5f);
+
+      if (weaponMuzzleFlashTimer > 0.0f) {
+        weaponHud->AddCircleFilled(
+            ImVec2(center.x, center.y), 4.0f,
+            IM_COL32(255, 190, 55, 215), 8);
+      }
+    }
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -3327,6 +3800,8 @@ int main() {
   ImGui::DestroyContext();
 
   ma_sound_uninit(&bgm);
+  if (shotgunFireSoundReady)
+    ma_sound_uninit(&shotgunFireSound);
   ma_engine_uninit(&audioEngine);
 
   glDeleteVertexArrays(1, &VAO);

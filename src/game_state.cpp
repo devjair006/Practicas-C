@@ -310,6 +310,7 @@ GameState gameState = MENU;
 bool isCursorLocked = false;
 bool tabKeyWasPressed = false;
 bool eKeyWasPressed = false;
+bool interactionPressedThisFrame = false;
 bool isFlashlightOn = true;
 bool fKeyWasPressed = false;
 
@@ -322,7 +323,7 @@ bool hasKeycardBlue = false;
 bool dimensionAlterna = false;
 bool portalActivado = false;
 int currentZone = 1;
-bool showDebugGUI = true;
+bool showDebugGUI = false;
 bool showCollisionViewer = false;
 bool collisionShowWalls = true;
 bool collisionShowProps = true;

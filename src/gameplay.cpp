@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "headers/gameplay.h"
+#include "headers/animated_entity.h"
 
 #include <cmath>
 #include <iostream>
@@ -14,6 +15,37 @@
 
 #include "headers/game_state.h"
 #include "headers/gltf_model.h"
+
+namespace {
+bool isNonBlockingDecoration(const std::string &modelName) {
+  return modelName == "ligthbathroom" || modelName == "mini-lampara" ||
+         modelName == "lampara-reactor" || modelName == "emergency" ||
+         modelName == "warning" || modelName == "logo" ||
+         modelName == "logo2" || modelName == "cables_piso" ||
+         modelName == "cables_techo" || modelName == "sangre-piso" ||
+         modelName == "sangre-piso2" || modelName == "help" ||
+         modelName == "it-sees-you" || modelName == "behind-you";
+}
+
+bool isPlayerNearProp(const PlacedProp &prop, const GLTFModel *model,
+                      const glm::vec3 &playerPosition, float playerRadius) {
+  if (prop.modelName == "consola") {
+    return glm::distance2(glm::vec2(prop.pos.x, prop.pos.z),
+                          glm::vec2(playerPosition.x, playerPosition.z)) <
+           16.0f;
+  }
+
+  glm::vec3 localSize = model->localAABB.max - model->localAABB.min;
+  float scaledX = std::abs(localSize.x * prop.scale.x);
+  float scaledZ = std::abs(localSize.z * prop.scale.z);
+  float broadRadius =
+      (std::max)(2.0f, 0.5f * glm::length(glm::vec2(scaledX, scaledZ)) +
+                            playerRadius + 0.75f);
+  glm::vec2 delta(prop.pos.x - playerPosition.x,
+                  prop.pos.z - playerPosition.z);
+  return glm::dot(delta, delta) <= broadRadius * broadRadius;
+}
+} // namespace
 
 bool checkSphereAABBCollision(glm::vec3 sphereCenter, float radius, AABB box) {
   float closestX = glm::max(box.min.x, glm::min(sphereCenter.x, box.max.x));
@@ -246,10 +278,12 @@ bool checkCollision(float x, float z) {
 
   // --- COLISIONES DINAMICAS CON PROPS DE placedProps ---
   for (const auto &prop : placedProps) {
-    if (!prop.collisionActive)
+    if (!prop.collisionActive || isNonBlockingDecoration(prop.modelName))
       continue;
     GLTFModel *model = modelRegistry[prop.modelName];
     if (!model)
+      continue;
+    if (!isPlayerNearProp(prop, model, playerPos, playerRadius))
       continue;
 
     if (prop.modelName == "consola") {
@@ -275,6 +309,12 @@ bool checkCollision(float x, float z) {
         return true;
       }
     }
+  }
+
+  // --- COLISION CON ENTIDADES ANIMADAS ---
+  if (activeAnimatedEntitySystem &&
+      activeAnimatedEntitySystem->CheckCollision(playerPos, playerRadius)) {
+    return true;
   }
 
   // --- COLISION CON GENERADOR ---
@@ -392,6 +432,8 @@ void tryOpenDoor(GLFWwindow *window) {
 }
 
 void processInput(GLFWwindow *window) {
+  interactionPressedThisFrame = false;
+
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     if (isReadingDocument)
       closeDocument();
@@ -601,6 +643,7 @@ void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
     if (!eKeyWasPressed) {
       justPressedE = true;
+      interactionPressedThisFrame = true;
       eKeyWasPressed = true;
       tryOpenDoor(window);
 
@@ -740,17 +783,20 @@ void processInput(GLFWwindow *window) {
   }
 
   // --- INTERACCION AUTOMATICA CON SANGRE (desde placedProps) ---
-  for (const auto &prop : placedProps) {
-    if (prop.modelName == "sangre-piso" || prop.modelName == "sangre-piso2" ||
-        prop.modelName == "help" || prop.modelName == "it-sees-you") {
-      float dist = glm::length(prop.pos - cameraPos);
-      glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos)
-                                      : glm::vec3(0.0f);
-      float look = glm::dot(cameraFront, dir);
+  if (justPressedE) {
+    for (const auto &prop : placedProps) {
+      if (prop.modelName == "sangre-piso" ||
+          prop.modelName == "sangre-piso2" || prop.modelName == "help" ||
+          prop.modelName == "it-sees-you") {
+        float dist = glm::length(prop.pos - cameraPos);
+        glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos)
+                                        : glm::vec3(0.0f);
+        float look = glm::dot(cameraFront, dir);
 
-      if (dist < 2.5f && look > 0.85f && justPressedE) {
-        printTypewriter(
-            "[SANGRE]: Alguien estuvo perdiendo mucha sangre por aqui...");
+        if (dist < 2.5f && look > 0.85f) {
+          printTypewriter(
+              "[SANGRE]: Alguien estuvo perdiendo mucha sangre por aqui...");
+        }
       }
     }
   }
