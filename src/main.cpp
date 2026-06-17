@@ -429,6 +429,9 @@ int main() {
   GLTFModel *expendedoraGLTF = new GLTFModel("assets/descanso/expendedora.glb");
   GLTFModel *extintorViejoGLTF =
       new GLTFModel("assets/descanso/extintor_viejo.glb");
+  GLTFModel *jaulaGLTF = new GLTFModel("assets/descanso/jaula.glb");
+  GLTFModel *compuDestruidaGLTF =
+      new GLTFModel("assets/descanso/compu_destruida.glb");
   GLTFModel *oldSofaGLTF =
       new GLTFModel("assets/descanso/old_sofa_free.glb", true);
   GLTFModel *papelViejoGLTF = new GLTFModel("assets/descanso/papel_viejo.glb");
@@ -492,6 +495,8 @@ int main() {
   modelRegistry["estante_cajas"] = estanteCajasGLTF;
   modelRegistry["expendedora"] = expendedoraGLTF;
   modelRegistry["extintor_viejo"] = extintorViejoGLTF;
+  modelRegistry["jaula"] = jaulaGLTF;
+  modelRegistry["compu_destruida"] = compuDestruidaGLTF;
   modelRegistry["old_sofa_free"] = oldSofaGLTF;
   modelRegistry["papel_viejo"] = papelViejoGLTF;
   modelRegistry["planta_electrica"] = plantaElectricaGLTF;
@@ -528,6 +533,25 @@ int main() {
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
+  if (std::none_of(placedProps.begin(), placedProps.end(),
+                   [](const PlacedProp &prop) {
+                     return prop.modelName == "jaula";
+                   })) {
+    placedProps.push_back({"jaula", glm::vec3(6.25f, -0.50f, 2.35f),
+                           glm::vec3(0.0f, 90.0f, 0.0f),
+                           glm::vec3(0.50f, 0.50f, 0.50f), false, "Descanso"});
+    saveLevelProps("assets/config_posiciones.txt");
+  }
+  if (std::none_of(placedProps.begin(), placedProps.end(),
+                   [](const PlacedProp &prop) {
+                     return prop.modelName == "compu_destruida";
+                   })) {
+    placedProps.push_back({"compu_destruida", glm::vec3(18.35f, -0.30f, 4.15f),
+                           glm::vec3(0.0f, -90.0f, 0.0f),
+                           glm::vec3(0.55f, 0.55f, 0.55f), false,
+                           "Descanso"});
+    saveLevelProps("assets/config_posiciones.txt");
+  }
   AnimatedEntitySystem animatedEntities;
   activeAnimatedEntitySystem = &animatedEntities;
   animatedEntities.Load("assets/animated_entities.txt");
@@ -3383,7 +3407,8 @@ int main() {
             // -- Descanso --
             "botas", "bunk_bed", "estante_cajas", "expendedora",
             "extintor_viejo", "locker", "lockers", "old_sofa_free",
-            "old_soviet_taxophone", "papel_viejo", "planta_electrica",
+            "jaula", "compu_destruida", "old_soviet_taxophone", "papel_viejo",
+            "planta_electrica",
             // -- General (raiz assets/) --
             "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas", "sofa",
             // -- Baño --
@@ -3458,6 +3483,10 @@ int main() {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "computer")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          else if (newProp.modelName == "compu_destruida") {
+            newProp.scale = glm::vec3(0.55f, 0.55f, 0.55f);
+            newProp.collisionActive = false;
+          }
           else if (newProp.modelName == "silla")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "sangre-piso" ||
