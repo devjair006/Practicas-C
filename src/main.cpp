@@ -2386,8 +2386,9 @@ int main() {
         miniLampDrawCount++;
       }
 
+      bool hasAnims = (model->m_Scene && model->m_Scene->HasAnimations());
       bool needsIndividualDraw =
-          esLuzBano || esLamparaReactor || esMiniLampara || esEmergency;
+          esLuzBano || esLamparaReactor || esMiniLampara || esEmergency || hasAnims;
       if (!needsIndividualDraw) {
         propInstanceBatches[model].push_back(pModel);
         continue;
@@ -2403,7 +2404,36 @@ int main() {
       if (esEmergency)
         glUniform1f(emissiveStrengthLoc, 0.40f + 0.80f * emergencyPulse);
 
-      model->Draw(shaderProgram, solidColorLoc);
+      bool esAscensor = (prop.modelName == "ascensor");
+      if (esAscensor)
+        glDisable(GL_CULL_FACE);
+
+      float elevatorAnimTime = currentFrame;
+      if (esAscensor) {
+        float animDuration = model->GetAnimationLengthSeconds(0);
+        if (animDuration > 0.001f) {
+          float totalCycle = animDuration + 5.0f; // 5 segundos de espera cerradas
+          float cycleTime = fmod(currentFrame, totalCycle);
+          
+          if (cycleTime > animDuration) {
+            // Durante la espera, fijamos el tiempo al final de la animación (puertas cerradas)
+            elevatorAnimTime = animDuration - 0.01f;
+          } else {
+            elevatorAnimTime = cycleTime;
+          }
+        }
+      }
+
+      if (hasAnims) {
+        model->DrawAnimated(elevatorAnimTime, 0, shaderProgram, modelLoc,
+                            solidColorLoc, pModel);
+      } else {
+        model->Draw(shaderProgram, solidColorLoc);
+      }
+      
+      if (esAscensor)
+        glEnable(GL_CULL_FACE);
+
       glUniform1f(emissiveStrengthLoc, 0.0f);
     }
 
