@@ -438,6 +438,9 @@ int main() {
   GLTFModel *plantaElectricaGLTF =
       new GLTFModel("assets/descanso/planta_electrica.glb");
   GLTFModel *botasGLTF = new GLTFModel("assets/descanso/botas.glb");
+  GLTFModel *comedorGLTF = new GLTFModel("assets/descanso/comedor.glb");
+  GLTFModel *trashGLTF = new GLTFModel("assets/descanso/trash.glb");
+  GLTFModel *trashBagGLTF = new GLTFModel("assets/descanso/trash_bag.glb");
 
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
@@ -501,6 +504,9 @@ int main() {
   modelRegistry["papel_viejo"] = papelViejoGLTF;
   modelRegistry["planta_electrica"] = plantaElectricaGLTF;
   modelRegistry["botas"] = botasGLTF;
+  modelRegistry["comedor"] = comedorGLTF;
+  modelRegistry["trash"] = trashGLTF;
+  modelRegistry["trash_bag"] = trashBagGLTF;
   modelRegistry["estante"] = estanteGLTF;
   modelRegistry["estantes"] = estantesGLTF;
   modelRegistry["morguefridge"] = morguefridgeGLTF;
@@ -3405,10 +3411,10 @@ int main() {
             // -- Oficinas --
             "cajonesOF",
             // -- Descanso --
-            "botas", "bunk_bed", "estante_cajas", "expendedora",
+            "botas", "bunk_bed", "comedor", "estante_cajas", "expendedora",
             "extintor_viejo", "locker", "lockers", "old_sofa_free",
             "jaula", "compu_destruida", "old_soviet_taxophone", "papel_viejo",
-            "planta_electrica",
+            "planta_electrica", "trash", "trash_bag",
             // -- General (raiz assets/) --
             "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas", "sofa",
             // -- Baño --
