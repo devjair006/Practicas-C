@@ -566,10 +566,10 @@ inline std::string getModelArea(const std::string& modelName) {
     };
     // --- Descanso ---
     static const std::unordered_set<std::string> kDescanso = {
-        "botas", "bunk_bed", "compu_destruida", "estante_cajas",
+        "botas", "bunk_bed", "comedor", "compu_destruida", "estante_cajas",
         "expendedora", "extintor_viejo", "jaula", "locker", "lockers",
         "old_sofa_free", "old_soviet_taxophone", "papel_viejo",
-        "planta_electrica"
+        "planta_electrica", "trash", "trash_bag"
     };
     // --- Baño ---
     static const std::unordered_set<std::string> kBano = {
