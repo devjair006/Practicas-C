@@ -442,6 +442,14 @@ int main() {
   GLTFModel *trashGLTF = new GLTFModel("assets/descanso/trash.glb");
   GLTFModel *trashBagGLTF = new GLTFModel("assets/descanso/trash_bag.glb");
 
+  // --- ASCENSOR ---
+  ascensorGLTF = new GLTFModel("assets/ascensor/ascensor.glb");
+  cajaElectricaGLTF = new GLTFModel("assets/ascensor/caja-electrica.glb");
+  plataformaGLTF = new GLTFModel("assets/ascensor/plataforma.glb");
+  terminalIndustrialGLTF =
+      new GLTFModel("assets/ascensor/terminal-industrial.glb");
+  ductoGLTF = new GLTFModel("assets/ascensor/ducto.glb");
+
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
   modelRegistry["gabinete"] = gabineteGLTF;
@@ -536,6 +544,13 @@ int main() {
 
   // Modelo de luz (lampara estilo baño) disponible en el editor de niveles
   modelRegistry["ligthbathroom"] = ligthbathroomGLTF;
+
+  // Ascensor
+  modelRegistry["ascensor"] = ascensorGLTF;
+  modelRegistry["caja-electrica"] = cajaElectricaGLTF;
+  modelRegistry["plataforma"] = plataformaGLTF;
+  modelRegistry["terminal-industrial"] = terminalIndustrialGLTF;
+  modelRegistry["ducto"] = ductoGLTF;
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
@@ -3322,7 +3337,7 @@ int main() {
         // Areas basadas en carpetas reales de assets/ que contienen .glb
         static const char *kAreaNames[] = {"Todas",   "General",  "Contencion",
                                            "Archivo", "Oficinas", "Descanso",
-                                           "Baño"};
+                                           "Baño",    "Ascensor"};
         static int areaFilterIdx = 0; // 0 = Todas
         ImGui::SetNextItemWidth(-1.0f);
         ImGui::Combo("##AreaFiltro", &areaFilterIdx, kAreaNames,
@@ -3417,6 +3432,8 @@ int main() {
             "planta_electrica", "trash", "trash_bag",
             // -- General (raiz assets/) --
             "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas", "sofa",
+            // -- Ascensor --
+            "ascensor", "caja-electrica", "plataforma", "terminal-industrial", "ducto",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
             "mirror", "MirrorBG", "urinario"};
@@ -3489,7 +3506,13 @@ int main() {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "computer")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-          else if (newProp.modelName == "compu_destruida") {
+          else if (newProp.modelName == "ascensor" ||
+                   newProp.modelName == "caja-electrica" ||
+                   newProp.modelName == "plataforma" ||
+                   newProp.modelName == "terminal-industrial" ||
+                   newProp.modelName == "ducto") {
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          } else if (newProp.modelName == "compu_destruida") {
             newProp.scale = glm::vec3(0.55f, 0.55f, 0.55f);
             newProp.collisionActive = false;
           }
