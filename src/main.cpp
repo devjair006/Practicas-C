@@ -632,6 +632,10 @@ int main() {
   unsigned int floorArchivoTex = loadTexture("assets/archivo/piso.png");
   unsigned int roofArchivoTex = loadTexture("assets/archivo/techo.png");
 
+  // Texturas de Ascensor
+  unsigned int wallAscensorTex = loadTexture("assets/ascensor/pared.png");
+  unsigned int roofAscensorTex = loadTexture("assets/ascensor/techo.png");
+
   // Textura de metal generada para las puertas
   unsigned int doorTex = loadTextureWithFallback("assets/puerta_metal.png", 0);
 
@@ -1008,6 +1012,18 @@ int main() {
        true,
        true,
        true}, // Archivo Restringido
+
+      {41,
+       25,
+       48,
+       33,
+       wallAscensorTex,
+       floorTexture,
+       roofAscensorTex,
+       {0.8f, 0.8f, 0.8f},
+       true,
+       false,
+       true}, // Ascensor
 
       {}, // pisos
   };
