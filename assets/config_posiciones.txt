@@ -286,7 +286,6 @@ barril 4 -0.35 15.2 0 -9 0 0.7 0.7 0.7 1 General
 ascensor 48.206 -0.45 26.676 -90 -1.5 86.5 0.09 0.08 0.12 1 Ascensor
 ducto 41.805 -0.2 31.841 0 0 0 0.31 0.19 0.36 1 Ascensor
 ducto 41.605 -0.05 32.541 0 90 0 0.57 0.14 0.36 0 Ascensor
-terminal-industrial 41.324 -0.5 30.96 0 90 0 1 1 1 1 Ascensor
 caja-electrica 48.578 0.2 27.943 0 180 0 1 1 1 1 Ascensor
 caja-electrica 48.808 0.2 30.501 0 180 0 1 1 1 1 Ascensor
 plataforma 48.108 -0.5 24.45 0 180 0 1 1 1 0 Ascensor

@@ -444,7 +444,6 @@ GLTFModel* boxesGLTF = nullptr;
 GLTFModel *ascensorGLTF = nullptr;
 GLTFModel *cajaElectricaGLTF = nullptr;
 GLTFModel *plataformaGLTF = nullptr;
-GLTFModel *terminalIndustrialGLTF = nullptr;
 GLTFModel *ductoGLTF = nullptr;
 GLTFModel *ghostGLTF = nullptr;
 GLTFModel *headGLTF = nullptr;

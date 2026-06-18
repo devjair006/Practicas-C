@@ -453,8 +453,6 @@ int main() {
   ascensorGLTF = new GLTFModel("assets/ascensor/ascensor.glb");
   cajaElectricaGLTF = new GLTFModel("assets/ascensor/caja-electrica.glb");
   plataformaGLTF = new GLTFModel("assets/ascensor/plataforma.glb");
-  terminalIndustrialGLTF =
-      new GLTFModel("assets/ascensor/terminal-industrial.glb");
   ductoGLTF = new GLTFModel("assets/ascensor/ducto.glb");
   ghostGLTF = new GLTFModel("assets/ascensor/ghost.glb");
   headGLTF = new GLTFModel("assets/ascensor/head.glb");
@@ -562,7 +560,6 @@ int main() {
   modelRegistry["ascensor"] = ascensorGLTF;
   modelRegistry["caja-electrica"] = cajaElectricaGLTF;
   modelRegistry["plataforma"] = plataformaGLTF;
-  modelRegistry["terminal-industrial"] = terminalIndustrialGLTF;
   modelRegistry["ducto"] = ductoGLTF;
   modelRegistry["ghost"] = ghostGLTF;
   modelRegistry["head"] = headGLTF;
@@ -3508,7 +3505,7 @@ int main() {
             "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas",
             "sofa",
             // -- Ascensor --
-            "ascensor", "caja-electrica", "plataforma", "terminal-industrial",
+            "ascensor", "caja-electrica", "plataforma",
             "ducto", "ghost", "head",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
@@ -3585,7 +3582,6 @@ int main() {
           else if (newProp.modelName == "ascensor" ||
                    newProp.modelName == "caja-electrica" ||
                    newProp.modelName == "plataforma" ||
-                   newProp.modelName == "terminal-industrial" ||
                    newProp.modelName == "ducto") {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           } else if (newProp.modelName == "compu_destruida") {

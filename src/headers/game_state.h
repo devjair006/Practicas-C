@@ -415,7 +415,6 @@ extern GLTFModel* barrilGLTF;
 extern GLTFModel *ascensorGLTF;
 extern GLTFModel *cajaElectricaGLTF;
 extern GLTFModel *plataformaGLTF;
-extern GLTFModel *terminalIndustrialGLTF;
 extern GLTFModel *ductoGLTF;
 extern GLTFModel *ghostGLTF;
 extern GLTFModel *headGLTF;
@@ -607,7 +606,7 @@ inline std::string getModelArea(const std::string& modelName) {
     };
     // --- Ascensor ---
     static const std::unordered_set<std::string> kAscensor = {
-        "ascensor", "caja-electrica", "plataforma", "terminal-industrial",
+        "ascensor", "caja-electrica", "plataforma",
         "ducto", "ghost", "head"
     };
 
