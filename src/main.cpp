@@ -412,6 +412,13 @@ int main() {
   labtableGLTF = new GLTFModel("assets/muestras/labtable.glb");
   shelfGLTF = new GLTFModel("assets/muestras/shelf.glb");
   safetyGLTF = new GLTFModel("assets/muestras/safety.glb");
+
+    // --- SALA DE MUESTRAS: Modelos (assets/bodega/) ---
+    neveraGLTF = new GLTFModel("assets/bodega/nevera.glb");
+    estantebodGLTF = new GLTFModel("assets/bodega/estantebod.glb");
+    boxesGLTF = new GLTFModel("assets/bodega/boxes.glb");
+    barrilGLTF = new GLTFModel("assets/bodega/barril.glb");
+
   // --- SALA DE DESCANSO: modelos reutilizados (ya existian en assets/) ---
   GLTFModel *sillasGLTF = new GLTFModel("assets/sillas.glb");
   GLTFModel *sofaGLTF = new GLTFModel("assets/sofa.glb");
@@ -530,6 +537,10 @@ int main() {
   modelRegistry["labtable"] = labtableGLTF;
   modelRegistry["shelf"] = shelfGLTF;
   modelRegistry["safety"] = safetyGLTF;
+  modelRegistry["nevera"] = neveraGLTF;
+  modelRegistry["estantebod"] = estantebodGLTF;
+  modelRegistry["boxes"] = boxesGLTF;
+  modelRegistry["barril"] = barrilGLTF;
 
   // Modelos generales/baño
   modelRegistry["Bano"] = banoGLTF;

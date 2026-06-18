@@ -286,6 +286,23 @@ extern glm::vec3 safetyPos;
 extern glm::vec3 safetyRot;
 extern glm::vec3 safetyScale;
 
+extern glm::vec3 neveraPos;
+extern glm::vec3 neveraRot;
+extern glm::vec3 neveraScale;
+
+extern glm::vec3 estantebodPos;
+extern glm::vec3 estantebodRot;
+extern glm::vec3 estantebodScale;
+
+extern glm::vec3 boxesPos;
+extern glm::vec3 boxesRot;
+extern glm::vec3 boxesScale;
+
+extern glm::vec3 barrilPos;
+extern glm::vec3 barrilRot;
+extern glm::vec3 barrilScale;
+
+
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
 extern glm::vec3 cameraUp;
@@ -390,6 +407,10 @@ extern GLTFModel *bloodyboxGLTF;
 extern GLTFModel *labtableGLTF;
 extern GLTFModel *shelfGLTF;
 extern GLTFModel *safetyGLTF;
+extern GLTFModel* neveraGLTF;
+extern GLTFModel* estantebodGLTF;
+extern GLTFModel* boxesGLTF;
+extern GLTFModel* barrilGLTF;
 
 extern GLTFModel *ascensorGLTF;
 extern GLTFModel *cajaElectricaGLTF;
