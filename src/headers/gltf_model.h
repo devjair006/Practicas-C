@@ -477,9 +477,8 @@ private:
         for (unsigned int i = 0; i < pNode->mNumMeshes; i++) {
             unsigned int meshIndex = pNode->mMeshes[i];
             
-            // Revertimos la transformación global por defecto para situarnos en el espacio del nodo antes de aplicar la animada
-            glm::mat4 invDefault = glm::inverse(DefaultGlobalTransformation);
-            glm::mat4 finalModel = baseModelMatrix * GlobalTransformation * invDefault;
+            // Aplicamos la transformación global calculada (que incluye la animación) a la matriz base
+            glm::mat4 finalModel = baseModelMatrix * GlobalTransformation;
             
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(finalModel));
             meshes[meshIndex].Draw(shaderProgram, solidColorLoc);
