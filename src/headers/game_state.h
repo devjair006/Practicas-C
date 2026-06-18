@@ -412,6 +412,12 @@ extern GLTFModel* estantebodGLTF;
 extern GLTFModel* boxesGLTF;
 extern GLTFModel* barrilGLTF;
 
+extern GLTFModel *ascensorGLTF;
+extern GLTFModel *cajaElectricaGLTF;
+extern GLTFModel *plataformaGLTF;
+extern GLTFModel *terminalIndustrialGLTF;
+extern GLTFModel *ductoGLTF;
+
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;
 extern std::vector<glm::vec3> cablePisoRot;
@@ -597,12 +603,18 @@ inline std::string getModelArea(const std::string& modelName) {
         "Bano", "azule", "girlB", "lavamanos", "ligthbathroom",
         "mensB", "mirror", "MirrorBG", "urinario"
     };
+    // --- Ascensor ---
+    static const std::unordered_set<std::string> kAscensor = {
+        "ascensor", "caja-electrica", "plataforma", "terminal-industrial",
+        "ducto"
+    };
 
     if (kContencion.count(modelName)) return "Contencion";
     if (kArchivo.count(modelName))    return "Archivo";
     if (kOficinas.count(modelName))   return "Oficinas";
     if (kDescanso.count(modelName))   return "Descanso";
     if (kBano.count(modelName))       return "Baño";
+    if (kAscensor.count(modelName))   return "Ascensor";
     return "General";
 }
 

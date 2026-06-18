@@ -441,6 +441,12 @@ GLTFModel* neveraGLTF = nullptr;
 GLTFModel* estantebodGLTF = nullptr;
 GLTFModel* boxesGLTF = nullptr;
 
+GLTFModel *ascensorGLTF = nullptr;
+GLTFModel *cajaElectricaGLTF = nullptr;
+GLTFModel *plataformaGLTF = nullptr;
+GLTFModel *terminalIndustrialGLTF = nullptr;
+GLTFModel *ductoGLTF = nullptr;
+
 glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
 glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);
 glm::vec3 sarcofagoScale(1.260f, 1.060f, 0.930f);

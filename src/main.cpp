@@ -449,6 +449,14 @@ int main() {
   GLTFModel *trashGLTF = new GLTFModel("assets/descanso/trash.glb");
   GLTFModel *trashBagGLTF = new GLTFModel("assets/descanso/trash_bag.glb");
 
+  // --- ASCENSOR ---
+  ascensorGLTF = new GLTFModel("assets/ascensor/ascensor.glb");
+  cajaElectricaGLTF = new GLTFModel("assets/ascensor/caja-electrica.glb");
+  plataformaGLTF = new GLTFModel("assets/ascensor/plataforma.glb");
+  terminalIndustrialGLTF =
+      new GLTFModel("assets/ascensor/terminal-industrial.glb");
+  ductoGLTF = new GLTFModel("assets/ascensor/ducto.glb");
+
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
   modelRegistry["gabinete"] = gabineteGLTF;
@@ -548,6 +556,13 @@ int main() {
   // Modelo de luz (lampara estilo baño) disponible en el editor de niveles
   modelRegistry["ligthbathroom"] = ligthbathroomGLTF;
 
+  // Ascensor
+  modelRegistry["ascensor"] = ascensorGLTF;
+  modelRegistry["caja-electrica"] = cajaElectricaGLTF;
+  modelRegistry["plataforma"] = plataformaGLTF;
+  modelRegistry["terminal-industrial"] = terminalIndustrialGLTF;
+  modelRegistry["ducto"] = ductoGLTF;
+
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
   if (std::none_of(placedProps.begin(), placedProps.end(),
@@ -627,6 +642,10 @@ int main() {
   unsigned int wallArchivoTex = loadTexture("assets/archivo/paredes.png");
   unsigned int floorArchivoTex = loadTexture("assets/archivo/piso.png");
   unsigned int roofArchivoTex = loadTexture("assets/archivo/techo.png");
+
+  // Texturas de Ascensor
+  unsigned int wallAscensorTex = loadTexture("assets/ascensor/pared.png");
+  unsigned int roofAscensorTex = loadTexture("assets/ascensor/techo.png");
 
   // Textura de metal generada para las puertas
   unsigned int doorTex = loadTextureWithFallback("assets/puerta_metal.png", 0);
@@ -1004,6 +1023,18 @@ int main() {
        true,
        true,
        true}, // Archivo Restringido
+
+      {41,
+       25,
+       48,
+       33,
+       wallAscensorTex,
+       floorTexture,
+       roofAscensorTex,
+       {0.8f, 0.8f, 0.8f},
+       true,
+       false,
+       true}, // Ascensor
 
       {}, // pisos
   };
@@ -2366,8 +2397,9 @@ int main() {
         miniLampDrawCount++;
       }
 
+      bool hasAnims = (model->m_Scene && model->m_Scene->HasAnimations());
       bool needsIndividualDraw =
-          esLuzBano || esLamparaReactor || esMiniLampara || esEmergency;
+          esLuzBano || esLamparaReactor || esMiniLampara || esEmergency || hasAnims;
       if (!needsIndividualDraw) {
         propInstanceBatches[model].push_back(pModel);
         continue;
@@ -2383,7 +2415,36 @@ int main() {
       if (esEmergency)
         glUniform1f(emissiveStrengthLoc, 0.40f + 0.80f * emergencyPulse);
 
-      model->Draw(shaderProgram, solidColorLoc);
+      bool esAscensor = (prop.modelName == "ascensor");
+      if (esAscensor)
+        glDisable(GL_CULL_FACE);
+
+      float elevatorAnimTime = currentFrame;
+      if (esAscensor) {
+        float animDuration = model->GetAnimationLengthSeconds(0);
+        if (animDuration > 0.001f) {
+          float totalCycle = animDuration + 5.0f; // 5 segundos de espera cerradas
+          float cycleTime = fmod(currentFrame, totalCycle);
+          
+          if (cycleTime > animDuration) {
+            // Durante la espera, fijamos el tiempo al final de la animación (puertas cerradas)
+            elevatorAnimTime = animDuration - 0.01f;
+          } else {
+            elevatorAnimTime = cycleTime;
+          }
+        }
+      }
+
+      if (hasAnims) {
+        model->DrawAnimated(elevatorAnimTime, 0, shaderProgram, modelLoc,
+                            solidColorLoc, pModel);
+      } else {
+        model->Draw(shaderProgram, solidColorLoc);
+      }
+      
+      if (esAscensor)
+        glEnable(GL_CULL_FACE);
+
       glUniform1f(emissiveStrengthLoc, 0.0f);
     }
 
@@ -3333,7 +3394,7 @@ int main() {
         // Areas basadas en carpetas reales de assets/ que contienen .glb
         static const char *kAreaNames[] = {"Todas",   "General",  "Contencion",
                                            "Archivo", "Oficinas", "Descanso",
-                                           "Baño"};
+                                           "Baño",    "Ascensor"};
         static int areaFilterIdx = 0; // 0 = Todas
         ImGui::SetNextItemWidth(-1.0f);
         ImGui::Combo("##AreaFiltro", &areaFilterIdx, kAreaNames,
@@ -3428,6 +3489,8 @@ int main() {
             "planta_electrica", "trash", "trash_bag",
             // -- General (raiz assets/) --
             "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas", "sofa",
+            // -- Ascensor --
+            "ascensor", "caja-electrica", "plataforma", "terminal-industrial", "ducto",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
             "mirror", "MirrorBG", "urinario"};
@@ -3500,7 +3563,13 @@ int main() {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "computer")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-          else if (newProp.modelName == "compu_destruida") {
+          else if (newProp.modelName == "ascensor" ||
+                   newProp.modelName == "caja-electrica" ||
+                   newProp.modelName == "plataforma" ||
+                   newProp.modelName == "terminal-industrial" ||
+                   newProp.modelName == "ducto") {
+            newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          } else if (newProp.modelName == "compu_destruida") {
             newProp.scale = glm::vec3(0.55f, 0.55f, 0.55f);
             newProp.collisionActive = false;
           }
