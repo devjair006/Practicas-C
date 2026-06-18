@@ -20,7 +20,6 @@
 #include <string>
 #include <vector>
 
-
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -37,12 +36,13 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include "headers/animated_entity.h"
 #include "headers/game_state.h"
 #include "headers/gameplay.h"
-#include "headers/animated_entity.h"
 #include "headers/obj_mesh.h"
 #include "headers/shader.h"
 #include "headers/texture.h"
+
 
 #include "headers/gltf_model.h"
 
@@ -456,6 +456,8 @@ int main() {
   terminalIndustrialGLTF =
       new GLTFModel("assets/ascensor/terminal-industrial.glb");
   ductoGLTF = new GLTFModel("assets/ascensor/ducto.glb");
+  ghostGLTF = new GLTFModel("assets/ascensor/ghost.glb");
+  headGLTF = new GLTFModel("assets/ascensor/head.glb");
 
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
@@ -562,13 +564,14 @@ int main() {
   modelRegistry["plataforma"] = plataformaGLTF;
   modelRegistry["terminal-industrial"] = terminalIndustrialGLTF;
   modelRegistry["ducto"] = ductoGLTF;
+  modelRegistry["ghost"] = ghostGLTF;
+  modelRegistry["head"] = headGLTF;
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
-  if (std::none_of(placedProps.begin(), placedProps.end(),
-                   [](const PlacedProp &prop) {
-                     return prop.modelName == "jaula";
-                   })) {
+  if (std::none_of(
+          placedProps.begin(), placedProps.end(),
+          [](const PlacedProp &prop) { return prop.modelName == "jaula"; })) {
     placedProps.push_back({"jaula", glm::vec3(6.25f, -0.50f, 2.35f),
                            glm::vec3(0.0f, 90.0f, 0.0f),
                            glm::vec3(0.50f, 0.50f, 0.50f), false, "Descanso"});
@@ -580,8 +583,7 @@ int main() {
                    })) {
     placedProps.push_back({"compu_destruida", glm::vec3(18.35f, -0.30f, 4.15f),
                            glm::vec3(0.0f, -90.0f, 0.0f),
-                           glm::vec3(0.55f, 0.55f, 0.55f), false,
-                           "Descanso"});
+                           glm::vec3(0.55f, 0.55f, 0.55f), false, "Descanso"});
     saveLevelProps("assets/config_posiciones.txt");
   }
   AnimatedEntitySystem animatedEntities;
@@ -606,8 +608,7 @@ int main() {
             << "Terminal(" << terminalGLTF->meshes.size() << "), "
             << "VaultDoor(" << vaultDoorGLTF->meshes.size() << "), "
             << "Escritorio(" << escritorioGLTF->meshes.size() << "), "
-            << "Computer(" << computerGLTF->meshes.size() << ")"
-            << std::endl;
+            << "Computer(" << computerGLTF->meshes.size() << ")" << std::endl;
   std::cout << "[SISTEMA] Props muestras cargados: "
             << "MachineLab(" << machineLabGLTF->meshes.size() << "), "
             << "MorgueFridge(" << morguefridgeGLTF->meshes.size() << "), "
@@ -670,8 +671,8 @@ int main() {
       loadTextureWithFallback("assets/inv-keycard-azul.png", keycardBlueTex);
   unsigned int keycardRedInvTex =
       loadTextureWithFallback("assets/inv-keycard-roja.png", keycardRedTex);
-  unsigned int keycardYellowInvTex =
-      loadTextureWithFallback("assets/inv-keycard-amarilla.png", keycardYellowTex);
+  unsigned int keycardYellowInvTex = loadTextureWithFallback(
+      "assets/inv-keycard-amarilla.png", keycardYellowTex);
   unsigned int pcTex = loadTextureWithFallback("assets/pc.png", wallTex2);
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -851,8 +852,7 @@ int main() {
     return 0;
   };
   std::vector<WeaponViewmodel> weapons = {
-      {"Pistola",
-       pistolViewmodel,
+      {"Pistola", pistolViewmodel,
        findWeaponAnimation(pistolViewmodel, {"IdlePose", "BasePose"}),
        findWeaponAnimation(pistolViewmodel, {"Pistol_Walk"}),
        findWeaponAnimation(pistolViewmodel, {"Pistol_Walk"}),
@@ -863,15 +863,9 @@ int main() {
        findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
        findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
        findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
-       glm::vec3(0.18f, -0.38f, -0.72f),
-       glm::vec3(0.0f),
-       0.9f,
-       35.0f,
-       0.28f,
-       false,
-       true},
-      {"Rifle",
-       rifleViewmodel,
+       glm::vec3(0.18f, -0.38f, -0.72f), glm::vec3(0.0f), 0.9f, 35.0f, 0.28f,
+       false, true},
+      {"Rifle", rifleViewmodel,
        findWeaponAnimation(rifleViewmodel, {"Rifle_Breathing"}),
        findWeaponAnimation(rifleViewmodel, {"Rifle_Walk"}),
        findWeaponAnimation(rifleViewmodel, {"Rifle_Run"}),
@@ -882,15 +876,9 @@ int main() {
        findWeaponAnimation(rifleViewmodel, {"Arms_BasePose"}),
        findWeaponAnimation(rifleViewmodel, {"Arms_BasePose"}),
        findWeaponAnimation(rifleViewmodel, {"Arms_Reload"}),
-       glm::vec3(0.12f, -0.40f, -0.82f),
-       glm::vec3(0.0f),
-       1.0f,
-       22.0f,
-       0.11f,
-       true,
-       false},
-      {"Escopeta",
-       shotgunViewmodel,
+       glm::vec3(0.12f, -0.40f, -0.82f), glm::vec3(0.0f), 1.0f, 22.0f, 0.11f,
+       true, false},
+      {"Escopeta", shotgunViewmodel,
        findWeaponAnimation(shotgunViewmodel, {"shotgun01_BasePose"}),
        findWeaponAnimation(shotgunViewmodel, {"shotgun01_BasePose"}),
        findWeaponAnimation(shotgunViewmodel, {"shotgun01_BasePose"}),
@@ -901,13 +889,8 @@ int main() {
        findWeaponAnimation(shotgunViewmodel, {"arms_basePose"}),
        findWeaponAnimation(shotgunViewmodel, {"arms_basePose"}),
        findWeaponAnimation(shotgunViewmodel, {"arms_ReloadStart"}),
-       glm::vec3(0.10f, -0.42f, -0.88f),
-       glm::vec3(0.0f),
-       1.05f,
-       70.0f,
-       0.75f,
-       false,
-       false}};
+       glm::vec3(0.10f, -0.42f, -0.88f), glm::vec3(0.0f), 1.05f, 70.0f, 0.75f,
+       false, false}};
   int currentWeaponIndex = 0;
   int weaponAnimationIndex = weapons[0].idleAnimation;
   int weaponArmsAnimationIndex = weapons[0].armsIdleAnimation;
@@ -941,9 +924,9 @@ int main() {
   };
   auto saveWeaponConfig = [&]() {
     std::ofstream config("assets/weapon_config.txt");
-    config << (weaponEnabled ? 1 : 0) << " " << (weaponAutomatic ? 1 : 0)
-           << " " << weaponDamage << " " << weaponRange << " "
-           << weaponFireInterval << "\n";
+    config << (weaponEnabled ? 1 : 0) << " " << (weaponAutomatic ? 1 : 0) << " "
+           << weaponDamage << " " << weaponRange << " " << weaponFireInterval
+           << "\n";
     config << currentWeaponIndex << "\n";
     for (const WeaponViewmodel &weapon : weapons) {
       config << weapon.position.x << " " << weapon.position.y << " "
@@ -1231,8 +1214,7 @@ int main() {
     weaponCooldown = (std::max)(0.0f, weaponCooldown - deltaTime);
     weaponMuzzleFlashTimer =
         (std::max)(0.0f, weaponMuzzleFlashTimer - deltaTime);
-    weaponHitMarkerTimer =
-        (std::max)(0.0f, weaponHitMarkerTimer - deltaTime);
+    weaponHitMarkerTimer = (std::max)(0.0f, weaponHitMarkerTimer - deltaTime);
 
     bool cycleWeaponDown = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS;
     if (cycleWeaponDown && !weaponCycleWasPressed && gameState == PLAYING) {
@@ -1256,17 +1238,16 @@ int main() {
       weaponAnimationIndex = weapon.reloadAnimation;
       weaponArmsAnimationIndex = weapon.armsReloadAnimation;
       weaponAnimationTime = 0.0f;
-      weaponActionDuration = weapon.model
-                                 ? (std::max)(
-                                       weapon.model->GetAnimationLengthSeconds(
-                                           weaponAnimationIndex),
-                                       weapon.model->GetAnimationLengthSeconds(
-                                           weaponArmsAnimationIndex))
-                                 : 0.0f;
-      weaponActionPlaying = weaponActionDuration > 0.02f &&
-                            (weapon.reloadAnimation != weapon.idleAnimation ||
-                             weapon.armsReloadAnimation !=
-                                 weapon.armsIdleAnimation);
+      weaponActionDuration =
+          weapon.model ? (std::max)(weapon.model->GetAnimationLengthSeconds(
+                                        weaponAnimationIndex),
+                                    weapon.model->GetAnimationLengthSeconds(
+                                        weaponArmsAnimationIndex))
+                       : 0.0f;
+      weaponActionPlaying =
+          weaponActionDuration > 0.02f &&
+          (weapon.reloadAnimation != weapon.idleAnimation ||
+           weapon.armsReloadAnimation != weapon.armsIdleAnimation);
     }
     weaponReloadWasPressed = reloadWeaponDown;
 
@@ -1290,16 +1271,16 @@ int main() {
       weaponAnimationIndex = weapon.fireAnimation;
       weaponArmsAnimationIndex = weapon.armsFireAnimation;
       weaponAnimationTime = 0.0f;
-      weaponActionDuration = weapon.model
-                                 ? (std::max)(
-                                       weapon.model->GetAnimationLengthSeconds(
-                                           weaponAnimationIndex),
-                                       weapon.model->GetAnimationLengthSeconds(
-                                           weaponArmsAnimationIndex))
-                                 : 0.0f;
-      weaponActionPlaying = weaponActionDuration > 0.02f &&
-                            (weapon.fireAnimation != weapon.idleAnimation ||
-                             weapon.armsFireAnimation != weapon.armsIdleAnimation);
+      weaponActionDuration =
+          weapon.model ? (std::max)(weapon.model->GetAnimationLengthSeconds(
+                                        weaponAnimationIndex),
+                                    weapon.model->GetAnimationLengthSeconds(
+                                        weaponArmsAnimationIndex))
+                       : 0.0f;
+      weaponActionPlaying =
+          weaponActionDuration > 0.02f &&
+          (weapon.fireAnimation != weapon.idleAnimation ||
+           weapon.armsFireAnimation != weapon.armsIdleAnimation);
       if (animatedEntities.ShootRay(cameraPos, cameraFront, weaponRange,
                                     weaponDamage)) {
         weaponHitMarkerTimer = 0.16f;
@@ -1314,10 +1295,10 @@ int main() {
         weaponAnimationTime = 0.0f;
       }
     } else {
-      weaponAnimationIndex =
-          isSprinting ? activeWeapon.runAnimation
-                      : (isMoving ? activeWeapon.walkAnimation
-                                  : activeWeapon.idleAnimation);
+      weaponAnimationIndex = isSprinting
+                                 ? activeWeapon.runAnimation
+                                 : (isMoving ? activeWeapon.walkAnimation
+                                             : activeWeapon.idleAnimation);
       weaponArmsAnimationIndex =
           isSprinting ? activeWeapon.armsRunAnimation
                       : (isMoving ? activeWeapon.armsWalkAnimation
@@ -2336,11 +2317,29 @@ int main() {
     int renderSlotIdx = 0;
     int miniLampDrawCount = 0;
     int cameraAnimCount = 0;
+    int ghostDrawCount = 0;
     std::map<GLTFModel *, std::vector<glm::mat4>> propInstanceBatches;
     for (const auto &prop : placedProps) {
       GLTFModel *model = modelRegistry[prop.modelName];
       if (!model || model->meshes.empty())
         continue;
+
+      // --- aparicion y desaparicion de fantasmas
+      if (prop.modelName == "ghost") {
+        ghostDrawCount++;
+        float hiddenDuration =
+            2.5f + (ghostDrawCount % 3) * 1.5f; // 2.5s, 4.0s, 5.5s
+        float visibleDuration =
+            0.15f + (ghostDrawCount % 3) * 0.25f; // 0.15s, 0.40s, 0.65s
+        float totalCycle = hiddenDuration + visibleDuration;
+
+        float offset = ghostDrawCount * 11.23f; // Desfase para desincronizarlos
+        float cycleTime = fmod(currentFrame + offset, totalCycle);
+
+        if (cycleTime < hiddenDuration) {
+          continue; // Salta el renderizado de este fantasma en este frame
+        }
+      }
 
       bool esLuzBano = (prop.modelName == "ligthbathroom");
       bool esEmergency = (prop.modelName == "emergency");
@@ -2398,8 +2397,8 @@ int main() {
       }
 
       bool hasAnims = (model->m_Scene && model->m_Scene->HasAnimations());
-      bool needsIndividualDraw =
-          esLuzBano || esLamparaReactor || esMiniLampara || esEmergency || hasAnims;
+      bool needsIndividualDraw = esLuzBano || esLamparaReactor ||
+                                 esMiniLampara || esEmergency || hasAnims;
       if (!needsIndividualDraw) {
         propInstanceBatches[model].push_back(pModel);
         continue;
@@ -2423,11 +2422,13 @@ int main() {
       if (esAscensor) {
         float animDuration = model->GetAnimationLengthSeconds(0);
         if (animDuration > 0.001f) {
-          float totalCycle = animDuration + 5.0f; // 5 segundos de espera cerradas
+          float totalCycle =
+              animDuration + 5.0f; // 5 segundos de espera cerradas
           float cycleTime = fmod(currentFrame, totalCycle);
-          
+
           if (cycleTime > animDuration) {
-            // Durante la espera, fijamos el tiempo al final de la animación (puertas cerradas)
+            // Durante la espera, fijamos el tiempo al final de la animación
+            // (puertas cerradas)
             elevatorAnimTime = animDuration - 0.01f;
           } else {
             elevatorAnimTime = cycleTime;
@@ -2441,7 +2442,7 @@ int main() {
       } else {
         model->Draw(shaderProgram, solidColorLoc);
       }
-      
+
       if (esAscensor)
         glEnable(GL_CULL_FACE);
 
@@ -3000,8 +3001,8 @@ int main() {
     glDisable(GL_CULL_FACE);
 
     for (auto &entity : gameEntities) {
-      if (!entity.active ||
-          (entity.type >= 3 && entity.type != 8 && entity.type != 9 && entity.type != 11))
+      if (!entity.active || (entity.type >= 3 && entity.type != 8 &&
+                             entity.type != 9 && entity.type != 11))
         continue;
       if (entity.type == 0 || entity.type == 3)
         continue; // Ya se dibujaron en 3D
@@ -3072,7 +3073,8 @@ int main() {
                   0.0f); // Resetear para siguientes objetos
     }
 
-    // Viewmodel FPS: se dibuja con profundidad limpia para no atravesar paredes.
+    // Viewmodel FPS: se dibuja con profundidad limpia para no atravesar
+    // paredes.
     if (gameState == PLAYING && weaponEnabled && !isReadingDocument) {
       WeaponViewmodel &weapon = weapons[currentWeaponIndex];
       if (weapon.model && !weapon.model->meshes.empty()) {
@@ -3086,24 +3088,21 @@ int main() {
                              static_cast<float>(currentWidth) /
                                  static_cast<float>(currentHeight),
                              0.01f, 20.0f);
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE,
-                           glm::value_ptr(viewmodelView));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewmodelView));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE,
                            glm::value_ptr(viewmodelProjection));
 
         glm::vec3 boundsSize =
             weapon.model->localAABB.max - weapon.model->localAABB.min;
         float largest =
-            (std::max)(boundsSize.x,
-                       (std::max)(boundsSize.y, boundsSize.z));
+            (std::max)(boundsSize.x, (std::max)(boundsSize.y, boundsSize.z));
         float viewmodelScale =
             largest > 0.001f ? weapon.targetSize / largest : 1.0f;
         float recoil = weaponMuzzleFlashTimer > 0.0f ? 0.035f : 0.0f;
 
         glm::mat4 viewmodelMatrix(1.0f);
-        viewmodelMatrix =
-            glm::translate(viewmodelMatrix,
-                           weapon.position + glm::vec3(0.0f, 0.0f, recoil));
+        viewmodelMatrix = glm::translate(
+            viewmodelMatrix, weapon.position + glm::vec3(0.0f, 0.0f, recoil));
         viewmodelMatrix =
             glm::rotate(viewmodelMatrix, glm::radians(weapon.rotation.x),
                         glm::vec3(1.0f, 0.0f, 0.0f));
@@ -3126,8 +3125,8 @@ int main() {
               armsAnimationTime = armsLength * 0.999f;
           }
           weapon.model->UpdateAnimationLayers(
-              armsAnimationTime, weaponArmsAnimationIndex,
-              weaponAnimationTime, weaponAnimationIndex, weapon.bones);
+              armsAnimationTime, weaponArmsAnimationIndex, weaponAnimationTime,
+              weaponAnimationIndex, weapon.bones);
           if (finalBonesLoc >= 0 && !weapon.bones.empty()) {
             glUniformMatrix4fv(finalBonesLoc,
                                static_cast<GLsizei>(weapon.bones.size()),
@@ -3484,13 +3483,15 @@ int main() {
             "cajonesOF",
             // -- Descanso --
             "botas", "bunk_bed", "comedor", "estante_cajas", "expendedora",
-            "extintor_viejo", "locker", "lockers", "old_sofa_free",
-            "jaula", "compu_destruida", "old_soviet_taxophone", "papel_viejo",
+            "extintor_viejo", "locker", "lockers", "old_sofa_free", "jaula",
+            "compu_destruida", "old_soviet_taxophone", "papel_viejo",
             "planta_electrica", "trash", "trash_bag",
             // -- General (raiz assets/) --
-            "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas", "sofa",
+            "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas",
+            "sofa",
             // -- Ascensor --
-            "ascensor", "caja-electrica", "plataforma", "terminal-industrial", "ducto",
+            "ascensor", "caja-electrica", "plataforma", "terminal-industrial",
+            "ducto", "ghost", "head",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
             "mirror", "MirrorBG", "urinario"};
@@ -3572,8 +3573,7 @@ int main() {
           } else if (newProp.modelName == "compu_destruida") {
             newProp.scale = glm::vec3(0.55f, 0.55f, 0.55f);
             newProp.collisionActive = false;
-          }
-          else if (newProp.modelName == "silla")
+          } else if (newProp.modelName == "silla")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "sangre-piso" ||
                    newProp.modelName == "sangre-piso2" ||
@@ -3708,20 +3708,20 @@ int main() {
         WeaponViewmodel &weaponEditor = weapons[currentWeaponIndex];
         ImGui::DragFloat3("Posicion viewmodel", &weaponEditor.position.x,
                           0.005f);
-        ImGui::DragFloat3("Rotacion viewmodel", &weaponEditor.rotation.x,
-                          0.5f);
+        ImGui::DragFloat3("Rotacion viewmodel", &weaponEditor.rotation.x, 0.5f);
         ImGui::DragFloat("Tamano viewmodel", &weaponEditor.targetSize, 0.01f,
                          0.05f, 5.0f);
         ImGui::Checkbox("Disparo automatico", &weaponAutomatic);
         ImGui::DragFloat("Dano del arma", &weaponDamage, 1.0f, 1.0f, 1000.0f);
         ImGui::DragFloat("Alcance del arma", &weaponRange, 0.5f, 1.0f, 100.0f);
-        ImGui::DragFloat("Intervalo disparo", &weaponFireInterval, 0.01f,
-                         0.05f, 3.0f);
+        ImGui::DragFloat("Intervalo disparo", &weaponFireInterval, 0.01f, 0.05f,
+                         3.0f);
         if (ImGui::Button("Guardar configuracion arma", ImVec2(-1.0f, 0.0f)))
           saveWeaponConfig();
         if (ImGui::Button("Recargar configuracion arma", ImVec2(-1.0f, 0.0f)))
           loadWeaponConfig();
-        ImGui::TextDisabled("Disparar: clic izquierdo | Recargar: R | Cambiar: Q");
+        ImGui::TextDisabled(
+            "Disparar: clic izquierdo | Recargar: R | Cambiar: Q");
         ImGui::End();
       }
 
@@ -3862,22 +3862,22 @@ int main() {
                selectedHotbarSlot == 0);
 
       // Slot 1: Tarjeta Amarilla
-      drawSlot("T.Amarilla", (ImTextureID)(intptr_t)keycardYellowInvTex, hasKeycardYellow,
-               selectedHotbarSlot == 1);
+      drawSlot("T.Amarilla", (ImTextureID)(intptr_t)keycardYellowInvTex,
+               hasKeycardYellow, selectedHotbarSlot == 1);
 
       // Slot 2: Tarjeta Roja
       drawSlot("T.Roja", (ImTextureID)(intptr_t)keycardRedInvTex, hasKeycardRed,
                selectedHotbarSlot == 2);
 
       // Slot 3: Tarjeta Azul
-      drawSlot("T.Azul", (ImTextureID)(intptr_t)keycardBlueInvTex, hasKeycardBlue,
-               selectedHotbarSlot == 3);
+      drawSlot("T.Azul", (ImTextureID)(intptr_t)keycardBlueInvTex,
+               hasKeycardBlue, selectedHotbarSlot == 3);
 
-      // Slots 4-5: Baterías (sólo mostramos 2 o reducimos baterías, o ajustamos índices)
-      // Ajustemos las baterías a la derecha. El máximo de slots es 6. (0 a 5)
-      // Linterna(0), LlaveA(1), LlaveR(2), LlaveAz(3), Bat1(4), Bat2(5)
-      // Wait, there are 3 batteries originally. We might need to add a slot or group batteries.
-      // Grouping batteries:
+      // Slots 4-5: Baterías (sólo mostramos 2 o reducimos baterías, o ajustamos
+      // índices) Ajustemos las baterías a la derecha. El máximo de slots es 6.
+      // (0 a 5) Linterna(0), LlaveA(1), LlaveR(2), LlaveAz(3), Bat1(4), Bat2(5)
+      // Wait, there are 3 batteries originally. We might need to add a slot or
+      // group batteries. Grouping batteries:
       char batLabel[16];
       snprintf(batLabel, sizeof(batLabel), "Bats:%d/3", bateriasRecolectadas);
       drawSlot(batLabel, (ImTextureID)(intptr_t)batteryTex,
@@ -3909,9 +3909,8 @@ int main() {
                          crosshairColor, 1.5f);
 
       if (weaponMuzzleFlashTimer > 0.0f) {
-        weaponHud->AddCircleFilled(
-            ImVec2(center.x, center.y), 4.0f,
-            IM_COL32(255, 190, 55, 215), 8);
+        weaponHud->AddCircleFilled(ImVec2(center.x, center.y), 4.0f,
+                                   IM_COL32(255, 190, 55, 215), 8);
       }
     }
 

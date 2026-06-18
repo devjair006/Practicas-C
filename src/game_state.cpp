@@ -446,6 +446,8 @@ GLTFModel *cajaElectricaGLTF = nullptr;
 GLTFModel *plataformaGLTF = nullptr;
 GLTFModel *terminalIndustrialGLTF = nullptr;
 GLTFModel *ductoGLTF = nullptr;
+GLTFModel *ghostGLTF = nullptr;
+GLTFModel *headGLTF = nullptr;
 
 glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
 glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);

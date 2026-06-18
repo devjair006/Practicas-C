@@ -417,6 +417,8 @@ extern GLTFModel *cajaElectricaGLTF;
 extern GLTFModel *plataformaGLTF;
 extern GLTFModel *terminalIndustrialGLTF;
 extern GLTFModel *ductoGLTF;
+extern GLTFModel *ghostGLTF;
+extern GLTFModel *headGLTF;
 
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;
@@ -606,7 +608,7 @@ inline std::string getModelArea(const std::string& modelName) {
     // --- Ascensor ---
     static const std::unordered_set<std::string> kAscensor = {
         "ascensor", "caja-electrica", "plataforma", "terminal-industrial",
-        "ducto"
+        "ducto", "ghost", "head"
     };
 
     if (kContencion.count(modelName)) return "Contencion";
