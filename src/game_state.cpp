@@ -295,6 +295,22 @@ glm::vec3 safetyPos = glm::vec3(9.0f, -0.35f, 20.6f);
 glm::vec3 safetyRot = glm::vec3(0.0f, 180.0f, 0.0f);
 glm::vec3 safetyScale = glm::vec3(0.6f, 0.6f, 0.6f);
 
+glm::vec3 neveraPos = glm::vec3(6.6f, -0.35f, 13.9f); 
+glm::vec3 neveraRot = glm::vec3(0.0f, 90.0f, 0.0f);   
+glm::vec3 neveraScale = glm::vec3(0.6f, 0.6f, 0.6f); 
+
+glm::vec3 estantebodPos = glm::vec3(4.9f, -0.35f, 15.6f); 
+glm::vec3 estantebodRot = glm::vec3(0.0f, 90.0f, 0.0f);   
+glm::vec3 estantebodScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 boxesPos = glm::vec3(4.9f, -0.35f, 16.0f); 
+glm::vec3 boxesRot = glm::vec3(0.0f, 90.0f, 0.0f);   
+glm::vec3 boxesScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 barrilPos = glm::vec3(4.1f, -0.35f, 15.2f); 
+glm::vec3 barrilRot = glm::vec3(0.0f, 180.0f, 0.0f);   
+glm::vec3 barrilScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -378,6 +394,8 @@ GLTFModel *logoGLTF = nullptr;
 GLTFModel *logo2GLTF = nullptr;
 GLTFModel *cablePisoGLTF = nullptr;
 GLTFModel *cableTechoGLTF = nullptr;
+GLTFModel* barrilGLTF = nullptr;
+
 
 GLTFModel *sangrePisoGLTF = nullptr;
 std::vector<glm::vec3> sangrePisoPos = {};
@@ -419,6 +437,9 @@ GLTFModel *bloodyboxGLTF = nullptr;
 GLTFModel *labtableGLTF = nullptr;
 GLTFModel *shelfGLTF = nullptr;
 GLTFModel *safetyGLTF = nullptr;
+GLTFModel* neveraGLTF = nullptr;
+GLTFModel* estantebodGLTF = nullptr;
+GLTFModel* boxesGLTF = nullptr;
 
 glm::vec3 sarcofagoPos(43.235f, -0.100f, 12.691f);
 glm::vec3 sarcofagoRot(0.0f, 0.0f, 0.0f);
