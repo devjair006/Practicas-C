@@ -1682,17 +1682,22 @@ int main() {
 
         // Solo procesamos puertas en el bucle dinámico
         if (blockType != 7 && blockType != 8 && blockType != 9 &&
-            blockType != -7 && blockType != -8 && blockType != -9)
+            blockType != 10 && blockType != 11 &&
+            blockType != -7 && blockType != -8 && blockType != -9 &&
+            blockType != -10 && blockType != -11)
           continue;
 
         // Consideramos la puerta visible tanto si esta cerrada (>0) como
         // abierta (<0)
         int renderBlock = worldMap[z][x];
         if (renderBlock != 0 && (blockType > 0 || renderBlock == -7 ||
-                                 renderBlock == -8 || renderBlock == -9)) {
+                                 renderBlock == -8 || renderBlock == -9 ||
+                                 renderBlock == -10 || renderBlock == -11)) {
           bool is3DDoor =
               (renderBlock == 7 || renderBlock == 8 || renderBlock == 9 ||
-               renderBlock == -7 || renderBlock == -8 || renderBlock == -9);
+               renderBlock == 10 || renderBlock == 11 ||
+               renderBlock == -7 || renderBlock == -8 || renderBlock == -9 ||
+               renderBlock == -10 || renderBlock == -11);
 
           // Detectar si esta celda es la primera o segunda de un par de puertas
           bool isSecondDoorCell = false;
@@ -1709,8 +1714,13 @@ int main() {
             glm::mat4 baseModel = glm::mat4(1.0f);
 
             // 4. Mover al centro del hueco y anclar al piso de la pared (-0.5)
-            baseModel = glm::translate(
-                baseModel, glm::vec3((float)x + 0.5f, -0.5f, (float)z));
+            if (renderBlock == 11 || renderBlock == -11) {
+              baseModel = glm::translate(
+                  baseModel, glm::vec3(40.901f, -0.500f, 29.467f));
+            } else {
+              baseModel = glm::translate(
+                  baseModel, glm::vec3((float)x + 0.5f, -0.5f, (float)z));
+            }
 
             // 3. Escalar para encajar en el juego.
             // Ancho de ensamble: 1.81 -> Juego: 2.0 (Escala 1.1)
@@ -1719,8 +1729,10 @@ int main() {
 
             // 2. Rotar (dejaremos 0 grados asumiendo que los nuevos estan de
             // frente) Si se ven las texturas por detras, cambiaremos este valor
-            // a 180 despues. baseModel = glm::rotate(baseModel,
-            // glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            // a 180 despues.
+            if (renderBlock == 11 || renderBlock == -11) {
+              baseModel = glm::rotate(baseModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            }
 
             // 1. Compensar el offset original de Blender para centrar el
             // ensamble en (0,0,0) Centro X = 0.455, Centro Z = 0.059
@@ -1737,6 +1749,10 @@ int main() {
                 glUniform3f(colorLoc, 1.0f, 0.8f, 0.2f); // Metal Amarillo
               } else if (renderBlock == 9 || renderBlock == -9) {
                 glUniform3f(colorLoc, 0.9f, 0.1f, 0.1f); // Metal Rojo
+              } else if (renderBlock == 10 || renderBlock == -10) {
+                glUniform3f(colorLoc, 0.1f, 0.1f, 0.9f); // Metal Azul
+              } else if (renderBlock == 11 || renderBlock == -11) {
+                glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f); // Metal Negro/Gris Oscuro
               } else {
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
               }
@@ -1746,6 +1762,10 @@ int main() {
                 glUniform3f(colorLoc, 1.0f, 0.8f, 0.2f); // Amarillo SÃ³lido
               } else if (renderBlock == 9 || renderBlock == -9) {
                 glUniform3f(colorLoc, 0.9f, 0.1f, 0.1f); // Rojo SÃ³lido
+              } else if (renderBlock == 10 || renderBlock == -10) {
+                glUniform3f(colorLoc, 0.1f, 0.1f, 0.9f); // Azul SÃ³lido
+              } else if (renderBlock == 11 || renderBlock == -11) {
+                glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f); // Negro SÃ³lido
               } else {
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
               }
@@ -1757,13 +1777,13 @@ int main() {
               currentAnim = door1Anim;
             } else if (renderBlock == 9 || renderBlock == -9) {
               currentAnim = door2Anim;
-            } else if (renderBlock == 7 || renderBlock == -7) {
+            } else if (renderBlock == 7 || renderBlock == -7 || renderBlock == 10 || renderBlock == -10 || renderBlock == 11 || renderBlock == -11) {
               int key = z * MAP_WIDTH + x;
               auto it = activeDoorsAnim.find(key);
               if (it != activeDoorsAnim.end()) {
                 currentAnim = it->second;
-              } else if (renderBlock == -7) {
-                currentAnim = 90.0f;
+              } else if (renderBlock < 0) {
+                currentAnim = 90.0f; // Abierta si es negativo
               } else {
                 currentAnim = 0.0f;
               }
@@ -2327,10 +2347,8 @@ int main() {
       // --- aparicion y desaparicion de fantasmas
       if (prop.modelName == "ghost") {
         ghostDrawCount++;
-        float hiddenDuration =
-            2.5f + (ghostDrawCount % 3) * 1.5f; // 2.5s, 4.0s, 5.5s
-        float visibleDuration =
-            0.15f + (ghostDrawCount % 3) * 0.25f; // 0.15s, 0.40s, 0.65s
+        float hiddenDuration = 2.5f + (ghostDrawCount % 3) * 1.5f; // 2.5s, 4.0s, 5.5s
+        float visibleDuration = 0.6f + (ghostDrawCount % 3) * 0.4f; // 0.6s, 1.0s, 1.4s
         float totalCycle = hiddenDuration + visibleDuration;
 
         float offset = ghostDrawCount * 11.23f; // Desfase para desincronizarlos
@@ -3912,6 +3930,126 @@ int main() {
         weaponHud->AddCircleFilled(ImVec2(center.x, center.y), 4.0f,
                                    IM_COL32(255, 190, 55, 215), 8);
       }
+    }
+
+    if (wirePuzzleActive) {
+      ImGui::SetNextWindowPos(ImVec2(SCR_WIDTH / 2.0f, SCR_HEIGHT / 2.0f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+      ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_Always);
+      ImGui::Begin("PANEL DE CONEXION DE CABLES", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+
+      static ImU32 leftColors[4] = { IM_COL32(255, 0, 0, 255), IM_COL32(0, 255, 0, 255), IM_COL32(0, 0, 255, 255), IM_COL32(255, 255, 0, 255) };
+      static ImU32 rightColors[4] = { IM_COL32(0, 255, 0, 255), IM_COL32(255, 255, 0, 255), IM_COL32(255, 0, 0, 255), IM_COL32(0, 0, 255, 255) }; // Shuffled
+
+      static int selectedLeftNode = -1;
+      static int nodeConnections[4] = { -1, -1, -1, -1 }; // Index is left node, value is right node index
+
+      ImDrawList* drawList = ImGui::GetWindowDrawList();
+      ImVec2 windowPos = ImGui::GetWindowPos();
+
+      // Nodes positioning
+      float nodeRadius = 15.0f;
+      float startY = windowPos.y + 100.0f;
+      float ySpacing = 60.0f;
+      float leftX = windowPos.x + 80.0f;
+      float rightX = windowPos.x + 420.0f;
+
+      ImVec2 mousePos = ImGui::GetIO().MousePos;
+      bool mouseClicked = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+
+      // Draw existing connections
+      for (int i = 0; i < 4; ++i) {
+        if (nodeConnections[i] != -1) {
+          ImVec2 p1 = ImVec2(leftX, startY + i * ySpacing);
+          ImVec2 p2 = ImVec2(rightX, startY + nodeConnections[i] * ySpacing);
+          drawList->AddLine(p1, p2, leftColors[i], 5.0f);
+        }
+      }
+
+      // Draw active dragging connection
+      if (selectedLeftNode != -1) {
+        ImVec2 p1 = ImVec2(leftX, startY + selectedLeftNode * ySpacing);
+        drawList->AddLine(p1, mousePos, leftColors[selectedLeftNode], 5.0f);
+      }
+
+      bool allConnectedCorrectly = true;
+
+      // Draw left nodes
+      for (int i = 0; i < 4; ++i) {
+        ImVec2 p = ImVec2(leftX, startY + i * ySpacing);
+        drawList->AddCircleFilled(p, nodeRadius, leftColors[i]);
+        drawList->AddCircle(p, nodeRadius + 2.0f, IM_COL32(200, 200, 200, 255), 0, 2.0f);
+
+        // Interaction
+        float distSq = (mousePos.x - p.x) * (mousePos.x - p.x) + (mousePos.y - p.y) * (mousePos.y - p.y);
+        if (distSq < nodeRadius * nodeRadius) {
+          drawList->AddCircle(p, nodeRadius + 4.0f, IM_COL32(255, 255, 255, 255), 0, 2.0f);
+          if (mouseClicked) {
+            selectedLeftNode = i;
+            nodeConnections[i] = -1; // Disconnect if reconnecting
+          }
+        }
+      }
+
+      // Draw right nodes
+      for (int i = 0; i < 4; ++i) {
+        ImVec2 p = ImVec2(rightX, startY + i * ySpacing);
+        drawList->AddCircleFilled(p, nodeRadius, rightColors[i]);
+        drawList->AddCircle(p, nodeRadius + 2.0f, IM_COL32(200, 200, 200, 255), 0, 2.0f);
+
+        // Interaction (Drop)
+        float distSq = (mousePos.x - p.x) * (mousePos.x - p.x) + (mousePos.y - p.y) * (mousePos.y - p.y);
+        if (distSq < nodeRadius * nodeRadius) {
+          drawList->AddCircle(p, nodeRadius + 4.0f, IM_COL32(255, 255, 255, 255), 0, 2.0f);
+          if (!ImGui::IsMouseDown(ImGuiMouseButton_Left) && selectedLeftNode != -1) {
+            // Drop connection
+            nodeConnections[selectedLeftNode] = i;
+            selectedLeftNode = -1;
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          }
+        }
+      }
+
+      if (!ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+        selectedLeftNode = -1; // Cancel drag if mouse released outside
+      }
+
+      // Check win condition
+      for (int i = 0; i < 4; ++i) {
+        if (nodeConnections[i] == -1 || leftColors[i] != rightColors[nodeConnections[i]]) {
+          allConnectedCorrectly = false;
+          break;
+        }
+      }
+
+      ImGui::SetCursorPos(ImVec2(20, 40));
+      if (allConnectedCorrectly) {
+        ImGui::TextColored(ImVec4(0, 1, 0, 1), "ACCESO AUTORIZADO");
+        // Open door logic
+        if (blackDoorGridX != -1 && blackDoorGridZ != -1) {
+          // Abrir la puerta principal y buscar adyacentes (doble puerta)
+          int gx = blackDoorGridX;
+          int gz = blackDoorGridZ;
+          worldMap[gz][gx] = -11;
+          
+          if (gx > 0 && worldMap[gz][gx - 1] == 11) worldMap[gz][gx - 1] = -11;
+          if (gx < MAP_WIDTH - 1 && worldMap[gz][gx + 1] == 11) worldMap[gz][gx + 1] = -11;
+          if (gz > 0 && worldMap[gz - 1][gx] == 11) worldMap[gz - 1][gx] = -11;
+          if (gz < MAP_HEIGHT - 1 && worldMap[gz + 1][gx] == 11) worldMap[gz + 1][gx] = -11;
+
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          printTypewriter("[PUERTA NEGRA]: Acceso concedido.");
+          blackDoorGridX = -1;
+          blackDoorGridZ = -1;
+          wirePuzzleActive = false;
+          isCursorLocked = true;
+          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+          firstMouse = true;
+        }
+      } else {
+        ImGui::Text("Conecta los terminales del mismo color.");
+      }
+
+      ImGui::End();
     }
 
     ImGui::Render();

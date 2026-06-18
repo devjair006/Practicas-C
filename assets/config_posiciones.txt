@@ -286,7 +286,7 @@ barril 4 -0.35 15.2 0 -9 0 0.7 0.7 0.7 1 General
 ascensor 48.206 -0.45 26.676 -90 -1.5 86.5 0.09 0.08 0.12 1 Ascensor
 ducto 41.805 -0.2 31.841 0 0 0 0.31 0.19 0.36 1 Ascensor
 ducto 41.605 -0.05 32.541 0 90 0 0.57 0.14 0.36 0 Ascensor
-terminal-industrial 41.324 -0.2 30.96 0 90 0 0.2 0.2 0.2 1 Ascensor
+terminal-industrial 41.324 -0.5 30.96 0 90 0 1 1 1 1 Ascensor
 caja-electrica 48.578 0.2 27.943 0 180 0 1 1 1 1 Ascensor
 caja-electrica 48.808 0.2 30.501 0 180 0 1 1 1 1 Ascensor
 plataforma 48.108 -0.5 24.45 0 180 0 1 1 1 0 Ascensor
@@ -309,3 +309,8 @@ head 47.919 -0.35 29.319 -1 -180 1 0.1 0.1 0.1 0 Ascensor
 head 42.369 0.45 27.219 -38.5 95 22 0.1 0.1 0.1 0 Ascensor
 head 42.469 0.45 27.219 -38.5 90 22 0.1 0.1 0.1 0 Ascensor
 head 42.569 0.45 32.369 -38.5 90 22 0.1 0.1 0.1 0 Ascensor
+behind-you 45.245 0 33.794 -90.5 -9 88 0.5 0.5 0.5 1 Ascensor
+head 44.119 0.45 27.669 -9.5 28.5 -9 0.1 0.1 0.1 0 Ascensor
+estante_cajas 48.497 -0.15 33.151 -89 -1 -121.5 0.01 0.01 0.01 1 Ascensor
+estante_cajas 47.847 -0.15 33.651 -89.5 2.5 -170.5 0.01 0.01 0.01 1 Ascensor
+trash 41.311 -0.45 30.239 92.5 0 20 0.008 0.008 0.008 0 Ascensor

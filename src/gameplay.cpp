@@ -435,6 +435,15 @@ void tryOpenDoor(GLFWwindow *window) {
         printTypewriter(
             "[PUERTA BLOQUEADA]: Se requiere Tarjeta Azul.");
       }
+    } else if (targetBlock == 11) {
+      // Activar el puzzle de cables para la puerta negra
+      wirePuzzleActive = true;
+      blackDoorGridX = gridX;
+      blackDoorGridZ = gridZ;
+      isCursorLocked = false;
+      firstMouse = true;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      printTypewriter("[SISTEMA]: Resolviendo panel. Camara estatica automatica.");
     }
   }
 }
@@ -451,6 +460,16 @@ void processInput(GLFWwindow *window) {
 
   if (gameState == GAMEOVER)
     return;
+
+  if (wirePuzzleActive) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+      wirePuzzleActive = false;
+      isCursorLocked = true;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      firstMouse = true;
+    }
+    return; // Block other inputs while puzzle is active
+  }
 
   if (isReadingDocument) {
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {

@@ -629,3 +629,8 @@ extern float door2Anim;
 extern bool door2Opening;
 extern std::map<int, float> activeDoorsAnim;
 extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
+
+// Wire puzzle state
+extern bool wirePuzzleActive;
+extern int blackDoorGridX;
+extern int blackDoorGridZ;
