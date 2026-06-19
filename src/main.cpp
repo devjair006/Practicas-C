@@ -666,6 +666,17 @@ int main() {
   unsigned int clueTexture = loadTexture("assets/clue.png");
   unsigned int enemyTexture = loadTexture("assets/enemy.png");
 
+  // Texturas de la Sala de Descanso.
+  // Si aún no existen los PNG en assets/descanso/, se usa una textura existente
+  // como fallback para que el build no falle. Coloca tus imágenes ahí para
+  // reemplazarlas (paredes.png, piso.png, techo.png).
+  unsigned int wallDescansoTex =
+      loadTextureWithFallback("assets/descanso/paredes.png", wallTex1);
+  unsigned int floorDescansoTex =
+      loadTextureWithFallback("assets/descanso/piso.png", floorTexture);
+  unsigned int roofDescansoTex =
+      loadTextureWithFallback("assets/descanso/techo.png", floorTexture);
+
   // Texturas especÃ­ficas con fallback
   unsigned int batteryTex =
       loadTextureWithFallback("assets/battery.png", clueTexture);
@@ -1027,6 +1038,7 @@ int main() {
        false,
        true}, // Ascensor
 
+<<<<<<< HEAD
       {19,
        25,
        40,
@@ -1050,6 +1062,19 @@ int main() {
        true,
        true,
        true}, // Sala de Pruebas (Seccion 2)
+=======
+      {0,
+       0,
+       13,
+       9,
+       wallDescansoTex,
+       floorDescansoTex,
+       roofDescansoTex,
+       {0.25f, 0.25f, 0.25f},
+       true,
+       true,
+       true}, // Sala de Descanso (cuarto superior izquierdo)
+>>>>>>> 510f29a (se agrega textura a paredes, techo y piso del area de descanso)
 
       {}, // pisos
   };
