@@ -1,4 +1,5 @@
 #include "headers/game_state.h"
+#include "headers/localization.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -330,6 +331,8 @@ float stamina = 100.0f;
 bool isSprinting = false;
 bool isExhausted = false;
 GameState gameState = MENU;
+bool menuOpcionesActivo = false;
+bool juegoMuteado = false;
 bool isCursorLocked = false;
 bool tabKeyWasPressed = false;
 bool eKeyWasPressed = false;
@@ -578,31 +581,21 @@ glm::vec3 metalDeskScale[8] = {
     glm::vec3(0.880f, 0.460f, 1.000f), glm::vec3(0.880f, 0.460f, 1.000f)};
 
 std::vector<Entity> gameEntities = {
-    {glm::vec3(8.0f, -0.4f, 4.0f), 3, true,
-     "[CABLE SUELTO]:Hay un cable pelado aqui.", 0.0f},
-    {glm::vec3(20.0f, -0.4f, 5.0f), 0, true,
-     "LOG 1 (Arrugado): 'Apagon general. Las compuertas se bloquearon.'", 0.0f},
-    {glm::vec3(15.0f, -0.4f, 3.0f), 8, true, "",
-     0.0f}, // Tarjeta Amarilla (Pruebas)
+    {glm::vec3(8.0f, -0.4f, 4.0f), 3, true, "ENTITY_WIRE", 0.0f},
+    {glm::vec3(20.0f, -0.4f, 5.0f), 0, true, "ENTITY_LOG1", 0.0f},
+    {glm::vec3(15.0f, -0.4f, 3.0f), 8, true, "", 0.0f}, // Tarjeta Amarilla (Pruebas)
     {glm::vec3(12.0f, -0.2f, 6.0f), 1, true, "", 0.0f},
     {glm::vec3(24.0f, -0.5f, 6.0f), 4, true, "", 1.0f},
-    {glm::vec3(24.0f, 0.0f, 6.0f), 5, true,
-     "[MONITOR AUXILIAR]: 'Sistema inestable.'", 1.5f},
+    {glm::vec3(24.0f, 0.0f, 6.0f), 5, true, "ENTITY_MONITOR_AUX", 1.5f},
     {glm::vec3(10.0f, -0.5f, 15.0f), 4, true, "", 2.0f},
-    {glm::vec3(10.0f, 0.0f, 15.0f), 5, true,
-     "[PANTALLA ERROR]: 'Falla de contencion.'", 2.5f},
-    {glm::vec3(28.0f, 0.0f, 16.0f), 6, true, "[MAQUINA]: Unidad Frigorifica.",
-     5.0f},
-    {glm::vec3(40.6f, -0.4f, 17.0f), 9, true, "",
-     0.0f}, // Tarjeta Roja (Contencion)
-    {glm::vec3(42.0f, -0.2f, 15.0f), 0, true,
-     "LOG 2 (Sangriento): 'La muestra escapo.'", 0.0f},
+    {glm::vec3(10.0f, 0.0f, 15.0f), 5, true, "ENTITY_ERROR_SCREEN", 2.5f},
+    {glm::vec3(28.0f, 0.0f, 16.0f), 6, true, "ENTITY_MACHINE", 5.0f},
+    {glm::vec3(40.6f, -0.4f, 17.0f), 9, true, "", 0.0f}, // Tarjeta Roja (Contencion)
+    {glm::vec3(42.0f, -0.2f, 15.0f), 0, true, "ENTITY_LOG2", 0.0f},
     {glm::vec3(15.0f, -0.2f, 18.0f), 1, true, "", 0.0f},
-    {glm::vec3(10.0f, -0.4f, 28.0f), 3, true,
-     "[MANCHA]: Rastro oscuro hacia ventilacion.", 0.0f},
+    {glm::vec3(10.0f, -0.4f, 28.0f), 3, true, "ENTITY_STAIN", 0.0f},
     {glm::vec3(25.0f, 0.0f, 3.0f), 2, true, "", 0.0f},
-    {glm::vec3(8.0f, -0.4f, 5.0f), 11, true, "",
-     0.0f}}; // Tarjeta Azul (Oficinas)
+    {glm::vec3(8.0f, -0.4f, 5.0f), 11, true, "", 0.0f}}; // Tarjeta Azul (Oficinas)
 
 float wallWidth = 0.3f;
 float wallHeight = 1.0f;

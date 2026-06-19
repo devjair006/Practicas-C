@@ -321,6 +321,8 @@ extern float stamina;
 extern bool isSprinting;
 extern bool isExhausted;
 extern GameState gameState;
+extern bool menuOpcionesActivo;
+extern bool juegoMuteado;
 extern bool isCursorLocked;
 extern bool tabKeyWasPressed;
 extern bool eKeyWasPressed;

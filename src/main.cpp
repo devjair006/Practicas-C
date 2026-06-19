@@ -42,6 +42,7 @@
 #include "headers/obj_mesh.h"
 #include "headers/shader.h"
 #include "headers/texture.h"
+#include "headers/localization.h"
 
 
 #include "headers/gltf_model.h"
@@ -1341,7 +1342,7 @@ int main() {
                             interactionPressedThisFrame,
                             gameState == PLAYING && !isReadingDocument);
     for (const std::string &message : animatedEntities.ConsumeMessages()) {
-      printTypewriter(message);
+      printTypewriter(getText(message));
     }
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -3245,7 +3246,7 @@ int main() {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         firstMouse = true;
         ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
-        printTypewriter("ESCENA 1: PASILLO DE ACCESO");
+        printTypewriter(getText("TYPE_SCENE_1"));
       };
 
       ImDrawList *drawList = ImGui::GetBackgroundDrawList();
@@ -3283,8 +3284,8 @@ int main() {
                        ImGuiWindowFlags_NoSavedSettings);
 
       float titleY = currentHeight * 0.16f;
-      const char *title = "PROYECTO CONFIDENCIAL";
-      const char *subtitle = "LABORATORIO DE CONTENCION";
+      const char *title = getText("MENU_TITLE");
+      const char *subtitle = menuOpcionesActivo ? getText("MENU_SUBTITLE_AUDIO") : getText("MENU_SUBTITLE");
       ImGui::SetWindowFontScale(3.0f);
       ImVec2 titleSize = ImGui::CalcTextSize(title);
       ImGui::SetCursorPos(ImVec2((currentWidth - titleSize.x) * 0.5f, titleY));
@@ -3333,19 +3334,47 @@ int main() {
         return pressed;
       };
 
-      if (menuButton("INICIAR JUEGO"))
-        startGameFromMenu();
-      menuButton("OPCIONES");
-      menuButton("ARCHIVOS");
-      menuButton("CREDITOS");
-      if (menuButton("SALIR"))
-        glfwSetWindowShouldClose(window, true);
+      if (menuOpcionesActivo) {
+        if (menuButton(juegoMuteado ? getText("MENU_MUTE_ACTIVE") : getText("MENU_MUTE"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          juegoMuteado = true;
+          ma_engine_set_volume(&audioEngine, 0.0f);
+        }
+        if (menuButton(!juegoMuteado ? getText("MENU_UNMUTE_ACTIVE") : getText("MENU_UNMUTE"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          juegoMuteado = false;
+          ma_engine_set_volume(&audioEngine, 1.0f);
+        }
+        if (menuButton(currentLanguage == LANG_ES ? getText("MENU_LANG_ES") : getText("MENU_LANG_ES_INACTIVE"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          currentLanguage = LANG_ES;
+        }
+        if (menuButton(currentLanguage == LANG_EN ? getText("MENU_LANG_EN") : getText("MENU_LANG_EN_INACTIVE"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          currentLanguage = LANG_EN;
+        }
+        if (menuButton(getText("MENU_BACK"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuOpcionesActivo = false;
+        }
+      } else {
+        if (menuButton(getText("MENU_START")))
+          startGameFromMenu();
+        if (menuButton(getText("MENU_OPTIONS"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuOpcionesActivo = true;
+        }
+        menuButton(getText("MENU_FILES"));
+        menuButton(getText("MENU_CREDITS"));
+        if (menuButton(getText("MENU_EXIT")))
+          glfwSetWindowShouldClose(window, true);
+      }
 
       ImGui::PopStyleColor(4);
       ImGui::PopStyleVar(2);
 
       ImGui::SetWindowFontScale(0.85f);
-      const char *hint = "ENTER / ESPACIO tambien inicia";
+      const char *hint = menuOpcionesActivo ? getText("MENU_HINT_BACK") : getText("MENU_HINT_START");
       ImVec2 hintSize = ImGui::CalcTextSize(hint);
       ImGui::SetCursorPos(
           ImVec2((currentWidth - hintSize.x) * 0.5f, currentHeight * 0.86f));
@@ -3837,7 +3866,7 @@ int main() {
       ImGui::TextWrapped("%s", currentDocumentBody.c_str());
       ImGui::Spacing();
       ImGui::Separator();
-      ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "E o ESC para cerrar");
+      ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s", getText("DOC_CLOSE_HINT"));
       ImGui::End();
     }
     // --- HOTBAR INVENTARIO (estilo Minecraft) ---
@@ -3905,20 +3934,20 @@ int main() {
       };
 
       // Slot 0: Linterna (siempre la tiene)
-      drawSlot(isFlashlightOn ? "[F] ON" : "[F] OFF",
+      drawSlot(isFlashlightOn ? getText("INV_FLASHLIGHT_ON") : getText("INV_FLASHLIGHT_OFF"),
                (ImTextureID)(intptr_t)clueTexture, true,
                selectedHotbarSlot == 0);
 
       // Slot 1: Tarjeta Amarilla
-      drawSlot("T.Amarilla", (ImTextureID)(intptr_t)keycardYellowInvTex,
+      drawSlot(getText("INV_KEY_YELLOW"), (ImTextureID)(intptr_t)keycardYellowInvTex,
                hasKeycardYellow, selectedHotbarSlot == 1);
 
       // Slot 2: Tarjeta Roja
-      drawSlot("T.Roja", (ImTextureID)(intptr_t)keycardRedInvTex, hasKeycardRed,
+      drawSlot(getText("INV_KEY_RED"), (ImTextureID)(intptr_t)keycardRedInvTex, hasKeycardRed,
                selectedHotbarSlot == 2);
 
       // Slot 3: Tarjeta Azul
-      drawSlot("T.Azul", (ImTextureID)(intptr_t)keycardBlueInvTex,
+      drawSlot(getText("INV_KEY_BLUE"), (ImTextureID)(intptr_t)keycardBlueInvTex,
                hasKeycardBlue, selectedHotbarSlot == 3);
 
       // Slots 4-5: Baterías (sólo mostramos 2 o reducimos baterías, o ajustamos
@@ -3927,7 +3956,7 @@ int main() {
       // Wait, there are 3 batteries originally. We might need to add a slot or
       // group batteries. Grouping batteries:
       char batLabel[16];
-      snprintf(batLabel, sizeof(batLabel), "Bats:%d/3", bateriasRecolectadas);
+      snprintf(batLabel, sizeof(batLabel), getText("INV_BATS"), bateriasRecolectadas);
       drawSlot(batLabel, (ImTextureID)(intptr_t)batteryTex,
                bateriasRecolectadas > 0, selectedHotbarSlot == 4);
 
@@ -3966,7 +3995,7 @@ int main() {
       ImGuiIO& io = ImGui::GetIO();
       ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
       ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_Always);
-      ImGui::Begin("PANEL DE CONEXION DE CABLES", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+      ImGui::Begin(getText("MINIGAME_WIRE_TITLE"), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
       static ImU32 leftColors[4] = { IM_COL32(255, 0, 0, 255), IM_COL32(0, 255, 0, 255), IM_COL32(0, 0, 255, 255), IM_COL32(255, 255, 0, 255) };
       static ImU32 rightColors[4] = { IM_COL32(0, 255, 0, 255), IM_COL32(255, 255, 0, 255), IM_COL32(255, 0, 0, 255), IM_COL32(0, 0, 255, 255) }; // Shuffled
@@ -4054,7 +4083,7 @@ int main() {
 
       ImGui::SetCursorPos(ImVec2(20, 40));
       if (allConnectedCorrectly) {
-        ImGui::TextColored(ImVec4(0, 1, 0, 1), "ACCESO AUTORIZADO");
+        ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", getText("MINIGAME_ACCESS_GRANTED"));
         // Open door logic
         if (blackDoorGridX != -1 && blackDoorGridZ != -1) {
           // Abrir la puerta principal y buscar adyacentes (doble puerta)
@@ -4068,7 +4097,7 @@ int main() {
           if (gz < MAP_HEIGHT - 1 && worldMap[gz + 1][gx] == 11) worldMap[gz + 1][gx] = -11;
 
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
-          printTypewriter("[PUERTA NEGRA]: Acceso concedido.");
+          printTypewriter(getText("TYPE_BLACK_DOOR"));
           blackDoorGridX = -1;
           blackDoorGridZ = -1;
           wirePuzzleActive = false;
@@ -4077,7 +4106,7 @@ int main() {
           firstMouse = true;
         }
       } else {
-        ImGui::Text("Conecta los terminales del mismo color.");
+        ImGui::Text("%s", getText("MINIGAME_WIRE_HINT"));
       }
 
       ImGui::End();
@@ -4087,12 +4116,12 @@ int main() {
       ImGuiIO& io = ImGui::GetIO();
       ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
       ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
-      ImGui::Begin("ALINEACION DE SIMBOLOS", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+      ImGui::Begin(getText("MINIGAME_SYMBOL_TITLE"), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
       const char* symbols[] = { " O ", " X ", "/\\", "[]", "<>", "||" };
       const int numSymbols = 6;
 
-      ImGui::Text("Alinea todos los simbolos a '%s' para abrir la puerta.", symbols[symbolPuzzleTargetSymbol]);
+      ImGui::Text(getText("MINIGAME_SYMBOL_HINT"), symbols[symbolPuzzleTargetSymbol]);
       ImGui::Spacing();
       ImGui::Separator();
       ImGui::Spacing();
@@ -4105,7 +4134,7 @@ int main() {
         
         ImGui::SetCursorPosX(100.0f);
         ImGui::AlignTextToFramePadding();
-        ImGui::Text("Rueda %d:", i + 1);
+        ImGui::Text("%s %d:", getText("MINIGAME_SYMBOL_WHEEL"), i + 1);
         ImGui::SameLine();
         
         if (ImGui::Button("<", ImVec2(40, 40))) {
@@ -4134,7 +4163,7 @@ int main() {
       ImGui::Spacing();
 
       if (allAligned) {
-        ImGui::TextColored(ImVec4(0, 1, 0, 1), "ACCESO AUTORIZADO");
+        ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", getText("MINIGAME_ACCESS_GRANTED"));
         
         if (whiteDoorGridX != -1 && whiteDoorGridZ != -1) {
           int gx = whiteDoorGridX;
@@ -4153,7 +4182,7 @@ int main() {
           }
 
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
-          printTypewriter("[PUERTA]: Abierta.");
+          printTypewriter(getText("TYPE_DOOR_OPEN"));
           whiteDoorGridX = -1;
           whiteDoorGridZ = -1;
           symbolPuzzleActive = false;
@@ -4162,7 +4191,7 @@ int main() {
           glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
       } else {
-        ImGui::TextColored(ImVec4(1, 0, 0, 1), "SISTEMA BLOQUEADO");
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", getText("MINIGAME_SYSTEM_LOCKED"));
       }
 
       ImGui::End();
