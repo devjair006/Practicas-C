@@ -617,6 +617,12 @@ bool wirePuzzleActive = false;
 int blackDoorGridX = -1;
 int blackDoorGridZ = -1;
 
+bool symbolPuzzleActive = false;
+int whiteDoorGridX = -1;
+int whiteDoorGridZ = -1;
+int symbolPuzzleTargetSymbol = 0;
+int symbolPuzzleWheelIndices[3] = { 0, 0, 0 };
+
 int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
      0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},

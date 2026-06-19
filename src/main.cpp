@@ -645,6 +645,16 @@ int main() {
   unsigned int wallAscensorTex = loadTexture("assets/ascensor/pared.png");
   unsigned int roofAscensorTex = loadTexture("assets/ascensor/techo.png");
 
+  // Texturas de Sala de Generadores (Seccion 1)
+  unsigned int wallGeneradoresTex = loadTexture("assets/sala-generadores/paredes.png");
+  unsigned int floorGeneradoresTex = loadTexture("assets/sala-generadores/piso.png");
+  unsigned int roofGeneradoresTex = loadTexture("assets/sala-generadores/techo.png");
+
+  // Texturas de Sala de Pruebas (Seccion 2)
+  unsigned int wallPruebasTex = loadTexture("assets/sala-pruebas/pared.png");
+  unsigned int floorPruebasTex = loadTexture("assets/sala-pruebas/piso.png");
+  unsigned int roofPruebasTex = loadTexture("assets/sala-pruebas/techo.png");
+
   // Textura de metal generada para las puertas
   unsigned int doorTex = loadTextureWithFallback("assets/puerta_metal.png", 0);
 
@@ -1015,6 +1025,30 @@ int main() {
        true,
        false,
        true}, // Ascensor
+
+      {19,
+       25,
+       40,
+       33,
+       wallGeneradoresTex,
+       floorGeneradoresTex,
+       roofGeneradoresTex,
+       {1.0f, 1.0f, 1.0f},
+       true,
+       true,
+       true}, // Sala de Generadores (Seccion 1)
+
+      {1,
+       25,
+       17,
+       33,
+       wallPruebasTex,
+       floorPruebasTex,
+       roofPruebasTex,
+       {1.0f, 1.0f, 1.0f},
+       true,
+       true,
+       true}, // Sala de Pruebas (Seccion 2)
 
       {}, // pisos
   };
@@ -3929,7 +3963,8 @@ int main() {
     }
 
     if (wirePuzzleActive) {
-      ImGui::SetNextWindowPos(ImVec2(SCR_WIDTH / 2.0f, SCR_HEIGHT / 2.0f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+      ImGuiIO& io = ImGui::GetIO();
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
       ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_Always);
       ImGui::Begin("PANEL DE CONEXION DE CABLES", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
@@ -4043,6 +4078,91 @@ int main() {
         }
       } else {
         ImGui::Text("Conecta los terminales del mismo color.");
+      }
+
+      ImGui::End();
+    }
+
+    if (symbolPuzzleActive) {
+      ImGuiIO& io = ImGui::GetIO();
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+      ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
+      ImGui::Begin("ALINEACION DE SIMBOLOS", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+
+      const char* symbols[] = { " O ", " X ", "/\\", "[]", "<>", "||" };
+      const int numSymbols = 6;
+
+      ImGui::Text("Alinea todos los simbolos a '%s' para abrir la puerta.", symbols[symbolPuzzleTargetSymbol]);
+      ImGui::Spacing();
+      ImGui::Separator();
+      ImGui::Spacing();
+
+      bool allAligned = true;
+
+      ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(20, 20));
+      for (int i = 0; i < 3; ++i) {
+        ImGui::PushID(i);
+        
+        ImGui::SetCursorPosX(100.0f);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Rueda %d:", i + 1);
+        ImGui::SameLine();
+        
+        if (ImGui::Button("<", ImVec2(40, 40))) {
+          symbolPuzzleWheelIndices[i] = (symbolPuzzleWheelIndices[i] - 1 + numSymbols) % numSymbols;
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+        }
+        ImGui::SameLine();
+        
+        ImGui::Button(symbols[symbolPuzzleWheelIndices[i]], ImVec2(60, 40));
+        
+        ImGui::SameLine();
+        if (ImGui::Button(">", ImVec2(40, 40))) {
+          symbolPuzzleWheelIndices[i] = (symbolPuzzleWheelIndices[i] + 1) % numSymbols;
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+        }
+        ImGui::PopID();
+        
+        if (symbolPuzzleWheelIndices[i] != symbolPuzzleTargetSymbol) {
+          allAligned = false;
+        }
+      }
+      ImGui::PopStyleVar();
+
+      ImGui::Spacing();
+      ImGui::Separator();
+      ImGui::Spacing();
+
+      if (allAligned) {
+        ImGui::TextColored(ImVec4(0, 1, 0, 1), "ACCESO AUTORIZADO");
+        
+        if (whiteDoorGridX != -1 && whiteDoorGridZ != -1) {
+          int gx = whiteDoorGridX;
+          int gz = whiteDoorGridZ;
+          
+          std::vector<std::pair<int, int>> doorsToOpen;
+          doorsToOpen.push_back({gx, gz});
+          if (gx > 0 && worldMap[gz][gx - 1] == 7) doorsToOpen.push_back({gx - 1, gz});
+          if (gx < MAP_WIDTH - 1 && worldMap[gz][gx + 1] == 7) doorsToOpen.push_back({gx + 1, gz});
+          if (gz > 0 && worldMap[gz - 1][gx] == 7) doorsToOpen.push_back({gx, gz - 1});
+          if (gz < MAP_HEIGHT - 1 && worldMap[gz + 1][gx] == 7) doorsToOpen.push_back({gx, gz + 1});
+
+          for (auto& p : doorsToOpen) {
+            worldMap[p.second][p.first] = -7;
+            activeDoorsAnim[p.second * MAP_WIDTH + p.first] = 0.0f;
+          }
+
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          printTypewriter("[PUERTA]: Abierta.");
+          whiteDoorGridX = -1;
+          whiteDoorGridZ = -1;
+          symbolPuzzleActive = false;
+          isCursorLocked = true;
+          firstMouse = true;
+          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+      } else {
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), "SISTEMA BLOQUEADO");
       }
 
       ImGui::End();

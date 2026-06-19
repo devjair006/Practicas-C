@@ -633,3 +633,10 @@ extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
 extern bool wirePuzzleActive;
 extern int blackDoorGridX;
 extern int blackDoorGridZ;
+
+// Symbol puzzle state
+extern bool symbolPuzzleActive;
+extern int whiteDoorGridX;
+extern int whiteDoorGridZ;
+extern int symbolPuzzleTargetSymbol;
+extern int symbolPuzzleWheelIndices[3];

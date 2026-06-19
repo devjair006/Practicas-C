@@ -382,19 +382,21 @@ void tryOpenDoor(GLFWwindow *window) {
     int targetBlock = worldMap[gridZ][gridX];
 
     if (targetBlock == 7) {
-      std::vector<std::pair<int, int>> doorsToOpen;
-      doorsToOpen.push_back({gridX, gridZ});
-      if (gridX > 0 && worldMap[gridZ][gridX - 1] == 7) doorsToOpen.push_back({gridX - 1, gridZ});
-      if (gridX < MAP_WIDTH - 1 && worldMap[gridZ][gridX + 1] == 7) doorsToOpen.push_back({gridX + 1, gridZ});
-      if (gridZ > 0 && worldMap[gridZ - 1][gridX] == 7) doorsToOpen.push_back({gridX, gridZ - 1});
-      if (gridZ < MAP_HEIGHT - 1 && worldMap[gridZ + 1][gridX] == 7) doorsToOpen.push_back({gridX, gridZ + 1});
-
-      for (auto& p : doorsToOpen) {
-        worldMap[p.second][p.first] = -7;
-        activeDoorsAnim[p.second * MAP_WIDTH + p.first] = 0.0f;
-      }
-      printTypewriter("[PUERTA]: Abierta.");
-      ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+      symbolPuzzleActive = true;
+      whiteDoorGridX = gridX;
+      whiteDoorGridZ = gridZ;
+      isCursorLocked = false;
+      firstMouse = true;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      printTypewriter("[SISTEMA]: Inicializando panel de alineacion de simbolos.");
+      
+      // Seed dynamically and deterministically using coordinates
+      symbolPuzzleTargetSymbol = (gridX * 13 + gridZ * 7) % 6; // 6 is numSymbols
+      
+      // Make sure wheels do not start already aligned to targetSymbol
+      symbolPuzzleWheelIndices[0] = (symbolPuzzleTargetSymbol + 1) % 6;
+      symbolPuzzleWheelIndices[1] = (symbolPuzzleTargetSymbol + 3) % 6;
+      symbolPuzzleWheelIndices[2] = (symbolPuzzleTargetSymbol + 5) % 6;
     } else if (targetBlock == 8) {
       if (hasKeycardYellow) {
         for (int cx = 0; cx < MAP_WIDTH; cx++) {
@@ -464,6 +466,16 @@ void processInput(GLFWwindow *window) {
   if (wirePuzzleActive) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
       wirePuzzleActive = false;
+      isCursorLocked = true;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      firstMouse = true;
+    }
+    return; // Block other inputs while puzzle is active
+  }
+
+  if (symbolPuzzleActive) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+      symbolPuzzleActive = false;
       isCursorLocked = true;
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       firstMouse = true;
