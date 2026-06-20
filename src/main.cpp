@@ -1429,6 +1429,8 @@ int main() {
 
     glUniform1i(dimAlternaLoc, dimensionAlterna ? 1 : 0);
     glUniform1i(zoneLoc, currentZone);
+    int allLightsOnLoc = glGetUniformLocation(shaderProgram, "allLightsOn");
+    glUniform1i(allLightsOnLoc, allLightsOn ? 1 : 0);
     glUniform1f(timeLoc, currentFrame);
     glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
     // espacio donde se le da las luces a las lamparas antes de poner su figura
@@ -1753,12 +1755,19 @@ int main() {
                renderBlock == -7 || renderBlock == -8 || renderBlock == -9 ||
                renderBlock == -10 || renderBlock == -11);
 
-          // Detectar si esta celda es la primera o segunda de un par de puertas
+          // Detectar orientacion de la puerta y si es la segunda celda
           bool isSecondDoorCell = false;
-          if (is3DDoor && x > 0) {
-            int prevBlock = worldMap[z][x - 1];
-            if (prevBlock == renderBlock)
+          bool isVerticalDoor = false;
+
+          if (is3DDoor) {
+            if (x > 0 && worldMap[z][x - 1] == renderBlock) {
               isSecondDoorCell = true;
+            } else if (z > 0 && worldMap[z - 1][x] == renderBlock) {
+              isSecondDoorCell = true;
+              isVerticalDoor = true;
+            } else if (z < MAP_HEIGHT - 1 && worldMap[z + 1][x] == renderBlock) {
+              isVerticalDoor = true;
+            }
           }
 
           if (is3DDoor && isSecondDoorCell) {
@@ -1768,9 +1777,9 @@ int main() {
             glm::mat4 baseModel = glm::mat4(1.0f);
 
             // 4. Mover al centro del hueco y anclar al piso de la pared (-0.5)
-            if (renderBlock == 11 || renderBlock == -11) {
+            if (isVerticalDoor) {
               baseModel = glm::translate(
-                  baseModel, glm::vec3(40.901f, -0.500f, 29.467f));
+                  baseModel, glm::vec3((float)x, -0.5f, (float)z + 0.5f));
             } else {
               baseModel = glm::translate(
                   baseModel, glm::vec3((float)x + 0.5f, -0.5f, (float)z));
@@ -1781,10 +1790,8 @@ int main() {
             // Alto Blender: 1.535 -> Juego: 1.0 (Escala 0.651)
             baseModel = glm::scale(baseModel, glm::vec3(1.1f, 0.651f, 1.1f));
 
-            // 2. Rotar (dejaremos 0 grados asumiendo que los nuevos estan de
-            // frente) Si se ven las texturas por detras, cambiaremos este valor
-            // a 180 despues.
-            if (renderBlock == 11 || renderBlock == -11) {
+            // 2. Rotar dinamicamente si es vertical
+            if (isVerticalDoor) {
               baseModel = glm::rotate(baseModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             }
 
@@ -4119,6 +4126,7 @@ int main() {
           if (gz > 0 && worldMap[gz - 1][gx] == 11) worldMap[gz - 1][gx] = -11;
           if (gz < MAP_HEIGHT - 1 && worldMap[gz + 1][gx] == 11) worldMap[gz + 1][gx] = -11;
 
+          activeDoorsAnim[11] = 0.0f;
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
           printTypewriter(getText("TYPE_BLACK_DOOR"));
           blackDoorGridX = -1;
@@ -4220,6 +4228,91 @@ int main() {
       ImGui::End();
     }
 
+    // --- TIMER HUD ---
+    if (gameState == PLAYING && !gameWon) {
+      ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0f, 20.0f), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
+      ImGui::Begin("Timer HUD", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove);
+      int mins = (int)gameTimer / 60;
+      int secs = (int)gameTimer % 60;
+      ImGui::SetWindowFontScale(2.5f);
+      if (gameTimer <= 60.0f) {
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%02d:%02d", mins, secs);
+      } else {
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "%02d:%02d", mins, secs);
+      }
+      ImGui::SetWindowFontScale(1.0f);
+      ImGui::End();
+    }
+
+    // --- SWITCH PANELS ---
+    auto drawSwitchPanel = [&](const char* title, bool& activeFlag, bool& solvedFlag) {
+      if (activeFlag) {
+        ImGuiIO& io = ImGui::GetIO();
+        ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Always);
+        ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+
+        ImGui::Text("Panel Electrico de Emergencia");
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        if (solvedFlag) {
+          ImGui::TextColored(ImVec4(0, 1, 0, 1), "Estado: EN LINEA");
+        } else {
+          ImGui::TextColored(ImVec4(1, 0, 0, 1), "Estado: DESCONECTADO");
+          if (ImGui::Button("ACTIVAR INTERRUPTOR", ImVec2(ImGui::GetWindowWidth() - 30, 50))) {
+            solvedFlag = true;
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            printTypewriter("Interruptor activado.");
+            activeFlag = false;
+            isCursorLocked = true;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            
+            if (switch1Solved && switch2Solved && switch3Solved) {
+              gameWon = true;
+              allLightsOn = true;
+              printTypewriter("¡Energia principal restablecida!");
+              ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            }
+          }
+        }
+        ImGui::End();
+      }
+    };
+
+    drawSwitchPanel("Interruptor: Bodega", switch1Active, switch1Solved);
+    drawSwitchPanel("Interruptor: Ascensor", switch2Active, switch2Solved);
+    drawSwitchPanel("Interruptor: Muestras", switch3Active, switch3Solved);
+
+    // --- VICTORY SCREEN ---
+    if (gameWon) {
+      ImGuiIO& io = ImGui::GetIO();
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+      ImGui::SetNextWindowSize(ImVec2(600, 300), ImGuiCond_Always);
+      ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.2f, 0.1f, 0.95f));
+      ImGui::Begin("VICTORY", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+      
+      ImGui::SetWindowFontScale(3.0f);
+      ImGui::TextColored(ImVec4(0.2f, 1.0f, 0.2f, 1.0f), "MISION COMPLETADA");
+      ImGui::SetWindowFontScale(1.5f);
+      ImGui::Spacing();
+      ImGui::TextWrapped("La energia principal del laboratorio ha sido restablecida. Sistemas de contencion estables. Sistema de ventilacion reanudado.");
+      ImGui::Spacing();
+      ImGui::Separator();
+      ImGui::Spacing();
+      
+      if (ImGui::Button("SALIR", ImVec2(200, 50))) {
+        glfwSetWindowShouldClose(window, true);
+      }
+      ImGui::SetWindowFontScale(1.0f);
+      ImGui::End();
+      ImGui::PopStyleColor();
+
+      isCursorLocked = false;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

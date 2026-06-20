@@ -428,6 +428,7 @@ void tryOpenDoor(GLFWwindow *window) {
           if (worldMap[gridZ][cx] == 10)
             worldMap[gridZ][cx] = -10;
         }
+        activeDoorsAnim[10] = 0.0f;
         printTypewriter(getText("TYPE_BLUE_ACCEPTED"));
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
@@ -456,8 +457,18 @@ void processInput(GLFWwindow *window) {
       glfwSetWindowShouldClose(window, true);
   }
 
-  if (gameState == GAMEOVER)
+  if (gameState == GAMEOVER || gameWon)
     return;
+
+  if (!isReadingDocument && !wirePuzzleActive && !symbolPuzzleActive && !switch1Active && !switch2Active && !switch3Active) {
+    gameTimer -= deltaTime;
+    if (gameTimer <= 0.0f) {
+      gameTimer = 0.0f;
+      gameState = GAMEOVER;
+      printTypewriter("El tiempo se ha agotado. El sistema de ventilacion fallo.");
+      return;
+    }
+  }
 
   if (wirePuzzleActive) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -469,9 +480,12 @@ void processInput(GLFWwindow *window) {
     return; // Block other inputs while puzzle is active
   }
 
-  if (symbolPuzzleActive) {
+  if (symbolPuzzleActive || switch1Active || switch2Active || switch3Active) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
       symbolPuzzleActive = false;
+      switch1Active = false;
+      switch2Active = false;
+      switch3Active = false;
       isCursorLocked = true;
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       firstMouse = true;
@@ -804,6 +818,32 @@ void processInput(GLFWwindow *window) {
 
         if (dist < 2.5f && look > 0.85f) {
           printTypewriter(getText("TYPE_BLOOD_TRAIL"));
+        }
+      }
+
+      if (prop.modelName == "caja-electrica") {
+        float dist = glm::length(prop.pos - cameraPos);
+        glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos) : glm::vec3(0.0f);
+        float look = glm::dot(cameraFront, dir);
+
+        if (dist < 2.0f && look > 0.85f) {
+          // Identify which switch it is based on location or string prop
+          if (prop.textoEntidad == "Bodega" && !switch1Solved) {
+            switch1Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+          } else if (prop.textoEntidad == "Ascensor" && !switch2Solved) {
+            switch2Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+          } else if (prop.textoEntidad == "Muestras" && !switch3Solved) {
+            switch3Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+          }
         }
       }
     }

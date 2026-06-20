@@ -17,6 +17,7 @@ uniform int flashlightOn;
 
 uniform int dimensionAlterna;
 uniform int currentZone;
+uniform int allLightsOn;
 uniform float time;
 uniform vec2 resolution;
 uniform int useSolidColor;
@@ -60,6 +61,11 @@ void main() {
         ambientColor = vec3(0.3, 0.5, 1.0);
         flashColor = vec3(1.0, 1.0, 1.0);
         ambientStrength = 0.2;
+    }
+
+    if (allLightsOn == 1) {
+        ambientColor = vec3(1.0, 1.0, 1.0);
+        ambientStrength = 0.8;
     }
 
     if (dimensionAlterna == 1) {
