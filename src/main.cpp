@@ -1038,7 +1038,6 @@ int main() {
        false,
        true}, // Ascensor
 
-<<<<<<< HEAD
       {19,
        25,
        40,
@@ -1062,7 +1061,6 @@ int main() {
        true,
        true,
        true}, // Sala de Pruebas (Seccion 2)
-=======
       {0,
        0,
        13,
@@ -1074,7 +1072,6 @@ int main() {
        true,
        true,
        true}, // Sala de Descanso (cuarto superior izquierdo)
->>>>>>> 510f29a (se agrega textura a paredes, techo y piso del area de descanso)
 
       {}, // pisos
   };
