@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "headers/gameplay.h"
+#include "headers/localization.h"
 #include "headers/animated_entity.h"
 
 #include <cmath>
@@ -382,19 +383,21 @@ void tryOpenDoor(GLFWwindow *window) {
     int targetBlock = worldMap[gridZ][gridX];
 
     if (targetBlock == 7) {
-      std::vector<std::pair<int, int>> doorsToOpen;
-      doorsToOpen.push_back({gridX, gridZ});
-      if (gridX > 0 && worldMap[gridZ][gridX - 1] == 7) doorsToOpen.push_back({gridX - 1, gridZ});
-      if (gridX < MAP_WIDTH - 1 && worldMap[gridZ][gridX + 1] == 7) doorsToOpen.push_back({gridX + 1, gridZ});
-      if (gridZ > 0 && worldMap[gridZ - 1][gridX] == 7) doorsToOpen.push_back({gridX, gridZ - 1});
-      if (gridZ < MAP_HEIGHT - 1 && worldMap[gridZ + 1][gridX] == 7) doorsToOpen.push_back({gridX, gridZ + 1});
-
-      for (auto& p : doorsToOpen) {
-        worldMap[p.second][p.first] = -7;
-        activeDoorsAnim[p.second * MAP_WIDTH + p.first] = 0.0f;
-      }
-      printTypewriter("[PUERTA]: Abierta.");
-      ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+      symbolPuzzleActive = true;
+      whiteDoorGridX = gridX;
+      whiteDoorGridZ = gridZ;
+      isCursorLocked = false;
+      firstMouse = true;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      printTypewriter(getText("TYPE_PANEL_INIT"));
+      
+      // Seed dynamically and deterministically using coordinates
+      symbolPuzzleTargetSymbol = (gridX * 13 + gridZ * 7) % 6; // 6 is numSymbols
+      
+      // Make sure wheels do not start already aligned to targetSymbol
+      symbolPuzzleWheelIndices[0] = (symbolPuzzleTargetSymbol + 1) % 6;
+      symbolPuzzleWheelIndices[1] = (symbolPuzzleTargetSymbol + 3) % 6;
+      symbolPuzzleWheelIndices[2] = (symbolPuzzleTargetSymbol + 5) % 6;
     } else if (targetBlock == 8) {
       if (hasKeycardYellow) {
         for (int cx = 0; cx < MAP_WIDTH; cx++) {
@@ -402,12 +405,10 @@ void tryOpenDoor(GLFWwindow *window) {
             worldMap[gridZ][cx] = -8;
         }
         door1Opening = true;
-        printTypewriter("[PUERTA]: Tarjeta Amarilla Aceptada. Accediendo a Sala "
-                        "de Pruebas.");
+        printTypewriter(std::string(getText("TYPE_YELLOW_ACCEPTED")) + std::to_string(currentZone + 1));
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
-        printTypewriter(
-            "[PUERTA BLOQUEADA]: Se requiere Tarjeta Amarilla.");
+        printTypewriter(getText("TYPE_DOOR_LOCKED_YELLOW"));
       }
     } else if (targetBlock == 9) {
       if (hasKeycardRed) {
@@ -416,12 +417,10 @@ void tryOpenDoor(GLFWwindow *window) {
             worldMap[gridZ][cx] = -9;
         }
         door2Opening = true;
-        printTypewriter("[PUERTA]: Tarjeta Roja Aceptada. Peligro: Zona de "
-                        "Alta Radiacion.");
+        printTypewriter(std::string(getText("TYPE_RED_ACCEPTED")) + std::to_string(currentZone + 1));
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
-        printTypewriter(
-            "[PUERTA BLOQUEADA]: Se requiere Tarjeta Roja.");
+        printTypewriter(getText("TYPE_DOOR_LOCKED_RED"));
       }
     } else if (targetBlock == 10) {
       if (hasKeycardBlue) {
@@ -429,12 +428,20 @@ void tryOpenDoor(GLFWwindow *window) {
           if (worldMap[gridZ][cx] == 10)
             worldMap[gridZ][cx] = -10;
         }
-        printTypewriter("[PUERTA]: Tarjeta Azul Aceptada. Acceso concedido.");
+        printTypewriter(getText("TYPE_BLUE_ACCEPTED"));
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
-        printTypewriter(
-            "[PUERTA BLOQUEADA]: Se requiere Tarjeta Azul.");
+        printTypewriter(getText("TYPE_DOOR_LOCKED_BLUE"));
       }
+    } else if (targetBlock == 11) {
+      // Activar el puzzle de cables para la puerta negra
+      wirePuzzleActive = true;
+      blackDoorGridX = gridX;
+      blackDoorGridZ = gridZ;
+      isCursorLocked = false;
+      firstMouse = true;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      printTypewriter(getText("TYPE_PANEL_SOLVED"));
     }
   }
 }
@@ -452,6 +459,26 @@ void processInput(GLFWwindow *window) {
   if (gameState == GAMEOVER)
     return;
 
+  if (wirePuzzleActive) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+      wirePuzzleActive = false;
+      isCursorLocked = true;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      firstMouse = true;
+    }
+    return; // Block other inputs while puzzle is active
+  }
+
+  if (symbolPuzzleActive) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+      symbolPuzzleActive = false;
+      isCursorLocked = true;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      firstMouse = true;
+    }
+    return; // Block other inputs while puzzle is active
+  }
+
   if (isReadingDocument) {
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
       if (!eKeyWasPressed) {
@@ -465,27 +492,21 @@ void processInput(GLFWwindow *window) {
   }
 
   if (gameState == MENU) {
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+    if (!menuOpcionesActivo && (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)) {
       gameState = PLAYING;
       isCursorLocked = true;
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       firstMouse = true;
       ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
-      std::cout << "========================================================="
-                << std::endl;
-      std::cout << "               PROYECTO CONFIDENCIAL - REINICIO          "
-                << std::endl;
-      std::cout << "=========================================================\n"
-                << std::endl;
-      printTypewriter("ESCENA 1: PASILLO DE ACCESO");
-      std::cout << "El entorno es silencioso y vacio." << std::endl;
-      std::cout << "Moverte: W A S D  | Mirar: MOUSE | Sprint: SHIFT"
-                << std::endl;
-      std::cout << "Interactuar/Abrir Puertas: E | Linterna: F" << std::endl;
-      std::cout
-          << "Busca TARJETAS DE ACCESO para avanzar a las siguientes salas."
-          << std::endl;
+      std::cout << getText("INTRO_1") << std::endl;
+      std::cout << getText("INTRO_2") << std::endl;
+      std::cout << getText("INTRO_1") << "\n" << std::endl;
+      printTypewriter(getText("TYPE_SCENE_1"));
+      std::cout << getText("INTRO_3") << std::endl;
+      std::cout << getText("INTRO_4") << std::endl;
+      std::cout << getText("INTRO_5") << std::endl;
+      std::cout << getText("INTRO_6") << std::endl;
     }
     return;
   }
@@ -639,12 +660,11 @@ void processInput(GLFWwindow *window) {
   int prevZone = currentZone;
   updateZone();
   if (prevZone != currentZone) {
-    if (currentZone == 2 && !dimensionAlterna)
-      printTypewriter("ESCENA 2: SALA DE CONTROL \nLuz verde tenue. "
-                      "Computadoras encendidas solas.");
-    if (currentZone == 3 && !dimensionAlterna)
-      printTypewriter("ESCENA 3: LABORATORIO PRINCIPAL\nEncuentras la esfera "
-                      "central del experimento. Necesitas baterias.");
+    if (currentZone == 2 && prevZone != 2) {
+      printTypewriter(getText("TYPE_SCENE_2"));
+    } else if (currentZone == 3 && prevZone != 3) {
+      printTypewriter(getText("TYPE_SCENE_3"));
+    }
   }
 
   bool justPressedE = false;
@@ -661,7 +681,6 @@ void processInput(GLFWwindow *window) {
         if (distA_Consola < 2.0f) {
           if (bateriasRecolectadas >= 3) {
             portalActivado = true;
-            dimensionAlterna = true;
             std::cout
                 << "\n========================================================="
                 << std::endl;
@@ -675,7 +694,8 @@ void processInput(GLFWwindow *window) {
             std::cout << "El entorno pierde estabilidad. Los objetos empiezan "
                          "a flotar."
                       << std::endl;
-            printTypewriter("NO ES UNA COPIA... ESTA APRENDIENDO. CORRE.");
+            printTypewriter(getText("TYPE_NOT_COPY"));
+            dimensionAlterna = true;
             std::cout
                 << "=========================================================\n"
                 << std::endl;
@@ -708,7 +728,7 @@ void processInput(GLFWwindow *window) {
         ma_engine_play_sound(&audioEngine, "assets/collect.wav", NULL);
 
         if (entity.type == 0) {
-          printTypewriter(entity.text);
+          printTypewriter(getText(entity.text));
         } else if (entity.type == 1) {
           bateriasRecolectadas++;
           std::cout << "\n[BATERIA RECOLECTADA]: Tienes "
@@ -716,42 +736,25 @@ void processInput(GLFWwindow *window) {
                     << std::endl;
         } else if (entity.type == 8) {
           hasKeycardYellow = true;
-          std::cout << "\n[OBJETO CLAVE]: Has obtenido la TARJETA AMARILLA.\n"
-                    << std::endl;
-          openDocument("TARJETA AMARILLA",
-                       "Autorizacion: Sala de Pruebas.\n\n"
-                       "Personal permitido: mantenimiento y soporte.\n"
-                       "Observacion manuscrita:\n"
-                       "\"Si la puerta se abre sola, no entres.\"");
+          entity.active = false;
+          openDocument(getText("DOC_YELLOW"), getText("DOC_BODY_YELLOW"));
         } else if (entity.type == 9) {
           hasKeycardRed = true;
-          std::cout
-              << "\n[OBJETO CLAVE]: Has obtenido la TARJETA ROJA.\n"
-              << std::endl;
-          openDocument("TARJETA ROJA",
-                       "Autorizacion: Laboratorio principal.\n\n"
-                       "Acceso restringido a personal senior.\n"
-                       "Nota de emergencia:\n"
-                       "\"No activen el nucleo sin las baterias. La copia ya "
-                       "no obedece.\"");
+          entity.active = false;
+          openDocument(getText("DOC_RED"), getText("DOC_BODY_RED"));
         } else if (entity.type == 11) {
           hasKeycardBlue = true;
-          std::cout
-              << "\n[OBJETO CLAVE]: Has obtenido la TARJETA AZUL.\n"
-              << std::endl;
-          openDocument("TARJETA AZUL",
-                       "Autorizacion: Oficinas administrativas.\n\n"
-                       "Acceso general a zona de oficinas.\n");
+          entity.active = false;
+          openDocument(getText("DOC_BLUE"), getText("DOC_BODY_BLUE"));
         }
       }
     } else if (entity.type == 3 || entity.type == 4 || entity.type == 5 ||
                entity.type == 6 || entity.type == 7 || entity.type == 10) {
       if (distancia < 3.0f && lookAngle > 0.92f && justPressedE) {
         if (!entity.text.empty()) {
-          printTypewriter(entity.text);
-        } else if (entity.type == 10) {
-          printTypewriter(
-              "[SANGRE]: Alguien estuvo perdiendo mucha sangre por aqui...");
+          printTypewriter(getText(entity.text));
+        } else if (entity.type == 1 || entity.type == 2) {
+          printTypewriter(getText("TYPE_DRAWER_STUCK"));
         } else if (entity.type == 4) {
           printTypewriter("[CAJON]: Esta vacio o atascado.");
         }
@@ -775,17 +778,15 @@ void processInput(GLFWwindow *window) {
         std::cout
             << "\n========================================================="
             << std::endl;
-        printTypewriter("ESCENA 9: FALLO TOTAL");
-        std::cout << "La silueta humanoide se retuerce frente a ti."
+        printTypewriter(getText("TYPE_SCENE_9"));
+        std::cout << "========================================================="
                   << std::endl;
-        std::cout << "Sus facciones se asientan. Son... las tuyas."
+        std::cout << "               SISTEMA CAIDO - REINICIO IMPOSIBLE        "
                   << std::endl;
-        std::cout << "La entidad ha imitado perfectamente tu postura."
+        std::cout << "=========================================================\n"
                   << std::endl;
-        printTypewriter("COPIA COMPLETA. HAS SIDO REEMPLAZADO.");
-        std::cout
-            << "=========================================================\n"
-            << std::endl;
+        printTypewriter(getText("TYPE_COPY_COMPLETE"));
+        std::cout << "Presiona ESC para salir." << std::endl;
       }
     }
   }
@@ -802,8 +803,7 @@ void processInput(GLFWwindow *window) {
         float look = glm::dot(cameraFront, dir);
 
         if (dist < 2.5f && look > 0.85f) {
-          printTypewriter(
-              "[SANGRE]: Alguien estuvo perdiendo mucha sangre por aqui...");
+          printTypewriter(getText("TYPE_BLOOD_TRAIL"));
         }
       }
     }

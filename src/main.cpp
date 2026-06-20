@@ -20,7 +20,6 @@
 #include <string>
 #include <vector>
 
-
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -37,12 +36,14 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include "headers/animated_entity.h"
 #include "headers/game_state.h"
 #include "headers/gameplay.h"
-#include "headers/animated_entity.h"
 #include "headers/obj_mesh.h"
 #include "headers/shader.h"
 #include "headers/texture.h"
+#include "headers/localization.h"
+
 
 #include "headers/gltf_model.h"
 
@@ -453,9 +454,9 @@ int main() {
   ascensorGLTF = new GLTFModel("assets/ascensor/ascensor.glb");
   cajaElectricaGLTF = new GLTFModel("assets/ascensor/caja-electrica.glb");
   plataformaGLTF = new GLTFModel("assets/ascensor/plataforma.glb");
-  terminalIndustrialGLTF =
-      new GLTFModel("assets/ascensor/terminal-industrial.glb");
   ductoGLTF = new GLTFModel("assets/ascensor/ducto.glb");
+  ghostGLTF = new GLTFModel("assets/ascensor/ghost.glb");
+  headGLTF = new GLTFModel("assets/ascensor/head.glb");
 
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
@@ -560,15 +561,15 @@ int main() {
   modelRegistry["ascensor"] = ascensorGLTF;
   modelRegistry["caja-electrica"] = cajaElectricaGLTF;
   modelRegistry["plataforma"] = plataformaGLTF;
-  modelRegistry["terminal-industrial"] = terminalIndustrialGLTF;
   modelRegistry["ducto"] = ductoGLTF;
+  modelRegistry["ghost"] = ghostGLTF;
+  modelRegistry["head"] = headGLTF;
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
-  if (std::none_of(placedProps.begin(), placedProps.end(),
-                   [](const PlacedProp &prop) {
-                     return prop.modelName == "jaula";
-                   })) {
+  if (std::none_of(
+          placedProps.begin(), placedProps.end(),
+          [](const PlacedProp &prop) { return prop.modelName == "jaula"; })) {
     placedProps.push_back({"jaula", glm::vec3(6.25f, -0.50f, 2.35f),
                            glm::vec3(0.0f, 90.0f, 0.0f),
                            glm::vec3(0.50f, 0.50f, 0.50f), false, "Descanso"});
@@ -580,8 +581,7 @@ int main() {
                    })) {
     placedProps.push_back({"compu_destruida", glm::vec3(18.35f, -0.30f, 4.15f),
                            glm::vec3(0.0f, -90.0f, 0.0f),
-                           glm::vec3(0.55f, 0.55f, 0.55f), false,
-                           "Descanso"});
+                           glm::vec3(0.55f, 0.55f, 0.55f), false, "Descanso"});
     saveLevelProps("assets/config_posiciones.txt");
   }
   AnimatedEntitySystem animatedEntities;
@@ -606,8 +606,7 @@ int main() {
             << "Terminal(" << terminalGLTF->meshes.size() << "), "
             << "VaultDoor(" << vaultDoorGLTF->meshes.size() << "), "
             << "Escritorio(" << escritorioGLTF->meshes.size() << "), "
-            << "Computer(" << computerGLTF->meshes.size() << ")"
-            << std::endl;
+            << "Computer(" << computerGLTF->meshes.size() << ")" << std::endl;
   std::cout << "[SISTEMA] Props muestras cargados: "
             << "MachineLab(" << machineLabGLTF->meshes.size() << "), "
             << "MorgueFridge(" << morguefridgeGLTF->meshes.size() << "), "
@@ -647,6 +646,16 @@ int main() {
   unsigned int wallAscensorTex = loadTexture("assets/ascensor/pared.png");
   unsigned int roofAscensorTex = loadTexture("assets/ascensor/techo.png");
 
+  // Texturas de Sala de Generadores (Seccion 1)
+  unsigned int wallGeneradoresTex = loadTexture("assets/sala-generadores/paredes.png");
+  unsigned int floorGeneradoresTex = loadTexture("assets/sala-generadores/piso.png");
+  unsigned int roofGeneradoresTex = loadTexture("assets/sala-generadores/techo.png");
+
+  // Texturas de Sala de Pruebas (Seccion 2)
+  unsigned int wallPruebasTex = loadTexture("assets/sala-pruebas/pared.png");
+  unsigned int floorPruebasTex = loadTexture("assets/sala-pruebas/piso.png");
+  unsigned int roofPruebasTex = loadTexture("assets/sala-pruebas/techo.png");
+
   // Textura de metal generada para las puertas
   unsigned int doorTex = loadTextureWithFallback("assets/puerta_metal.png", 0);
 
@@ -670,8 +679,8 @@ int main() {
       loadTextureWithFallback("assets/inv-keycard-azul.png", keycardBlueTex);
   unsigned int keycardRedInvTex =
       loadTextureWithFallback("assets/inv-keycard-roja.png", keycardRedTex);
-  unsigned int keycardYellowInvTex =
-      loadTextureWithFallback("assets/inv-keycard-amarilla.png", keycardYellowTex);
+  unsigned int keycardYellowInvTex = loadTextureWithFallback(
+      "assets/inv-keycard-amarilla.png", keycardYellowTex);
   unsigned int pcTex = loadTextureWithFallback("assets/pc.png", wallTex2);
 
   //------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -851,8 +860,7 @@ int main() {
     return 0;
   };
   std::vector<WeaponViewmodel> weapons = {
-      {"Pistola",
-       pistolViewmodel,
+      {"Pistola", pistolViewmodel,
        findWeaponAnimation(pistolViewmodel, {"IdlePose", "BasePose"}),
        findWeaponAnimation(pistolViewmodel, {"Pistol_Walk"}),
        findWeaponAnimation(pistolViewmodel, {"Pistol_Walk"}),
@@ -863,15 +871,9 @@ int main() {
        findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
        findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
        findWeaponAnimation(pistolViewmodel, {"Arms_Draw"}),
-       glm::vec3(0.18f, -0.38f, -0.72f),
-       glm::vec3(0.0f),
-       0.9f,
-       35.0f,
-       0.28f,
-       false,
-       true},
-      {"Rifle",
-       rifleViewmodel,
+       glm::vec3(0.18f, -0.38f, -0.72f), glm::vec3(0.0f), 0.9f, 35.0f, 0.28f,
+       false, true},
+      {"Rifle", rifleViewmodel,
        findWeaponAnimation(rifleViewmodel, {"Rifle_Breathing"}),
        findWeaponAnimation(rifleViewmodel, {"Rifle_Walk"}),
        findWeaponAnimation(rifleViewmodel, {"Rifle_Run"}),
@@ -882,15 +884,9 @@ int main() {
        findWeaponAnimation(rifleViewmodel, {"Arms_BasePose"}),
        findWeaponAnimation(rifleViewmodel, {"Arms_BasePose"}),
        findWeaponAnimation(rifleViewmodel, {"Arms_Reload"}),
-       glm::vec3(0.12f, -0.40f, -0.82f),
-       glm::vec3(0.0f),
-       1.0f,
-       22.0f,
-       0.11f,
-       true,
-       false},
-      {"Escopeta",
-       shotgunViewmodel,
+       glm::vec3(0.12f, -0.40f, -0.82f), glm::vec3(0.0f), 1.0f, 22.0f, 0.11f,
+       true, false},
+      {"Escopeta", shotgunViewmodel,
        findWeaponAnimation(shotgunViewmodel, {"shotgun01_BasePose"}),
        findWeaponAnimation(shotgunViewmodel, {"shotgun01_BasePose"}),
        findWeaponAnimation(shotgunViewmodel, {"shotgun01_BasePose"}),
@@ -901,13 +897,8 @@ int main() {
        findWeaponAnimation(shotgunViewmodel, {"arms_basePose"}),
        findWeaponAnimation(shotgunViewmodel, {"arms_basePose"}),
        findWeaponAnimation(shotgunViewmodel, {"arms_ReloadStart"}),
-       glm::vec3(0.10f, -0.42f, -0.88f),
-       glm::vec3(0.0f),
-       1.05f,
-       70.0f,
-       0.75f,
-       false,
-       false}};
+       glm::vec3(0.10f, -0.42f, -0.88f), glm::vec3(0.0f), 1.05f, 70.0f, 0.75f,
+       false, false}};
   int currentWeaponIndex = 0;
   int weaponAnimationIndex = weapons[0].idleAnimation;
   int weaponArmsAnimationIndex = weapons[0].armsIdleAnimation;
@@ -941,9 +932,9 @@ int main() {
   };
   auto saveWeaponConfig = [&]() {
     std::ofstream config("assets/weapon_config.txt");
-    config << (weaponEnabled ? 1 : 0) << " " << (weaponAutomatic ? 1 : 0)
-           << " " << weaponDamage << " " << weaponRange << " "
-           << weaponFireInterval << "\n";
+    config << (weaponEnabled ? 1 : 0) << " " << (weaponAutomatic ? 1 : 0) << " "
+           << weaponDamage << " " << weaponRange << " " << weaponFireInterval
+           << "\n";
     config << currentWeaponIndex << "\n";
     for (const WeaponViewmodel &weapon : weapons) {
       config << weapon.position.x << " " << weapon.position.y << " "
@@ -1035,6 +1026,30 @@ int main() {
        true,
        false,
        true}, // Ascensor
+
+      {19,
+       25,
+       40,
+       33,
+       wallGeneradoresTex,
+       floorGeneradoresTex,
+       roofGeneradoresTex,
+       {1.0f, 1.0f, 1.0f},
+       true,
+       true,
+       true}, // Sala de Generadores (Seccion 1)
+
+      {1,
+       25,
+       17,
+       33,
+       wallPruebasTex,
+       floorPruebasTex,
+       roofPruebasTex,
+       {1.0f, 1.0f, 1.0f},
+       true,
+       true,
+       true}, // Sala de Pruebas (Seccion 2)
 
       {}, // pisos
   };
@@ -1231,8 +1246,7 @@ int main() {
     weaponCooldown = (std::max)(0.0f, weaponCooldown - deltaTime);
     weaponMuzzleFlashTimer =
         (std::max)(0.0f, weaponMuzzleFlashTimer - deltaTime);
-    weaponHitMarkerTimer =
-        (std::max)(0.0f, weaponHitMarkerTimer - deltaTime);
+    weaponHitMarkerTimer = (std::max)(0.0f, weaponHitMarkerTimer - deltaTime);
 
     bool cycleWeaponDown = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS;
     if (cycleWeaponDown && !weaponCycleWasPressed && gameState == PLAYING) {
@@ -1256,17 +1270,16 @@ int main() {
       weaponAnimationIndex = weapon.reloadAnimation;
       weaponArmsAnimationIndex = weapon.armsReloadAnimation;
       weaponAnimationTime = 0.0f;
-      weaponActionDuration = weapon.model
-                                 ? (std::max)(
-                                       weapon.model->GetAnimationLengthSeconds(
-                                           weaponAnimationIndex),
-                                       weapon.model->GetAnimationLengthSeconds(
-                                           weaponArmsAnimationIndex))
-                                 : 0.0f;
-      weaponActionPlaying = weaponActionDuration > 0.02f &&
-                            (weapon.reloadAnimation != weapon.idleAnimation ||
-                             weapon.armsReloadAnimation !=
-                                 weapon.armsIdleAnimation);
+      weaponActionDuration =
+          weapon.model ? (std::max)(weapon.model->GetAnimationLengthSeconds(
+                                        weaponAnimationIndex),
+                                    weapon.model->GetAnimationLengthSeconds(
+                                        weaponArmsAnimationIndex))
+                       : 0.0f;
+      weaponActionPlaying =
+          weaponActionDuration > 0.02f &&
+          (weapon.reloadAnimation != weapon.idleAnimation ||
+           weapon.armsReloadAnimation != weapon.armsIdleAnimation);
     }
     weaponReloadWasPressed = reloadWeaponDown;
 
@@ -1290,16 +1303,16 @@ int main() {
       weaponAnimationIndex = weapon.fireAnimation;
       weaponArmsAnimationIndex = weapon.armsFireAnimation;
       weaponAnimationTime = 0.0f;
-      weaponActionDuration = weapon.model
-                                 ? (std::max)(
-                                       weapon.model->GetAnimationLengthSeconds(
-                                           weaponAnimationIndex),
-                                       weapon.model->GetAnimationLengthSeconds(
-                                           weaponArmsAnimationIndex))
-                                 : 0.0f;
-      weaponActionPlaying = weaponActionDuration > 0.02f &&
-                            (weapon.fireAnimation != weapon.idleAnimation ||
-                             weapon.armsFireAnimation != weapon.armsIdleAnimation);
+      weaponActionDuration =
+          weapon.model ? (std::max)(weapon.model->GetAnimationLengthSeconds(
+                                        weaponAnimationIndex),
+                                    weapon.model->GetAnimationLengthSeconds(
+                                        weaponArmsAnimationIndex))
+                       : 0.0f;
+      weaponActionPlaying =
+          weaponActionDuration > 0.02f &&
+          (weapon.fireAnimation != weapon.idleAnimation ||
+           weapon.armsFireAnimation != weapon.armsIdleAnimation);
       if (animatedEntities.ShootRay(cameraPos, cameraFront, weaponRange,
                                     weaponDamage)) {
         weaponHitMarkerTimer = 0.16f;
@@ -1314,10 +1327,10 @@ int main() {
         weaponAnimationTime = 0.0f;
       }
     } else {
-      weaponAnimationIndex =
-          isSprinting ? activeWeapon.runAnimation
-                      : (isMoving ? activeWeapon.walkAnimation
-                                  : activeWeapon.idleAnimation);
+      weaponAnimationIndex = isSprinting
+                                 ? activeWeapon.runAnimation
+                                 : (isMoving ? activeWeapon.walkAnimation
+                                             : activeWeapon.idleAnimation);
       weaponArmsAnimationIndex =
           isSprinting ? activeWeapon.armsRunAnimation
                       : (isMoving ? activeWeapon.armsWalkAnimation
@@ -1329,7 +1342,7 @@ int main() {
                             interactionPressedThisFrame,
                             gameState == PLAYING && !isReadingDocument);
     for (const std::string &message : animatedEntities.ConsumeMessages()) {
-      printTypewriter(message);
+      printTypewriter(getText(message));
     }
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -1701,17 +1714,22 @@ int main() {
 
         // Solo procesamos puertas en el bucle dinámico
         if (blockType != 7 && blockType != 8 && blockType != 9 &&
-            blockType != -7 && blockType != -8 && blockType != -9)
+            blockType != 10 && blockType != 11 &&
+            blockType != -7 && blockType != -8 && blockType != -9 &&
+            blockType != -10 && blockType != -11)
           continue;
 
         // Consideramos la puerta visible tanto si esta cerrada (>0) como
         // abierta (<0)
         int renderBlock = worldMap[z][x];
         if (renderBlock != 0 && (blockType > 0 || renderBlock == -7 ||
-                                 renderBlock == -8 || renderBlock == -9)) {
+                                 renderBlock == -8 || renderBlock == -9 ||
+                                 renderBlock == -10 || renderBlock == -11)) {
           bool is3DDoor =
               (renderBlock == 7 || renderBlock == 8 || renderBlock == 9 ||
-               renderBlock == -7 || renderBlock == -8 || renderBlock == -9);
+               renderBlock == 10 || renderBlock == 11 ||
+               renderBlock == -7 || renderBlock == -8 || renderBlock == -9 ||
+               renderBlock == -10 || renderBlock == -11);
 
           // Detectar si esta celda es la primera o segunda de un par de puertas
           bool isSecondDoorCell = false;
@@ -1728,8 +1746,13 @@ int main() {
             glm::mat4 baseModel = glm::mat4(1.0f);
 
             // 4. Mover al centro del hueco y anclar al piso de la pared (-0.5)
-            baseModel = glm::translate(
-                baseModel, glm::vec3((float)x + 0.5f, -0.5f, (float)z));
+            if (renderBlock == 11 || renderBlock == -11) {
+              baseModel = glm::translate(
+                  baseModel, glm::vec3(40.901f, -0.500f, 29.467f));
+            } else {
+              baseModel = glm::translate(
+                  baseModel, glm::vec3((float)x + 0.5f, -0.5f, (float)z));
+            }
 
             // 3. Escalar para encajar en el juego.
             // Ancho de ensamble: 1.81 -> Juego: 2.0 (Escala 1.1)
@@ -1738,8 +1761,10 @@ int main() {
 
             // 2. Rotar (dejaremos 0 grados asumiendo que los nuevos estan de
             // frente) Si se ven las texturas por detras, cambiaremos este valor
-            // a 180 despues. baseModel = glm::rotate(baseModel,
-            // glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            // a 180 despues.
+            if (renderBlock == 11 || renderBlock == -11) {
+              baseModel = glm::rotate(baseModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            }
 
             // 1. Compensar el offset original de Blender para centrar el
             // ensamble en (0,0,0) Centro X = 0.455, Centro Z = 0.059
@@ -1756,6 +1781,10 @@ int main() {
                 glUniform3f(colorLoc, 1.0f, 0.8f, 0.2f); // Metal Amarillo
               } else if (renderBlock == 9 || renderBlock == -9) {
                 glUniform3f(colorLoc, 0.9f, 0.1f, 0.1f); // Metal Rojo
+              } else if (renderBlock == 10 || renderBlock == -10) {
+                glUniform3f(colorLoc, 0.1f, 0.1f, 0.9f); // Metal Azul
+              } else if (renderBlock == 11 || renderBlock == -11) {
+                glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f); // Metal Negro/Gris Oscuro
               } else {
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
               }
@@ -1765,6 +1794,10 @@ int main() {
                 glUniform3f(colorLoc, 1.0f, 0.8f, 0.2f); // Amarillo SÃ³lido
               } else if (renderBlock == 9 || renderBlock == -9) {
                 glUniform3f(colorLoc, 0.9f, 0.1f, 0.1f); // Rojo SÃ³lido
+              } else if (renderBlock == 10 || renderBlock == -10) {
+                glUniform3f(colorLoc, 0.1f, 0.1f, 0.9f); // Azul SÃ³lido
+              } else if (renderBlock == 11 || renderBlock == -11) {
+                glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f); // Negro SÃ³lido
               } else {
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
               }
@@ -1776,13 +1809,13 @@ int main() {
               currentAnim = door1Anim;
             } else if (renderBlock == 9 || renderBlock == -9) {
               currentAnim = door2Anim;
-            } else if (renderBlock == 7 || renderBlock == -7) {
+            } else if (renderBlock == 7 || renderBlock == -7 || renderBlock == 10 || renderBlock == -10 || renderBlock == 11 || renderBlock == -11) {
               int key = z * MAP_WIDTH + x;
               auto it = activeDoorsAnim.find(key);
               if (it != activeDoorsAnim.end()) {
                 currentAnim = it->second;
-              } else if (renderBlock == -7) {
-                currentAnim = 90.0f;
+              } else if (renderBlock < 0) {
+                currentAnim = 90.0f; // Abierta si es negativo
               } else {
                 currentAnim = 0.0f;
               }
@@ -2336,11 +2369,27 @@ int main() {
     int renderSlotIdx = 0;
     int miniLampDrawCount = 0;
     int cameraAnimCount = 0;
+    int ghostDrawCount = 0;
     std::map<GLTFModel *, std::vector<glm::mat4>> propInstanceBatches;
     for (const auto &prop : placedProps) {
       GLTFModel *model = modelRegistry[prop.modelName];
       if (!model || model->meshes.empty())
         continue;
+
+      // --- aparicion y desaparicion de fantasmas
+      if (prop.modelName == "ghost") {
+        ghostDrawCount++;
+        float hiddenDuration = 2.5f + (ghostDrawCount % 3) * 1.5f; // 2.5s, 4.0s, 5.5s
+        float visibleDuration = 0.6f + (ghostDrawCount % 3) * 0.4f; // 0.6s, 1.0s, 1.4s
+        float totalCycle = hiddenDuration + visibleDuration;
+
+        float offset = ghostDrawCount * 11.23f; // Desfase para desincronizarlos
+        float cycleTime = fmod(currentFrame + offset, totalCycle);
+
+        if (cycleTime < hiddenDuration) {
+          continue; // Salta el renderizado de este fantasma en este frame
+        }
+      }
 
       bool esLuzBano = (prop.modelName == "ligthbathroom");
       bool esEmergency = (prop.modelName == "emergency");
@@ -2398,8 +2447,8 @@ int main() {
       }
 
       bool hasAnims = (model->m_Scene && model->m_Scene->HasAnimations());
-      bool needsIndividualDraw =
-          esLuzBano || esLamparaReactor || esMiniLampara || esEmergency || hasAnims;
+      bool needsIndividualDraw = esLuzBano || esLamparaReactor ||
+                                 esMiniLampara || esEmergency || hasAnims;
       if (!needsIndividualDraw) {
         propInstanceBatches[model].push_back(pModel);
         continue;
@@ -2423,11 +2472,13 @@ int main() {
       if (esAscensor) {
         float animDuration = model->GetAnimationLengthSeconds(0);
         if (animDuration > 0.001f) {
-          float totalCycle = animDuration + 5.0f; // 5 segundos de espera cerradas
+          float totalCycle =
+              animDuration + 5.0f; // 5 segundos de espera cerradas
           float cycleTime = fmod(currentFrame, totalCycle);
-          
+
           if (cycleTime > animDuration) {
-            // Durante la espera, fijamos el tiempo al final de la animación (puertas cerradas)
+            // Durante la espera, fijamos el tiempo al final de la animación
+            // (puertas cerradas)
             elevatorAnimTime = animDuration - 0.01f;
           } else {
             elevatorAnimTime = cycleTime;
@@ -2441,7 +2492,7 @@ int main() {
       } else {
         model->Draw(shaderProgram, solidColorLoc);
       }
-      
+
       if (esAscensor)
         glEnable(GL_CULL_FACE);
 
@@ -3000,8 +3051,8 @@ int main() {
     glDisable(GL_CULL_FACE);
 
     for (auto &entity : gameEntities) {
-      if (!entity.active ||
-          (entity.type >= 3 && entity.type != 8 && entity.type != 9 && entity.type != 11))
+      if (!entity.active || (entity.type >= 3 && entity.type != 8 &&
+                             entity.type != 9 && entity.type != 11))
         continue;
       if (entity.type == 0 || entity.type == 3)
         continue; // Ya se dibujaron en 3D
@@ -3072,7 +3123,8 @@ int main() {
                   0.0f); // Resetear para siguientes objetos
     }
 
-    // Viewmodel FPS: se dibuja con profundidad limpia para no atravesar paredes.
+    // Viewmodel FPS: se dibuja con profundidad limpia para no atravesar
+    // paredes.
     if (gameState == PLAYING && weaponEnabled && !isReadingDocument) {
       WeaponViewmodel &weapon = weapons[currentWeaponIndex];
       if (weapon.model && !weapon.model->meshes.empty()) {
@@ -3086,24 +3138,21 @@ int main() {
                              static_cast<float>(currentWidth) /
                                  static_cast<float>(currentHeight),
                              0.01f, 20.0f);
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE,
-                           glm::value_ptr(viewmodelView));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewmodelView));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE,
                            glm::value_ptr(viewmodelProjection));
 
         glm::vec3 boundsSize =
             weapon.model->localAABB.max - weapon.model->localAABB.min;
         float largest =
-            (std::max)(boundsSize.x,
-                       (std::max)(boundsSize.y, boundsSize.z));
+            (std::max)(boundsSize.x, (std::max)(boundsSize.y, boundsSize.z));
         float viewmodelScale =
             largest > 0.001f ? weapon.targetSize / largest : 1.0f;
         float recoil = weaponMuzzleFlashTimer > 0.0f ? 0.035f : 0.0f;
 
         glm::mat4 viewmodelMatrix(1.0f);
-        viewmodelMatrix =
-            glm::translate(viewmodelMatrix,
-                           weapon.position + glm::vec3(0.0f, 0.0f, recoil));
+        viewmodelMatrix = glm::translate(
+            viewmodelMatrix, weapon.position + glm::vec3(0.0f, 0.0f, recoil));
         viewmodelMatrix =
             glm::rotate(viewmodelMatrix, glm::radians(weapon.rotation.x),
                         glm::vec3(1.0f, 0.0f, 0.0f));
@@ -3126,8 +3175,8 @@ int main() {
               armsAnimationTime = armsLength * 0.999f;
           }
           weapon.model->UpdateAnimationLayers(
-              armsAnimationTime, weaponArmsAnimationIndex,
-              weaponAnimationTime, weaponAnimationIndex, weapon.bones);
+              armsAnimationTime, weaponArmsAnimationIndex, weaponAnimationTime,
+              weaponAnimationIndex, weapon.bones);
           if (finalBonesLoc >= 0 && !weapon.bones.empty()) {
             glUniformMatrix4fv(finalBonesLoc,
                                static_cast<GLsizei>(weapon.bones.size()),
@@ -3197,7 +3246,7 @@ int main() {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         firstMouse = true;
         ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
-        printTypewriter("ESCENA 1: PASILLO DE ACCESO");
+        printTypewriter(getText("TYPE_SCENE_1"));
       };
 
       ImDrawList *drawList = ImGui::GetBackgroundDrawList();
@@ -3235,8 +3284,8 @@ int main() {
                        ImGuiWindowFlags_NoSavedSettings);
 
       float titleY = currentHeight * 0.16f;
-      const char *title = "PROYECTO CONFIDENCIAL";
-      const char *subtitle = "LABORATORIO DE CONTENCION";
+      const char *title = getText("MENU_TITLE");
+      const char *subtitle = menuOpcionesActivo ? getText("MENU_SUBTITLE_AUDIO") : getText("MENU_SUBTITLE");
       ImGui::SetWindowFontScale(3.0f);
       ImVec2 titleSize = ImGui::CalcTextSize(title);
       ImGui::SetCursorPos(ImVec2((currentWidth - titleSize.x) * 0.5f, titleY));
@@ -3285,19 +3334,47 @@ int main() {
         return pressed;
       };
 
-      if (menuButton("INICIAR JUEGO"))
-        startGameFromMenu();
-      menuButton("OPCIONES");
-      menuButton("ARCHIVOS");
-      menuButton("CREDITOS");
-      if (menuButton("SALIR"))
-        glfwSetWindowShouldClose(window, true);
+      if (menuOpcionesActivo) {
+        if (menuButton(juegoMuteado ? getText("MENU_MUTE_ACTIVE") : getText("MENU_MUTE"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          juegoMuteado = true;
+          ma_engine_set_volume(&audioEngine, 0.0f);
+        }
+        if (menuButton(!juegoMuteado ? getText("MENU_UNMUTE_ACTIVE") : getText("MENU_UNMUTE"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          juegoMuteado = false;
+          ma_engine_set_volume(&audioEngine, 1.0f);
+        }
+        if (menuButton(currentLanguage == LANG_ES ? getText("MENU_LANG_ES") : getText("MENU_LANG_ES_INACTIVE"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          currentLanguage = LANG_ES;
+        }
+        if (menuButton(currentLanguage == LANG_EN ? getText("MENU_LANG_EN") : getText("MENU_LANG_EN_INACTIVE"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          currentLanguage = LANG_EN;
+        }
+        if (menuButton(getText("MENU_BACK"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuOpcionesActivo = false;
+        }
+      } else {
+        if (menuButton(getText("MENU_START")))
+          startGameFromMenu();
+        if (menuButton(getText("MENU_OPTIONS"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuOpcionesActivo = true;
+        }
+        menuButton(getText("MENU_FILES"));
+        menuButton(getText("MENU_CREDITS"));
+        if (menuButton(getText("MENU_EXIT")))
+          glfwSetWindowShouldClose(window, true);
+      }
 
       ImGui::PopStyleColor(4);
       ImGui::PopStyleVar(2);
 
       ImGui::SetWindowFontScale(0.85f);
-      const char *hint = "ENTER / ESPACIO tambien inicia";
+      const char *hint = menuOpcionesActivo ? getText("MENU_HINT_BACK") : getText("MENU_HINT_START");
       ImVec2 hintSize = ImGui::CalcTextSize(hint);
       ImGui::SetCursorPos(
           ImVec2((currentWidth - hintSize.x) * 0.5f, currentHeight * 0.86f));
@@ -3394,7 +3471,8 @@ int main() {
         // Areas basadas en carpetas reales de assets/ que contienen .glb
         static const char *kAreaNames[] = {"Todas",   "General",  "Contencion",
                                            "Archivo", "Oficinas", "Descanso",
-                                           "Baño",    "Ascensor"};
+                                           "Baño",    "Ascensor", "sala-pruebas",
+                                           "sala-generadores"};
         static int areaFilterIdx = 0; // 0 = Todas
         ImGui::SetNextItemWidth(-1.0f);
         ImGui::Combo("##AreaFiltro", &areaFilterIdx, kAreaNames,
@@ -3484,13 +3562,15 @@ int main() {
             "cajonesOF",
             // -- Descanso --
             "botas", "bunk_bed", "comedor", "estante_cajas", "expendedora",
-            "extintor_viejo", "locker", "lockers", "old_sofa_free",
-            "jaula", "compu_destruida", "old_soviet_taxophone", "papel_viejo",
+            "extintor_viejo", "locker", "lockers", "old_sofa_free", "jaula",
+            "compu_destruida", "old_soviet_taxophone", "papel_viejo",
             "planta_electrica", "trash", "trash_bag",
             // -- General (raiz assets/) --
-            "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas", "sofa",
+            "gnome", "machine_lab", "metal_desk", "monitor", "pared", "sillas",
+            "sofa",
             // -- Ascensor --
-            "ascensor", "caja-electrica", "plataforma", "terminal-industrial", "ducto",
+            "ascensor", "caja-electrica", "plataforma",
+            "ducto", "ghost", "head",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
             "mirror", "MirrorBG", "urinario"};
@@ -3566,14 +3646,12 @@ int main() {
           else if (newProp.modelName == "ascensor" ||
                    newProp.modelName == "caja-electrica" ||
                    newProp.modelName == "plataforma" ||
-                   newProp.modelName == "terminal-industrial" ||
                    newProp.modelName == "ducto") {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           } else if (newProp.modelName == "compu_destruida") {
             newProp.scale = glm::vec3(0.55f, 0.55f, 0.55f);
             newProp.collisionActive = false;
-          }
-          else if (newProp.modelName == "silla")
+          } else if (newProp.modelName == "silla")
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           else if (newProp.modelName == "sangre-piso" ||
                    newProp.modelName == "sangre-piso2" ||
@@ -3708,20 +3786,20 @@ int main() {
         WeaponViewmodel &weaponEditor = weapons[currentWeaponIndex];
         ImGui::DragFloat3("Posicion viewmodel", &weaponEditor.position.x,
                           0.005f);
-        ImGui::DragFloat3("Rotacion viewmodel", &weaponEditor.rotation.x,
-                          0.5f);
+        ImGui::DragFloat3("Rotacion viewmodel", &weaponEditor.rotation.x, 0.5f);
         ImGui::DragFloat("Tamano viewmodel", &weaponEditor.targetSize, 0.01f,
                          0.05f, 5.0f);
         ImGui::Checkbox("Disparo automatico", &weaponAutomatic);
         ImGui::DragFloat("Dano del arma", &weaponDamage, 1.0f, 1.0f, 1000.0f);
         ImGui::DragFloat("Alcance del arma", &weaponRange, 0.5f, 1.0f, 100.0f);
-        ImGui::DragFloat("Intervalo disparo", &weaponFireInterval, 0.01f,
-                         0.05f, 3.0f);
+        ImGui::DragFloat("Intervalo disparo", &weaponFireInterval, 0.01f, 0.05f,
+                         3.0f);
         if (ImGui::Button("Guardar configuracion arma", ImVec2(-1.0f, 0.0f)))
           saveWeaponConfig();
         if (ImGui::Button("Recargar configuracion arma", ImVec2(-1.0f, 0.0f)))
           loadWeaponConfig();
-        ImGui::TextDisabled("Disparar: clic izquierdo | Recargar: R | Cambiar: Q");
+        ImGui::TextDisabled(
+            "Disparar: clic izquierdo | Recargar: R | Cambiar: Q");
         ImGui::End();
       }
 
@@ -3789,7 +3867,7 @@ int main() {
       ImGui::TextWrapped("%s", currentDocumentBody.c_str());
       ImGui::Spacing();
       ImGui::Separator();
-      ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "E o ESC para cerrar");
+      ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s", getText("DOC_CLOSE_HINT"));
       ImGui::End();
     }
     // --- HOTBAR INVENTARIO (estilo Minecraft) ---
@@ -3857,29 +3935,29 @@ int main() {
       };
 
       // Slot 0: Linterna (siempre la tiene)
-      drawSlot(isFlashlightOn ? "[F] ON" : "[F] OFF",
+      drawSlot(isFlashlightOn ? getText("INV_FLASHLIGHT_ON") : getText("INV_FLASHLIGHT_OFF"),
                (ImTextureID)(intptr_t)clueTexture, true,
                selectedHotbarSlot == 0);
 
       // Slot 1: Tarjeta Amarilla
-      drawSlot("T.Amarilla", (ImTextureID)(intptr_t)keycardYellowInvTex, hasKeycardYellow,
-               selectedHotbarSlot == 1);
+      drawSlot(getText("INV_KEY_YELLOW"), (ImTextureID)(intptr_t)keycardYellowInvTex,
+               hasKeycardYellow, selectedHotbarSlot == 1);
 
       // Slot 2: Tarjeta Roja
-      drawSlot("T.Roja", (ImTextureID)(intptr_t)keycardRedInvTex, hasKeycardRed,
+      drawSlot(getText("INV_KEY_RED"), (ImTextureID)(intptr_t)keycardRedInvTex, hasKeycardRed,
                selectedHotbarSlot == 2);
 
       // Slot 3: Tarjeta Azul
-      drawSlot("T.Azul", (ImTextureID)(intptr_t)keycardBlueInvTex, hasKeycardBlue,
-               selectedHotbarSlot == 3);
+      drawSlot(getText("INV_KEY_BLUE"), (ImTextureID)(intptr_t)keycardBlueInvTex,
+               hasKeycardBlue, selectedHotbarSlot == 3);
 
-      // Slots 4-5: Baterías (sólo mostramos 2 o reducimos baterías, o ajustamos índices)
-      // Ajustemos las baterías a la derecha. El máximo de slots es 6. (0 a 5)
-      // Linterna(0), LlaveA(1), LlaveR(2), LlaveAz(3), Bat1(4), Bat2(5)
-      // Wait, there are 3 batteries originally. We might need to add a slot or group batteries.
-      // Grouping batteries:
+      // Slots 4-5: Baterías (sólo mostramos 2 o reducimos baterías, o ajustamos
+      // índices) Ajustemos las baterías a la derecha. El máximo de slots es 6.
+      // (0 a 5) Linterna(0), LlaveA(1), LlaveR(2), LlaveAz(3), Bat1(4), Bat2(5)
+      // Wait, there are 3 batteries originally. We might need to add a slot or
+      // group batteries. Grouping batteries:
       char batLabel[16];
-      snprintf(batLabel, sizeof(batLabel), "Bats:%d/3", bateriasRecolectadas);
+      snprintf(batLabel, sizeof(batLabel), getText("INV_BATS"), bateriasRecolectadas);
       drawSlot(batLabel, (ImTextureID)(intptr_t)batteryTex,
                bateriasRecolectadas > 0, selectedHotbarSlot == 4);
 
@@ -3909,10 +3987,215 @@ int main() {
                          crosshairColor, 1.5f);
 
       if (weaponMuzzleFlashTimer > 0.0f) {
-        weaponHud->AddCircleFilled(
-            ImVec2(center.x, center.y), 4.0f,
-            IM_COL32(255, 190, 55, 215), 8);
+        weaponHud->AddCircleFilled(ImVec2(center.x, center.y), 4.0f,
+                                   IM_COL32(255, 190, 55, 215), 8);
       }
+    }
+
+    if (wirePuzzleActive) {
+      ImGuiIO& io = ImGui::GetIO();
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+      ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_Always);
+      ImGui::Begin(getText("MINIGAME_WIRE_TITLE"), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+
+      static ImU32 leftColors[4] = { IM_COL32(255, 0, 0, 255), IM_COL32(0, 255, 0, 255), IM_COL32(0, 0, 255, 255), IM_COL32(255, 255, 0, 255) };
+      static ImU32 rightColors[4] = { IM_COL32(0, 255, 0, 255), IM_COL32(255, 255, 0, 255), IM_COL32(255, 0, 0, 255), IM_COL32(0, 0, 255, 255) }; // Shuffled
+
+      static int selectedLeftNode = -1;
+      static int nodeConnections[4] = { -1, -1, -1, -1 }; // Index is left node, value is right node index
+
+      ImDrawList* drawList = ImGui::GetWindowDrawList();
+      ImVec2 windowPos = ImGui::GetWindowPos();
+
+      // Nodes positioning
+      float nodeRadius = 15.0f;
+      float startY = windowPos.y + 100.0f;
+      float ySpacing = 60.0f;
+      float leftX = windowPos.x + 80.0f;
+      float rightX = windowPos.x + 420.0f;
+
+      ImVec2 mousePos = ImGui::GetIO().MousePos;
+      bool mouseClicked = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+
+      // Draw existing connections
+      for (int i = 0; i < 4; ++i) {
+        if (nodeConnections[i] != -1) {
+          ImVec2 p1 = ImVec2(leftX, startY + i * ySpacing);
+          ImVec2 p2 = ImVec2(rightX, startY + nodeConnections[i] * ySpacing);
+          drawList->AddLine(p1, p2, leftColors[i], 5.0f);
+        }
+      }
+
+      // Draw active dragging connection
+      if (selectedLeftNode != -1) {
+        ImVec2 p1 = ImVec2(leftX, startY + selectedLeftNode * ySpacing);
+        drawList->AddLine(p1, mousePos, leftColors[selectedLeftNode], 5.0f);
+      }
+
+      bool allConnectedCorrectly = true;
+
+      // Draw left nodes
+      for (int i = 0; i < 4; ++i) {
+        ImVec2 p = ImVec2(leftX, startY + i * ySpacing);
+        drawList->AddCircleFilled(p, nodeRadius, leftColors[i]);
+        drawList->AddCircle(p, nodeRadius + 2.0f, IM_COL32(200, 200, 200, 255), 0, 2.0f);
+
+        // Interaction
+        float distSq = (mousePos.x - p.x) * (mousePos.x - p.x) + (mousePos.y - p.y) * (mousePos.y - p.y);
+        if (distSq < nodeRadius * nodeRadius) {
+          drawList->AddCircle(p, nodeRadius + 4.0f, IM_COL32(255, 255, 255, 255), 0, 2.0f);
+          if (mouseClicked) {
+            selectedLeftNode = i;
+            nodeConnections[i] = -1; // Disconnect if reconnecting
+          }
+        }
+      }
+
+      // Draw right nodes
+      for (int i = 0; i < 4; ++i) {
+        ImVec2 p = ImVec2(rightX, startY + i * ySpacing);
+        drawList->AddCircleFilled(p, nodeRadius, rightColors[i]);
+        drawList->AddCircle(p, nodeRadius + 2.0f, IM_COL32(200, 200, 200, 255), 0, 2.0f);
+
+        // Interaction (Drop)
+        float distSq = (mousePos.x - p.x) * (mousePos.x - p.x) + (mousePos.y - p.y) * (mousePos.y - p.y);
+        if (distSq < nodeRadius * nodeRadius) {
+          drawList->AddCircle(p, nodeRadius + 4.0f, IM_COL32(255, 255, 255, 255), 0, 2.0f);
+          if (!ImGui::IsMouseDown(ImGuiMouseButton_Left) && selectedLeftNode != -1) {
+            // Drop connection
+            nodeConnections[selectedLeftNode] = i;
+            selectedLeftNode = -1;
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          }
+        }
+      }
+
+      if (!ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+        selectedLeftNode = -1; // Cancel drag if mouse released outside
+      }
+
+      // Check win condition
+      for (int i = 0; i < 4; ++i) {
+        if (nodeConnections[i] == -1 || leftColors[i] != rightColors[nodeConnections[i]]) {
+          allConnectedCorrectly = false;
+          break;
+        }
+      }
+
+      ImGui::SetCursorPos(ImVec2(20, 40));
+      if (allConnectedCorrectly) {
+        ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", getText("MINIGAME_ACCESS_GRANTED"));
+        // Open door logic
+        if (blackDoorGridX != -1 && blackDoorGridZ != -1) {
+          // Abrir la puerta principal y buscar adyacentes (doble puerta)
+          int gx = blackDoorGridX;
+          int gz = blackDoorGridZ;
+          worldMap[gz][gx] = -11;
+          
+          if (gx > 0 && worldMap[gz][gx - 1] == 11) worldMap[gz][gx - 1] = -11;
+          if (gx < MAP_WIDTH - 1 && worldMap[gz][gx + 1] == 11) worldMap[gz][gx + 1] = -11;
+          if (gz > 0 && worldMap[gz - 1][gx] == 11) worldMap[gz - 1][gx] = -11;
+          if (gz < MAP_HEIGHT - 1 && worldMap[gz + 1][gx] == 11) worldMap[gz + 1][gx] = -11;
+
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          printTypewriter(getText("TYPE_BLACK_DOOR"));
+          blackDoorGridX = -1;
+          blackDoorGridZ = -1;
+          wirePuzzleActive = false;
+          isCursorLocked = true;
+          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+          firstMouse = true;
+        }
+      } else {
+        ImGui::Text("%s", getText("MINIGAME_WIRE_HINT"));
+      }
+
+      ImGui::End();
+    }
+
+    if (symbolPuzzleActive) {
+      ImGuiIO& io = ImGui::GetIO();
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+      ImGui::SetNextWindowSize(ImVec2(500, 300), ImGuiCond_Always);
+      ImGui::Begin(getText("MINIGAME_SYMBOL_TITLE"), nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+
+      const char* symbols[] = { " O ", " X ", "/\\", "[]", "<>", "||" };
+      const int numSymbols = 6;
+
+      ImGui::Text(getText("MINIGAME_SYMBOL_HINT"), symbols[symbolPuzzleTargetSymbol]);
+      ImGui::Spacing();
+      ImGui::Separator();
+      ImGui::Spacing();
+
+      bool allAligned = true;
+
+      ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(20, 20));
+      for (int i = 0; i < 3; ++i) {
+        ImGui::PushID(i);
+        
+        ImGui::SetCursorPosX(100.0f);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("%s %d:", getText("MINIGAME_SYMBOL_WHEEL"), i + 1);
+        ImGui::SameLine();
+        
+        if (ImGui::Button("<", ImVec2(40, 40))) {
+          symbolPuzzleWheelIndices[i] = (symbolPuzzleWheelIndices[i] - 1 + numSymbols) % numSymbols;
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+        }
+        ImGui::SameLine();
+        
+        ImGui::Button(symbols[symbolPuzzleWheelIndices[i]], ImVec2(60, 40));
+        
+        ImGui::SameLine();
+        if (ImGui::Button(">", ImVec2(40, 40))) {
+          symbolPuzzleWheelIndices[i] = (symbolPuzzleWheelIndices[i] + 1) % numSymbols;
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+        }
+        ImGui::PopID();
+        
+        if (symbolPuzzleWheelIndices[i] != symbolPuzzleTargetSymbol) {
+          allAligned = false;
+        }
+      }
+      ImGui::PopStyleVar();
+
+      ImGui::Spacing();
+      ImGui::Separator();
+      ImGui::Spacing();
+
+      if (allAligned) {
+        ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", getText("MINIGAME_ACCESS_GRANTED"));
+        
+        if (whiteDoorGridX != -1 && whiteDoorGridZ != -1) {
+          int gx = whiteDoorGridX;
+          int gz = whiteDoorGridZ;
+          
+          std::vector<std::pair<int, int>> doorsToOpen;
+          doorsToOpen.push_back({gx, gz});
+          if (gx > 0 && worldMap[gz][gx - 1] == 7) doorsToOpen.push_back({gx - 1, gz});
+          if (gx < MAP_WIDTH - 1 && worldMap[gz][gx + 1] == 7) doorsToOpen.push_back({gx + 1, gz});
+          if (gz > 0 && worldMap[gz - 1][gx] == 7) doorsToOpen.push_back({gx, gz - 1});
+          if (gz < MAP_HEIGHT - 1 && worldMap[gz + 1][gx] == 7) doorsToOpen.push_back({gx, gz + 1});
+
+          for (auto& p : doorsToOpen) {
+            worldMap[p.second][p.first] = -7;
+            activeDoorsAnim[p.second * MAP_WIDTH + p.first] = 0.0f;
+          }
+
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          printTypewriter(getText("TYPE_DOOR_OPEN"));
+          whiteDoorGridX = -1;
+          whiteDoorGridZ = -1;
+          symbolPuzzleActive = false;
+          isCursorLocked = true;
+          firstMouse = true;
+          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+      } else {
+        ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", getText("MINIGAME_SYSTEM_LOCKED"));
+      }
+
+      ImGui::End();
     }
 
     ImGui::Render();

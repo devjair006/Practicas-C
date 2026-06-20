@@ -48,6 +48,7 @@ set(SOURCES
     src/main.cpp
     src/game_state.cpp
     src/gameplay.cpp
+    src/localization.cpp
     src/animated_entity.cpp
     src/glad.c
     include/imgui/imgui.cpp

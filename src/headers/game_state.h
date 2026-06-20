@@ -321,6 +321,8 @@ extern float stamina;
 extern bool isSprinting;
 extern bool isExhausted;
 extern GameState gameState;
+extern bool menuOpcionesActivo;
+extern bool juegoMuteado;
 extern bool isCursorLocked;
 extern bool tabKeyWasPressed;
 extern bool eKeyWasPressed;
@@ -415,8 +417,9 @@ extern GLTFModel* barrilGLTF;
 extern GLTFModel *ascensorGLTF;
 extern GLTFModel *cajaElectricaGLTF;
 extern GLTFModel *plataformaGLTF;
-extern GLTFModel *terminalIndustrialGLTF;
 extern GLTFModel *ductoGLTF;
+extern GLTFModel *ghostGLTF;
+extern GLTFModel *headGLTF;
 
 extern GLTFModel *cablePisoGLTF;
 extern std::vector<glm::vec3> cablePisoPos;
@@ -605,8 +608,14 @@ inline std::string getModelArea(const std::string& modelName) {
     };
     // --- Ascensor ---
     static const std::unordered_set<std::string> kAscensor = {
-        "ascensor", "caja-electrica", "plataforma", "terminal-industrial",
-        "ducto"
+        "ascensor", "caja-electrica", "plataforma",
+        "ducto", "ghost", "head"
+    };
+    // --- Sala Pruebas ---
+    static const std::unordered_set<std::string> kSalaPruebas = {
+    };
+    // --- Sala Generadores ---
+    static const std::unordered_set<std::string> kSalaGeneradores = {
     };
 
     if (kContencion.count(modelName)) return "Contencion";
@@ -615,6 +624,8 @@ inline std::string getModelArea(const std::string& modelName) {
     if (kDescanso.count(modelName))   return "Descanso";
     if (kBano.count(modelName))       return "Baño";
     if (kAscensor.count(modelName))   return "Ascensor";
+    if (kSalaPruebas.count(modelName)) return "sala-pruebas";
+    if (kSalaGeneradores.count(modelName)) return "sala-generadores";
     return "General";
 }
 
@@ -627,3 +638,15 @@ extern float door2Anim;
 extern bool door2Opening;
 extern std::map<int, float> activeDoorsAnim;
 extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
+
+// Wire puzzle state
+extern bool wirePuzzleActive;
+extern int blackDoorGridX;
+extern int blackDoorGridZ;
+
+// Symbol puzzle state
+extern bool symbolPuzzleActive;
+extern int whiteDoorGridX;
+extern int whiteDoorGridZ;
+extern int symbolPuzzleTargetSymbol;
+extern int symbolPuzzleWheelIndices[3];

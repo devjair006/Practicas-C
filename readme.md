@@ -1,91 +1,91 @@
-# 👁️ Proyecto Confidencial: Copia Completa
+# 👁️ Confidential Project: Full Copy
 
-Un videojuego de **exploración y terror en primera persona en 3D** construido desde cero en **C++** utilizando **OpenGL 3.3 (Core Profile)**, **GLFW**, **GLAD** y un conjunto de librerías potentes de bajo nivel.
+A **3D first-person exploration and horror game** built from scratch in **C++** using **OpenGL 3.3 (Core Profile)**, **GLFW**, **GLAD**, and a set of powerful low-level libraries.
 
-Te despiertas en un laboratorio abandonado y silencioso. Tu única compañía es una linterna mortecina. El sistema advierte de una anomalía en la replicación: la copia ya no obedece y está aprendiendo tus movimientos...
-
----
-
-## 🚀 Características Principales
-
-### 🎮 Mecánicas de Juego (Survival Horror)
-* **Estamina y Agotamiento:** Correr (`Shift Izquierdo`) drena tu energía. Si se agota por completo, entrarás en un estado de cansancio que requiere recuperación antes de poder correr de nuevo.
-* **Movimiento Orgánico (Head Bobbing):** Simulación dinámica de la cámara al caminar o correr para una inmersión completa.
-* **Linterna Dinámica (Spotlight):** Una linterna realista en primera persona acoplada a la vista del jugador, con atenuación e intensidad cuadrática realista.
-* **Sistema de Tarjetas de Acceso (Keycards):** Recolecta la **Tarjeta Amarilla (Nivel 1)** y la **Tarjeta Roja (Nivel 2)** para desbloquear nuevas secciones del mapa con animaciones 3D fluidas en tiempo real para las puertas dobles de metal.
-* **Dimensión Alterna (Distorsión):** Encuentra las **3 baterías ocultas**, reactiva la consola de energía en el laboratorio principal y cruza el umbral. El entorno perderá estabilidad, cambiando a un tono rojo sangre, con shaders de ondulación temporal y viñeteado dinámico.
-* **La Amenaza Imitadora:** Un ente acecha en la oscuridad. Sigue la regla del *Ángel Llorón*: solo se mueve cuando dejas de mirarlo directamente. Si te alcanza, serás reemplazado.
-* **Lore Interactivo:** Examina notas, logs de la tripulación y pantallas de terminales con un visor typewriter interactivo en pantalla.
-
-### 🛠️ Herramientas de Desarrollo e Interfaz (Dear ImGui)
-* El proyecto cuenta con una suite completa de depuración en tiempo real que se puede desplegar presionando `TAB`.
-* **Visor de Colisiones (AABB):** Dibuja las cajas de colisión para las paredes y los props del baño en tiempo real.
-* **Manipulador de Props:** Ajusta en vivo la posición, rotación y escala de todos los modelos 3D y luces del mapa.
-* **Probador de Animaciones:** Permite reproducir e inspeccionar las animaciones óseas del modelo glTF (`gnome.glb`).
-
-### 📦 Motor Gráfico & Multimedia
-* **Carga de Modelos 3D Complejos:** Integración con **Assimp** para procesar mallas complejas (archivos `.obj` como laptops, puertas, cables, etc.) y archivos `.gltf`/`.glb` con soporte de animación de esqueletos (huesos).
-* **Audio Inmersivo:** Integración de **miniaudio** para reproducir música ambiental en bucle (`music.mp3`) y reproducir efectos de sonido posicionales (`collect.wav`, `click.wav`, `start.wav`).
-* **Iluminación Avanzada:** Iluminación ambiental y difusa basada en múltiples fuentes de luz dinámicas (Point Lights) con una fórmula de atenuación suave similar a la de *Unreal Engine*, además de la linterna principal (Spotlight).
+You wake up in an abandoned and silent laboratory. Your only companion is a dim flashlight. The system warns of a replication anomaly: the copy no longer obeys and is learning your movements...
 
 ---
 
-## 🎹 Controles del Juego
+## 🚀 Key Features
 
-| Tecla | Acción |
+### 🎮 Gameplay Mechanics (Survival Horror)
+* **Stamina and Exhaustion:** Running (`Left Shift`) drains your energy. If it is completely depleted, you will enter an exhausted state that requires recovery before you can run again.
+* **Organic Movement (Head Bobbing):** Dynamic camera simulation when walking or running for complete immersion.
+* **Dynamic Flashlight (Spotlight):** A realistic first-person flashlight attached to the player's view, with realistic quadratic attenuation and intensity.
+* **Keycard System:** Collect the **Yellow Keycard (Level 1)** and the **Red Keycard (Level 2)** to unlock new sections of the map with fluid real-time 3D animations for the double metal doors.
+* **Alternate Dimension (Distortion):** Find the **3 hidden batteries**, reactivate the power console in the main laboratory, and cross the threshold. The environment will lose stability, changing to a blood-red tone, with temporal ripple shaders and dynamic vignetting.
+* **The Mimicking Threat:** An entity lurks in the darkness. It follows the *Weeping Angel* rule: it only moves when you stop looking directly at it. If it reaches you, you will be replaced.
+* **Interactive Lore:** Examine notes, crew logs, and terminal screens with an interactive on-screen typewriter viewer.
+
+### 🛠️ Development Tools & Interface (Dear ImGui)
+* The project features a complete real-time debugging suite that can be toggled by pressing `TAB`.
+* **Collision Viewer (AABB):** Draws collision boxes for walls and bathroom props in real-time.
+* **Prop Manipulator:** Live-adjust the position, rotation, and scale of all 3D models and lights on the map.
+* **Animation Tester:** Allows playing and inspecting the skeletal (bone) animations of the glTF model (`gnome.glb`).
+
+### 📦 Graphics Engine & Multimedia
+* **Complex 3D Model Loading:** Integration with **Assimp** to process complex meshes (`.obj` files such as laptops, doors, cables, etc.) and `.gltf`/`.glb` files with skeletal (bone) animation support.
+* **Immersive Audio:** Integration of **miniaudio** to play looping background music (`music.mp3`) and spatial/positional sound effects (`collect.wav`, `click.wav`, `start.wav`).
+* **Advanced Lighting:** Ambient and diffuse lighting based on multiple dynamic light sources (Point Lights) with a smooth attenuation formula similar to *Unreal Engine*, in addition to the main flashlight (Spotlight).
+
+---
+
+## 🎹 Game Controls
+
+| Key | Action |
 | :--- | :--- |
-| **`W` / `A` / `S` / `D`** | Moverse por el laboratorio |
-| **`Mouse`** | Girar la cámara (Mirar alrededor) |
-| **`Shift Izquierdo`** | Sprintar (Correr consumiendo estamina) |
-| **`E`** | Interactuar (Abrir cajones/puertas, recoger tarjetas/baterías, usar consola, leer notas) |
-| **`F`** | Encender / Apagar la Linterna |
-| **`TAB`** | Bloquear/Desbloquear cursor para interactuar con el panel de depuración (ImGui) |
-| **`ESC`** | Salir del juego (o cerrar documento en lectura) |
-| **`SPACE` / `ENTER`** | Iniciar el juego desde el menú principal |
+| **`W` / `A` / `S` / `D`** | Move through the laboratory |
+| **`Mouse`** | Rotate camera (Look around) |
+| **`Left Shift`** | Sprint (Run while consuming stamina) |
+| **`E`** | Interact (Open drawers/doors, pick up keycards/batteries, use console, read notes) |
+| **`F`** | Toggle Flashlight On / Off |
+| **`TAB`** | Lock/Unlock cursor to interact with the debug panel (ImGui) |
+| **`ESC`** | Exit game (or close reading document) |
+| **`SPACE` / `ENTER`** | Start the game from the main menu |
 
 ---
 
-## 📂 Estructura del Proyecto
+## 📂 Project Structure
 
 ```text
 Practicas-C/
-├── assets/                  # Modelos 3D (.glb, .obj), texturas y archivos de audio
-│   ├── gnome.glb            # Modelo del enemigo animado
-│   ├── Bano.glb, Urinario...# Props 3D para el entorno del baño
-│   ├── laptop.obj, cables.obj# Modelos 3D auxiliares en formato OBJ
-│   ├── music.mp3, click.wav # Banda sonora y efectos de sonido
-│   └── *.png, *.jpg         # Texturas del mapa y del cielo
-├── include/                 # Cabeceras externas (GLM, stb_image, miniaudio, ImGui, GLAD)
-├── src/                     # Código fuente de la aplicación
-│   ├── headers/             # Archivos de cabecera custom (.h)
-│   │   ├── game_state.h     # Estado global, variables y mapa
-│   │   ├── gameplay.h       # Prototipos de colisiones e interacción
+├── assets/                  # 3D Models (.glb, .obj), textures, and audio files
+│   ├── gnome.glb            # Animated enemy model
+│   ├── Bano.glb, Urinario...# 3D props for the bathroom environment
+│   ├── laptop.obj, cables.obj# Auxiliary 3D models in OBJ format
+│   ├── music.mp3, click.wav # Soundtrack and sound effects
+│   └── *.png, *.jpg         # Map and skybox textures
+├── include/                 # External headers (GLM, stb_image, miniaudio, ImGui, GLAD)
+├── src/                     # Application source code
+│   ├── headers/             # Custom header files (.h)
+│   │   ├── game_state.h     # Global state, variables, and map
+│   │   ├── gameplay.h       # Collision and interaction prototypes
 │   │   └── ...
-│   ├── shaders/             # Shaders GLSL de vértices y fragmentos
-│   │   ├── vertex.vert      # Deformación dimensional y matriz de huesos
-│   │   └── fragment.frag    # Spotlight, luces de zona y filtros de distorsión
-│   ├── main.cpp             # Bucle principal de renderizado e inicialización de OpenGL
-│   ├── gameplay.cpp         # Lógica de juego, colisiones AABB y movimiento
-│   └── game_state.cpp       # Definición del mapa 50x50 y entidades
-├── CMakeLists.txt           # Configuración del proyecto de CMake (compila en Windows/macOS/Linux)
-├── compilar_y_correr.bat    # Script de automatización para Windows (CMake + VS Build)
-└── Makefile                 # Configuración de compilación nativa para Unix (macOS/Linux)
+│   ├── shaders/             # GLSL vertex and fragment shaders
+│   │   ├── vertex.vert      # Dimensional deformation and bone matrix
+│   │   └── fragment.frag    # Spotlight, zone lights, and distortion filters
+│   ├── main.cpp             # Main rendering loop and OpenGL initialization
+│   ├── gameplay.cpp         # Game logic, AABB collisions, and movement
+│   └── game_state.cpp       # 50x50 map definition and entities
+├── CMakeLists.txt           # CMake project configuration (compiles on Windows/macOS/Linux)
+├── compilar_y_correr.bat    # Automation script for Windows (CMake + VS Build)
+└── Makefile                 # Native compilation configuration for Unix (macOS/Linux)
 ```
 
 ---
 
-## 🛠️ Requisitos del Sistema
+## 🛠️ System Requirements
 
 ### Windows
-1. **Visual Studio 2022 o 2025** con la carga de trabajo **"Desarrollo de escritorio con C++"** instalada.
-2. **CMake** (se incluye soporte para autodetectar las rutas por defecto de MSVC).
+1. **Visual Studio 2022 or 2025** with the **"Desktop development with C++"** workload installed.
+2. **CMake** (includes support for auto-detecting default MSVC paths).
 
 > [!NOTE]
-> **El proyecto incluye todas sus dependencias precompiladas para Windows.** No es necesario instalar GLFW ni FreeGLUT manualmente. El script de CMake copiará automáticamente las DLLs necesarias (`freeglut.dll`, `glfw3.dll` y la DLL de Assimp) a la carpeta de salida al compilar.
+> **The project includes all its precompiled dependencies for Windows.** There is no need to manually install GLFW or FreeGLUT. The CMake script will automatically copy the required DLLs (`freeglut.dll`, `glfw3.dll`, and the Assimp DLL) to the output folder during compilation.
 
 ### macOS / Linux
-1. Herramientas de compilación (`clang` o `gcc`, `make` y `cmake`).
-2. Instalar las dependencias de OpenGL, GLFW3, FreeGLUT y Assimp a través de tu gestor de paquetes de preferencia:
+1. Compilation tools (`clang` or `gcc`, `make`, and `cmake`).
+2. Install OpenGL, GLFW3, FreeGLUT, and Assimp dependencies through your preferred package manager:
    ```bash
    # macOS (Homebrew)
    brew install glfw freeglut assimp glm
@@ -97,37 +97,37 @@ Practicas-C/
 
 ---
 
-## ⚙️ ¿Cómo Compilar y Ejecutar?
+## ⚙️ How to Build and Run?
 
 > [!IMPORTANT]
-> Si acabas de clonar el repo (o cambió el commit del submódulo), inicializa/actualiza submódulos antes de compilar:
+> If you have just cloned the repo (or the submodule commit changed), initialize/update submodules before building:
 > ```bash
 > git submodule update --init --recursive
 > ```
 
-### Método 1: Script Automatizado (Recomendado - Solo Windows)
-1. Haz **doble clic** sobre el archivo `compilar_y_correr.bat` en la raíz del proyecto.
-2. El script detectará la instalación de Visual Studio 2022/2025 o tu CMake global, limpiará compilaciones previas, configurará CMake y compilará la versión de lanzamiento (`Release`).
-3. Al finalizar con éxito, el videojuego se abrirá automáticamente.
+### Method 1: Automated Script (Recommended - Windows Only)
+1. **Double-click** the `compilar_y_correr.bat` file in the project root.
+2. The script will detect the installation of Visual Studio 2022/2025 or your global CMake, clean previous builds, configure CMake, and build the release version (`Release`).
+3. Upon successful completion, the game will launch automatically.
 
-### Método 2: VS Code con CMake Tools (Multiplataforma)
-1. Abre esta carpeta en **VS Code**.
-2. Instala la extensión **CMake Tools** si aún no la tienes.
-3. Presiona `Ctrl + Shift + P`, escribe `CMake: Configure` y selecciona tu compilador.
-4. Presiona el botón **Build** en la barra inferior (o presiona `F7`), y luego ejecuta con el botón **Play** (o `Shift + F5`).
+### Method 2: VS Code with CMake Tools (Cross-platform)
+1. Open this folder in **VS Code**.
+2. Install the **CMake Tools** extension if you don't have it yet.
+3. Press `Ctrl + Shift + P`, type `CMake: Configure`, and select your compiler.
+4. Press the **Build** button on the bottom bar (or press `F7`), and then run with the **Play** button (or `Shift + F5`).
 
-### Método 3: Visual Studio Directamente
-1. Abre Visual Studio.
-2. Selecciona **"Abrir una carpeta local"** y elige la carpeta de este repositorio.
-3. Visual Studio detectará el archivo `CMakeLists.txt` de manera automática y comenzará la indexación de dependencias.
-4. Selecciona `app.exe` en la lista de objetivos de inicio y presiona el botón verde de reproducción.
+### Method 3: Directly via Visual Studio
+1. Open Visual Studio.
+2. Select **"Open a local folder"** and choose this repository's folder.
+3. Visual Studio will automatically detect the `CMakeLists.txt` file and begin indexing dependencies.
+4. Select `app.exe` from the startup target list and click the green play button.
 
 ---
 
-## ⚠️ Consejos para Desarrolladores
+## ⚠️ Tips for Developers
 
 > [!IMPORTANT]
-> **Consistencia de Colisiones:** Las colisiones del jugador usan un radio esférico de `0.25f` contra las cajas delimitadoras AABB de los props del baño cargados por Assimp (`banoGLTF->GetWorldAABB(model)`). Asegúrate de que las transformaciones y escalas aplicadas al renderizar un prop coincidan exactamente con las calculadas en la función `checkCollision` en `src/gameplay.cpp` para evitar paredes y obstáculos invisibles desalineados.
+> **Collision Consistency:** Player collisions use a spherical radius of `0.25f` against the AABB bounding boxes of the bathroom props loaded by Assimp (`banoGLTF->GetWorldAABB(model)`). Ensure that the transformations and scales applied when rendering a prop exactly match those calculated in the `checkCollision` function in [gameplay.cpp](file:///C:/c++/Practicas-C/src/gameplay.cpp) to prevent misaligned walls and invisible obstacles.
 
 > [!TIP]
-> **Gestión de Recursos (Assets):** Si agregas nuevos modelos 3D o archivos de audio, colócalos dentro del directorio `assets/`. CMake copiará los archivos binarios de dependencias, pero el ejecutable busca los recursos de manera relativa al directorio de trabajo de ejecución (el cual normalmente debe apuntar a la raíz del repositorio, donde se encuentra la carpeta `assets/`).
+> **Resource Management (Assets):** If you add new 3D models or audio files, place them inside the `assets/` directory. CMake will copy binary dependency files, but the executable searches for resources relative to the working execution directory (which should normally point to the repository root, where the `assets/` folder is located).
