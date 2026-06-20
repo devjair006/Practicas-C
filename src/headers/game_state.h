@@ -611,6 +611,12 @@ inline std::string getModelArea(const std::string& modelName) {
         "ascensor", "caja-electrica", "plataforma",
         "ducto", "ghost", "head"
     };
+    // --- Sala Pruebas ---
+    static const std::unordered_set<std::string> kSalaPruebas = {
+    };
+    // --- Sala Generadores ---
+    static const std::unordered_set<std::string> kSalaGeneradores = {
+    };
 
     if (kContencion.count(modelName)) return "Contencion";
     if (kArchivo.count(modelName))    return "Archivo";
@@ -618,6 +624,8 @@ inline std::string getModelArea(const std::string& modelName) {
     if (kDescanso.count(modelName))   return "Descanso";
     if (kBano.count(modelName))       return "Baño";
     if (kAscensor.count(modelName))   return "Ascensor";
+    if (kSalaPruebas.count(modelName)) return "sala-pruebas";
+    if (kSalaGeneradores.count(modelName)) return "sala-generadores";
     return "General";
 }
 

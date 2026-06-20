@@ -3471,7 +3471,8 @@ int main() {
         // Areas basadas en carpetas reales de assets/ que contienen .glb
         static const char *kAreaNames[] = {"Todas",   "General",  "Contencion",
                                            "Archivo", "Oficinas", "Descanso",
-                                           "Baño",    "Ascensor"};
+                                           "Baño",    "Ascensor", "sala-pruebas",
+                                           "sala-generadores"};
         static int areaFilterIdx = 0; // 0 = Todas
         ImGui::SetNextItemWidth(-1.0f);
         ImGui::Combo("##AreaFiltro", &areaFilterIdx, kAreaNames,
