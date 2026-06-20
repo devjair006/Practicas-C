@@ -49,7 +49,7 @@ New-Item -ItemType Directory -Path "dist_game" | Out-Null
 
 # 3. Copiar ejecutable y renombrarlo para mayor claridad
 Write-Host "[3/5] Copiando ejecutable..." -ForegroundColor Yellow
-Copy-Item -Path $exePath -Destination "dist_game\PracticasOpenGL.exe"
+Copy-Item -Path $exePath -Destination "dist_game\Proyecto-Confidencial.exe"
 
 # 4. Copiar todas las DLLs necesarias
 Write-Host "[4/5] Copiando librerías dinámicas (.dll)..." -ForegroundColor Yellow
@@ -68,7 +68,7 @@ if (Test-Path "assets") {
 }
 
 # 6. Comprimir en un archivo ZIP
-$zipName = "PracticasOpenGL_Release.zip"
+$zipName = "Proyecto-Confidencial_Release.zip"
 Write-Host ""
 Write-Host "Comprimiendo todo en $zipName..." -ForegroundColor Green
 if (Test-Path $zipName) {
@@ -79,4 +79,4 @@ Compress-Archive -Path "dist_game" -DestinationPath $zipName -Force
 Write-Host ""
 Write-Host "¡Proceso terminado con éxito!" -ForegroundColor Green
 Write-Host "Puedes compartir '$zipName' con cualquier persona para que juegue." -ForegroundColor Green
-Write-Host "Para jugar, solo deben extraer el ZIP y abrir 'PracticasOpenGL.exe'." -ForegroundColor Green
+Write-Host "Para jugar, solo deben extraer el ZIP y abrir 'Proyecto-Confidencial.exe'." -ForegroundColor Green

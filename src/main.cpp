@@ -1514,7 +1514,8 @@ int main() {
     };
     std::vector<LightProp> emittingProps;
     for (const auto &prop : placedProps) {
-      if (prop.modelName == "emergency" || prop.modelName == "ligthbathroom") {
+      if (prop.modelName == "emergency" || prop.modelName == "ligthbathroom" ||
+          prop.modelName == "lampara" || prop.modelName == "lampara2") {
         float d2 = glm::distance2(cameraPos, prop.pos);
         if (d2 <= 18.0f * 18.0f)
           emittingProps.push_back({&prop, d2});
@@ -1536,6 +1537,8 @@ int main() {
       assignedPointSlots[&prop] = slot;
       bool isEmergency = (prop.modelName == "emergency");
       bool isBano = (prop.modelName == "ligthbathroom");
+      bool isLampara = (prop.modelName == "lampara");
+      bool isLampara2 = (prop.modelName == "lampara2");
 
       if (isEmergency) {
         glUniform3fv(pointLightPosLoc[slot], 1, glm::value_ptr(prop.pos));
@@ -1547,6 +1550,17 @@ int main() {
         float f = getFlicker(currentFrame, slot * 7.13f);
         glUniform3fv(pointLightPosLoc[slot], 1, glm::value_ptr(prop.pos));
         glUniform3f(pointLightColLoc[slot], 0.6f * f, 0.45f * f, 0.15f * f);
+        glUniform1f(pointLightRadLoc[slot], 3.5f);
+        currentSlotIdx++;
+      } else if (isLampara) {
+        glUniform3fv(pointLightPosLoc[slot], 1, glm::value_ptr(prop.pos));
+        glUniform3f(pointLightColLoc[slot], 0.15f, 0.15f, 0.15f);
+        glUniform1f(pointLightRadLoc[slot], 2.0f);
+        currentSlotIdx++;
+      } else if (isLampara2) {
+        float f = getFlicker(currentFrame, slot * 7.13f);
+        glUniform3fv(pointLightPosLoc[slot], 1, glm::value_ptr(prop.pos));
+        glUniform3f(pointLightColLoc[slot], 0.6f * f, 0.6f * f, 0.6f * f);
         glUniform1f(pointLightRadLoc[slot], 3.5f);
         currentSlotIdx++;
       }
@@ -2458,11 +2472,15 @@ int main() {
       // debe brillar con el parpadeo, igual que las lamparas fijas.
       bool esLamparaReactor = (prop.modelName == "lampara-reactor");
       bool esMiniLampara = (prop.modelName == "mini-lampara");
+      bool esLampara = (prop.modelName == "lampara");
+      bool esLampara2 = (prop.modelName == "lampara2");
       float lampGlow = 0.0f;
       float miniLampFlicker = 1.0f;
 
       if (esLuzBano) {
         pModel = glm::translate(pModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
+      }
+      if (esLuzBano || esLampara2) {
         // Mismo parpadeo que la luz puntual asociada (mismo offset por indice)
         if (associatedSlot >= 0 && associatedSlot < 32)
           lampGlow = getFlicker(currentFrame, associatedSlot * 7.13f);
@@ -2477,14 +2495,14 @@ int main() {
 
       bool hasAnims = (model->m_Scene && model->m_Scene->HasAnimations());
       bool needsIndividualDraw = esLuzBano || esLamparaReactor ||
-                                 esMiniLampara || esEmergency || hasAnims;
+                                 esMiniLampara || esEmergency || esLampara || esLampara2 || hasAnims;
       if (!needsIndividualDraw) {
         propInstanceBatches[model].push_back(pModel);
         continue;
       }
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
-      if (esLuzBano)
+      if (esLuzBano || esLampara2)
         glUniform1f(emissiveStrengthLoc, 1.0f * lampGlow);
       if (esLamparaReactor)
         glUniform1f(emissiveStrengthLoc, 0.9f * lampFlicker);
@@ -2492,6 +2510,8 @@ int main() {
         glUniform1f(emissiveStrengthLoc, 0.8f * miniLampFlicker);
       if (esEmergency)
         glUniform1f(emissiveStrengthLoc, 0.40f + 0.80f * emergencyPulse);
+      if (esLampara)
+        glUniform1f(emissiveStrengthLoc, 0.25f);
 
       bool esAscensor = (prop.modelName == "ascensor");
       if (esAscensor)

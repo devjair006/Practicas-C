@@ -4,9 +4,9 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include "headers/animated_entity.h"
 #include "headers/gameplay.h"
 #include "headers/localization.h"
-#include "headers/animated_entity.h"
 
 #include <cmath>
 #include <iostream>
@@ -42,9 +42,8 @@ bool isPlayerNearProp(const PlacedProp &prop, const GLTFModel *model,
   float scaledZ = std::abs(localSize.z * prop.scale.z);
   float broadRadius =
       (std::max)(2.0f, 0.5f * glm::length(glm::vec2(scaledX, scaledZ)) +
-                            playerRadius + 0.75f);
-  glm::vec2 delta(prop.pos.x - playerPosition.x,
-                  prop.pos.z - playerPosition.z);
+                           playerRadius + 0.75f);
+  glm::vec2 delta(prop.pos.x - playerPosition.x, prop.pos.z - playerPosition.z);
   return glm::dot(delta, delta) <= broadRadius * broadRadius;
 }
 } // namespace
@@ -302,8 +301,7 @@ bool checkCollision(float x, float z) {
                                   prop.rot.z, scaledHalfSize)) {
         return true;
       }
-    }
- else {
+    } else {
       // Colision estándar AABB del modelo
       glm::mat4 modelMat = glm::mat4(1.0f);
       modelMat = glm::translate(modelMat, prop.pos);
@@ -390,10 +388,11 @@ void tryOpenDoor(GLFWwindow *window) {
       firstMouse = true;
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       printTypewriter(getText("TYPE_PANEL_INIT"));
-      
+
       // Seed dynamically and deterministically using coordinates
-      symbolPuzzleTargetSymbol = (gridX * 13 + gridZ * 7) % 6; // 6 is numSymbols
-      
+      symbolPuzzleTargetSymbol =
+          (gridX * 13 + gridZ * 7) % 6; // 6 is numSymbols
+
       // Make sure wheels do not start already aligned to targetSymbol
       symbolPuzzleWheelIndices[0] = (symbolPuzzleTargetSymbol + 1) % 6;
       symbolPuzzleWheelIndices[1] = (symbolPuzzleTargetSymbol + 3) % 6;
@@ -405,7 +404,8 @@ void tryOpenDoor(GLFWwindow *window) {
             worldMap[gridZ][cx] = -8;
         }
         door1Opening = true;
-        printTypewriter(std::string(getText("TYPE_YELLOW_ACCEPTED")) + std::to_string(currentZone + 1));
+        printTypewriter(std::string(getText("TYPE_YELLOW_ACCEPTED")) +
+                        std::to_string(currentZone + 1));
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
         printTypewriter(getText("TYPE_DOOR_LOCKED_YELLOW"));
@@ -417,7 +417,8 @@ void tryOpenDoor(GLFWwindow *window) {
             worldMap[gridZ][cx] = -9;
         }
         door2Opening = true;
-        printTypewriter(std::string(getText("TYPE_RED_ACCEPTED")) + std::to_string(currentZone + 1));
+        printTypewriter(std::string(getText("TYPE_RED_ACCEPTED")) +
+                        std::to_string(currentZone + 1));
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
         printTypewriter(getText("TYPE_DOOR_LOCKED_RED"));
@@ -460,12 +461,15 @@ void processInput(GLFWwindow *window) {
   if (gameState == GAMEOVER || gameWon)
     return;
 
-  if (!isReadingDocument && !wirePuzzleActive && !symbolPuzzleActive && !switch1Active && !switch2Active && !switch3Active) {
+  if (gameState == PLAYING && !isReadingDocument && !wirePuzzleActive &&
+      !symbolPuzzleActive && !switch1Active && !switch2Active &&
+      !switch3Active) {
     gameTimer -= deltaTime;
     if (gameTimer <= 0.0f) {
       gameTimer = 0.0f;
       gameState = GAMEOVER;
-      printTypewriter("El tiempo se ha agotado. El sistema de ventilacion fallo.");
+      printTypewriter(
+          "El tiempo se ha agotado. El sistema de ventilacion fallo.");
       return;
     }
   }
@@ -506,8 +510,9 @@ void processInput(GLFWwindow *window) {
   }
 
   if (gameState == MENU) {
-    if (!menuOpcionesActivo && (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)) {
+    if (!menuOpcionesActivo &&
+        (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ||
+         glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)) {
       gameState = PLAYING;
       isCursorLocked = true;
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -797,8 +802,9 @@ void processInput(GLFWwindow *window) {
                   << std::endl;
         std::cout << "               SISTEMA CAIDO - REINICIO IMPOSIBLE        "
                   << std::endl;
-        std::cout << "=========================================================\n"
-                  << std::endl;
+        std::cout
+            << "=========================================================\n"
+            << std::endl;
         printTypewriter(getText("TYPE_COPY_COMPLETE"));
         std::cout << "Presiona ESC para salir." << std::endl;
       }
@@ -808,9 +814,8 @@ void processInput(GLFWwindow *window) {
   // --- INTERACCION AUTOMATICA CON SANGRE (desde placedProps) ---
   if (justPressedE) {
     for (const auto &prop : placedProps) {
-      if (prop.modelName == "sangre-piso" ||
-          prop.modelName == "sangre-piso2" || prop.modelName == "help" ||
-          prop.modelName == "it-sees-you") {
+      if (prop.modelName == "sangre-piso" || prop.modelName == "sangre-piso2" ||
+          prop.modelName == "help" || prop.modelName == "it-sees-you") {
         float dist = glm::length(prop.pos - cameraPos);
         glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos)
                                         : glm::vec3(0.0f);
@@ -823,7 +828,8 @@ void processInput(GLFWwindow *window) {
 
       if (prop.modelName == "caja-electrica") {
         float dist = glm::length(prop.pos - cameraPos);
-        glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos) : glm::vec3(0.0f);
+        glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos)
+                                        : glm::vec3(0.0f);
         float look = glm::dot(cameraFront, dir);
 
         if (dist < 2.0f && look > 0.85f) {
@@ -859,7 +865,7 @@ void processInput(GLFWwindow *window) {
     if (door2Anim > 90.0f)
       door2Anim = 90.0f;
   }
-  for (auto& pair : activeDoorsAnim) {
+  for (auto &pair : activeDoorsAnim) {
     if (pair.second < 90.0f) {
       pair.second += 120.0f * deltaTime;
       if (pair.second > 90.0f)
