@@ -366,4 +366,4 @@ lampara2 29.3 0.5 29.492 -90.5 0 -91 1 7.96 1.13 0 sala-generadores
 lampara2 37.85 0.5 29.492 -90.5 0 -91 1 7.96 1.13 0 sala-generadores
 interruptor 46.237 -0.15 3.898 90 1 180 0.01 0.01 0.01 0 General
 interruptor 41.157 0.000206301 33.187 -90.5 180 90.5 0.01 0.01 0.01 0 Ascensor
-interruptor 22.304 -0.047 20.844 90.5 0.5 180 0.01 0.01 0.01 1 General
+interruptor 22.304 -0.047 20.844 90.5 0.5 180 0.01 0.01 0.01 1 Generalcompu_destruida 18.35 -0.3 4.15 0 -90 0 0.55 0.55 0.55 0 Descanso
