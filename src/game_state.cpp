@@ -789,8 +789,6 @@ void loadLevelProps(const std::string &path) {
       placedProps.push_back(
           {"girlB", girlBpos, girlBrot, girlBscale, true, "Baño"});
       placedProps.push_back(
-          {"azule", azulejoPos, azulejoRot, azulejoScale, true, "Baño"});
-      placedProps.push_back(
           {"mirror", mirrorPos, mirrorRot, mirrorScale, true, "Baño"});
       placedProps.push_back(
           {"mirror", mirrorPos2, mirrorRot2, mirrorScale2, true, "Baño"});

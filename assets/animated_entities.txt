@@ -1,5 +1,5 @@
 # Animated entities v1
-ENTITY "esqueleto" "assets/entidadesanimadas/esqueleto.glb" 42.7 -0.65 22.6 0 0 0 1 1 1 1 1 1.02 1 270 1 4.5 0.92 1 1 1 0 0 0 0 0 1 1 1 1 100 1 0 1 0.45 1.5 0.2 1 2
+ENTITY "esqueleto" "assets/entidadesanimadas/esqueleto.glb" 42.7 -0.65 22.6 0 0 0 1 1 1 1 1 1.02 1 270 2 4.5 0.92 1 1 1 0 0 0 0 0 1 1 1 1 100 1 0 1 0.45 1.5 0.2 1 2
 ACTION 3 0 1 1 0 0 0 1 "[RUIDO]: El esqueleto se sobresalta..."
 ACTION 1 1 0 1 0 0 0 0 ""
 ACTION 2 0 1 5.5 12.5 -1 22.3 1 ""
