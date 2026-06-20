@@ -616,7 +616,7 @@ int whiteDoorGridZ = -1;
 int symbolPuzzleTargetSymbol = 0;
 int symbolPuzzleWheelIndices[3] = { 0, 0, 0 };
 
-float gameTimer = 300.0f; // 5 minutes in seconds
+float gameTimer = 600.0f; // 10 minutes in seconds
 bool switch1Active = false;
 bool switch2Active = false;
 bool switch3Active = false;
