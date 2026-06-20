@@ -2,6 +2,8 @@
 build/
 build_win/
 .cache/
+Proyecto-Confidencial_Release.zip
+
 # .vscode/ -- NO ignorar, contiene configuración de compilación para el equipo
 
 # Ejecutables y binarios
