@@ -23,3 +23,5 @@ Makefile
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+dist/CopiaConfidencial/
+dist/CopiaConfidencial.zip
