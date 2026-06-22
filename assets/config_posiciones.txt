@@ -1,4 +1,4 @@
-cajonesOF 1.08317 -0.5 17.7575 0 0 0 1 1 1 0 Contencion
+cajonesOF 22.23 -0.35 2.96275 0 -8 0 1 1 1 0 Contencion
 cajonesOF 22.23 -0.5 2.96275 0 -8 0 1 1 1 0 Contencion
 sarcofago 43.235 -0.1 12.691 0 0 0 1.26 1.06 0.93 1 Contencion
 warning 39.993 0.2 20.866 -89 -180 -0.5 1.41 0.95 1.57 1 Contencion
@@ -367,3 +367,8 @@ lampara2 37.85 0.5 29.492 -90.5 0 -91 1 7.96 1.13 0 sala-generadores
 interruptor 46.237 -0.15 3.898 90 1 180 0.01 0.01 0.01 0 General
 interruptor 41.157 0.000206301 33.187 -90.5 180 90.5 0.01 0.01 0.01 0 Ascensor
 interruptor 22.304 -0.047 20.844 90.5 0.5 180 0.01 0.01 0.01 1 Generalcompu_destruida 18.35 -0.3 4.15 0 -90 0 0.55 0.55 0.55 0 Descanso
+morgue_refrigerator 0.536 -0.2 29.3553 0 92.5 0 0.003 0.003 0.003 1 experimental
+morgue_refrigerator 0.436 -0.2 27.255 0 92.5 0 0.003 0.003 0.003 1 experimental
+medical_table 1.494 -0.45 31.233 -92 0.5 180 0.015 0.015 0.011 1 experimental
+morgue_refrigerator 0.636 -0.2 31.455 0 92.5 0 0.003 0.003 0.003 1 experimental
+control_panel 2 -0.15 32.7299 -22 -165.5 -9.5 0.55 0.68 0.61 1 experimental
