@@ -701,6 +701,11 @@ int main() {
   unsigned int roofDescansoTex =
       loadTextureWithFallback("assets/descanso/techo.png", floorTexture);
 
+  // Piso del área de Oficinas. Si aún no existe assets/oficinas/piso.png se usa
+  // la textura por defecto como fallback. Coloca tu imagen ahí para cambiarla.
+  unsigned int floorOficinasTex =
+      loadTextureWithFallback("assets/oficinas/piso.png", floorTexture);
+
   // Texturas especÃ­ficas con fallback
   unsigned int batteryTex =
       loadTextureWithFallback("assets/battery.png", clueTexture);
@@ -1098,6 +1103,19 @@ int main() {
        true,
        true}, // Sala de Descanso (cuarto superior izquierdo)
 
+      {14,
+       2,
+       30,
+       8,
+       wallTex1,       // pared (sin usar: overrideWall=false)
+       floorOficinasTex,
+       floorTexture,   // techo (sin usar: overrideCeil=false)
+       {0.3f, 0.3f, 0.3f},
+       false,          // overrideWall: conserva las paredes actuales
+       true,           // overrideFloor: aplica el piso de oficinas
+       false},         // overrideCeil: conserva el techo actual
+                       // Oficinas (sala central-superior, solo piso)
+
       {}, // pisos
   };
 
@@ -1106,6 +1124,25 @@ int main() {
       if (gx >= rz.x1 && gx <= rz.x2 && gz >= rz.z1 && gz <= rz.z2)
         return &rz;
     return nullptr;
+  };
+
+  // --- PASILLOS ---
+  // Celdas de los corredores que conectan las distintas áreas. A estos se les
+  // aplica el piso y el techo de la Sala de Descanso (floorDescansoTex /
+  // roofDescansoTex). NO incluye la sala General (centro/arriba), que son
+  // celdas abiertas pero pertenecen a una habitación, no a un pasillo.
+  auto isPasillo = [&](int gx, int gz) -> bool {
+    if (gz == 10 || gz == 11)
+      return true; // pasillo horizontal superior (conecta áreas de arriba)
+    if (gz == 22 || gz == 23)
+      return true; // pasillo horizontal inferior (conecta salas de abajo)
+    if ((gz == 0 || gz == 1) && gx >= 23 && gx <= 26)
+      return true; // entrada superior
+    if ((gx == 1 || gx == 2) && gz >= 12 && gz <= 24)
+      return true; // corredor vertical izquierdo
+    if (gx == 31 && gz >= 2 && gz <= 9)
+      return true; // conector vertical (zona de baños)
+    return false;
   };
 
   // --- STATIC MAP BATCHING ---
@@ -1227,7 +1264,9 @@ int main() {
         // Piso y Techo
 
         // Piso
-        unsigned int fTex = floorTexture;
+        // Piso por defecto: la textura del área de descanso. Las áreas con
+        // piso propio (overrideFloor=true) lo conservan y no se ven afectadas.
+        unsigned int fTex = floorDescansoTex;
         if (zone && zone->overrideFloor)
           fTex = zone->floorTex;
 
@@ -1245,6 +1284,9 @@ int main() {
         if (zone && zone->overrideCeil) {
           cCol = zone->ceilColor;
           cTex = zone->ceilTex;
+        } else if (!zone && isPasillo(x, z)) {
+          cTex = roofDescansoTex; // techo de descanso en los pasillos
+          cCol = glm::vec3(0.25f, 0.25f, 0.25f);
         }
 
         glm::mat4 roofModel = glm::mat4(1.0f);
