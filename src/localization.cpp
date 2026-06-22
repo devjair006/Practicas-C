@@ -32,11 +32,23 @@ std::map<std::string, std::map<Language, std::string>> dictionary = {
     {"INTRO_4", {{LANG_ES, "Moverte: W A S D  | Mirar: MOUSE | Sprint: SHIFT"}, {LANG_EN, "Move: W A S D  | Look: MOUSE | Sprint: SHIFT"}}},
     {"INTRO_5", {{LANG_ES, "Interactuar/Abrir Puertas: E | Linterna: F"}, {LANG_EN, "Interact/Open Doors: E | Flashlight: F"}}},
     {"INTRO_6", {{LANG_ES, "Busca TARJETAS DE ACCESO para avanzar a las siguientes salas."}, {LANG_EN, "Find ACCESS CARDS to advance to the next rooms."}}},
+    
+    // System Down
+    {"SYSTEM_DOWN_1", {{LANG_ES, "               SISTEMA CAIDO - REINICIO IMPOSIBLE        "}, {LANG_EN, "               SYSTEM DOWN - REBOOT IMPOSSIBLE           "}}},
+    {"HINT_ESC_EXIT", {{LANG_ES, "Presiona ESC para salir."}, {LANG_EN, "Press ESC to exit."}}},
+    {"CONSOLE_REACTIVATED", {{LANG_ES, "[SISTEMA REACTIVADO]... INICIANDO SECUENCIA DE COPIA."}, {LANG_EN, "[SYSTEM REACTIVATED]... INITIATING COPY SEQUENCE."}}},
+    {"CONSOLE_WARNING_COPY", {{LANG_ES, "[ADVERTENCIA]... ANOMALIA DETECTADA EN LA REPLICACION."}, {LANG_EN, "[WARNING]... ANOMALY DETECTED IN REPLICATION."}}},
+    {"CONSOLE_DISTORTION", {{LANG_ES, "El entorno pierde estabilidad. Los objetos empiezan a flotar."}, {LANG_EN, "The environment loses stability. Objects begin to float."}}},
+    {"CONSOLE_MISSING_BATS", {{LANG_ES, "\n[CONSOLA]: Energia principal fuera de linea. Faltan "}, {LANG_EN, "\n[CONSOLE]: Main power offline. Missing "}}},
+    {"CONSOLE_BATS_WORD", {{LANG_ES, " Baterias.\n"}, {LANG_EN, " Batteries.\n"}}},
+    {"CONSOLE_BAT_COLLECTED", {{LANG_ES, "\n[BATERIA RECOLECTADA]: Tienes "}, {LANG_EN, "\n[BATTERY COLLECTED]: You have "}}},
+    {"CONSOLE_EXHAUSTED", {{LANG_ES, "\n[AGITADO]: Te has quedado sin aliento.\n"}, {LANG_EN, "\n[EXHAUSTED]: You have run out of breath.\n"}}},
 
     // Typewriter
     {"TYPE_SCENE_1", {{LANG_ES, "ESCENA 1: PASILLO DE ACCESO"}, {LANG_EN, "SCENE 1: ACCESS CORRIDOR"}}},
     {"TYPE_SCENE_2", {{LANG_ES, "ESCENA 2: SALA DE CONTROL \nLuz verde tenue. "}, {LANG_EN, "SCENE 2: CONTROL ROOM \nDim green light. "}}},
     {"TYPE_SCENE_3", {{LANG_ES, "ESCENA 3: LABORATORIO PRINCIPAL\nEncuentras la esfera "}, {LANG_EN, "SCENE 3: MAIN LABORATORY\nYou find the sphere "}}},
+    {"TYPE_SCENE_4_5", {{LANG_ES, "ESCENA 4 & 5: ACTIVACION Y DISTORSION DE LA REALIDAD"}, {LANG_EN, "SCENE 4 & 5: ACTIVATION AND REALITY DISTORTION"}}},
     {"TYPE_PANEL_INIT", {{LANG_ES, "[SISTEMA]: Inicializando panel de alineacion de simbolos."}, {LANG_EN, "[SYSTEM]: Initializing symbol alignment panel."}}},
     {"TYPE_PANEL_SOLVED", {{LANG_ES, "[SISTEMA]: Resolviendo panel. Camara estatica automatica."}, {LANG_EN, "[SYSTEM]: Solving panel. Automatic static camera."}}},
     {"TYPE_YELLOW_ACCEPTED", {{LANG_ES, "[PUERTA]: Tarjeta Amarilla Aceptada. Accediendo a Sala "}, {LANG_EN, "[DOOR]: Yellow Card Accepted. Accessing Room "}}},
@@ -87,6 +99,38 @@ std::map<std::string, std::map<Language, std::string>> dictionary = {
     {"INV_KEY_RED", {{LANG_ES, "T.Roja"}, {LANG_EN, "R.Card"}}},
     {"INV_KEY_BLUE", {{LANG_ES, "T.Azul"}, {LANG_EN, "B.Card"}}},
     {"INV_BATS", {{LANG_ES, "Bats:%d/3"}, {LANG_EN, "Bats:%d/3"}}},
+
+    // Entities and combat
+    {"[COMBATE]: cerdo eliminada.", {{LANG_ES, "[COMBATE]: Cerdo eliminado."}, {LANG_EN, "[COMBAT]: Pig eliminated."}}},
+    {"[COMBATE]: esqueleto eliminada.", {{LANG_ES, "[COMBATE]: Esqueleto eliminado."}, {LANG_EN, "[COMBAT]: Skeleton eliminated."}}},
+    {"[RUIDO]: El esqueleto se sobresalta...", {{LANG_ES, "[RUIDO]: El esqueleto se sobresalta..."}, {LANG_EN, "[NOISE]: The skeleton is startled..."}}},
+
+    // Game Over and Victory Screens
+    {"GAMEOVER_TITLE", {{LANG_ES, "FIN DEL JUEGO"}, {LANG_EN, "GAME OVER"}}},
+    {"GAMEOVER_DESC", {{LANG_ES, "El tiempo se agoto. La oscuridad te ha consumido."}, {LANG_EN, "Time ran out. The darkness has consumed you."}}},
+    {"VICTORY_TITLE", {{LANG_ES, "MISION COMPLETADA"}, {LANG_EN, "MISSION COMPLETED"}}},
+    {"VICTORY_DESC", {{LANG_ES, "La energia principal del laboratorio ha sido restablecida. Sistemas de contencion estables. Sistema de ventilacion reanudado."}, {LANG_EN, "Main laboratory power has been restored. Containment systems stable. Ventilation system resumed."}}},
+    {"BTN_EXIT", {{LANG_ES, "SALIR DEL JUEGO"}, {LANG_EN, "EXIT GAME"}}},
+    {"BTN_MAIN_MENU", {{LANG_ES, "MENU PRINCIPAL"}, {LANG_EN, "MAIN MENU"}}},
+
+    {"INV_ENERGY", {{LANG_ES, "Energia"}, {LANG_EN, "Energy"}}},
+
+    // Switches and Panels
+    {"HINT_INTERACT_SWITCH", {{LANG_ES, "Presiona Z para interactuar con el interruptor"}, {LANG_EN, "Press Z to interact with the switch"}}},
+    {"SWITCH_ACTIVATED", {{LANG_ES, "Interruptor activado."}, {LANG_EN, "Switch activated."}}},
+    {"ENERGY_RESTORED", {{LANG_ES, "¡Energia principal restablecida!"}, {LANG_EN, "Main energy restored!"}}},
+    {"TIME_OUT_VENT", {{LANG_ES, "El tiempo se ha agotado. El sistema de ventilacion fallo."}, {LANG_EN, "Time ran out. The ventilation system failed."}}},
+    
+    // Switch Panel ImGui
+    {"PANEL_TITLE_EMERGENCY", {{LANG_ES, "Panel Electrico de Emergencia"}, {LANG_EN, "Emergency Electrical Panel"}}},
+    {"PANEL_STATUS_ONLINE", {{LANG_ES, "Estado: EN LINEA"}, {LANG_EN, "Status: ONLINE"}}},
+    {"PANEL_STATUS_OFFLINE", {{LANG_ES, "Estado: DESCONECTADO"}, {LANG_EN, "Status: OFFLINE"}}},
+    {"PANEL_PULL_LEVER", {{LANG_ES, "Baja la palanca para restablecer:"}, {LANG_EN, "Pull the lever to restore:"}}},
+    {"PANEL_LEVER", {{LANG_ES, "Palanca"}, {LANG_EN, "Lever"}}},
+    {"BTN_CLOSE", {{LANG_ES, "Cerrar"}, {LANG_EN, "Close"}}},
+    {"SWITCH_ARCHIVE", {{LANG_ES, "Interruptor: Archivo"}, {LANG_EN, "Switch: Archive"}}},
+    {"SWITCH_LAB", {{LANG_ES, "Interruptor: Laboratorio"}, {LANG_EN, "Switch: Laboratory"}}},
+    {"SWITCH_ELEVATOR", {{LANG_ES, "Interruptor: Ascensor"}, {LANG_EN, "Switch: Elevator"}}},
 
     {"", {{LANG_ES, ""}, {LANG_EN, ""}}}
 };

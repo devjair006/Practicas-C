@@ -17,10 +17,12 @@ uniform int flashlightOn;
 
 uniform int dimensionAlterna;
 uniform int currentZone;
+uniform int allLightsOn;
 uniform float time;
 uniform vec2 resolution;
 uniform int useSolidColor;
 uniform float emissiveStrength;
+uniform float globalDarkness;
 
 struct PointLight {
     vec3 position;
@@ -60,6 +62,11 @@ void main() {
         ambientColor = vec3(0.3, 0.5, 1.0);
         flashColor = vec3(1.0, 1.0, 1.0);
         ambientStrength = 0.2;
+    }
+
+    if (allLightsOn == 1) {
+        ambientColor = vec3(1.0, 1.0, 1.0);
+        ambientStrength = 0.8;
     }
 
     if (dimensionAlterna == 1) {
@@ -146,6 +153,8 @@ void main() {
         float distToCenter = distance(uv, vec2(0.5));
         result *= smoothstep(0.9, 0.2, distToCenter);
     }
+
+    result *= globalDarkness;
 
     FragColor = texColor * vec4(result, 1.0);
 }

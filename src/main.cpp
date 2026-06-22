@@ -237,6 +237,14 @@ int main() {
           "assets/dragon-studio-cinematic-shotgun-with-reload-467480.mp3", 0,
           NULL, NULL, &shotgunFireSound) == MA_SUCCESS;
 
+  ma_sound doorProximitySound;
+  bool doorProximitySoundReady =
+      ma_sound_init_from_file(&audioEngine, "assets/puertas.mp3",
+                              MA_SOUND_FLAG_STREAM, NULL, NULL, &doorProximitySound) == MA_SUCCESS;
+  if (doorProximitySoundReady) {
+    ma_sound_set_looping(&doorProximitySound, MA_TRUE);
+  }
+
   // --- SETUP IMGUI ---
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -452,6 +460,7 @@ int main() {
 
   // --- ASCENSOR ---
   ascensorGLTF = new GLTFModel("assets/ascensor/ascensor.glb");
+  interruptorGLTF = new GLTFModel("assets/interruptor.glb");
   cajaElectricaGLTF = new GLTFModel("assets/ascensor/caja-electrica.glb");
   plataformaGLTF = new GLTFModel("assets/ascensor/plataforma.glb");
   ductoGLTF = new GLTFModel("assets/ascensor/ducto.glb");
@@ -559,6 +568,7 @@ int main() {
 
   // Ascensor
   modelRegistry["ascensor"] = ascensorGLTF;
+  modelRegistry["interruptor"] = interruptorGLTF;
   modelRegistry["caja-electrica"] = cajaElectricaGLTF;
   modelRegistry["plataforma"] = plataformaGLTF;
   modelRegistry["ducto"] = ductoGLTF;
@@ -734,6 +744,7 @@ int main() {
   int dimAlternaLoc = glGetUniformLocation(shaderProgram, "dimensionAlterna");
   int zoneLoc = glGetUniformLocation(shaderProgram, "currentZone");
   int timeLoc = glGetUniformLocation(shaderProgram, "time");
+  int globalDarknessLoc = glGetUniformLocation(shaderProgram, "globalDarkness");
   int resLoc = glGetUniformLocation(shaderProgram, "resolution");
   int solidColorLoc = glGetUniformLocation(shaderProgram, "useSolidColor");
   int texture1Loc = glGetUniformLocation(shaderProgram, "texture1");
@@ -1251,10 +1262,18 @@ int main() {
     glBindVertexArray(0);
   };
   buildStaticMapBatches();
+  float gameOverDarkness = 1.0f;
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = glfwGetTime();
     deltaTime = (std::min)(currentFrame - lastFrame, 0.05f);
     lastFrame = currentFrame;
+
+    if (gameState == GAMEOVER || gameWon) {
+      gameOverDarkness -= deltaTime * 0.5f;
+      if (gameOverDarkness < 0.0f) gameOverDarkness = 0.0f;
+    } else {
+      gameOverDarkness = 1.0f;
+    }
 
     if (hudMessageTimer > 0.0f) {
       hudMessageTimer -= deltaTime;
@@ -1360,6 +1379,35 @@ int main() {
       weaponAnimationTime += deltaTime;
     }
 
+    if (gameState == PLAYING && doorProximitySoundReady) {
+      bool nearClosedDoor = false;
+      int cx = (int)round(cameraPos.x);
+      int cz = (int)round(cameraPos.z);
+      for(int z = (std::max)(0, cz - 2); z <= (std::min)(MAP_HEIGHT-1, cz + 2); ++z) {
+          for(int x = (std::max)(0, cx - 2); x <= (std::min)(MAP_WIDTH-1, cx + 2); ++x) {
+              int b = worldMap[z][x];
+              if (b == 7 || b == 8 || b == 9 || b == 10 || b == 11) {
+                  float dist = glm::distance(glm::vec2(cameraPos.x, cameraPos.z), glm::vec2(x, z));
+                  if (dist < 2.5f) {
+                      nearClosedDoor = true;
+                      break;
+                  }
+              }
+          }
+          if(nearClosedDoor) break;
+      }
+      if (nearClosedDoor) {
+          if (!ma_sound_is_playing(&doorProximitySound)) {
+              ma_sound_start(&doorProximitySound);
+          }
+      } else {
+          if (ma_sound_is_playing(&doorProximitySound)) {
+              ma_sound_stop(&doorProximitySound);
+              ma_sound_seek_to_pcm_frame(&doorProximitySound, 0);
+          }
+      }
+    }
+
     animatedEntities.Update(deltaTime, cameraPos, cameraFront,
                             interactionPressedThisFrame,
                             gameState == PLAYING && !isReadingDocument);
@@ -1429,7 +1477,10 @@ int main() {
 
     glUniform1i(dimAlternaLoc, dimensionAlterna ? 1 : 0);
     glUniform1i(zoneLoc, currentZone);
+    int allLightsOnLoc = glGetUniformLocation(shaderProgram, "allLightsOn");
+    glUniform1i(allLightsOnLoc, allLightsOn ? 1 : 0);
     glUniform1f(timeLoc, currentFrame);
+    glUniform1f(globalDarknessLoc, gameOverDarkness);
     glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
     // espacio donde se le da las luces a las lamparas antes de poner su figura
     // .gltf o .obj
@@ -1512,7 +1563,8 @@ int main() {
     };
     std::vector<LightProp> emittingProps;
     for (const auto &prop : placedProps) {
-      if (prop.modelName == "emergency" || prop.modelName == "ligthbathroom") {
+      if (prop.modelName == "emergency" || prop.modelName == "ligthbathroom" ||
+          prop.modelName == "lampara" || prop.modelName == "lampara2") {
         float d2 = glm::distance2(cameraPos, prop.pos);
         if (d2 <= 18.0f * 18.0f)
           emittingProps.push_back({&prop, d2});
@@ -1534,6 +1586,8 @@ int main() {
       assignedPointSlots[&prop] = slot;
       bool isEmergency = (prop.modelName == "emergency");
       bool isBano = (prop.modelName == "ligthbathroom");
+      bool isLampara = (prop.modelName == "lampara");
+      bool isLampara2 = (prop.modelName == "lampara2");
 
       if (isEmergency) {
         glUniform3fv(pointLightPosLoc[slot], 1, glm::value_ptr(prop.pos));
@@ -1545,6 +1599,17 @@ int main() {
         float f = getFlicker(currentFrame, slot * 7.13f);
         glUniform3fv(pointLightPosLoc[slot], 1, glm::value_ptr(prop.pos));
         glUniform3f(pointLightColLoc[slot], 0.6f * f, 0.45f * f, 0.15f * f);
+        glUniform1f(pointLightRadLoc[slot], 3.5f);
+        currentSlotIdx++;
+      } else if (isLampara) {
+        glUniform3fv(pointLightPosLoc[slot], 1, glm::value_ptr(prop.pos));
+        glUniform3f(pointLightColLoc[slot], 0.15f, 0.15f, 0.15f);
+        glUniform1f(pointLightRadLoc[slot], 2.0f);
+        currentSlotIdx++;
+      } else if (isLampara2) {
+        float f = getFlicker(currentFrame, slot * 7.13f);
+        glUniform3fv(pointLightPosLoc[slot], 1, glm::value_ptr(prop.pos));
+        glUniform3f(pointLightColLoc[slot], 0.6f * f, 0.6f * f, 0.6f * f);
         glUniform1f(pointLightRadLoc[slot], 3.5f);
         currentSlotIdx++;
       }
@@ -1753,12 +1818,19 @@ int main() {
                renderBlock == -7 || renderBlock == -8 || renderBlock == -9 ||
                renderBlock == -10 || renderBlock == -11);
 
-          // Detectar si esta celda es la primera o segunda de un par de puertas
+          // Detectar orientacion de la puerta y si es la segunda celda
           bool isSecondDoorCell = false;
-          if (is3DDoor && x > 0) {
-            int prevBlock = worldMap[z][x - 1];
-            if (prevBlock == renderBlock)
+          bool isVerticalDoor = false;
+
+          if (is3DDoor) {
+            if (x > 0 && worldMap[z][x - 1] == renderBlock) {
               isSecondDoorCell = true;
+            } else if (z > 0 && worldMap[z - 1][x] == renderBlock) {
+              isSecondDoorCell = true;
+              isVerticalDoor = true;
+            } else if (z < MAP_HEIGHT - 1 && worldMap[z + 1][x] == renderBlock) {
+              isVerticalDoor = true;
+            }
           }
 
           if (is3DDoor && isSecondDoorCell) {
@@ -1768,9 +1840,9 @@ int main() {
             glm::mat4 baseModel = glm::mat4(1.0f);
 
             // 4. Mover al centro del hueco y anclar al piso de la pared (-0.5)
-            if (renderBlock == 11 || renderBlock == -11) {
+            if (isVerticalDoor) {
               baseModel = glm::translate(
-                  baseModel, glm::vec3(40.901f, -0.500f, 29.467f));
+                  baseModel, glm::vec3((float)x, -0.5f, (float)z + 0.5f));
             } else {
               baseModel = glm::translate(
                   baseModel, glm::vec3((float)x + 0.5f, -0.5f, (float)z));
@@ -1781,10 +1853,8 @@ int main() {
             // Alto Blender: 1.535 -> Juego: 1.0 (Escala 0.651)
             baseModel = glm::scale(baseModel, glm::vec3(1.1f, 0.651f, 1.1f));
 
-            // 2. Rotar (dejaremos 0 grados asumiendo que los nuevos estan de
-            // frente) Si se ven las texturas por detras, cambiaremos este valor
-            // a 180 despues.
-            if (renderBlock == 11 || renderBlock == -11) {
+            // 2. Rotar dinamicamente si es vertical
+            if (isVerticalDoor) {
               baseModel = glm::rotate(baseModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             }
 
@@ -2392,6 +2462,7 @@ int main() {
     int miniLampDrawCount = 0;
     int cameraAnimCount = 0;
     int ghostDrawCount = 0;
+    int interruptorPropCount = 0;
     std::map<GLTFModel *, std::vector<glm::mat4>> propInstanceBatches;
     for (const auto &prop : placedProps) {
       GLTFModel *model = modelRegistry[prop.modelName];
@@ -2451,11 +2522,15 @@ int main() {
       // debe brillar con el parpadeo, igual que las lamparas fijas.
       bool esLamparaReactor = (prop.modelName == "lampara-reactor");
       bool esMiniLampara = (prop.modelName == "mini-lampara");
+      bool esLampara = (prop.modelName == "lampara");
+      bool esLampara2 = (prop.modelName == "lampara2");
       float lampGlow = 0.0f;
       float miniLampFlicker = 1.0f;
 
       if (esLuzBano) {
         pModel = glm::translate(pModel, glm::vec3(-0.423f, -2.7725f, 2.622f));
+      }
+      if (esLuzBano || esLampara2) {
         // Mismo parpadeo que la luz puntual asociada (mismo offset por indice)
         if (associatedSlot >= 0 && associatedSlot < 32)
           lampGlow = getFlicker(currentFrame, associatedSlot * 7.13f);
@@ -2470,14 +2545,14 @@ int main() {
 
       bool hasAnims = (model->m_Scene && model->m_Scene->HasAnimations());
       bool needsIndividualDraw = esLuzBano || esLamparaReactor ||
-                                 esMiniLampara || esEmergency || hasAnims;
+                                 esMiniLampara || esEmergency || esLampara || esLampara2 || hasAnims;
       if (!needsIndividualDraw) {
         propInstanceBatches[model].push_back(pModel);
         continue;
       }
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(pModel));
-      if (esLuzBano)
+      if (esLuzBano || esLampara2)
         glUniform1f(emissiveStrengthLoc, 1.0f * lampGlow);
       if (esLamparaReactor)
         glUniform1f(emissiveStrengthLoc, 0.9f * lampFlicker);
@@ -2485,6 +2560,8 @@ int main() {
         glUniform1f(emissiveStrengthLoc, 0.8f * miniLampFlicker);
       if (esEmergency)
         glUniform1f(emissiveStrengthLoc, 0.40f + 0.80f * emergencyPulse);
+      if (esLampara)
+        glUniform1f(emissiveStrengthLoc, 0.25f);
 
       bool esAscensor = (prop.modelName == "ascensor");
       if (esAscensor)
@@ -2506,9 +2583,20 @@ int main() {
             elevatorAnimTime = cycleTime;
           }
         }
+      } else if (prop.modelName == "interruptor") {
+        float leverVal = 0.0f;
+        if (interruptorPropCount == 0) leverVal = switch1Lever;
+        else if (interruptorPropCount == 1) leverVal = switch2Lever;
+        else if (interruptorPropCount == 2) leverVal = switch3Lever;
+        
+        elevatorAnimTime = leverVal * model->GetAnimationLengthSeconds(0);
+        interruptorPropCount++;
       }
 
       if (hasAnims) {
+        // Reset bone state — props animados de nodo (sin bones) se corromperian
+        // si el uniform isAnimated quedo activo de un draw anterior
+        glUniform1i(isAnimatedLoc, 0);
         model->DrawAnimated(elevatorAnimTime, 0, shaderProgram, modelLoc,
                             solidColorLoc, pModel);
       } else {
@@ -2820,12 +2908,12 @@ int main() {
         glBindVertexArray(cablesVAO);
         glBindTexture(GL_TEXTURE_2D, pcTex);
         glUniform1i(solidColorLoc, 1);
-
-        // Ajuste de posiciÃ³n para que toque el suelo
+        entityModel = glm::translate(
+            entityModel, glm::vec3(0.0f, -0.06f, 0.0f)); // Subirla para verla
         entityModel =
-            glm::translate(entityModel, glm::vec3(-0.99f, -0.12f, 0.0f));
-        entityModel = glm::scale(entityModel, glm::vec3(0.5f, 0.5f, 0.5f));
-
+            glm::rotate(entityModel, entity.seed, glm::vec3(0.0f, 1.0f, 0.0f));
+        entityModel =
+            glm::scale(entityModel, glm::vec3(1.0f, 1.0f, 1.0f)); // Agrandarla
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
         glDrawArrays(GL_TRIANGLES, 0, cablesVertexCount);
         glUniform1i(solidColorLoc, 0);
@@ -3539,9 +3627,14 @@ int main() {
 
           if (ImGui::Button("Traer frente a camara")) {
             prop.pos = cameraPos + cameraFront * 2.0f;
-            prop.pos.y = -0.5f;
             prop.rot = glm::vec3(0.0f, 0.0f, 0.0f);
-            prop.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            if (prop.modelName == "interruptor") {
+              prop.pos.y = cameraPos.y; // Ajuste para que se vea a la altura de la camara
+              prop.scale = glm::vec3(0.02f, 0.02f, 0.02f);
+            } else {
+              prop.pos.y = -0.5f;
+              prop.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
           }
 
           ImGui::Spacing();
@@ -3592,7 +3685,7 @@ int main() {
             "sofa",
             // -- Ascensor --
             "ascensor", "caja-electrica", "plataforma",
-            "ducto", "ghost", "head",
+            "ducto", "ghost", "head", "interruptor",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
             "mirror", "MirrorBG", "urinario"};
@@ -3670,6 +3763,9 @@ int main() {
                    newProp.modelName == "plataforma" ||
                    newProp.modelName == "ducto") {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          } else if (newProp.modelName == "interruptor") {
+            newProp.scale = glm::vec3(0.02f, 0.02f, 0.02f);
+            newProp.pos.y = cameraPos.y; // Ajuste para que no se entierre en el piso
           } else if (newProp.modelName == "compu_destruida") {
             newProp.scale = glm::vec3(0.55f, 0.55f, 0.55f);
             newProp.collisionActive = false;
@@ -3983,6 +4079,47 @@ int main() {
       drawSlot(batLabel, (ImTextureID)(intptr_t)batteryTex,
                bateriasRecolectadas > 0, selectedHotbarSlot == 4);
 
+      // Slot 5: Interruptores (Energía)
+      {
+          ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+          ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+          bool isActive = (selectedHotbarSlot == 5);
+          ImU32 bgColor = IM_COL32(60, 60, 60, 200);
+          ImU32 borderColor = isActive ? IM_COL32(255, 255, 100, 255)
+                                       : IM_COL32(100, 100, 100, 180);
+
+          drawList->AddRectFilled(
+              cursorPos, ImVec2(cursorPos.x + slotSize, cursorPos.y + slotSize),
+              bgColor, 4.0f);
+          drawList->AddRect(
+              cursorPos, ImVec2(cursorPos.x + slotSize, cursorPos.y + slotSize),
+              borderColor, 4.0f, 0, isActive ? 2.5f : 1.0f);
+
+          float r = 6.0f;
+          float cx1 = cursorPos.x + slotSize * 0.25f;
+          float cx2 = cursorPos.x + slotSize * 0.50f;
+          float cx3 = cursorPos.x + slotSize * 0.75f;
+          float cy = cursorPos.y + slotSize * 0.45f;
+
+          ImU32 c1 = switch1Solved ? IM_COL32(50, 220, 50, 255) : IM_COL32(220, 50, 50, 255);
+          ImU32 c2 = switch2Solved ? IM_COL32(50, 220, 50, 255) : IM_COL32(220, 50, 50, 255);
+          ImU32 c3 = switch3Solved ? IM_COL32(50, 220, 50, 255) : IM_COL32(220, 50, 50, 255);
+
+          drawList->AddCircleFilled(ImVec2(cx1, cy), r, c1);
+          drawList->AddCircleFilled(ImVec2(cx2, cy), r, c2);
+          drawList->AddCircleFilled(ImVec2(cx3, cy), r, c3);
+
+          const char* label = getText("INV_ENERGY");
+          ImVec2 textSize = ImGui::CalcTextSize(label);
+          float textX = cursorPos.x + (slotSize - textSize.x) * 0.5f;
+          drawList->AddText(ImVec2(textX, cursorPos.y + slotSize + 1.0f),
+                            IM_COL32(255, 255, 255, 255), label);
+
+          ImGui::Dummy(ImVec2(slotSize, slotSize));
+          ImGui::SameLine(0.0f, slotPadding);
+      }
+
       ImGui::End();
       ImGui::PopStyleVar(2);
     }
@@ -4025,6 +4162,12 @@ int main() {
 
       static int selectedLeftNode = -1;
       static int nodeConnections[4] = { -1, -1, -1, -1 }; // Index is left node, value is right node index
+
+      if (resetWirePuzzle) {
+        for (int i = 0; i < 4; ++i) nodeConnections[i] = -1;
+        selectedLeftNode = -1;
+        resetWirePuzzle = false;
+      }
 
       ImDrawList* drawList = ImGui::GetWindowDrawList();
       ImVec2 windowPos = ImGui::GetWindowPos();
@@ -4114,11 +4257,24 @@ int main() {
           int gz = blackDoorGridZ;
           worldMap[gz][gx] = -11;
           
-          if (gx > 0 && worldMap[gz][gx - 1] == 11) worldMap[gz][gx - 1] = -11;
-          if (gx < MAP_WIDTH - 1 && worldMap[gz][gx + 1] == 11) worldMap[gz][gx + 1] = -11;
-          if (gz > 0 && worldMap[gz - 1][gx] == 11) worldMap[gz - 1][gx] = -11;
-          if (gz < MAP_HEIGHT - 1 && worldMap[gz + 1][gx] == 11) worldMap[gz + 1][gx] = -11;
+          if (gx > 0 && worldMap[gz][gx - 1] == 11) {
+            worldMap[gz][gx - 1] = -11;
+            activeDoorsAnim[gz * MAP_WIDTH + (gx - 1)] = 0.0f;
+          }
+          if (gx < MAP_WIDTH - 1 && worldMap[gz][gx + 1] == 11) {
+            worldMap[gz][gx + 1] = -11;
+            activeDoorsAnim[gz * MAP_WIDTH + (gx + 1)] = 0.0f;
+          }
+          if (gz > 0 && worldMap[gz - 1][gx] == 11) {
+            worldMap[gz - 1][gx] = -11;
+            activeDoorsAnim[(gz - 1) * MAP_WIDTH + gx] = 0.0f;
+          }
+          if (gz < MAP_HEIGHT - 1 && worldMap[gz + 1][gx] == 11) {
+            worldMap[gz + 1][gx] = -11;
+            activeDoorsAnim[(gz + 1) * MAP_WIDTH + gx] = 0.0f;
+          }
 
+          activeDoorsAnim[gz * MAP_WIDTH + gx] = 0.0f;
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
           printTypewriter(getText("TYPE_BLACK_DOOR"));
           blackDoorGridX = -1;
@@ -4220,6 +4376,130 @@ int main() {
       ImGui::End();
     }
 
+    // --- TIMER HUD ---
+    if (gameState == PLAYING && !gameWon) {
+      ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2.0f, 20.0f), ImGuiCond_Always, ImVec2(0.5f, 0.0f));
+      ImGui::Begin("Timer HUD", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove);
+      int mins = (int)gameTimer / 60;
+      int secs = (int)gameTimer % 60;
+      ImGui::SetWindowFontScale(2.5f);
+      if (gameTimer <= 60.0f) {
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "%02d:%02d", mins, secs);
+      } else {
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "%02d:%02d", mins, secs);
+      }
+      ImGui::SetWindowFontScale(1.0f);
+      ImGui::End();
+    }
+
+    // --- SWITCH PANELS ---
+    auto drawSwitchPanel = [&](const char* title, bool& activeFlag, bool& solvedFlag, float& leverValue) {
+      if (activeFlag) {
+        ImGuiIO& io = ImGui::GetIO();
+        ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Always);
+        ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+
+        ImGui::Text("%s", getText("PANEL_TITLE_EMERGENCY"));
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+
+        if (solvedFlag) {
+          ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", getText("PANEL_STATUS_ONLINE"));
+        } else {
+          ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", getText("PANEL_STATUS_OFFLINE"));
+          ImGui::Text("%s", getText("PANEL_PULL_LEVER"));
+          ImGui::SliderFloat(getText("PANEL_LEVER"), &leverValue, 0.0f, 1.0f, "%.2f");
+          if (leverValue >= 1.0f) {
+            solvedFlag = true;
+            ma_engine_play_sound(&audioEngine, "assets/interruptor.mp3", NULL);
+            printTypewriter(getText("SWITCH_ACTIVATED"));
+            activeFlag = false;
+            isCursorLocked = true;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            
+            if (switch1Solved && switch2Solved && switch3Solved) {
+              gameWon = true;
+              allLightsOn = true;
+              printTypewriter(getText("ENERGY_RESTORED"));
+              ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+            }
+          }
+        }
+        
+        ImGui::Spacing();
+        if (ImGui::Button(getText("BTN_CLOSE"), ImVec2(80, 30))) {
+          activeFlag = false;
+          isCursorLocked = true;
+          firstMouse = true;
+          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+
+        ImGui::End();
+      }
+    };
+
+    drawSwitchPanel(getText("SWITCH_ARCHIVE"), switch1Active, switch1Solved, switch1Lever);
+    drawSwitchPanel(getText("SWITCH_LAB"), switch2Active, switch2Solved, switch2Lever);
+    drawSwitchPanel(getText("SWITCH_ELEVATOR"), switch3Active, switch3Solved, switch3Lever);
+
+    // --- VICTORY SCREEN ---
+    if (gameWon) {
+      ImGuiIO& io = ImGui::GetIO();
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+      ImGui::SetNextWindowSize(ImVec2(600, 300), ImGuiCond_Always);
+      ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.2f, 0.1f, 0.95f));
+      ImGui::Begin("VICTORY", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+      
+      ImGui::SetWindowFontScale(3.0f);
+      ImGui::TextColored(ImVec4(0.2f, 1.0f, 0.2f, 1.0f), "%s", getText("VICTORY_TITLE"));
+      ImGui::SetWindowFontScale(1.5f);
+      ImGui::Spacing();
+      ImGui::TextWrapped("%s", getText("VICTORY_DESC"));
+      ImGui::Spacing();
+      ImGui::Separator();
+      ImGui::Spacing();
+      
+      if (ImGui::Button(getText("BTN_EXIT"), ImVec2(200, 50))) {
+        glfwSetWindowShouldClose(window, true);
+      }
+      ImGui::SetWindowFontScale(1.0f);
+      ImGui::End();
+      ImGui::PopStyleColor();
+
+      isCursorLocked = false;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    // --- GAME OVER SCREEN ---
+    if (gameState == GAMEOVER) {
+      ImGuiIO& io = ImGui::GetIO();
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+      ImGui::SetNextWindowSize(ImVec2(600, 300), ImGuiCond_Always);
+      ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.2f, 0.05f, 0.05f, 0.95f));
+      ImGui::Begin("GAMEOVER", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+      
+      ImGui::SetWindowFontScale(3.0f);
+      ImGui::TextColored(ImVec4(1.0f, 0.2f, 0.2f, 1.0f), "%s", getText("GAMEOVER_TITLE"));
+      ImGui::SetWindowFontScale(1.5f);
+      ImGui::Spacing();
+      ImGui::TextWrapped("%s", getText("GAMEOVER_DESC"));
+      ImGui::Spacing();
+      ImGui::Separator();
+      ImGui::Spacing();
+      
+      if (ImGui::Button(getText("BTN_EXIT"), ImVec2(200, 50))) {
+        glfwSetWindowShouldClose(window, true);
+      }
+      ImGui::SetWindowFontScale(1.0f);
+      ImGui::End();
+      ImGui::PopStyleColor();
+
+      isCursorLocked = false;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -4232,8 +4512,12 @@ int main() {
   ImGui::DestroyContext();
 
   ma_sound_uninit(&bgm);
-  if (shotgunFireSoundReady)
+  if (shotgunFireSoundReady) {
     ma_sound_uninit(&shotgunFireSound);
+  }
+  if (doorProximitySoundReady) {
+    ma_sound_uninit(&doorProximitySound);
+  }
   ma_engine_uninit(&audioEngine);
 
   glDeleteVertexArrays(1, &VAO);
