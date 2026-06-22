@@ -333,6 +333,7 @@ bool isExhausted = false;
 GameState gameState = MENU;
 bool menuOpcionesActivo = false;
 bool menuControlesActivo = false;
+bool menuCreditosActivo = false;
 bool juegoMuteado = false;
 bool isCursorLocked = false;
 bool tabKeyWasPressed = false;

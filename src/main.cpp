@@ -3544,6 +3544,28 @@ int main() {
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
           menuControlesActivo = false;
         }
+      } else if (menuCreditosActivo) {
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(1.0f,0.85f,0.4f,1.0f), "%s", getText("CREDITS_TITLE"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_1"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_2"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_3"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_4"));
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(1.0f,0.85f,0.4f,1.0f), "%s", getText("CREDITS_TUTOR_TITLE"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_TUTOR"));
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 15.0f);
+        if (menuButton(getText("MENU_BACK"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuCreditosActivo = false;
+        }
       } else {
         if (menuButton(getText("MENU_START")))
           startGameFromMenu();
@@ -3555,7 +3577,10 @@ int main() {
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
           menuControlesActivo = true;
         }
-        menuButton(getText("MENU_CREDITS"));
+        if (menuButton(getText("MENU_CREDITS"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuCreditosActivo = true;
+        }
         if (menuButton(getText("MENU_EXIT")))
           glfwSetWindowShouldClose(window, true);
       }
@@ -3564,7 +3589,7 @@ int main() {
       ImGui::PopStyleVar(2);
 
       ImGui::SetWindowFontScale(0.85f);
-      const char *hint = (menuOpcionesActivo || menuControlesActivo) ? getText("MENU_HINT_BACK") : getText("MENU_HINT_START");
+      const char *hint = (menuOpcionesActivo || menuControlesActivo || menuCreditosActivo) ? getText("MENU_HINT_BACK") : getText("MENU_HINT_START");
       ImVec2 hintSize = ImGui::CalcTextSize(hint);
       ImGui::SetCursorPos(
           ImVec2((currentWidth - hintSize.x) * 0.5f, currentHeight * 0.86f));
