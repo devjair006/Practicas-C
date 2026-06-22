@@ -351,6 +351,8 @@ extern bool isSprinting;
 extern bool isExhausted;
 extern GameState gameState;
 extern bool menuOpcionesActivo;
+extern bool menuControlesActivo;
+extern bool menuCreditosActivo;
 extern bool juegoMuteado;
 extern bool isCursorLocked;
 extern bool tabKeyWasPressed;
@@ -640,24 +642,21 @@ inline std::string getModelArea(const std::string &modelName) {
   static const std::unordered_set<std::string> kSalaPruebas = {};
   // --- Sala Generadores ---
   static const std::unordered_set<std::string> kSalaGeneradores = {};
-
-  if (kContencion.count(modelName))
-    return "Contencion";
-  if (kArchivo.count(modelName))
-    return "Archivo";
-  if (kOficinas.count(modelName))
-    return "Oficinas";
-  if (kDescanso.count(modelName))
-    return "Descanso";
-  if (kBano.count(modelName))
-    return "Baño";
-  if (kAscensor.count(modelName))
-    return "Ascensor";
-  if (kSalaPruebas.count(modelName))
-    return "sala-pruebas";
-  if (kSalaGeneradores.count(modelName))
-    return "sala-generadores";
-  return "General";
+    // --- Experimental (Area de experimentos) ---
+    static const std::unordered_set<std::string> kExperimentalArea = {
+      "jaula_exp", "medical_table", "morgue_refrigerator", "radioactive_barrel",
+      "machine"
+    };
+    if (kContencion.count(modelName)) return "Contencion";
+    if (kArchivo.count(modelName))    return "Archivo";
+    if (kOficinas.count(modelName))   return "Oficinas";
+    if (kDescanso.count(modelName))   return "Descanso";
+    if (kBano.count(modelName))       return "Baño";
+    if (kAscensor.count(modelName))   return "Ascensor";
+    if (kSalaPruebas.count(modelName)) return "sala-pruebas";
+    if (kSalaGeneradores.count(modelName)) return "sala-generadores";
+    if (kExperimentalArea.count(modelName)) return "experimental";
+    return "General";
 }
 
 extern float wallWidth;

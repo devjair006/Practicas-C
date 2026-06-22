@@ -245,6 +245,20 @@ int main() {
     ma_sound_set_looping(&doorProximitySound, MA_TRUE);
   }
 
+  ma_sound fantasmasBgm;
+  bool fantasmasBgmReady =
+      ma_sound_init_from_file(&audioEngine, "assets/fantasmas.mp3",
+                              MA_SOUND_FLAG_STREAM, NULL, NULL, &fantasmasBgm) == MA_SUCCESS;
+  if (fantasmasBgmReady) {
+    ma_sound_set_looping(&fantasmasBgm, MA_TRUE);
+    ma_sound_set_volume(&fantasmasBgm, 1.5f); // por encima de music.mp3
+  }
+
+  ma_sound gritoSound;
+  bool gritoSoundReady =
+      ma_sound_init_from_file(&audioEngine, "assets/grito.mp3",
+                              MA_SOUND_FLAG_STREAM, NULL, NULL, &gritoSound) == MA_SUCCESS;
+
   // --- SETUP IMGUI ---
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -477,6 +491,17 @@ int main() {
   ghostGLTF = new GLTFModel("assets/ascensor/ghost.glb");
   headGLTF = new GLTFModel("assets/ascensor/head.glb");
 
+  // --- EXPERIMENTAL (Area de experimentos) ---
+  GLTFModel *jaulaExpGLTF = new GLTFModel("assets/experimental/jaula.glb");
+  GLTFModel *medicalTableGLTF =
+      new GLTFModel("assets/experimental/medical_table.glb");
+  GLTFModel *morgueRefrigeratorGLTF =
+      new GLTFModel("assets/experimental/morgue_refrigerator.glb");
+  GLTFModel *radioactiveBarrelGLTF =
+      new GLTFModel("assets/experimental/radioactive_barrel.glb");
+  GLTFModel *machineGLTF =
+      new GLTFModel("assets/experimental/machine.glb");
+
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
   modelRegistry["gabinete"] = gabineteGLTF;
@@ -593,6 +618,13 @@ int main() {
   modelRegistry["ghost"] = ghostGLTF;
   modelRegistry["head"] = headGLTF;
 
+  // Experimental (Area de experimentos)
+  modelRegistry["jaula_exp"] = jaulaExpGLTF;
+  modelRegistry["medical_table"] = medicalTableGLTF;
+  modelRegistry["morgue_refrigerator"] = morgueRefrigeratorGLTF;
+  modelRegistry["radioactive_barrel"] = radioactiveBarrelGLTF;
+  modelRegistry["machine"] = machineGLTF;
+
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
   if (std::none_of(
@@ -684,6 +716,12 @@ int main() {
   unsigned int floorPruebasTex = loadTexture("assets/sala-pruebas/piso.png");
   unsigned int roofPruebasTex = loadTexture("assets/sala-pruebas/techo.png");
 
+  // Texturas del Area Experimental (mismo cuarto que la Sala de Pruebas)
+  unsigned int floorExperimentalTex =
+      loadTexture("assets/experimental/piso_experimental.png");
+  unsigned int roofExperimentalTex =
+      loadTexture("assets/experimental/techo_experimental.png");
+
   // Textura de metal generada para las puertas
   unsigned int doorTex = loadTextureWithFallback("assets/puerta_metal.png", 0);
 
@@ -704,6 +742,11 @@ int main() {
       loadTextureWithFallback("assets/descanso/piso.png", floorTexture);
   unsigned int roofDescansoTex =
       loadTextureWithFallback("assets/descanso/techo.png", floorTexture);
+
+  // Piso del área de Oficinas. Si aún no existe assets/oficinas/piso.png se usa
+  // la textura por defecto como fallback. Coloca tu imagen ahí para cambiarla.
+  unsigned int floorOficinasTex =
+      loadTextureWithFallback("assets/oficinas/piso.png", floorTexture);
 
   // Texturas especÃ­ficas con fallback
   unsigned int batteryTex =
@@ -770,6 +813,7 @@ int main() {
   int finalBonesLoc =
       glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
 
+  int fogAmountLoc = glGetUniformLocation(shaderProgram, "fogAmount");
   int numPointLightsLoc = glGetUniformLocation(shaderProgram, "numPointLights");
   int pointLightPosLoc[32];
   int pointLightColLoc[32];
@@ -1084,12 +1128,12 @@ int main() {
        17,
        33,
        wallPruebasTex,
-       floorPruebasTex,
-       roofPruebasTex,
+       floorExperimentalTex,
+       roofExperimentalTex,
        {1.0f, 1.0f, 1.0f},
        true,
        true,
-       true}, // Sala de Pruebas (Seccion 2)
+       true}, // Area Experimental (mismo cuarto que la Sala de Pruebas)
       {0,
        0,
        13,
@@ -1102,6 +1146,19 @@ int main() {
        true,
        true}, // Sala de Descanso (cuarto superior izquierdo)
 
+      {14,
+       2,
+       30,
+       8,
+       wallTex1,       // pared (sin usar: overrideWall=false)
+       floorOficinasTex,
+       floorTexture,   // techo (sin usar: overrideCeil=false)
+       {0.3f, 0.3f, 0.3f},
+       false,          // overrideWall: conserva las paredes actuales
+       true,           // overrideFloor: aplica el piso de oficinas
+       false},         // overrideCeil: conserva el techo actual
+                       // Oficinas (sala central-superior, solo piso)
+
       {}, // pisos
   };
 
@@ -1110,6 +1167,25 @@ int main() {
       if (gx >= rz.x1 && gx <= rz.x2 && gz >= rz.z1 && gz <= rz.z2)
         return &rz;
     return nullptr;
+  };
+
+  // --- PASILLOS ---
+  // Celdas de los corredores que conectan las distintas áreas. A estos se les
+  // aplica el piso y el techo de la Sala de Descanso (floorDescansoTex /
+  // roofDescansoTex). NO incluye la sala General (centro/arriba), que son
+  // celdas abiertas pero pertenecen a una habitación, no a un pasillo.
+  auto isPasillo = [&](int gx, int gz) -> bool {
+    if (gz == 10 || gz == 11)
+      return true; // pasillo horizontal superior (conecta áreas de arriba)
+    if (gz == 22 || gz == 23)
+      return true; // pasillo horizontal inferior (conecta salas de abajo)
+    if ((gz == 0 || gz == 1) && gx >= 23 && gx <= 26)
+      return true; // entrada superior
+    if ((gx == 1 || gx == 2) && gz >= 12 && gz <= 24)
+      return true; // corredor vertical izquierdo
+    if (gx == 31 && gz >= 2 && gz <= 9)
+      return true; // conector vertical (zona de baños)
+    return false;
   };
 
   // --- STATIC MAP BATCHING ---
@@ -1231,7 +1307,9 @@ int main() {
         // Piso y Techo
 
         // Piso
-        unsigned int fTex = floorTexture;
+        // Piso por defecto: la textura del área de descanso. Las áreas con
+        // piso propio (overrideFloor=true) lo conservan y no se ven afectadas.
+        unsigned int fTex = floorDescansoTex;
         if (zone && zone->overrideFloor)
           fTex = zone->floorTex;
 
@@ -1249,6 +1327,9 @@ int main() {
         if (zone && zone->overrideCeil) {
           cCol = zone->ceilColor;
           cTex = zone->ceilTex;
+        } else if (!zone && isPasillo(x, z)) {
+          cTex = roofDescansoTex; // techo de descanso en los pasillos
+          cCol = glm::vec3(0.25f, 0.25f, 0.25f);
         }
 
         glm::mat4 roofModel = glm::mat4(1.0f);
@@ -1404,7 +1485,7 @@ int main() {
       for(int z = (std::max)(0, cz - 2); z <= (std::min)(MAP_HEIGHT-1, cz + 2); ++z) {
           for(int x = (std::max)(0, cx - 2); x <= (std::min)(MAP_WIDTH-1, cx + 2); ++x) {
               int b = worldMap[z][x];
-              if (b == 7 || b == 8 || b == 9 || b == 10 || b == 11) {
+              if (b == 7 || b == 8 || b == 9 || b == 10 || b == 11 || b == 12) {
                   float dist = glm::distance(glm::vec2(cameraPos.x, cameraPos.z), glm::vec2(x, z));
                   if (dist < 2.5f) {
                       nearClosedDoor = true;
@@ -1423,6 +1504,38 @@ int main() {
               ma_sound_stop(&doorProximitySound);
               ma_sound_seek_to_pcm_frame(&doorProximitySound, 0);
           }
+      }
+
+      if (fantasmasBgmReady) {
+        bool inAscensorArea = (cameraPos.x >= 41.0f && cameraPos.x <= 49.0f && cameraPos.z >= 24.0f && cameraPos.z <= 34.0f);
+        if (inAscensorArea) {
+            if (!ma_sound_is_playing(&fantasmasBgm)) {
+                ma_sound_start(&fantasmasBgm);
+            }
+        } else {
+            if (ma_sound_is_playing(&fantasmasBgm)) {
+                ma_sound_stop(&fantasmasBgm);
+                ma_sound_seek_to_pcm_frame(&fantasmasBgm, 0);
+            }
+        }
+      }
+
+      if (gritoSoundReady) {
+          static bool wasNearInterruptor = false;
+          bool nearInterruptor = false;
+          for (const auto &prop : placedProps) {
+              if (prop.modelName == "interruptor") {
+                  if (glm::distance(cameraPos, prop.pos) < 3.0f) {
+                      nearInterruptor = true;
+                      break;
+                  }
+              }
+          }
+          if (nearInterruptor && !wasNearInterruptor) {
+              ma_sound_seek_to_pcm_frame(&gritoSound, 0);
+              ma_sound_start(&gritoSound);
+          }
+          wasNearInterruptor = nearInterruptor;
       }
     }
 
@@ -1500,6 +1613,16 @@ int main() {
     glUniform1f(timeLoc, currentFrame);
     glUniform1f(globalDarknessLoc, gameOverDarkness);
     glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
+
+    // Niebla rojiza solo en el area experimental (cuarto x1-17, z25-33).
+    // Se interpola suave para que aparezca/desaparezca al entrar y salir.
+    static float fogAmount = 0.0f;
+    bool inExperimental =
+        (cameraPos.x >= 1.0f && cameraPos.x <= 17.0f &&
+         cameraPos.z >= 25.0f && cameraPos.z <= 33.0f);
+    float fogTarget = inExperimental ? 0.55f : 0.0f;
+    fogAmount += (fogTarget - fogAmount) * (std::min)(1.0f, deltaTime * 3.0f);
+    glUniform1f(fogAmountLoc, fogAmount);
     // espacio donde se le da las luces a las lamparas antes de poner su figura
     // .gltf o .obj
 
@@ -1660,10 +1783,26 @@ int main() {
                 0.45f * flickerDescanso2, 0.15f * flickerDescanso2);
     glUniform1f(pointLightRadLoc[13], 4.0f);
 
+    // --- LUCES ROJAS DEL AREA EXPERIMENTAL (slots 16-18, fijas) ---
+    // Pulso lento e inquietante. Cubren el cuarto (x1-17, z25-33).
+    float expPulse = 0.65f + 0.35f * sin(currentFrame * 2.5f);
+    glm::vec3 expLightPositions[3] = {glm::vec3(4.5f, 2.0f, 29.0f),
+                                      glm::vec3(9.0f, 2.0f, 29.0f),
+                                      glm::vec3(14.0f, 2.0f, 29.0f)};
+    for (int i = 0; i < 3; i++) {
+      int slot = 16 + i;
+      glUniform3fv(pointLightPosLoc[slot], 1,
+                   glm::value_ptr(expLightPositions[i]));
+      glUniform3f(pointLightColLoc[slot], 0.85f * expPulse, 0.08f * expPulse,
+                  0.06f * expPulse);
+      glUniform1f(pointLightRadLoc[slot], 6.0f);
+    }
+
     // Los indices fijos llegan hasta 13; solo enviamos los dinamicos cercanos.
+    // Las luces experimentales ocupan hasta el slot 18 -> minimo 19.
     int highestPointLightSlot =
         currentSlotIdx > 0 ? dynamicSlots[currentSlotIdx - 1] : 13;
-    glUniform1i(numPointLightsLoc, (std::max)(14, highestPointLightSlot + 1));
+    glUniform1i(numPointLightsLoc, (std::max)(19, highestPointLightSlot + 1));
 
     // --- SPOTLIGHTS (Max 16) ---
     int spotIdx = 0;
@@ -1819,9 +1958,9 @@ int main() {
 
         // Solo procesamos puertas en el bucle dinámico
         if (blockType != 7 && blockType != 8 && blockType != 9 &&
-            blockType != 10 && blockType != 11 &&
+            blockType != 10 && blockType != 11 && blockType != 12 &&
             blockType != -7 && blockType != -8 && blockType != -9 &&
-            blockType != -10 && blockType != -11)
+            blockType != -10 && blockType != -11 && blockType != -12)
           continue;
 
         // Consideramos la puerta visible tanto si esta cerrada (>0) como
@@ -1829,12 +1968,13 @@ int main() {
         int renderBlock = worldMap[z][x];
         if (renderBlock != 0 && (blockType > 0 || renderBlock == -7 ||
                                  renderBlock == -8 || renderBlock == -9 ||
-                                 renderBlock == -10 || renderBlock == -11)) {
+                                 renderBlock == -10 || renderBlock == -11 ||
+                                 renderBlock == -12)) {
           bool is3DDoor =
               (renderBlock == 7 || renderBlock == 8 || renderBlock == 9 ||
-               renderBlock == 10 || renderBlock == 11 ||
+               renderBlock == 10 || renderBlock == 11 || renderBlock == 12 ||
                renderBlock == -7 || renderBlock == -8 || renderBlock == -9 ||
-               renderBlock == -10 || renderBlock == -11);
+               renderBlock == -10 || renderBlock == -11 || renderBlock == -12);
 
           // Detectar orientacion de la puerta y si es la segunda celda
           bool isSecondDoorCell = false;
@@ -1895,6 +2035,8 @@ int main() {
                 glUniform3f(colorLoc, 0.1f, 0.1f, 0.9f); // Metal Azul
               } else if (renderBlock == 11 || renderBlock == -11) {
                 glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f); // Metal Negro/Gris Oscuro
+              } else if (renderBlock == 12 || renderBlock == -12) {
+                glUniform3f(colorLoc, 0.55f, 0.55f, 0.58f); // Metal Gris
               } else {
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
               }
@@ -1908,6 +2050,8 @@ int main() {
                 glUniform3f(colorLoc, 0.1f, 0.1f, 0.9f); // Azul SÃ³lido
               } else if (renderBlock == 11 || renderBlock == -11) {
                 glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f); // Negro SÃ³lido
+              } else if (renderBlock == 12 || renderBlock == -12) {
+                glUniform3f(colorLoc, 0.55f, 0.55f, 0.58f); // Gris SÃ³lido
               } else {
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
               }
@@ -1919,7 +2063,7 @@ int main() {
               currentAnim = door1Anim;
             } else if (renderBlock == 9 || renderBlock == -9) {
               currentAnim = door2Anim;
-            } else if (renderBlock == 7 || renderBlock == -7 || renderBlock == 10 || renderBlock == -10 || renderBlock == 11 || renderBlock == -11) {
+            } else if (renderBlock == 7 || renderBlock == -7 || renderBlock == 10 || renderBlock == -10 || renderBlock == 11 || renderBlock == -11 || renderBlock == 12 || renderBlock == -12) {
               int key = z * MAP_WIDTH + x;
               auto it = activeDoorsAnim.find(key);
               if (it != activeDoorsAnim.end()) {
@@ -3435,9 +3579,13 @@ int main() {
           ImVec2((currentWidth - subSize.x) * 0.5f, titleCenter.y + 24.0f));
       ImGui::TextColored(ImVec4(0.62f, 0.78f, 0.84f, 1.0f), "%s", subtitle);
 
-      float menuWidth = 260.0f;
+      float menuWidth = currentWidth * 0.4f;
+      if (menuWidth < 300.0f) menuWidth = 300.0f;
+      float buttonHeight = currentHeight * 0.065f;
+      if (buttonHeight < 40.0f) buttonHeight = 40.0f;
       float menuX = (currentWidth - menuWidth) * 0.5f;
-      float menuY = currentHeight * 0.48f;
+      float menuY = currentHeight * 0.32f;
+      ImGui::SetWindowFontScale(1.5f);
       ImGui::SetCursorPos(ImVec2(menuX, menuY));
       ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
       ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 9.0f));
@@ -3451,12 +3599,12 @@ int main() {
 
       auto menuButton = [&](const char *label) {
         ImGui::SetCursorPosX(menuX);
-        bool pressed = ImGui::Button(label, ImVec2(menuWidth, 34.0f));
+        bool pressed = ImGui::Button(label, ImVec2(menuWidth, buttonHeight));
         ImVec2 min = ImGui::GetItemRectMin();
         ImVec2 max = ImGui::GetItemRectMax();
         if (ImGui::IsItemHovered()) {
-          drawList->AddLine(ImVec2(min.x + 34.0f, max.y + 2.0f),
-                            ImVec2(max.x - 34.0f, max.y + 2.0f),
+          drawList->AddLine(ImVec2(min.x + menuWidth*0.1f, max.y + 2.0f),
+                            ImVec2(max.x - menuWidth*0.1f, max.y + 2.0f),
                             IM_COL32(220, 245, 255, 180), 1.0f);
         }
         return pressed;
@@ -3485,6 +3633,55 @@ int main() {
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
           menuOpcionesActivo = false;
         }
+      } else if (menuControlesActivo) {
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_W"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_S"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_A"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_D"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_Q"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_R"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_E"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_F"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_Z"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_SHIFT"));
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+        if (menuButton(getText("MENU_BACK"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuControlesActivo = false;
+        }
+      } else if (menuCreditosActivo) {
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(1.0f,0.85f,0.4f,1.0f), "%s", getText("CREDITS_TITLE"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_1"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_2"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_3"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_4"));
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(1.0f,0.85f,0.4f,1.0f), "%s", getText("CREDITS_TUTOR_TITLE"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_TUTOR"));
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 15.0f);
+        if (menuButton(getText("MENU_BACK"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuCreditosActivo = false;
+        }
       } else {
         if (menuButton(getText("MENU_START")))
           startGameFromMenu();
@@ -3492,8 +3689,14 @@ int main() {
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
           menuOpcionesActivo = true;
         }
-        menuButton(getText("MENU_FILES"));
-        menuButton(getText("MENU_CREDITS"));
+        if (menuButton(getText("MENU_CONTROLS"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuControlesActivo = true;
+        }
+        if (menuButton(getText("MENU_CREDITS"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuCreditosActivo = true;
+        }
         if (menuButton(getText("MENU_EXIT")))
           glfwSetWindowShouldClose(window, true);
       }
@@ -3502,7 +3705,7 @@ int main() {
       ImGui::PopStyleVar(2);
 
       ImGui::SetWindowFontScale(0.85f);
-      const char *hint = menuOpcionesActivo ? getText("MENU_HINT_BACK") : getText("MENU_HINT_START");
+      const char *hint = (menuOpcionesActivo || menuControlesActivo || menuCreditosActivo) ? getText("MENU_HINT_BACK") : getText("MENU_HINT_START");
       ImVec2 hintSize = ImGui::CalcTextSize(hint);
       ImGui::SetCursorPos(
           ImVec2((currentWidth - hintSize.x) * 0.5f, currentHeight * 0.86f));
@@ -3600,7 +3803,7 @@ int main() {
         static const char *kAreaNames[] = {"Todas",   "General",  "Contencion",
                                            "Archivo", "Oficinas", "Descanso",
                                            "Baño",    "Ascensor", "sala-pruebas",
-                                           "sala-generadores"};
+                                           "sala-generadores", "experimental"};
         static int areaFilterIdx = 0; // 0 = Todas
         ImGui::SetNextItemWidth(-1.0f);
         ImGui::Combo("##AreaFiltro", &areaFilterIdx, kAreaNames,
@@ -3706,7 +3909,14 @@ int main() {
             "ducto", "ghost", "head", "interruptor",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
-            "mirror", "MirrorBG", "urinario"};
+            "mirror", "MirrorBG", "urinario",
+            // -- Experimental --
+           "jaula_exp", "medical_table",
+            "morgue_refrigerator", "radioactive_barrel", "machine",
+            // -- Sala de Muestras (assets/muestras/) --
+            "estantes", "morguefridge", "monitoring", "refrigerador", "camilla",
+            "mural", "terminales", "esfera", "bodybag", "coffin", "bloodybox",
+            "labtable", "shelf", "safety"};
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
                      IM_ARRAYSIZE(availableModels));
@@ -4535,6 +4745,12 @@ int main() {
   }
   if (doorProximitySoundReady) {
     ma_sound_uninit(&doorProximitySound);
+  }
+  if (fantasmasBgmReady) {
+    ma_sound_uninit(&fantasmasBgm);
+  }
+  if (gritoSoundReady) {
+    ma_sound_uninit(&gritoSound);
   }
   ma_engine_uninit(&audioEngine);
 

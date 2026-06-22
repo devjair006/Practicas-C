@@ -360,6 +360,8 @@ bool isSprinting = false;
 bool isExhausted = false;
 GameState gameState = MENU;
 bool menuOpcionesActivo = false;
+bool menuControlesActivo = false;
+bool menuCreditosActivo = false;
 bool juegoMuteado = false;
 bool isCursorLocked = false;
 bool tabKeyWasPressed = false;
@@ -631,7 +633,7 @@ std::vector<Entity> gameEntities = {
     {glm::vec3(15.0f, -0.2f, 18.0f), 1, true, "", 0.0f},
     {glm::vec3(10.0f, -0.4f, 28.0f), 3, true, "ENTITY_STAIN", 0.0f},
     {glm::vec3(25.0f, 0.0f, 3.0f), 2, true, "", 0.0f},
-    {glm::vec3(8.0f, -0.4f, 5.0f), 11, true, "", 0.0f}}; // Tarjeta Azul (Oficinas)
+    {glm::vec3(5.0f, -0.4f, 13.5f), 11, true, "", 0.0f}}; // Tarjeta Azul (Bodega)
 
 float wallWidth = 0.3f;
 float wallHeight = 1.0f;
@@ -715,7 +717,7 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    {1, 1, 1, 12, 12, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},

@@ -458,6 +458,27 @@ void tryOpenDoor(GLFWwindow *window) {
       firstMouse = true;
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       printTypewriter(getText("TYPE_PANEL_SOLVED"));
+    } else if (targetBlock == 12) {
+      // Puerta gris simple (entrada al area experimental): se abre sin llave
+      worldMap[gridZ][gridX] = -12;
+      activeDoorsAnim[gridZ * MAP_WIDTH + gridX] = 0.0f;
+      if (gridX > 0 && worldMap[gridZ][gridX - 1] == 12) {
+        worldMap[gridZ][gridX - 1] = -12;
+        activeDoorsAnim[gridZ * MAP_WIDTH + (gridX - 1)] = 0.0f;
+      }
+      if (gridX < MAP_WIDTH - 1 && worldMap[gridZ][gridX + 1] == 12) {
+        worldMap[gridZ][gridX + 1] = -12;
+        activeDoorsAnim[gridZ * MAP_WIDTH + (gridX + 1)] = 0.0f;
+      }
+      if (gridZ > 0 && worldMap[gridZ - 1][gridX] == 12) {
+        worldMap[gridZ - 1][gridX] = -12;
+        activeDoorsAnim[(gridZ - 1) * MAP_WIDTH + gridX] = 0.0f;
+      }
+      if (gridZ < MAP_HEIGHT - 1 && worldMap[gridZ + 1][gridX] == 12) {
+        worldMap[gridZ + 1][gridX] = -12;
+        activeDoorsAnim[(gridZ + 1) * MAP_WIDTH + gridX] = 0.0f;
+      }
+      ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
     }
   }
 }
