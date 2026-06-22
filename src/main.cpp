@@ -684,6 +684,12 @@ int main() {
   unsigned int floorPruebasTex = loadTexture("assets/sala-pruebas/piso.png");
   unsigned int roofPruebasTex = loadTexture("assets/sala-pruebas/techo.png");
 
+  // Texturas del Area Experimental (mismo cuarto que la Sala de Pruebas)
+  unsigned int floorExperimentalTex =
+      loadTexture("assets/experimental/piso_experimental.png");
+  unsigned int roofExperimentalTex =
+      loadTexture("assets/experimental/techo_experimental.png");
+
   // Textura de metal generada para las puertas
   unsigned int doorTex = loadTextureWithFallback("assets/puerta_metal.png", 0);
 
@@ -1089,12 +1095,12 @@ int main() {
        17,
        33,
        wallPruebasTex,
-       floorPruebasTex,
-       roofPruebasTex,
+       floorExperimentalTex,
+       roofExperimentalTex,
        {1.0f, 1.0f, 1.0f},
        true,
        true,
-       true}, // Sala de Pruebas (Seccion 2)
+       true}, // Area Experimental (mismo cuarto que la Sala de Pruebas)
       {0,
        0,
        13,
