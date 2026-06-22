@@ -604,24 +604,21 @@ inline std::string getModelArea(const std::string &modelName) {
   static const std::unordered_set<std::string> kSalaPruebas = {};
   // --- Sala Generadores ---
   static const std::unordered_set<std::string> kSalaGeneradores = {};
+    // --- Experimental (Area de experimentos) ---
+    static const std::unordered_set<std::string> kExperimental = {
+        "control_panel", "jaula_exp", "medical_table", "medical_table2",
+        "morgue_refrigerator"
+    };
 
-  if (kContencion.count(modelName))
-    return "Contencion";
-  if (kArchivo.count(modelName))
-    return "Archivo";
-  if (kOficinas.count(modelName))
-    return "Oficinas";
-  if (kDescanso.count(modelName))
-    return "Descanso";
-  if (kBano.count(modelName))
-    return "Baño";
-  if (kAscensor.count(modelName))
-    return "Ascensor";
-  if (kSalaPruebas.count(modelName))
-    return "sala-pruebas";
-  if (kSalaGeneradores.count(modelName))
-    return "sala-generadores";
-  return "General";
+    if (kContencion.count(modelName)) return "Contencion";
+    if (kArchivo.count(modelName))    return "Archivo";
+    if (kOficinas.count(modelName))   return "Oficinas";
+    if (kDescanso.count(modelName))   return "Descanso";
+    if (kBano.count(modelName))       return "Baño";
+    if (kAscensor.count(modelName))   return "Ascensor";
+    if (kSalaPruebas.count(modelName)) return "sala-pruebas";
+    if (kSalaGeneradores.count(modelName)) return "sala-generadores";
+    return "General";
 }
 
 extern float wallWidth;
