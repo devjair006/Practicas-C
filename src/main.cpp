@@ -237,6 +237,14 @@ int main() {
           "assets/dragon-studio-cinematic-shotgun-with-reload-467480.mp3", 0,
           NULL, NULL, &shotgunFireSound) == MA_SUCCESS;
 
+  ma_sound doorProximitySound;
+  bool doorProximitySoundReady =
+      ma_sound_init_from_file(&audioEngine, "assets/puertas.mp3",
+                              MA_SOUND_FLAG_STREAM, NULL, NULL, &doorProximitySound) == MA_SUCCESS;
+  if (doorProximitySoundReady) {
+    ma_sound_set_looping(&doorProximitySound, MA_TRUE);
+  }
+
   // --- SETUP IMGUI ---
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -736,6 +744,7 @@ int main() {
   int dimAlternaLoc = glGetUniformLocation(shaderProgram, "dimensionAlterna");
   int zoneLoc = glGetUniformLocation(shaderProgram, "currentZone");
   int timeLoc = glGetUniformLocation(shaderProgram, "time");
+  int globalDarknessLoc = glGetUniformLocation(shaderProgram, "globalDarkness");
   int resLoc = glGetUniformLocation(shaderProgram, "resolution");
   int solidColorLoc = glGetUniformLocation(shaderProgram, "useSolidColor");
   int texture1Loc = glGetUniformLocation(shaderProgram, "texture1");
@@ -1253,10 +1262,18 @@ int main() {
     glBindVertexArray(0);
   };
   buildStaticMapBatches();
+  float gameOverDarkness = 1.0f;
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = glfwGetTime();
     deltaTime = (std::min)(currentFrame - lastFrame, 0.05f);
     lastFrame = currentFrame;
+
+    if (gameState == GAMEOVER || gameWon) {
+      gameOverDarkness -= deltaTime * 0.5f;
+      if (gameOverDarkness < 0.0f) gameOverDarkness = 0.0f;
+    } else {
+      gameOverDarkness = 1.0f;
+    }
 
     if (hudMessageTimer > 0.0f) {
       hudMessageTimer -= deltaTime;
@@ -1362,6 +1379,35 @@ int main() {
       weaponAnimationTime += deltaTime;
     }
 
+    if (gameState == PLAYING && doorProximitySoundReady) {
+      bool nearClosedDoor = false;
+      int cx = (int)round(cameraPos.x);
+      int cz = (int)round(cameraPos.z);
+      for(int z = (std::max)(0, cz - 2); z <= (std::min)(MAP_HEIGHT-1, cz + 2); ++z) {
+          for(int x = (std::max)(0, cx - 2); x <= (std::min)(MAP_WIDTH-1, cx + 2); ++x) {
+              int b = worldMap[z][x];
+              if (b == 7 || b == 8 || b == 9 || b == 10 || b == 11) {
+                  float dist = glm::distance(glm::vec2(cameraPos.x, cameraPos.z), glm::vec2(x, z));
+                  if (dist < 2.5f) {
+                      nearClosedDoor = true;
+                      break;
+                  }
+              }
+          }
+          if(nearClosedDoor) break;
+      }
+      if (nearClosedDoor) {
+          if (!ma_sound_is_playing(&doorProximitySound)) {
+              ma_sound_start(&doorProximitySound);
+          }
+      } else {
+          if (ma_sound_is_playing(&doorProximitySound)) {
+              ma_sound_stop(&doorProximitySound);
+              ma_sound_seek_to_pcm_frame(&doorProximitySound, 0);
+          }
+      }
+    }
+
     animatedEntities.Update(deltaTime, cameraPos, cameraFront,
                             interactionPressedThisFrame,
                             gameState == PLAYING && !isReadingDocument);
@@ -1434,6 +1480,7 @@ int main() {
     int allLightsOnLoc = glGetUniformLocation(shaderProgram, "allLightsOn");
     glUniform1i(allLightsOnLoc, allLightsOn ? 1 : 0);
     glUniform1f(timeLoc, currentFrame);
+    glUniform1f(globalDarknessLoc, gameOverDarkness);
     glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
     // espacio donde se le da las luces a las lamparas antes de poner su figura
     // .gltf o .obj
@@ -4032,6 +4079,47 @@ int main() {
       drawSlot(batLabel, (ImTextureID)(intptr_t)batteryTex,
                bateriasRecolectadas > 0, selectedHotbarSlot == 4);
 
+      // Slot 5: Interruptores (Energía)
+      {
+          ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+          ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+          bool isActive = (selectedHotbarSlot == 5);
+          ImU32 bgColor = IM_COL32(60, 60, 60, 200);
+          ImU32 borderColor = isActive ? IM_COL32(255, 255, 100, 255)
+                                       : IM_COL32(100, 100, 100, 180);
+
+          drawList->AddRectFilled(
+              cursorPos, ImVec2(cursorPos.x + slotSize, cursorPos.y + slotSize),
+              bgColor, 4.0f);
+          drawList->AddRect(
+              cursorPos, ImVec2(cursorPos.x + slotSize, cursorPos.y + slotSize),
+              borderColor, 4.0f, 0, isActive ? 2.5f : 1.0f);
+
+          float r = 6.0f;
+          float cx1 = cursorPos.x + slotSize * 0.25f;
+          float cx2 = cursorPos.x + slotSize * 0.50f;
+          float cx3 = cursorPos.x + slotSize * 0.75f;
+          float cy = cursorPos.y + slotSize * 0.45f;
+
+          ImU32 c1 = switch1Solved ? IM_COL32(50, 220, 50, 255) : IM_COL32(220, 50, 50, 255);
+          ImU32 c2 = switch2Solved ? IM_COL32(50, 220, 50, 255) : IM_COL32(220, 50, 50, 255);
+          ImU32 c3 = switch3Solved ? IM_COL32(50, 220, 50, 255) : IM_COL32(220, 50, 50, 255);
+
+          drawList->AddCircleFilled(ImVec2(cx1, cy), r, c1);
+          drawList->AddCircleFilled(ImVec2(cx2, cy), r, c2);
+          drawList->AddCircleFilled(ImVec2(cx3, cy), r, c3);
+
+          const char* label = getText("INV_ENERGY");
+          ImVec2 textSize = ImGui::CalcTextSize(label);
+          float textX = cursorPos.x + (slotSize - textSize.x) * 0.5f;
+          drawList->AddText(ImVec2(textX, cursorPos.y + slotSize + 1.0f),
+                            IM_COL32(255, 255, 255, 255), label);
+
+          ImGui::Dummy(ImVec2(slotSize, slotSize));
+          ImGui::SameLine(0.0f, slotPadding);
+      }
+
       ImGui::End();
       ImGui::PopStyleVar(2);
     }
@@ -4312,21 +4400,21 @@ int main() {
         ImGui::SetNextWindowSize(ImVec2(300, 200), ImGuiCond_Always);
         ImGui::Begin(title, nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
-        ImGui::Text("Panel Electrico de Emergencia");
+        ImGui::Text("%s", getText("PANEL_TITLE_EMERGENCY"));
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
 
         if (solvedFlag) {
-          ImGui::TextColored(ImVec4(0, 1, 0, 1), "Estado: EN LINEA");
+          ImGui::TextColored(ImVec4(0, 1, 0, 1), "%s", getText("PANEL_STATUS_ONLINE"));
         } else {
-          ImGui::TextColored(ImVec4(1, 0, 0, 1), "Estado: DESCONECTADO");
-          ImGui::Text("Baja la palanca para restablecer:");
-          ImGui::SliderFloat("Palanca", &leverValue, 0.0f, 1.0f, "%.2f");
+          ImGui::TextColored(ImVec4(1, 0, 0, 1), "%s", getText("PANEL_STATUS_OFFLINE"));
+          ImGui::Text("%s", getText("PANEL_PULL_LEVER"));
+          ImGui::SliderFloat(getText("PANEL_LEVER"), &leverValue, 0.0f, 1.0f, "%.2f");
           if (leverValue >= 1.0f) {
             solvedFlag = true;
-            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
-            printTypewriter("Interruptor activado.");
+            ma_engine_play_sound(&audioEngine, "assets/interruptor.mp3", NULL);
+            printTypewriter(getText("SWITCH_ACTIVATED"));
             activeFlag = false;
             isCursorLocked = true;
             firstMouse = true;
@@ -4335,14 +4423,14 @@ int main() {
             if (switch1Solved && switch2Solved && switch3Solved) {
               gameWon = true;
               allLightsOn = true;
-              printTypewriter("¡Energia principal restablecida!");
+              printTypewriter(getText("ENERGY_RESTORED"));
               ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
             }
           }
         }
         
         ImGui::Spacing();
-        if (ImGui::Button("Cerrar", ImVec2(80, 30))) {
+        if (ImGui::Button(getText("BTN_CLOSE"), ImVec2(80, 30))) {
           activeFlag = false;
           isCursorLocked = true;
           firstMouse = true;
@@ -4353,9 +4441,9 @@ int main() {
       }
     };
 
-    drawSwitchPanel("Interruptor: Archivo", switch1Active, switch1Solved, switch1Lever);
-    drawSwitchPanel("Interruptor: Laboratorio", switch2Active, switch2Solved, switch2Lever);
-    drawSwitchPanel("Interruptor: Ascensor", switch3Active, switch3Solved, switch3Lever);
+    drawSwitchPanel(getText("SWITCH_ARCHIVE"), switch1Active, switch1Solved, switch1Lever);
+    drawSwitchPanel(getText("SWITCH_LAB"), switch2Active, switch2Solved, switch2Lever);
+    drawSwitchPanel(getText("SWITCH_ELEVATOR"), switch3Active, switch3Solved, switch3Lever);
 
     // --- VICTORY SCREEN ---
     if (gameWon) {
@@ -4366,15 +4454,43 @@ int main() {
       ImGui::Begin("VICTORY", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
       
       ImGui::SetWindowFontScale(3.0f);
-      ImGui::TextColored(ImVec4(0.2f, 1.0f, 0.2f, 1.0f), "MISION COMPLETADA");
+      ImGui::TextColored(ImVec4(0.2f, 1.0f, 0.2f, 1.0f), "%s", getText("VICTORY_TITLE"));
       ImGui::SetWindowFontScale(1.5f);
       ImGui::Spacing();
-      ImGui::TextWrapped("La energia principal del laboratorio ha sido restablecida. Sistemas de contencion estables. Sistema de ventilacion reanudado.");
+      ImGui::TextWrapped("%s", getText("VICTORY_DESC"));
       ImGui::Spacing();
       ImGui::Separator();
       ImGui::Spacing();
       
-      if (ImGui::Button("SALIR", ImVec2(200, 50))) {
+      if (ImGui::Button(getText("BTN_EXIT"), ImVec2(200, 50))) {
+        glfwSetWindowShouldClose(window, true);
+      }
+      ImGui::SetWindowFontScale(1.0f);
+      ImGui::End();
+      ImGui::PopStyleColor();
+
+      isCursorLocked = false;
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    // --- GAME OVER SCREEN ---
+    if (gameState == GAMEOVER) {
+      ImGuiIO& io = ImGui::GetIO();
+      ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+      ImGui::SetNextWindowSize(ImVec2(600, 300), ImGuiCond_Always);
+      ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.2f, 0.05f, 0.05f, 0.95f));
+      ImGui::Begin("GAMEOVER", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+      
+      ImGui::SetWindowFontScale(3.0f);
+      ImGui::TextColored(ImVec4(1.0f, 0.2f, 0.2f, 1.0f), "%s", getText("GAMEOVER_TITLE"));
+      ImGui::SetWindowFontScale(1.5f);
+      ImGui::Spacing();
+      ImGui::TextWrapped("%s", getText("GAMEOVER_DESC"));
+      ImGui::Spacing();
+      ImGui::Separator();
+      ImGui::Spacing();
+      
+      if (ImGui::Button(getText("BTN_EXIT"), ImVec2(200, 50))) {
         glfwSetWindowShouldClose(window, true);
       }
       ImGui::SetWindowFontScale(1.0f);
@@ -4396,8 +4512,12 @@ int main() {
   ImGui::DestroyContext();
 
   ma_sound_uninit(&bgm);
-  if (shotgunFireSoundReady)
+  if (shotgunFireSoundReady) {
     ma_sound_uninit(&shotgunFireSound);
+  }
+  if (doorProximitySoundReady) {
+    ma_sound_uninit(&doorProximitySound);
+  }
   ma_engine_uninit(&audioEngine);
 
   glDeleteVertexArrays(1, &VAO);

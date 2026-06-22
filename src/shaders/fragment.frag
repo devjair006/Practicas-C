@@ -22,6 +22,7 @@ uniform float time;
 uniform vec2 resolution;
 uniform int useSolidColor;
 uniform float emissiveStrength;
+uniform float globalDarkness;
 
 struct PointLight {
     vec3 position;
@@ -152,6 +153,8 @@ void main() {
         float distToCenter = distance(uv, vec2(0.5));
         result *= smoothstep(0.9, 0.2, distToCenter);
     }
+
+    result *= globalDarkness;
 
     FragColor = texColor * vec4(result, 1.0);
 }

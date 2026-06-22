@@ -482,8 +482,7 @@ void processInput(GLFWwindow *window) {
     if (gameTimer <= 0.0f) {
       gameTimer = 0.0f;
       gameState = GAMEOVER;
-      printTypewriter(
-          "El tiempo se ha agotado. El sistema de ventilacion fallo.");
+      printTypewriter(getText("TIME_OUT_VENT"));
       return;
     }
   }
@@ -639,7 +638,7 @@ void processInput(GLFWwindow *window) {
     isSprinting = true;
     if (stamina <= 0.0f) {
       isExhausted = true;
-      std::cout << "\n[AGITADO]: Te has quedado sin aliento.\n" << std::endl;
+      std::cout << getText("CONSOLE_EXHAUSTED") << std::endl;
     }
   } else {
     stamina += 15.0f * deltaTime;
@@ -728,15 +727,13 @@ void processInput(GLFWwindow *window) {
             std::cout
                 << "\n========================================================="
                 << std::endl;
-            printTypewriter(
-                "ESCENA 4 & 5: ACTIVACION Y DISTORSION DE LA REALIDAD");
-            std::cout << "[SISTEMA REACTIVADO]... INICIANDO SECUENCIA DE COPIA."
+            printTypewriter(getText("TYPE_SCENE_4_5"));
+            std::cout << getText("CONSOLE_REACTIVATED")
                       << std::endl;
             std::cout
-                << "[ADVERTENCIA]... ANOMALIA DETECTADA EN LA REPLICACION."
+                << getText("CONSOLE_WARNING_COPY")
                 << std::endl;
-            std::cout << "El entorno pierde estabilidad. Los objetos empiezan "
-                         "a flotar."
+            std::cout << getText("CONSOLE_DISTORTION")
                       << std::endl;
             printTypewriter(getText("TYPE_NOT_COPY"));
             dimensionAlterna = true;
@@ -746,8 +743,8 @@ void processInput(GLFWwindow *window) {
             ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
           } else {
             std::cout
-                << "\n[CONSOLA]: Energia principal fuera de linea. Faltan "
-                << 3 - bateriasRecolectadas << " Baterias.\n"
+                << getText("CONSOLE_MISSING_BATS")
+                << 3 - bateriasRecolectadas << getText("CONSOLE_BATS_WORD")
                 << std::endl;
           }
         }
@@ -775,8 +772,8 @@ void processInput(GLFWwindow *window) {
           printTypewriter(getText(entity.text));
         } else if (entity.type == 1) {
           bateriasRecolectadas++;
-          std::cout << "\n[BATERIA RECOLECTADA]: Tienes "
-                    << bateriasRecolectadas << " / 3\n"
+          std::cout << getText("CONSOLE_BAT_COLLECTED")
+                    << bateriasRecolectadas << "/3\n"
                     << std::endl;
         } else if (entity.type == 8) {
           hasKeycardYellow = true;
@@ -800,7 +797,7 @@ void processInput(GLFWwindow *window) {
         } else if (entity.type == 1 || entity.type == 2) {
           printTypewriter(getText("TYPE_DRAWER_STUCK"));
         } else if (entity.type == 4) {
-          printTypewriter("[CAJON]: Esta vacio o atascado.");
+          printTypewriter(getText("TYPE_DRAWER_STUCK"));
         }
       }
     } else if (entity.type == 2 && portalActivado) {
@@ -823,15 +820,15 @@ void processInput(GLFWwindow *window) {
             << "\n========================================================="
             << std::endl;
         printTypewriter(getText("TYPE_SCENE_9"));
-        std::cout << "========================================================="
+        std::cout << getText("INTRO_1")
                   << std::endl;
-        std::cout << "               SISTEMA CAIDO - REINICIO IMPOSIBLE        "
+        std::cout << getText("SYSTEM_DOWN_1")
                   << std::endl;
         std::cout
-            << "=========================================================\n"
+            << getText("INTRO_1") << "\n"
             << std::endl;
         printTypewriter(getText("TYPE_COPY_COMPLETE"));
-        std::cout << "Presiona ESC para salir." << std::endl;
+        std::cout << getText("HINT_ESC_EXIT") << std::endl;
       }
     }
   }
@@ -845,7 +842,7 @@ void processInput(GLFWwindow *window) {
       float look = glm::dot(cameraFront, dir);
 
       if (dist < 2.5f && look > 0.80f) {
-        printTypewriter("Presiona Z para interactuar con el interruptor");
+        printTypewriter(getText("HINT_INTERACT_SWITCH"));
         if (justPressedZ) {
           if (interruptorPropCount == 0 && !switch1Solved) {
             switch1Active = true;
