@@ -2415,6 +2415,7 @@ int main() {
     int miniLampDrawCount = 0;
     int cameraAnimCount = 0;
     int ghostDrawCount = 0;
+    int interruptorPropCount = 0;
     std::map<GLTFModel *, std::vector<glm::mat4>> propInstanceBatches;
     for (const auto &prop : placedProps) {
       GLTFModel *model = modelRegistry[prop.modelName];
@@ -2535,9 +2536,20 @@ int main() {
             elevatorAnimTime = cycleTime;
           }
         }
+      } else if (prop.modelName == "interruptor") {
+        float leverVal = 0.0f;
+        if (interruptorPropCount == 0) leverVal = switch1Lever;
+        else if (interruptorPropCount == 1) leverVal = switch2Lever;
+        else if (interruptorPropCount == 2) leverVal = switch3Lever;
+        
+        elevatorAnimTime = leverVal * model->GetAnimationLengthSeconds(0);
+        interruptorPropCount++;
       }
 
       if (hasAnims) {
+        // Reset bone state — props animados de nodo (sin bones) se corromperian
+        // si el uniform isAnimated quedo activo de un draw anterior
+        glUniform1i(isAnimatedLoc, 0);
         model->DrawAnimated(elevatorAnimTime, 0, shaderProgram, modelLoc,
                             solidColorLoc, pModel);
       } else {
@@ -2859,19 +2871,6 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, cablesVertexCount);
         glUniform1i(solidColorLoc, 0);
         glBindVertexArray(VAO);
-      } else if (entity.type == 12 && interruptorGLTF && !interruptorGLTF->meshes.empty()) {
-        glm::mat4 baseMat = glm::translate(glm::mat4(1.0f), entity.pos);
-        baseMat = glm::rotate(baseMat, entity.seed, glm::vec3(0.0f, 1.0f, 0.0f));
-        baseMat = glm::scale(baseMat, glm::vec3(0.5f, 0.5f, 0.5f));
-        float leverVal = 0.0f;
-        if (entity.text == "Archivo") leverVal = switch1Lever;
-        else if (entity.text == "Laboratorio") leverVal = switch2Lever;
-        else if (entity.text == "Ascensor") leverVal = switch3Lever;
-        float animTime = leverVal * interruptorGLTF->GetAnimationLengthSeconds(0);
-        // Reset bone animation state — el interruptor no tiene bones,
-        // pero el shader podria tener datos de bone del gnomo/armas anteriores
-        glUniform1i(isAnimatedLoc, 0);
-        interruptorGLTF->DrawAnimated(animTime, 0, shaderProgram, modelLoc, solidColorLoc, baseMat);
       } else if (entity.type == 4) { // Mesa
         glBindVertexArray(VAO);
         glBindTexture(GL_TEXTURE_2D, wallTex1);
@@ -3581,9 +3580,14 @@ int main() {
 
           if (ImGui::Button("Traer frente a camara")) {
             prop.pos = cameraPos + cameraFront * 2.0f;
-            prop.pos.y = -0.5f;
             prop.rot = glm::vec3(0.0f, 0.0f, 0.0f);
-            prop.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            if (prop.modelName == "interruptor") {
+              prop.pos.y = cameraPos.y; // Ajuste para que se vea a la altura de la camara
+              prop.scale = glm::vec3(0.02f, 0.02f, 0.02f);
+            } else {
+              prop.pos.y = -0.5f;
+              prop.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+            }
           }
 
           ImGui::Spacing();
@@ -3713,7 +3717,8 @@ int main() {
                    newProp.modelName == "ducto") {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
           } else if (newProp.modelName == "interruptor") {
-            newProp.scale = glm::vec3(0.5f, 0.5f, 0.5f);
+            newProp.scale = glm::vec3(0.02f, 0.02f, 0.02f);
+            newProp.pos.y = cameraPos.y; // Ajuste para que no se entierre en el piso
           } else if (newProp.modelName == "compu_destruida") {
             newProp.scale = glm::vec3(0.55f, 0.55f, 0.55f);
             newProp.collisionActive = false;

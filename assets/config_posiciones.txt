@@ -10,7 +10,7 @@ esquineros 48.521 -0.5 12.504 0 -52 0 0.89 0.75 0.81 1 Contencion
 esquineros2 48.283 -0.5 20.301 -2.5 -144 -0.5 0.89 0.76 0.61 1 Contencion
 esquineros3 34.683 -0.5 12.581 -0.5 56 -0.5 0.89 0.76 0.86 1 Contencion
 esquineros4 34.833 -0.55 20.451 0.5 120 -0.5 0.89 0.76 0.61 1 Contencion
-cajonesOF 8.0 -0.5 5.0 0 0 0 1 1 1 0 Oficinas
+cajonesOF 8 -0.5 5 0 0 0 1 1 1 0 Oficinas
 cables_piso 36.137 -0.45 16.782 -88.5 -7 -61 0.01918 0.01918 0.01918 0 Contencion
 cables_piso 36.522 -0.45 16.109 -92 1 -6 0.019 0.019 0.019 0 Contencion
 cables_techo 35.1393 0.25 13.604 0 0 0 0.019 0.019 0.019 0 Contencion
@@ -365,3 +365,6 @@ cables_techo 32.533 0.25 30.958 0 98.5 0 0.01 0.01 0.01 1 sala-generadores
 cables_techo 29.983 0.25 31.458 0 41.5 0 0.01 0.01 0.01 1 sala-generadores
 lampara2 29.3 0.5 29.492 -90.5 0 -91 1 7.96 1.13 0 sala-generadores
 lampara2 37.85 0.5 29.492 -90.5 0 -91 1 7.96 1.13 0 sala-generadores
+interruptor 46.237 -0.15 3.898 90 1 180 0.01 0.01 0.01 0 General
+interruptor 41.157 0.000206301 33.187 -90.5 180 90.5 0.01 0.01 0.01 0 Ascensor
+interruptor 22.304 -0.047 20.844 90.5 0.5 180 0.01 0.01 0.01 1 General

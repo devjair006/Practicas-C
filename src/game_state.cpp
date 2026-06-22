@@ -597,10 +597,7 @@ std::vector<Entity> gameEntities = {
     {glm::vec3(15.0f, -0.2f, 18.0f), 1, true, "", 0.0f},
     {glm::vec3(10.0f, -0.4f, 28.0f), 3, true, "ENTITY_STAIN", 0.0f},
     {glm::vec3(25.0f, 0.0f, 3.0f), 2, true, "", 0.0f},
-    {glm::vec3(8.0f, -0.4f, 5.0f), 11, true, "", 0.0f}, // Tarjeta Azul (Oficinas)
-    {glm::vec3(44.0f, -0.4f, 7.0f), 12, true, "Archivo", 0.0f},
-    {glm::vec3(15.0f, -0.4f, 13.0f), 12, true, "Laboratorio", 1.5f},
-    {glm::vec3(41.0f, -0.4f, 27.0f), 12, true, "Ascensor", 3.0f}};
+    {glm::vec3(8.0f, -0.4f, 5.0f), 11, true, "", 0.0f}}; // Tarjeta Azul (Oficinas)
 
 float wallWidth = 0.3f;
 float wallHeight = 1.0f;

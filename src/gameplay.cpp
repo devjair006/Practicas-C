@@ -143,7 +143,7 @@ bool checkCollision(float x, float z) {
       glm::mat4 modelMat = glm::mat4(1.0f);
       modelMat = glm::translate(modelMat, entity.pos);
       modelMat = glm::rotate(modelMat, entity.seed, glm::vec3(0.0f, 1.0f, 0.0f));
-      modelMat = glm::scale(modelMat, glm::vec3(0.5f, 0.5f, 0.5f));
+      modelMat = glm::scale(modelMat, glm::vec3(0.02f, 0.02f, 0.02f));
       if (checkModelCollision(interruptorGLTF, modelMat, glm::vec3(x, cameraPos.y, z), playerRadius)) {
         return true;
       }
@@ -803,31 +803,6 @@ void processInput(GLFWwindow *window) {
           printTypewriter("[CAJON]: Esta vacio o atascado.");
         }
       }
-    } else if (entity.type == 12) {
-      if (distancia < 2.5f && lookAngle > 0.80f) {
-        printTypewriter("Presiona Z para interactuar con el panel electrico");
-        if (justPressedZ) {
-          if (entity.text == "Archivo" && !switch1Solved) {
-            switch1Active = true;
-            isCursorLocked = false;
-            firstMouse = true;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
-          } else if (entity.text == "Laboratorio" && !switch2Solved) {
-            switch2Active = true;
-            isCursorLocked = false;
-            firstMouse = true;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
-          } else if (entity.text == "Ascensor" && !switch3Solved) {
-            switch3Active = true;
-            isCursorLocked = false;
-            firstMouse = true;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
-          }
-        }
-      }
     } else if (entity.type == 2 && portalActivado) {
       float entityLookAngle = glm::dot(cameraFront, -realDirToEntity);
 
@@ -861,9 +836,42 @@ void processInput(GLFWwindow *window) {
     }
   }
 
-  // --- INTERACCION AUTOMATICA CON SANGRE (desde placedProps) ---
-  if (justPressedE) {
-    for (const auto &prop : placedProps) {
+  // --- INTERACCION AUTOMATICA CON SANGRE Y OTROS PROPS ---
+  int interruptorPropCount = 0;
+  for (const auto &prop : placedProps) {
+    if (prop.modelName == "interruptor") {
+      float dist = glm::length(prop.pos - cameraPos);
+      glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos) : glm::vec3(0.0f);
+      float look = glm::dot(cameraFront, dir);
+
+      if (dist < 2.5f && look > 0.80f) {
+        printTypewriter("Presiona Z para interactuar con el interruptor");
+        if (justPressedZ) {
+          if (interruptorPropCount == 0 && !switch1Solved) {
+            switch1Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          } else if (interruptorPropCount == 1 && !switch2Solved) {
+            switch2Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          } else if (interruptorPropCount == 2 && !switch3Solved) {
+            switch3Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          }
+        }
+      }
+      interruptorPropCount++;
+    }
+
+    if (justPressedE) {
       if (prop.modelName == "sangre-piso" || prop.modelName == "sangre-piso2" ||
           prop.modelName == "help" || prop.modelName == "it-sees-you") {
         float dist = glm::length(prop.pos - cameraPos);
