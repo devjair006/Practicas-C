@@ -336,6 +336,7 @@ bool juegoMuteado = false;
 bool isCursorLocked = false;
 bool tabKeyWasPressed = false;
 bool eKeyWasPressed = false;
+bool zKeyWasPressed = false;
 bool interactionPressedThisFrame = false;
 bool isFlashlightOn = true;
 bool fKeyWasPressed = false;
@@ -444,6 +445,7 @@ GLTFModel* neveraGLTF = nullptr;
 GLTFModel* estantebodGLTF = nullptr;
 GLTFModel* boxesGLTF = nullptr;
 
+GLTFModel *interruptorGLTF = nullptr;
 GLTFModel *ascensorGLTF = nullptr;
 GLTFModel *cajaElectricaGLTF = nullptr;
 GLTFModel *plataformaGLTF = nullptr;
@@ -595,7 +597,10 @@ std::vector<Entity> gameEntities = {
     {glm::vec3(15.0f, -0.2f, 18.0f), 1, true, "", 0.0f},
     {glm::vec3(10.0f, -0.4f, 28.0f), 3, true, "ENTITY_STAIN", 0.0f},
     {glm::vec3(25.0f, 0.0f, 3.0f), 2, true, "", 0.0f},
-    {glm::vec3(8.0f, -0.4f, 5.0f), 11, true, "", 0.0f}}; // Tarjeta Azul (Oficinas)
+    {glm::vec3(8.0f, -0.4f, 5.0f), 11, true, "", 0.0f}, // Tarjeta Azul (Oficinas)
+    {glm::vec3(44.0f, -0.4f, 7.0f), 12, true, "Archivo", 0.0f},
+    {glm::vec3(15.0f, -0.4f, 13.0f), 12, true, "Laboratorio", 1.5f},
+    {glm::vec3(41.0f, -0.4f, 27.0f), 12, true, "Ascensor", 3.0f}};
 
 float wallWidth = 0.3f;
 float wallHeight = 1.0f;
@@ -607,6 +612,7 @@ std::map<int, float> activeDoorsAnim;
 
 // Wire puzzle state
 bool wirePuzzleActive = false;
+bool resetWirePuzzle = false;
 int blackDoorGridX = -1;
 int blackDoorGridZ = -1;
 
@@ -623,6 +629,9 @@ bool switch3Active = false;
 bool switch1Solved = false;
 bool switch2Solved = false;
 bool switch3Solved = false;
+float switch1Lever = 0.0f;
+float switch2Lever = 0.0f;
+float switch3Lever = 0.0f;
 bool allLightsOn = false;
 bool gameWon = false;
 

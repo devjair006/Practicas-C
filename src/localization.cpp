@@ -88,6 +88,11 @@ std::map<std::string, std::map<Language, std::string>> dictionary = {
     {"INV_KEY_BLUE", {{LANG_ES, "T.Azul"}, {LANG_EN, "B.Card"}}},
     {"INV_BATS", {{LANG_ES, "Bats:%d/3"}, {LANG_EN, "Bats:%d/3"}}},
 
+    // Entities and combat
+    {"[COMBATE]: cerdo eliminada.", {{LANG_ES, "[COMBATE]: Cerdo eliminado."}, {LANG_EN, "[COMBAT]: Pig eliminated."}}},
+    {"[COMBATE]: esqueleto eliminada.", {{LANG_ES, "[COMBATE]: Esqueleto eliminado."}, {LANG_EN, "[COMBAT]: Skeleton eliminated."}}},
+    {"[RUIDO]: El esqueleto se sobresalta...", {{LANG_ES, "[RUIDO]: El esqueleto se sobresalta..."}, {LANG_EN, "[NOISE]: The skeleton is startled..."}}},
+
     {"", {{LANG_ES, ""}, {LANG_EN, ""}}}
 };
 

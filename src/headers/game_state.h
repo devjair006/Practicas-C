@@ -327,6 +327,7 @@ extern bool juegoMuteado;
 extern bool isCursorLocked;
 extern bool tabKeyWasPressed;
 extern bool eKeyWasPressed;
+extern bool zKeyWasPressed;
 extern bool interactionPressedThisFrame;
 extern bool isFlashlightOn;
 extern bool fKeyWasPressed;
@@ -415,6 +416,7 @@ extern GLTFModel *estantebodGLTF;
 extern GLTFModel *boxesGLTF;
 extern GLTFModel *barrilGLTF;
 
+extern GLTFModel *interruptorGLTF;
 extern GLTFModel *ascensorGLTF;
 extern GLTFModel *cajaElectricaGLTF;
 extern GLTFModel *plataformaGLTF;
@@ -633,6 +635,7 @@ extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
 
 // Wire puzzle state
 extern bool wirePuzzleActive;
+extern bool resetWirePuzzle;
 extern int blackDoorGridX;
 extern int blackDoorGridZ;
 
@@ -651,5 +654,8 @@ extern bool switch3Active;
 extern bool switch1Solved;
 extern bool switch2Solved;
 extern bool switch3Solved;
+extern float switch1Lever;
+extern float switch2Lever;
+extern float switch3Lever;
 extern bool allLightsOn;
 extern bool gameWon;

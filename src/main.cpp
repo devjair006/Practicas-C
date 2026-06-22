@@ -452,6 +452,7 @@ int main() {
 
   // --- ASCENSOR ---
   ascensorGLTF = new GLTFModel("assets/ascensor/ascensor.glb");
+  interruptorGLTF = new GLTFModel("assets/interruptor.glb");
   cajaElectricaGLTF = new GLTFModel("assets/ascensor/caja-electrica.glb");
   plataformaGLTF = new GLTFModel("assets/ascensor/plataforma.glb");
   ductoGLTF = new GLTFModel("assets/ascensor/ducto.glb");
@@ -559,6 +560,7 @@ int main() {
 
   // Ascensor
   modelRegistry["ascensor"] = ascensorGLTF;
+  modelRegistry["interruptor"] = interruptorGLTF;
   modelRegistry["caja-electrica"] = cajaElectricaGLTF;
   modelRegistry["plataforma"] = plataformaGLTF;
   modelRegistry["ducto"] = ductoGLTF;
@@ -2847,16 +2849,29 @@ int main() {
         glBindVertexArray(cablesVAO);
         glBindTexture(GL_TEXTURE_2D, pcTex);
         glUniform1i(solidColorLoc, 1);
-
-        // Ajuste de posiciÃ³n para que toque el suelo
+        entityModel = glm::translate(
+            entityModel, glm::vec3(0.0f, -0.06f, 0.0f)); // Subirla para verla
         entityModel =
-            glm::translate(entityModel, glm::vec3(-0.99f, -0.12f, 0.0f));
-        entityModel = glm::scale(entityModel, glm::vec3(0.5f, 0.5f, 0.5f));
-
+            glm::rotate(entityModel, entity.seed, glm::vec3(0.0f, 1.0f, 0.0f));
+        entityModel =
+            glm::scale(entityModel, glm::vec3(1.0f, 1.0f, 1.0f)); // Agrandarla
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(entityModel));
         glDrawArrays(GL_TRIANGLES, 0, cablesVertexCount);
         glUniform1i(solidColorLoc, 0);
         glBindVertexArray(VAO);
+      } else if (entity.type == 12 && interruptorGLTF && !interruptorGLTF->meshes.empty()) {
+        glm::mat4 baseMat = glm::translate(glm::mat4(1.0f), entity.pos);
+        baseMat = glm::rotate(baseMat, entity.seed, glm::vec3(0.0f, 1.0f, 0.0f));
+        baseMat = glm::scale(baseMat, glm::vec3(0.5f, 0.5f, 0.5f));
+        float leverVal = 0.0f;
+        if (entity.text == "Archivo") leverVal = switch1Lever;
+        else if (entity.text == "Laboratorio") leverVal = switch2Lever;
+        else if (entity.text == "Ascensor") leverVal = switch3Lever;
+        float animTime = leverVal * interruptorGLTF->GetAnimationLengthSeconds(0);
+        // Reset bone animation state — el interruptor no tiene bones,
+        // pero el shader podria tener datos de bone del gnomo/armas anteriores
+        glUniform1i(isAnimatedLoc, 0);
+        interruptorGLTF->DrawAnimated(animTime, 0, shaderProgram, modelLoc, solidColorLoc, baseMat);
       } else if (entity.type == 4) { // Mesa
         glBindVertexArray(VAO);
         glBindTexture(GL_TEXTURE_2D, wallTex1);
@@ -3619,7 +3634,7 @@ int main() {
             "sofa",
             // -- Ascensor --
             "ascensor", "caja-electrica", "plataforma",
-            "ducto", "ghost", "head",
+            "ducto", "ghost", "head", "interruptor",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
             "mirror", "MirrorBG", "urinario"};
@@ -3697,6 +3712,8 @@ int main() {
                    newProp.modelName == "plataforma" ||
                    newProp.modelName == "ducto") {
             newProp.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+          } else if (newProp.modelName == "interruptor") {
+            newProp.scale = glm::vec3(0.5f, 0.5f, 0.5f);
           } else if (newProp.modelName == "compu_destruida") {
             newProp.scale = glm::vec3(0.55f, 0.55f, 0.55f);
             newProp.collisionActive = false;
@@ -4053,6 +4070,12 @@ int main() {
       static int selectedLeftNode = -1;
       static int nodeConnections[4] = { -1, -1, -1, -1 }; // Index is left node, value is right node index
 
+      if (resetWirePuzzle) {
+        for (int i = 0; i < 4; ++i) nodeConnections[i] = -1;
+        selectedLeftNode = -1;
+        resetWirePuzzle = false;
+      }
+
       ImDrawList* drawList = ImGui::GetWindowDrawList();
       ImVec2 windowPos = ImGui::GetWindowPos();
 
@@ -4141,12 +4164,24 @@ int main() {
           int gz = blackDoorGridZ;
           worldMap[gz][gx] = -11;
           
-          if (gx > 0 && worldMap[gz][gx - 1] == 11) worldMap[gz][gx - 1] = -11;
-          if (gx < MAP_WIDTH - 1 && worldMap[gz][gx + 1] == 11) worldMap[gz][gx + 1] = -11;
-          if (gz > 0 && worldMap[gz - 1][gx] == 11) worldMap[gz - 1][gx] = -11;
-          if (gz < MAP_HEIGHT - 1 && worldMap[gz + 1][gx] == 11) worldMap[gz + 1][gx] = -11;
+          if (gx > 0 && worldMap[gz][gx - 1] == 11) {
+            worldMap[gz][gx - 1] = -11;
+            activeDoorsAnim[gz * MAP_WIDTH + (gx - 1)] = 0.0f;
+          }
+          if (gx < MAP_WIDTH - 1 && worldMap[gz][gx + 1] == 11) {
+            worldMap[gz][gx + 1] = -11;
+            activeDoorsAnim[gz * MAP_WIDTH + (gx + 1)] = 0.0f;
+          }
+          if (gz > 0 && worldMap[gz - 1][gx] == 11) {
+            worldMap[gz - 1][gx] = -11;
+            activeDoorsAnim[(gz - 1) * MAP_WIDTH + gx] = 0.0f;
+          }
+          if (gz < MAP_HEIGHT - 1 && worldMap[gz + 1][gx] == 11) {
+            worldMap[gz + 1][gx] = -11;
+            activeDoorsAnim[(gz + 1) * MAP_WIDTH + gx] = 0.0f;
+          }
 
-          activeDoorsAnim[11] = 0.0f;
+          activeDoorsAnim[gz * MAP_WIDTH + gx] = 0.0f;
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
           printTypewriter(getText("TYPE_BLACK_DOOR"));
           blackDoorGridX = -1;
@@ -4265,7 +4300,7 @@ int main() {
     }
 
     // --- SWITCH PANELS ---
-    auto drawSwitchPanel = [&](const char* title, bool& activeFlag, bool& solvedFlag) {
+    auto drawSwitchPanel = [&](const char* title, bool& activeFlag, bool& solvedFlag, float& leverValue) {
       if (activeFlag) {
         ImGuiIO& io = ImGui::GetIO();
         ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
@@ -4281,7 +4316,9 @@ int main() {
           ImGui::TextColored(ImVec4(0, 1, 0, 1), "Estado: EN LINEA");
         } else {
           ImGui::TextColored(ImVec4(1, 0, 0, 1), "Estado: DESCONECTADO");
-          if (ImGui::Button("ACTIVAR INTERRUPTOR", ImVec2(ImGui::GetWindowWidth() - 30, 50))) {
+          ImGui::Text("Baja la palanca para restablecer:");
+          ImGui::SliderFloat("Palanca", &leverValue, 0.0f, 1.0f, "%.2f");
+          if (leverValue >= 1.0f) {
             solvedFlag = true;
             ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
             printTypewriter("Interruptor activado.");
@@ -4298,13 +4335,22 @@ int main() {
             }
           }
         }
+        
+        ImGui::Spacing();
+        if (ImGui::Button("Cerrar", ImVec2(80, 30))) {
+          activeFlag = false;
+          isCursorLocked = true;
+          firstMouse = true;
+          glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+
         ImGui::End();
       }
     };
 
-    drawSwitchPanel("Interruptor: Bodega", switch1Active, switch1Solved);
-    drawSwitchPanel("Interruptor: Ascensor", switch2Active, switch2Solved);
-    drawSwitchPanel("Interruptor: Muestras", switch3Active, switch3Solved);
+    drawSwitchPanel("Interruptor: Archivo", switch1Active, switch1Solved, switch1Lever);
+    drawSwitchPanel("Interruptor: Laboratorio", switch2Active, switch2Solved, switch2Lever);
+    drawSwitchPanel("Interruptor: Ascensor", switch3Active, switch3Solved, switch3Lever);
 
     // --- VICTORY SCREEN ---
     if (gameWon) {

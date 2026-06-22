@@ -139,6 +139,15 @@ bool checkCollision(float x, float z) {
       if (dist < 0.8f)
         return true;
     }
+    if (entity.type == 12 && interruptorGLTF && !interruptorGLTF->meshes.empty()) {
+      glm::mat4 modelMat = glm::mat4(1.0f);
+      modelMat = glm::translate(modelMat, entity.pos);
+      modelMat = glm::rotate(modelMat, entity.seed, glm::vec3(0.0f, 1.0f, 0.0f));
+      modelMat = glm::scale(modelMat, glm::vec3(0.5f, 0.5f, 0.5f));
+      if (checkModelCollision(interruptorGLTF, modelMat, glm::vec3(x, cameraPos.y, z), playerRadius)) {
+        return true;
+      }
+    }
   }
 
   // --- COLISIÓN CON PROPS DE BAÑO GLB (AABB) ---
@@ -399,9 +408,11 @@ void tryOpenDoor(GLFWwindow *window) {
       symbolPuzzleWheelIndices[2] = (symbolPuzzleTargetSymbol + 5) % 6;
     } else if (targetBlock == 8) {
       if (hasKeycardYellow) {
-        for (int cx = 0; cx < MAP_WIDTH; cx++) {
-          if (worldMap[gridZ][cx] == 8)
-            worldMap[gridZ][cx] = -8;
+        for (int rz = 0; rz < MAP_HEIGHT; rz++) {
+          for (int cx = 0; cx < MAP_WIDTH; cx++) {
+            if (worldMap[rz][cx] == 8)
+              worldMap[rz][cx] = -8;
+          }
         }
         door1Opening = true;
         printTypewriter(std::string(getText("TYPE_YELLOW_ACCEPTED")) +
@@ -412,9 +423,11 @@ void tryOpenDoor(GLFWwindow *window) {
       }
     } else if (targetBlock == 9) {
       if (hasKeycardRed) {
-        for (int cx = 0; cx < MAP_WIDTH; cx++) {
-          if (worldMap[gridZ][cx] == 9)
-            worldMap[gridZ][cx] = -9;
+        for (int rz = 0; rz < MAP_HEIGHT; rz++) {
+          for (int cx = 0; cx < MAP_WIDTH; cx++) {
+            if (worldMap[rz][cx] == 9)
+              worldMap[rz][cx] = -9;
+          }
         }
         door2Opening = true;
         printTypewriter(std::string(getText("TYPE_RED_ACCEPTED")) +
@@ -438,6 +451,7 @@ void tryOpenDoor(GLFWwindow *window) {
     } else if (targetBlock == 11) {
       // Activar el puzzle de cables para la puerta negra
       wirePuzzleActive = true;
+      resetWirePuzzle = true;
       blackDoorGridX = gridX;
       blackDoorGridZ = gridZ;
       isCursorLocked = false;
@@ -686,6 +700,17 @@ void processInput(GLFWwindow *window) {
     }
   }
 
+  bool justPressedZ = false;
+  if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+    if (!zKeyWasPressed) {
+      justPressedZ = true;
+      interactionPressedThisFrame = true;
+      zKeyWasPressed = true;
+    }
+  } else {
+    zKeyWasPressed = false;
+  }
+
   bool justPressedE = false;
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
     if (!eKeyWasPressed) {
@@ -776,6 +801,31 @@ void processInput(GLFWwindow *window) {
           printTypewriter(getText("TYPE_DRAWER_STUCK"));
         } else if (entity.type == 4) {
           printTypewriter("[CAJON]: Esta vacio o atascado.");
+        }
+      }
+    } else if (entity.type == 12) {
+      if (distancia < 2.5f && lookAngle > 0.80f) {
+        printTypewriter("Presiona Z para interactuar con el panel electrico");
+        if (justPressedZ) {
+          if (entity.text == "Archivo" && !switch1Solved) {
+            switch1Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          } else if (entity.text == "Laboratorio" && !switch2Solved) {
+            switch2Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          } else if (entity.text == "Ascensor" && !switch3Solved) {
+            switch3Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          }
         }
       }
     } else if (entity.type == 2 && portalActivado) {
