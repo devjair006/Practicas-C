@@ -23,6 +23,7 @@ uniform vec2 resolution;
 uniform int useSolidColor;
 uniform float emissiveStrength;
 uniform float globalDarkness;
+uniform float fogAmount; // 0 = sin niebla; >0 niebla rojiza (area experimental)
 
 struct PointLight {
     vec3 position;
@@ -156,5 +157,15 @@ void main() {
 
     result *= globalDarkness;
 
-    FragColor = texColor * vec4(result, 1.0);
+    vec4 finalColor = texColor * vec4(result, 1.0);
+
+    // Niebla rojiza localizada (area experimental). lightPos == posicion de camara.
+    if (fogAmount > 0.0) {
+        float fogDist = length(FragPos - lightPos);
+        float fogF = clamp((fogDist - 1.5) / 9.0, 0.0, 1.0) * fogAmount;
+        vec3 fogCol = vec3(0.28, 0.03, 0.03);
+        finalColor.rgb = mix(finalColor.rgb, fogCol, fogF);
+    }
+
+    FragColor = finalColor;
 }

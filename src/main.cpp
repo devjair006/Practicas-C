@@ -781,6 +781,7 @@ int main() {
   int finalBonesLoc =
       glGetUniformLocation(shaderProgram, "finalBonesMatrices[0]");
 
+  int fogAmountLoc = glGetUniformLocation(shaderProgram, "fogAmount");
   int numPointLightsLoc = glGetUniformLocation(shaderProgram, "numPointLights");
   int pointLightPosLoc[32];
   int pointLightColLoc[32];
@@ -1548,6 +1549,16 @@ int main() {
     glUniform1f(timeLoc, currentFrame);
     glUniform1f(globalDarknessLoc, gameOverDarkness);
     glUniform2f(resLoc, (float)currentWidth, (float)currentHeight);
+
+    // Niebla rojiza solo en el area experimental (cuarto x1-17, z25-33).
+    // Se interpola suave para que aparezca/desaparezca al entrar y salir.
+    static float fogAmount = 0.0f;
+    bool inExperimental =
+        (cameraPos.x >= 1.0f && cameraPos.x <= 17.0f &&
+         cameraPos.z >= 25.0f && cameraPos.z <= 33.0f);
+    float fogTarget = inExperimental ? 0.55f : 0.0f;
+    fogAmount += (fogTarget - fogAmount) * (std::min)(1.0f, deltaTime * 3.0f);
+    glUniform1f(fogAmountLoc, fogAmount);
     // espacio donde se le da las luces a las lamparas antes de poner su figura
     // .gltf o .obj
 
@@ -1708,10 +1719,26 @@ int main() {
                 0.45f * flickerDescanso2, 0.15f * flickerDescanso2);
     glUniform1f(pointLightRadLoc[13], 4.0f);
 
+    // --- LUCES ROJAS DEL AREA EXPERIMENTAL (slots 16-18, fijas) ---
+    // Pulso lento e inquietante. Cubren el cuarto (x1-17, z25-33).
+    float expPulse = 0.65f + 0.35f * sin(currentFrame * 2.5f);
+    glm::vec3 expLightPositions[3] = {glm::vec3(4.5f, 2.0f, 29.0f),
+                                      glm::vec3(9.0f, 2.0f, 29.0f),
+                                      glm::vec3(14.0f, 2.0f, 29.0f)};
+    for (int i = 0; i < 3; i++) {
+      int slot = 16 + i;
+      glUniform3fv(pointLightPosLoc[slot], 1,
+                   glm::value_ptr(expLightPositions[i]));
+      glUniform3f(pointLightColLoc[slot], 0.85f * expPulse, 0.08f * expPulse,
+                  0.06f * expPulse);
+      glUniform1f(pointLightRadLoc[slot], 6.0f);
+    }
+
     // Los indices fijos llegan hasta 13; solo enviamos los dinamicos cercanos.
+    // Las luces experimentales ocupan hasta el slot 18 -> minimo 19.
     int highestPointLightSlot =
         currentSlotIdx > 0 ? dynamicSlots[currentSlotIdx - 1] : 13;
-    glUniform1i(numPointLightsLoc, (std::max)(14, highestPointLightSlot + 1));
+    glUniform1i(numPointLightsLoc, (std::max)(19, highestPointLightSlot + 1));
 
     // --- SPOTLIGHTS (Max 16) ---
     int spotIdx = 0;
