@@ -356,6 +356,7 @@ bool juegoMuteado = false;
 bool isCursorLocked = false;
 bool tabKeyWasPressed = false;
 bool eKeyWasPressed = false;
+bool zKeyWasPressed = false;
 bool interactionPressedThisFrame = false;
 bool isFlashlightOn = true;
 bool fKeyWasPressed = false;
@@ -467,6 +468,8 @@ GLTFModel *safetyGLTF = nullptr;
 GLTFModel* neveraGLTF = nullptr;
 GLTFModel* estantebodGLTF = nullptr;
 GLTFModel* boxesGLTF = nullptr;
+
+GLTFModel *interruptorGLTF = nullptr;
 GLTFModel *ascensorGLTF = nullptr;
 GLTFModel *cajaElectricaGLTF = nullptr;
 GLTFModel *plataformaGLTF = nullptr;
@@ -630,6 +633,7 @@ std::map<int, float> activeDoorsAnim;
 
 // Wire puzzle state
 bool wirePuzzleActive = false;
+bool resetWirePuzzle = false;
 int blackDoorGridX = -1;
 int blackDoorGridZ = -1;
 
@@ -638,6 +642,19 @@ int whiteDoorGridX = -1;
 int whiteDoorGridZ = -1;
 int symbolPuzzleTargetSymbol = 0;
 int symbolPuzzleWheelIndices[3] = { 0, 0, 0 };
+
+float gameTimer = 600.0f; // 10 minutes in seconds
+bool switch1Active = false;
+bool switch2Active = false;
+bool switch3Active = false;
+bool switch1Solved = false;
+bool switch2Solved = false;
+bool switch3Solved = false;
+float switch1Lever = 0.0f;
+float switch2Lever = 0.0f;
+float switch3Lever = 0.0f;
+bool allLightsOn = false;
+bool gameWon = false;
 
 int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
@@ -658,8 +675,8 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
      0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
-     1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 7, 7, 1, 1, 1},
+    {1, 1, 1, 1, 1, 11, 11, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 7, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 7, 7, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 10, 10, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -677,12 +694,12 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
     {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+     0, 0, 0, 0, 0, 0, 0, 0, 11, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
+     0, 0, 0, 0, 0, 0, 0, 0, 11, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
     {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 7, 7, 4, 4, 4, 4, 4, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -698,10 +715,10 @@ int worldMap[MAP_HEIGHT][MAP_WIDTH] = {
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
@@ -946,6 +963,17 @@ void loadLevelProps(const std::string &path) {
     placedProps.push_back({"emergency", glm::vec3(10.0f, 2.5f, 3.0f),
                            glm::vec3(0.000f, 0.000f, 0.000f),
                            glm::vec3(1.0f, 1.0f, 1.0f), true, "Descanso"});
+
+    // Switches (caja-electrica)
+    placedProps.push_back({"caja-electrica", glm::vec3(5.0f, -0.4f, 14.0f),
+                           glm::vec3(0.0f, 0.0f, 0.0f),
+                           glm::vec3(1.0f, 1.0f, 1.0f), true, "Bodega"});
+    placedProps.push_back({"caja-electrica", glm::vec3(45.0f, -0.4f, 29.0f),
+                           glm::vec3(0.0f, -90.0f, 0.0f),
+                           glm::vec3(1.0f, 1.0f, 1.0f), true, "Ascensor"});
+    placedProps.push_back({"caja-electrica", glm::vec3(26.0f, -0.4f, 15.0f),
+                           glm::vec3(0.0f, 180.0f, 0.0f),
+                           glm::vec3(1.0f, 1.0f, 1.0f), true, "Muestras"});
 
     saveLevelProps(path);
   }

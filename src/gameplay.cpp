@@ -4,9 +4,9 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include "headers/animated_entity.h"
 #include "headers/gameplay.h"
 #include "headers/localization.h"
-#include "headers/animated_entity.h"
 
 #include <cmath>
 #include <iostream>
@@ -42,9 +42,8 @@ bool isPlayerNearProp(const PlacedProp &prop, const GLTFModel *model,
   float scaledZ = std::abs(localSize.z * prop.scale.z);
   float broadRadius =
       (std::max)(2.0f, 0.5f * glm::length(glm::vec2(scaledX, scaledZ)) +
-                            playerRadius + 0.75f);
-  glm::vec2 delta(prop.pos.x - playerPosition.x,
-                  prop.pos.z - playerPosition.z);
+                           playerRadius + 0.75f);
+  glm::vec2 delta(prop.pos.x - playerPosition.x, prop.pos.z - playerPosition.z);
   return glm::dot(delta, delta) <= broadRadius * broadRadius;
 }
 } // namespace
@@ -139,6 +138,15 @@ bool checkCollision(float x, float z) {
       float dist = glm::length(glm::vec2(x - entity.pos.x, z - entity.pos.z));
       if (dist < 0.8f)
         return true;
+    }
+    if (entity.type == 12 && interruptorGLTF && !interruptorGLTF->meshes.empty()) {
+      glm::mat4 modelMat = glm::mat4(1.0f);
+      modelMat = glm::translate(modelMat, entity.pos);
+      modelMat = glm::rotate(modelMat, entity.seed, glm::vec3(0.0f, 1.0f, 0.0f));
+      modelMat = glm::scale(modelMat, glm::vec3(0.02f, 0.02f, 0.02f));
+      if (checkModelCollision(interruptorGLTF, modelMat, glm::vec3(x, cameraPos.y, z), playerRadius)) {
+        return true;
+      }
     }
   }
 
@@ -302,8 +310,7 @@ bool checkCollision(float x, float z) {
                                   prop.rot.z, scaledHalfSize)) {
         return true;
       }
-    }
- else {
+    } else {
       // Colision estándar AABB del modelo
       glm::mat4 modelMat = glm::mat4(1.0f);
       modelMat = glm::translate(modelMat, prop.pos);
@@ -390,34 +397,41 @@ void tryOpenDoor(GLFWwindow *window) {
       firstMouse = true;
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
       printTypewriter(getText("TYPE_PANEL_INIT"));
-      
+
       // Seed dynamically and deterministically using coordinates
-      symbolPuzzleTargetSymbol = (gridX * 13 + gridZ * 7) % 6; // 6 is numSymbols
-      
+      symbolPuzzleTargetSymbol =
+          (gridX * 13 + gridZ * 7) % 6; // 6 is numSymbols
+
       // Make sure wheels do not start already aligned to targetSymbol
       symbolPuzzleWheelIndices[0] = (symbolPuzzleTargetSymbol + 1) % 6;
       symbolPuzzleWheelIndices[1] = (symbolPuzzleTargetSymbol + 3) % 6;
       symbolPuzzleWheelIndices[2] = (symbolPuzzleTargetSymbol + 5) % 6;
     } else if (targetBlock == 8) {
       if (hasKeycardYellow) {
-        for (int cx = 0; cx < MAP_WIDTH; cx++) {
-          if (worldMap[gridZ][cx] == 8)
-            worldMap[gridZ][cx] = -8;
+        for (int rz = 0; rz < MAP_HEIGHT; rz++) {
+          for (int cx = 0; cx < MAP_WIDTH; cx++) {
+            if (worldMap[rz][cx] == 8)
+              worldMap[rz][cx] = -8;
+          }
         }
         door1Opening = true;
-        printTypewriter(std::string(getText("TYPE_YELLOW_ACCEPTED")) + std::to_string(currentZone + 1));
+        printTypewriter(std::string(getText("TYPE_YELLOW_ACCEPTED")) +
+                        std::to_string(currentZone + 1));
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
         printTypewriter(getText("TYPE_DOOR_LOCKED_YELLOW"));
       }
     } else if (targetBlock == 9) {
       if (hasKeycardRed) {
-        for (int cx = 0; cx < MAP_WIDTH; cx++) {
-          if (worldMap[gridZ][cx] == 9)
-            worldMap[gridZ][cx] = -9;
+        for (int rz = 0; rz < MAP_HEIGHT; rz++) {
+          for (int cx = 0; cx < MAP_WIDTH; cx++) {
+            if (worldMap[rz][cx] == 9)
+              worldMap[rz][cx] = -9;
+          }
         }
         door2Opening = true;
-        printTypewriter(std::string(getText("TYPE_RED_ACCEPTED")) + std::to_string(currentZone + 1));
+        printTypewriter(std::string(getText("TYPE_RED_ACCEPTED")) +
+                        std::to_string(currentZone + 1));
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
         printTypewriter(getText("TYPE_DOOR_LOCKED_RED"));
@@ -428,6 +442,7 @@ void tryOpenDoor(GLFWwindow *window) {
           if (worldMap[gridZ][cx] == 10)
             worldMap[gridZ][cx] = -10;
         }
+        activeDoorsAnim[10] = 0.0f;
         printTypewriter(getText("TYPE_BLUE_ACCEPTED"));
         ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
       } else {
@@ -436,6 +451,7 @@ void tryOpenDoor(GLFWwindow *window) {
     } else if (targetBlock == 11) {
       // Activar el puzzle de cables para la puerta negra
       wirePuzzleActive = true;
+      resetWirePuzzle = true;
       blackDoorGridX = gridX;
       blackDoorGridZ = gridZ;
       isCursorLocked = false;
@@ -456,8 +472,20 @@ void processInput(GLFWwindow *window) {
       glfwSetWindowShouldClose(window, true);
   }
 
-  if (gameState == GAMEOVER)
+  if (gameState == GAMEOVER || gameWon)
     return;
+
+  if (gameState == PLAYING && !isReadingDocument && !wirePuzzleActive &&
+      !symbolPuzzleActive && !switch1Active && !switch2Active &&
+      !switch3Active) {
+    gameTimer -= deltaTime;
+    if (gameTimer <= 0.0f) {
+      gameTimer = 0.0f;
+      gameState = GAMEOVER;
+      printTypewriter(getText("TIME_OUT_VENT"));
+      return;
+    }
+  }
 
   if (wirePuzzleActive) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -469,9 +497,12 @@ void processInput(GLFWwindow *window) {
     return; // Block other inputs while puzzle is active
   }
 
-  if (symbolPuzzleActive) {
+  if (symbolPuzzleActive || switch1Active || switch2Active || switch3Active) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
       symbolPuzzleActive = false;
+      switch1Active = false;
+      switch2Active = false;
+      switch3Active = false;
       isCursorLocked = true;
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       firstMouse = true;
@@ -492,8 +523,9 @@ void processInput(GLFWwindow *window) {
   }
 
   if (gameState == MENU) {
-    if (!menuOpcionesActivo && (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)) {
+    if (!menuOpcionesActivo &&
+        (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS ||
+         glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)) {
       gameState = PLAYING;
       isCursorLocked = true;
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -606,7 +638,7 @@ void processInput(GLFWwindow *window) {
     isSprinting = true;
     if (stamina <= 0.0f) {
       isExhausted = true;
-      std::cout << "\n[AGITADO]: Te has quedado sin aliento.\n" << std::endl;
+      std::cout << getText("CONSOLE_EXHAUSTED") << std::endl;
     }
   } else {
     stamina += 15.0f * deltaTime;
@@ -667,6 +699,17 @@ void processInput(GLFWwindow *window) {
     }
   }
 
+  bool justPressedZ = false;
+  if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+    if (!zKeyWasPressed) {
+      justPressedZ = true;
+      interactionPressedThisFrame = true;
+      zKeyWasPressed = true;
+    }
+  } else {
+    zKeyWasPressed = false;
+  }
+
   bool justPressedE = false;
   if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
     if (!eKeyWasPressed) {
@@ -684,15 +727,13 @@ void processInput(GLFWwindow *window) {
             std::cout
                 << "\n========================================================="
                 << std::endl;
-            printTypewriter(
-                "ESCENA 4 & 5: ACTIVACION Y DISTORSION DE LA REALIDAD");
-            std::cout << "[SISTEMA REACTIVADO]... INICIANDO SECUENCIA DE COPIA."
+            printTypewriter(getText("TYPE_SCENE_4_5"));
+            std::cout << getText("CONSOLE_REACTIVATED")
                       << std::endl;
             std::cout
-                << "[ADVERTENCIA]... ANOMALIA DETECTADA EN LA REPLICACION."
+                << getText("CONSOLE_WARNING_COPY")
                 << std::endl;
-            std::cout << "El entorno pierde estabilidad. Los objetos empiezan "
-                         "a flotar."
+            std::cout << getText("CONSOLE_DISTORTION")
                       << std::endl;
             printTypewriter(getText("TYPE_NOT_COPY"));
             dimensionAlterna = true;
@@ -702,8 +743,8 @@ void processInput(GLFWwindow *window) {
             ma_engine_play_sound(&audioEngine, "assets/start.wav", NULL);
           } else {
             std::cout
-                << "\n[CONSOLA]: Energia principal fuera de linea. Faltan "
-                << 3 - bateriasRecolectadas << " Baterias.\n"
+                << getText("CONSOLE_MISSING_BATS")
+                << 3 - bateriasRecolectadas << getText("CONSOLE_BATS_WORD")
                 << std::endl;
           }
         }
@@ -731,8 +772,8 @@ void processInput(GLFWwindow *window) {
           printTypewriter(getText(entity.text));
         } else if (entity.type == 1) {
           bateriasRecolectadas++;
-          std::cout << "\n[BATERIA RECOLECTADA]: Tienes "
-                    << bateriasRecolectadas << " / 3\n"
+          std::cout << getText("CONSOLE_BAT_COLLECTED")
+                    << bateriasRecolectadas << "/3\n"
                     << std::endl;
         } else if (entity.type == 8) {
           hasKeycardYellow = true;
@@ -756,7 +797,7 @@ void processInput(GLFWwindow *window) {
         } else if (entity.type == 1 || entity.type == 2) {
           printTypewriter(getText("TYPE_DRAWER_STUCK"));
         } else if (entity.type == 4) {
-          printTypewriter("[CAJON]: Esta vacio o atascado.");
+          printTypewriter(getText("TYPE_DRAWER_STUCK"));
         }
       }
     } else if (entity.type == 2 && portalActivado) {
@@ -779,24 +820,57 @@ void processInput(GLFWwindow *window) {
             << "\n========================================================="
             << std::endl;
         printTypewriter(getText("TYPE_SCENE_9"));
-        std::cout << "========================================================="
+        std::cout << getText("INTRO_1")
                   << std::endl;
-        std::cout << "               SISTEMA CAIDO - REINICIO IMPOSIBLE        "
+        std::cout << getText("SYSTEM_DOWN_1")
                   << std::endl;
-        std::cout << "=========================================================\n"
-                  << std::endl;
+        std::cout
+            << getText("INTRO_1") << "\n"
+            << std::endl;
         printTypewriter(getText("TYPE_COPY_COMPLETE"));
-        std::cout << "Presiona ESC para salir." << std::endl;
+        std::cout << getText("HINT_ESC_EXIT") << std::endl;
       }
     }
   }
 
-  // --- INTERACCION AUTOMATICA CON SANGRE (desde placedProps) ---
-  if (justPressedE) {
-    for (const auto &prop : placedProps) {
-      if (prop.modelName == "sangre-piso" ||
-          prop.modelName == "sangre-piso2" || prop.modelName == "help" ||
-          prop.modelName == "it-sees-you") {
+  // --- INTERACCION AUTOMATICA CON SANGRE Y OTROS PROPS ---
+  int interruptorPropCount = 0;
+  for (const auto &prop : placedProps) {
+    if (prop.modelName == "interruptor") {
+      float dist = glm::length(prop.pos - cameraPos);
+      glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos) : glm::vec3(0.0f);
+      float look = glm::dot(cameraFront, dir);
+
+      if (dist < 2.5f && look > 0.80f) {
+        printTypewriter(getText("HINT_INTERACT_SWITCH"));
+        if (justPressedZ) {
+          if (interruptorPropCount == 0 && !switch1Solved) {
+            switch1Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          } else if (interruptorPropCount == 1 && !switch2Solved) {
+            switch2Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          } else if (interruptorPropCount == 2 && !switch3Solved) {
+            switch3Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          }
+        }
+      }
+      interruptorPropCount++;
+    }
+
+    if (justPressedE) {
+      if (prop.modelName == "sangre-piso" || prop.modelName == "sangre-piso2" ||
+          prop.modelName == "help" || prop.modelName == "it-sees-you") {
         float dist = glm::length(prop.pos - cameraPos);
         glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos)
                                         : glm::vec3(0.0f);
@@ -804,6 +878,33 @@ void processInput(GLFWwindow *window) {
 
         if (dist < 2.5f && look > 0.85f) {
           printTypewriter(getText("TYPE_BLOOD_TRAIL"));
+        }
+      }
+
+      if (prop.modelName == "caja-electrica") {
+        float dist = glm::length(prop.pos - cameraPos);
+        glm::vec3 dir = (dist > 0.001f) ? glm::normalize(prop.pos - cameraPos)
+                                        : glm::vec3(0.0f);
+        float look = glm::dot(cameraFront, dir);
+
+        if (dist < 2.0f && look > 0.85f) {
+          // Identify which switch it is based on location or string prop
+          if (prop.textoEntidad == "Bodega" && !switch1Solved) {
+            switch1Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+          } else if (prop.textoEntidad == "Ascensor" && !switch2Solved) {
+            switch2Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+          } else if (prop.textoEntidad == "Muestras" && !switch3Solved) {
+            switch3Active = true;
+            isCursorLocked = false;
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+          }
         }
       }
     }
@@ -819,7 +920,7 @@ void processInput(GLFWwindow *window) {
     if (door2Anim > 90.0f)
       door2Anim = 90.0f;
   }
-  for (auto& pair : activeDoorsAnim) {
+  for (auto &pair : activeDoorsAnim) {
     if (pair.second < 90.0f) {
       pair.second += 120.0f * deltaTime;
       if (pair.second > 90.0f)

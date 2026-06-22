@@ -78,12 +78,15 @@ if(WIN32)
         "${CMAKE_CURRENT_SOURCE_DIR}/glfw3.dll"
         $<TARGET_FILE_DIR:app>
     )
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-windows/bin/assimp-vc143-mt.dll")
-        add_custom_command(TARGET app POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-windows/bin/assimp-vc143-mt.dll"
-            $<TARGET_FILE_DIR:app>
-        )
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-windows/bin")
+        file(GLOB VCPKG_DLLS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/installed/x64-windows/bin/*.dll")
+        foreach(DLL_FILE ${VCPKG_DLLS})
+            add_custom_command(TARGET app POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${DLL_FILE}"
+                $<TARGET_FILE_DIR:app>
+            )
+        endforeach()
     endif()
 else()
     target_link_libraries(app ${GLFW_LIBRARIES} ${ASSIMP_LIBRARIES})

@@ -2,6 +2,8 @@
 build/
 build_win/
 .cache/
+Proyecto-Confidencial_Release.zip
+
 # .vscode/ -- NO ignorar, contiene configuración de compilación para el equipo
 
 # Ejecutables y binarios
@@ -11,6 +13,8 @@ build_win/
 app
 app.dSYM/
 imgui.ini
+dist_game/
+
 
 # VS y CMake generados locales
 .vs/

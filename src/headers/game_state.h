@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string>
-#include <vector>
 #include <map>
+#include <string>
 #include <unordered_set>
+#include <vector>
+
 
 #include <glm/glm.hpp>
 #include <miniaudio.h>
@@ -18,7 +19,8 @@ enum GameState { MENU, PLAYING, GAMEOVER };
 struct Entity {
   glm::vec3 pos;
   int type; // 0=Log, 1=Bateria, 2=Entidad, 3=ObjetoAmbiental, 4=Mesa,
-            // 5=Monitor, 6=Maquina, 7=Portal, 8=Tarjeta Amarilla, 9=Tarjeta Roja, 11=Tarjeta Azul
+            // 5=Monitor, 6=Maquina, 7=Portal, 8=Tarjeta Amarilla, 9=Tarjeta
+            // Roja, 11=Tarjeta Azul
   bool active;
   std::string text;
   float seed;
@@ -137,12 +139,12 @@ extern glm::vec3 sofaRot;
 extern glm::vec3 sofaScale;
 extern glm::vec3 sillas2Pos;
 extern glm::vec3 sillas2Rot;
-extern glm::vec3 sillas2Scale; 
-extern glm::vec3 sillas3Pos; 
-extern glm::vec3 sillas3Rot; 
+extern glm::vec3 sillas2Scale;
+extern glm::vec3 sillas3Pos;
+extern glm::vec3 sillas3Rot;
 extern glm::vec3 sillas3Scale;
-extern glm::vec3 sillas4Pos; 
-extern glm::vec3 sillas4Rot; 
+extern glm::vec3 sillas4Pos;
+extern glm::vec3 sillas4Rot;
 extern glm::vec3 sillas4Scale;
 extern glm::vec3 sillas5Pos;
 extern glm::vec3 sillas5Rot;
@@ -345,6 +347,7 @@ extern bool juegoMuteado;
 extern bool isCursorLocked;
 extern bool tabKeyWasPressed;
 extern bool eKeyWasPressed;
+extern bool zKeyWasPressed;
 extern bool interactionPressedThisFrame;
 extern bool isFlashlightOn;
 extern bool fKeyWasPressed;
@@ -397,7 +400,7 @@ extern GLTFModel *escritorioGLTF;
 extern GLTFModel *mesaGLTF;
 extern GLTFModel *miniLamparaGLTF;
 extern GLTFModel *computerGLTF;
-extern GLTFModel* sillasGLTF;
+extern GLTFModel *sillasGLTF;
 extern GLTFModel *sillaGLTF;
 extern GLTFModel *sillitaGLTF;
 extern GLTFModel *maquinaGLTF;
@@ -419,8 +422,8 @@ extern GLTFModel *monitoringGLTF;
 extern GLTFModel *refrigeradorGLTF;
 extern GLTFModel *camillaGLTF;
 extern GLTFModel *muralGLTF;
-extern GLTFModel* terminalesGLTF;
-extern GLTFModel* monitorsciGLTF;
+extern GLTFModel *terminalesGLTF;
+extern GLTFModel *monitorsciGLTF;
 extern GLTFModel *esferaGLTF;
 extern GLTFModel *bodybagGLTF;
 extern GLTFModel *coffinGLTF;
@@ -439,6 +442,7 @@ extern GLTFModel* bigtankGLTF;
 extern GLTFModel* generadoresGLTF;
 
 
+extern GLTFModel *interruptorGLTF;
 extern GLTFModel *ascensorGLTF;
 extern GLTFModel *cajaElectricaGLTF;
 extern GLTFModel *plataformaGLTF;
@@ -553,7 +557,6 @@ extern glm::vec3 esquineros4Pos;
 extern glm::vec3 esquineros4Rot;
 extern glm::vec3 esquineros4Scale;
 
-
 struct WallDef {
   glm::vec3 pos;
   glm::vec3 rot;
@@ -570,90 +573,82 @@ extern glm::vec3 metalDeskPos[8];
 extern glm::vec3 metalDeskRot[8];
 extern glm::vec3 metalDeskScale[8];
 
-
 extern std::vector<Entity> gameEntities;
 
 struct PlacedProp {
-    std::string modelName;
-    glm::vec3 pos;
-    glm::vec3 rot;
-    glm::vec3 scale;
-    bool collisionActive = true;
-    std::string area = "General";
+  std::string modelName;
+  glm::vec3 pos;
+  glm::vec3 rot;
+  glm::vec3 scale;
+  bool collisionActive = true;
+  std::string area = "General";
+  std::string textoEntidad =
+      ""; // Identificador opcional (ej. "Bodega", "Ascensor", "Muestras")
 };
 
 extern std::vector<PlacedProp> placedProps;
-extern std::map<std::string, GLTFModel*> modelRegistry;
+extern std::map<std::string, GLTFModel *> modelRegistry;
 
-void saveLevelProps(const std::string& path);
-void loadLevelProps(const std::string& path);
+void saveLevelProps(const std::string &path);
+void loadLevelProps(const std::string &path);
 
-// Devuelve el area correcta para un modelo .glb segun la carpeta donde vive en assets/
-// Contencion: barra, cables_piso, cables_techo, consola, emergency, esquineros,
-//             esquineros2, esquineros3, esquineros4, generador, lampara-reactor,
-//             lampara, lampara2, logo, logo2, panel-control, panelControl,
-//             reactor, sarcofago, tesla, warning
-// Archivo   : box-close, box-open, camara, computer, escritorio, gabinete,
-//             mesa, mini-lampara, servers, silla, terminal, vault-door
-// Oficinas  : cajonesOF
-// Descanso  : botas, bunk_bed, compu_destruida, estante_cajas, expendedora,
-//             extintor_viejo, jaula, locker, lockers, old_sofa_free,
-//             old_soviet_taxophone, papel_viejo, planta_electrica
-// General   : todo lo demas (raiz de assets)
-inline std::string getModelArea(const std::string& modelName) {
-    // --- Contencion ---
-    static const std::unordered_set<std::string> kContencion = {
-        "barra", "cables_piso", "cables_techo", "consola", "emergency",
-        "esquineros", "esquineros2", "esquineros3", "esquineros4",
-        "generador", "lampara-reactor", "lampara", "lampara2",
-        "logo", "logo2", "panel-control", "panelControl",
-        "reactor", "sarcofago", "tesla", "warning"
-    };
-    // --- Archivo ---
-    static const std::unordered_set<std::string> kArchivo = {
-        "box-close", "box-open", "camara", "computer", "escritorio",
-        "gabinete", "mesa", "mini-lampara", "servers", "silla",
-        "terminal", "vault-door"
-    };
-    // --- Oficinas ---
-    static const std::unordered_set<std::string> kOficinas = {
-        "cajonesOF"
-    };
-    // --- Descanso ---
-    static const std::unordered_set<std::string> kDescanso = {
-        "botas", "bunk_bed", "comedor", "compu_destruida", "estante_cajas",
-        "expendedora", "extintor_viejo", "jaula", "locker", "lockers",
-        "old_sofa_free", "old_soviet_taxophone", "papel_viejo",
-        "planta_electrica", "trash", "trash_bag"
-    };
-    // --- Baño ---
-    static const std::unordered_set<std::string> kBano = {
-        "Bano", "azule", "girlB", "lavamanos", "ligthbathroom",
-        "mensB", "mirror", "MirrorBG", "urinario"
-    };
-    // --- Ascensor ---
-    static const std::unordered_set<std::string> kAscensor = {
-        "ascensor", "caja-electrica", "plataforma",
-        "ducto", "ghost", "head"
-    };
-    // --- Sala Pruebas ---
-    static const std::unordered_set<std::string> kSalaPruebas = {
-    };
-    // --- Sala Generadores ---
-    static const std::unordered_set<std::string> kSalaGeneradores = {
-    };
+// filtro de areas para modelos
+inline std::string getModelArea(const std::string &modelName) {
+  // --- Contencion ---
+  static const std::unordered_set<std::string> kContencion = {
+      "barra",        "cables_piso", "cables_techo",    "consola",
+      "emergency",    "esquineros",  "esquineros2",     "esquineros3",
+      "esquineros4",  "generador",   "lampara-reactor", "lampara",
+      "lampara2",     "logo",        "logo2",           "panel-control",
+      "panelControl", "reactor",     "sarcofago",       "tesla",
+      "warning"};
+  // --- Archivo ---
+  static const std::unordered_set<std::string> kArchivo = {
+      "box-close",  "box-open", "camara",   "computer",
+      "escritorio", "gabinete", "mesa",     "mini-lampara",
+      "servers",    "silla",    "terminal", "vault-door"};
+  // --- Oficinas ---
+  static const std::unordered_set<std::string> kOficinas = {"cajonesOF"};
+  // --- Descanso ---
+  static const std::unordered_set<std::string> kDescanso = {
+      "botas",          "bunk_bed",
+      "comedor",        "compu_destruida",
+      "estante_cajas",  "expendedora",
+      "extintor_viejo", "jaula",
+      "locker",         "lockers",
+      "old_sofa_free",  "old_soviet_taxophone",
+      "papel_viejo",    "planta_electrica",
+      "trash",          "trash_bag"};
+  // --- Baño ---
+  static const std::unordered_set<std::string> kBano = {
+      "Bano",  "azule",  "girlB",    "lavamanos", "ligthbathroom",
+      "mensB", "mirror", "MirrorBG", "urinario"};
+  // --- Ascensor ---
+  static const std::unordered_set<std::string> kAscensor = {
+      "ascensor", "caja-electrica", "plataforma", "ducto", "ghost", "head"};
+  // --- Sala Pruebas ---
+  static const std::unordered_set<std::string> kSalaPruebas = {};
+  // --- Sala Generadores ---
+  static const std::unordered_set<std::string> kSalaGeneradores = {};
 
-    if (kContencion.count(modelName)) return "Contencion";
-    if (kArchivo.count(modelName))    return "Archivo";
-    if (kOficinas.count(modelName))   return "Oficinas";
-    if (kDescanso.count(modelName))   return "Descanso";
-    if (kBano.count(modelName))       return "Baño";
-    if (kAscensor.count(modelName))   return "Ascensor";
-    if (kSalaPruebas.count(modelName)) return "sala-pruebas";
-    if (kSalaGeneradores.count(modelName)) return "sala-generadores";
-    return "General";
+  if (kContencion.count(modelName))
+    return "Contencion";
+  if (kArchivo.count(modelName))
+    return "Archivo";
+  if (kOficinas.count(modelName))
+    return "Oficinas";
+  if (kDescanso.count(modelName))
+    return "Descanso";
+  if (kBano.count(modelName))
+    return "Baño";
+  if (kAscensor.count(modelName))
+    return "Ascensor";
+  if (kSalaPruebas.count(modelName))
+    return "sala-pruebas";
+  if (kSalaGeneradores.count(modelName))
+    return "sala-generadores";
+  return "General";
 }
-
 
 extern float wallWidth;
 extern float wallHeight;
@@ -666,6 +661,7 @@ extern int worldMap[MAP_HEIGHT][MAP_WIDTH];
 
 // Wire puzzle state
 extern bool wirePuzzleActive;
+extern bool resetWirePuzzle;
 extern int blackDoorGridX;
 extern int blackDoorGridZ;
 
@@ -675,3 +671,17 @@ extern int whiteDoorGridX;
 extern int whiteDoorGridZ;
 extern int symbolPuzzleTargetSymbol;
 extern int symbolPuzzleWheelIndices[3];
+
+// Timer and Switches
+extern float gameTimer;
+extern bool switch1Active;
+extern bool switch2Active;
+extern bool switch3Active;
+extern bool switch1Solved;
+extern bool switch2Solved;
+extern bool switch3Solved;
+extern float switch1Lever;
+extern float switch2Lever;
+extern float switch3Lever;
+extern bool allLightsOn;
+extern bool gameWon;
