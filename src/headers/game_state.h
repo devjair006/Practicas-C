@@ -304,6 +304,34 @@ extern glm::vec3 barrilPos;
 extern glm::vec3 barrilRot;
 extern glm::vec3 barrilScale;
 
+extern glm::vec3 paredCuarPos;
+extern glm::vec3 paredCuarRot;
+extern glm::vec3 paredCuarScale;
+
+extern glm::vec3 capsulasPos;
+extern glm::vec3 capsulasRot;
+extern glm::vec3 capsulasScale;
+
+extern glm::vec3 barrilesPos;
+extern glm::vec3 barrilesRot;
+extern glm::vec3 barrilesScale;
+
+extern glm::vec3 bigtankPos;
+extern glm::vec3 bigtankRot;
+extern glm::vec3 bigtankScale;
+
+extern glm::vec3 subjectPos;
+extern glm::vec3 subjectRot;
+extern glm::vec3 subjectScale;
+
+extern glm::vec3 generadoresPos;
+extern glm::vec3 generadoresRot;
+extern glm::vec3 generadoresScale;
+
+extern glm::vec3 sciboxPos;
+extern glm::vec3 sciboxRot;
+extern glm::vec3 sciboxScale;
+
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
 extern glm::vec3 cameraUp;
@@ -413,10 +441,18 @@ extern GLTFModel *bloodyboxGLTF;
 extern GLTFModel *labtableGLTF;
 extern GLTFModel *shelfGLTF;
 extern GLTFModel *safetyGLTF;
-extern GLTFModel *neveraGLTF;
-extern GLTFModel *estantebodGLTF;
-extern GLTFModel *boxesGLTF;
-extern GLTFModel *barrilGLTF;
+extern GLTFModel* neveraGLTF;
+extern GLTFModel* estantebodGLTF;
+extern GLTFModel* boxesGLTF;
+extern GLTFModel* barrilGLTF;
+extern GLTFModel* capsulasGLTF;
+extern GLTFModel* paredCuarGLTF;
+extern GLTFModel* barrilesGLTF;
+extern GLTFModel* bigtankGLTF;
+extern GLTFModel* generadoresGLTF;
+extern GLTFModel* subjectGLTF;
+extern GLTFModel* sciboxGLTF;
+
 
 extern GLTFModel *interruptorGLTF;
 extern GLTFModel *ascensorGLTF;

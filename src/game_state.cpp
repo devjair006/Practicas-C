@@ -312,6 +312,34 @@ glm::vec3 barrilPos = glm::vec3(4.1f, -0.35f, 15.2f);
 glm::vec3 barrilRot = glm::vec3(0.0f, 180.0f, 0.0f);   
 glm::vec3 barrilScale = glm::vec3(0.6f, 0.6f, 0.6f);
 
+glm::vec3 paredCuarPos   = glm::vec3(33.1f, -0.35f, 20.6f); 
+glm::vec3 paredCuarRot   = glm::vec3(0.0f, 180.0f, 0.0f);   
+glm::vec3 paredCuarScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 capsulasPos   = glm::vec3(29.0f, -0.35f, 16.4f); 
+glm::vec3 capsulasRot   = glm::vec3(0.0f, 180.0f, 0.0f);   
+glm::vec3 capsulasScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 barrilesPos   = glm::vec3(23.4f, -0.35f, 20.2f); 
+glm::vec3 barrilesRot   = glm::vec3(0.0f, 180.0f, 0.0f);   
+glm::vec3 barrilesScale = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 bigtankPos     = glm::vec3(33.1f, -0.35f, 20.6f); 
+glm::vec3 bigtankRot     = glm::vec3(0.0f, 180.0f, 0.0f);   
+glm::vec3 bigtankScale   = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 generadoresPos     = glm::vec3(33.1f, -0.35f, 20.6f); 
+glm::vec3 generadoresRot     = glm::vec3(0.0f, 180.0f, 0.0f);   
+glm::vec3 generadoresScale   = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 subjectPos     = glm::vec3(26.7f, -0.35f, 12.8f); 
+glm::vec3 subjectRot     = glm::vec3(0.0f, 180.0f, 0.0f);   
+glm::vec3 subjectScale   = glm::vec3(0.6f, 0.6f, 0.6f);
+
+glm::vec3 sciboxPos     = glm::vec3(29.9f, -0.35f, 16.4f); 
+glm::vec3 sciboxRot     = glm::vec3(0.0f, 180.0f, 0.0f);   
+glm::vec3 sciboxScale   = glm::vec3(0.6f, 0.6f, 0.6f);
+
 glm::vec3 cameraPos = glm::vec3(6.0f, 0.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -401,7 +429,13 @@ GLTFModel *logo2GLTF = nullptr;
 GLTFModel *cablePisoGLTF = nullptr;
 GLTFModel *cableTechoGLTF = nullptr;
 GLTFModel* barrilGLTF = nullptr;
-
+GLTFModel* capsulasGLTF = nullptr;
+GLTFModel* paredCuarGLTF = nullptr;
+GLTFModel* barrilesGLTF = nullptr;
+GLTFModel* bigtankGLTF = nullptr;
+GLTFModel* generadoresGLTF = nullptr;
+GLTFModel* subjectGLTF = nullptr;
+GLTFModel* sciboxGLTF = nullptr;
 
 GLTFModel *sangrePisoGLTF = nullptr;
 std::vector<glm::vec3> sangrePisoPos = {};
