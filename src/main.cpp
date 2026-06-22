@@ -458,6 +458,13 @@ int main() {
   ghostGLTF = new GLTFModel("assets/ascensor/ghost.glb");
   headGLTF = new GLTFModel("assets/ascensor/head.glb");
 
+  // --- EXPERIMENTAL (Area de experimentos) ---
+  GLTFModel *jaulaExpGLTF = new GLTFModel("assets/experimental/jaula.glb");
+  GLTFModel *medicalTableGLTF =
+      new GLTFModel("assets/experimental/medical_table.glb");
+  GLTFModel *morgueRefrigeratorGLTF =
+      new GLTFModel("assets/experimental/morgue_refrigerator.glb");
+
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
   modelRegistry["gabinete"] = gabineteGLTF;
@@ -564,6 +571,11 @@ int main() {
   modelRegistry["ducto"] = ductoGLTF;
   modelRegistry["ghost"] = ghostGLTF;
   modelRegistry["head"] = headGLTF;
+
+  // Experimental (Area de experimentos)
+  modelRegistry["jaula_exp"] = jaulaExpGLTF;
+  modelRegistry["medical_table"] = medicalTableGLTF;
+  modelRegistry["morgue_refrigerator"] = morgueRefrigeratorGLTF;
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
@@ -3536,7 +3548,7 @@ int main() {
         static const char *kAreaNames[] = {"Todas",   "General",  "Contencion",
                                            "Archivo", "Oficinas", "Descanso",
                                            "Baño",    "Ascensor", "sala-pruebas",
-                                           "sala-generadores"};
+                                           "sala-generadores", "experimental"};
         static int areaFilterIdx = 0; // 0 = Todas
         ImGui::SetNextItemWidth(-1.0f);
         ImGui::Combo("##AreaFiltro", &areaFilterIdx, kAreaNames,
@@ -3637,7 +3649,10 @@ int main() {
             "ducto", "ghost", "head",
             // -- Baño --
             "Bano", "azule", "girlB", "lavamanos", "ligthbathroom", "mensB",
-            "mirror", "MirrorBG", "urinario"};
+            "mirror", "MirrorBG", "urinario",
+            // -- Experimental --
+           "jaula_exp", "medical_table",
+            "morgue_refrigerator"};
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
                      IM_ARRAYSIZE(availableModels));
