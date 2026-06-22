@@ -323,6 +323,7 @@ extern bool isSprinting;
 extern bool isExhausted;
 extern GameState gameState;
 extern bool menuOpcionesActivo;
+extern bool menuControlesActivo;
 extern bool juegoMuteado;
 extern bool isCursorLocked;
 extern bool tabKeyWasPressed;
