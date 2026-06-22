@@ -1467,7 +1467,7 @@ int main() {
       for(int z = (std::max)(0, cz - 2); z <= (std::min)(MAP_HEIGHT-1, cz + 2); ++z) {
           for(int x = (std::max)(0, cx - 2); x <= (std::min)(MAP_WIDTH-1, cx + 2); ++x) {
               int b = worldMap[z][x];
-              if (b == 7 || b == 8 || b == 9 || b == 10 || b == 11) {
+              if (b == 7 || b == 8 || b == 9 || b == 10 || b == 11 || b == 12) {
                   float dist = glm::distance(glm::vec2(cameraPos.x, cameraPos.z), glm::vec2(x, z));
                   if (dist < 2.5f) {
                       nearClosedDoor = true;
@@ -1940,9 +1940,9 @@ int main() {
 
         // Solo procesamos puertas en el bucle dinámico
         if (blockType != 7 && blockType != 8 && blockType != 9 &&
-            blockType != 10 && blockType != 11 &&
+            blockType != 10 && blockType != 11 && blockType != 12 &&
             blockType != -7 && blockType != -8 && blockType != -9 &&
-            blockType != -10 && blockType != -11)
+            blockType != -10 && blockType != -11 && blockType != -12)
           continue;
 
         // Consideramos la puerta visible tanto si esta cerrada (>0) como
@@ -1950,12 +1950,13 @@ int main() {
         int renderBlock = worldMap[z][x];
         if (renderBlock != 0 && (blockType > 0 || renderBlock == -7 ||
                                  renderBlock == -8 || renderBlock == -9 ||
-                                 renderBlock == -10 || renderBlock == -11)) {
+                                 renderBlock == -10 || renderBlock == -11 ||
+                                 renderBlock == -12)) {
           bool is3DDoor =
               (renderBlock == 7 || renderBlock == 8 || renderBlock == 9 ||
-               renderBlock == 10 || renderBlock == 11 ||
+               renderBlock == 10 || renderBlock == 11 || renderBlock == 12 ||
                renderBlock == -7 || renderBlock == -8 || renderBlock == -9 ||
-               renderBlock == -10 || renderBlock == -11);
+               renderBlock == -10 || renderBlock == -11 || renderBlock == -12);
 
           // Detectar orientacion de la puerta y si es la segunda celda
           bool isSecondDoorCell = false;
@@ -2016,6 +2017,8 @@ int main() {
                 glUniform3f(colorLoc, 0.1f, 0.1f, 0.9f); // Metal Azul
               } else if (renderBlock == 11 || renderBlock == -11) {
                 glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f); // Metal Negro/Gris Oscuro
+              } else if (renderBlock == 12 || renderBlock == -12) {
+                glUniform3f(colorLoc, 0.55f, 0.55f, 0.58f); // Metal Gris
               } else {
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
               }
@@ -2029,6 +2032,8 @@ int main() {
                 glUniform3f(colorLoc, 0.1f, 0.1f, 0.9f); // Azul SÃ³lido
               } else if (renderBlock == 11 || renderBlock == -11) {
                 glUniform3f(colorLoc, 0.2f, 0.2f, 0.2f); // Negro SÃ³lido
+              } else if (renderBlock == 12 || renderBlock == -12) {
+                glUniform3f(colorLoc, 0.55f, 0.55f, 0.58f); // Gris SÃ³lido
               } else {
                 glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f);
               }
@@ -2040,7 +2045,7 @@ int main() {
               currentAnim = door1Anim;
             } else if (renderBlock == 9 || renderBlock == -9) {
               currentAnim = door2Anim;
-            } else if (renderBlock == 7 || renderBlock == -7 || renderBlock == 10 || renderBlock == -10 || renderBlock == 11 || renderBlock == -11) {
+            } else if (renderBlock == 7 || renderBlock == -7 || renderBlock == 10 || renderBlock == -10 || renderBlock == 11 || renderBlock == -11 || renderBlock == 12 || renderBlock == -12) {
               int key = z * MAP_WIDTH + x;
               auto it = activeDoorsAnim.find(key);
               if (it != activeDoorsAnim.end()) {
