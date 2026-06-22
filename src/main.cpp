@@ -245,6 +245,20 @@ int main() {
     ma_sound_set_looping(&doorProximitySound, MA_TRUE);
   }
 
+  ma_sound fantasmasBgm;
+  bool fantasmasBgmReady =
+      ma_sound_init_from_file(&audioEngine, "assets/fantasmas.mp3",
+                              MA_SOUND_FLAG_STREAM, NULL, NULL, &fantasmasBgm) == MA_SUCCESS;
+  if (fantasmasBgmReady) {
+    ma_sound_set_looping(&fantasmasBgm, MA_TRUE);
+    ma_sound_set_volume(&fantasmasBgm, 1.5f); // por encima de music.mp3
+  }
+
+  ma_sound gritoSound;
+  bool gritoSoundReady =
+      ma_sound_init_from_file(&audioEngine, "assets/grito.mp3",
+                              MA_SOUND_FLAG_STREAM, NULL, NULL, &gritoSound) == MA_SUCCESS;
+
   // --- SETUP IMGUI ---
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -1405,6 +1419,38 @@ int main() {
               ma_sound_stop(&doorProximitySound);
               ma_sound_seek_to_pcm_frame(&doorProximitySound, 0);
           }
+      }
+
+      if (fantasmasBgmReady) {
+        bool inAscensorArea = (cameraPos.x >= 41.0f && cameraPos.x <= 49.0f && cameraPos.z >= 24.0f && cameraPos.z <= 34.0f);
+        if (inAscensorArea) {
+            if (!ma_sound_is_playing(&fantasmasBgm)) {
+                ma_sound_start(&fantasmasBgm);
+            }
+        } else {
+            if (ma_sound_is_playing(&fantasmasBgm)) {
+                ma_sound_stop(&fantasmasBgm);
+                ma_sound_seek_to_pcm_frame(&fantasmasBgm, 0);
+            }
+        }
+      }
+
+      if (gritoSoundReady) {
+          static bool wasNearInterruptor = false;
+          bool nearInterruptor = false;
+          for (const auto &prop : placedProps) {
+              if (prop.modelName == "interruptor") {
+                  if (glm::distance(cameraPos, prop.pos) < 3.0f) {
+                      nearInterruptor = true;
+                      break;
+                  }
+              }
+          }
+          if (nearInterruptor && !wasNearInterruptor) {
+              ma_sound_seek_to_pcm_frame(&gritoSound, 0);
+              ma_sound_start(&gritoSound);
+          }
+          wasNearInterruptor = nearInterruptor;
       }
     }
 
@@ -3417,9 +3463,13 @@ int main() {
           ImVec2((currentWidth - subSize.x) * 0.5f, titleCenter.y + 24.0f));
       ImGui::TextColored(ImVec4(0.62f, 0.78f, 0.84f, 1.0f), "%s", subtitle);
 
-      float menuWidth = 260.0f;
+      float menuWidth = currentWidth * 0.4f;
+      if (menuWidth < 300.0f) menuWidth = 300.0f;
+      float buttonHeight = currentHeight * 0.065f;
+      if (buttonHeight < 40.0f) buttonHeight = 40.0f;
       float menuX = (currentWidth - menuWidth) * 0.5f;
-      float menuY = currentHeight * 0.48f;
+      float menuY = currentHeight * 0.32f;
+      ImGui::SetWindowFontScale(1.5f);
       ImGui::SetCursorPos(ImVec2(menuX, menuY));
       ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
       ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 9.0f));
@@ -3433,12 +3483,12 @@ int main() {
 
       auto menuButton = [&](const char *label) {
         ImGui::SetCursorPosX(menuX);
-        bool pressed = ImGui::Button(label, ImVec2(menuWidth, 34.0f));
+        bool pressed = ImGui::Button(label, ImVec2(menuWidth, buttonHeight));
         ImVec2 min = ImGui::GetItemRectMin();
         ImVec2 max = ImGui::GetItemRectMax();
         if (ImGui::IsItemHovered()) {
-          drawList->AddLine(ImVec2(min.x + 34.0f, max.y + 2.0f),
-                            ImVec2(max.x - 34.0f, max.y + 2.0f),
+          drawList->AddLine(ImVec2(min.x + menuWidth*0.1f, max.y + 2.0f),
+                            ImVec2(max.x - menuWidth*0.1f, max.y + 2.0f),
                             IM_COL32(220, 245, 255, 180), 1.0f);
         }
         return pressed;
@@ -3467,6 +3517,55 @@ int main() {
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
           menuOpcionesActivo = false;
         }
+      } else if (menuControlesActivo) {
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_W"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_S"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_A"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_D"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_Q"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_R"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_E"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_F"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_Z"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CTRL_SHIFT"));
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+        if (menuButton(getText("MENU_BACK"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuControlesActivo = false;
+        }
+      } else if (menuCreditosActivo) {
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(1.0f,0.85f,0.4f,1.0f), "%s", getText("CREDITS_TITLE"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_1"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_2"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_3"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_DEV_4"));
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 5.0f);
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(1.0f,0.85f,0.4f,1.0f), "%s", getText("CREDITS_TUTOR_TITLE"));
+        ImGui::SetCursorPosX(menuX);
+        ImGui::TextColored(ImVec4(0.9f,0.9f,0.9f,1.0f), "%s", getText("CREDITS_TUTOR"));
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 15.0f);
+        if (menuButton(getText("MENU_BACK"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuCreditosActivo = false;
+        }
       } else {
         if (menuButton(getText("MENU_START")))
           startGameFromMenu();
@@ -3474,8 +3573,14 @@ int main() {
           ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
           menuOpcionesActivo = true;
         }
-        menuButton(getText("MENU_FILES"));
-        menuButton(getText("MENU_CREDITS"));
+        if (menuButton(getText("MENU_CONTROLS"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuControlesActivo = true;
+        }
+        if (menuButton(getText("MENU_CREDITS"))) {
+          ma_engine_play_sound(&audioEngine, "assets/click.wav", NULL);
+          menuCreditosActivo = true;
+        }
         if (menuButton(getText("MENU_EXIT")))
           glfwSetWindowShouldClose(window, true);
       }
@@ -3484,7 +3589,7 @@ int main() {
       ImGui::PopStyleVar(2);
 
       ImGui::SetWindowFontScale(0.85f);
-      const char *hint = menuOpcionesActivo ? getText("MENU_HINT_BACK") : getText("MENU_HINT_START");
+      const char *hint = (menuOpcionesActivo || menuControlesActivo || menuCreditosActivo) ? getText("MENU_HINT_BACK") : getText("MENU_HINT_START");
       ImVec2 hintSize = ImGui::CalcTextSize(hint);
       ImGui::SetCursorPos(
           ImVec2((currentWidth - hintSize.x) * 0.5f, currentHeight * 0.86f));
@@ -4517,6 +4622,12 @@ int main() {
   }
   if (doorProximitySoundReady) {
     ma_sound_uninit(&doorProximitySound);
+  }
+  if (fantasmasBgmReady) {
+    ma_sound_uninit(&fantasmasBgm);
+  }
+  if (gritoSoundReady) {
+    ma_sound_uninit(&gritoSound);
   }
   ma_engine_uninit(&audioEngine);
 
