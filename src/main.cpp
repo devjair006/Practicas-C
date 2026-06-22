@@ -428,6 +428,8 @@ int main() {
   barrilesGLTF = new GLTFModel("assets/cuarentena/barriles.glb");
   bigtankGLTF = new GLTFModel("assets/cuarentena/bigtank.glb");
   generadoresGLTF = new GLTFModel("assets/cuarentena/generadores.glb");
+  subjectGLTF = new GLTFModel("assets/cuarentena/subject.glb");
+  sciboxGLTF = new GLTFModel("assets/cuarentena/scibox.glb");
 
 
     // --- SALA DE MUESTRAS: Modelos (assets/bodega/) ---
@@ -565,6 +567,8 @@ int main() {
   modelRegistry["bigtank"] = bigtankGLTF;
   modelRegistry["generador"] = generadorGLTF;
   modelRegistry["generadores"] = generadoresGLTF;
+  modelRegistry["subject"] = subjectGLTF;
+  modelRegistry["scibox"] = sciboxGLTF;
 
   // Modelos generales/baño
   modelRegistry["Bano"] = banoGLTF;

@@ -320,9 +320,17 @@ extern glm::vec3 bigtankPos;
 extern glm::vec3 bigtankRot;
 extern glm::vec3 bigtankScale;
 
+extern glm::vec3 subjectPos;
+extern glm::vec3 subjectRot;
+extern glm::vec3 subjectScale;
+
 extern glm::vec3 generadoresPos;
 extern glm::vec3 generadoresRot;
 extern glm::vec3 generadoresScale;
+
+extern glm::vec3 sciboxPos;
+extern glm::vec3 sciboxRot;
+extern glm::vec3 sciboxScale;
 
 extern glm::vec3 cameraPos;
 extern glm::vec3 cameraFront;
@@ -440,6 +448,8 @@ extern GLTFModel* paredCuarGLTF;
 extern GLTFModel* barrilesGLTF;
 extern GLTFModel* bigtankGLTF;
 extern GLTFModel* generadoresGLTF;
+extern GLTFModel* subjectGLTF;
+extern GLTFModel* sciboxGLTF;
 
 
 extern GLTFModel *interruptorGLTF;
