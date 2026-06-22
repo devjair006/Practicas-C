@@ -487,6 +487,10 @@ int main() {
       new GLTFModel("assets/experimental/medical_table.glb");
   GLTFModel *morgueRefrigeratorGLTF =
       new GLTFModel("assets/experimental/morgue_refrigerator.glb");
+  GLTFModel *radioactiveBarrelGLTF =
+      new GLTFModel("assets/experimental/radioactive_barrel.glb");
+  GLTFModel *machineGLTF =
+      new GLTFModel("assets/experimental/machine.glb");
 
   // Registrar en modelRegistry
   modelRegistry["cajonesOF"] = cajonesOFGLTF;
@@ -600,6 +604,8 @@ int main() {
   modelRegistry["jaula_exp"] = jaulaExpGLTF;
   modelRegistry["medical_table"] = medicalTableGLTF;
   modelRegistry["morgue_refrigerator"] = morgueRefrigeratorGLTF;
+  modelRegistry["radioactive_barrel"] = radioactiveBarrelGLTF;
+  modelRegistry["machine"] = machineGLTF;
 
   // Cargar propiedades desde archivo
   loadLevelProps("assets/config_posiciones.txt");
@@ -3850,7 +3856,11 @@ int main() {
             "mirror", "MirrorBG", "urinario",
             // -- Experimental --
            "jaula_exp", "medical_table",
-            "morgue_refrigerator"};
+            "morgue_refrigerator", "radioactive_barrel", "machine",
+            // -- Sala de Muestras (assets/muestras/) --
+            "estantes", "morguefridge", "monitoring", "refrigerador", "camilla",
+            "mural", "terminales", "esfera", "bodybag", "coffin", "bloodybox",
+            "labtable", "shelf", "safety"};
         static int selectedModelToAddIdx = 0;
         ImGui::Combo("Modelo", &selectedModelToAddIdx, availableModels,
                      IM_ARRAYSIZE(availableModels));
